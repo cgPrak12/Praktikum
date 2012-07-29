@@ -122,9 +122,9 @@ public class Geometry {
             this.instancebid = glGenBuffers();
             glBindBuffer(GL_ARRAY_BUFFER, this.instancebid);
             glBufferData(GL_ARRAY_BUFFER, this.instanceData, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(Util.ATTR_INSTANCE);
-            glVertexAttribPointer(Util.ATTR_INSTANCE, this.instanceAttributeSize, GL_FLOAT, false, this.instanceStride, 0);
-            GL33.glVertexAttribDivisor(Util.ATTR_INSTANCE, 1);
+            glEnableVertexAttribArray(ShaderProgram.ATTR_INSTANCE);
+            glVertexAttribPointer(ShaderProgram.ATTR_INSTANCE, this.instanceAttributeSize, GL_FLOAT, false, this.instanceStride, 0);
+            GL33.glVertexAttribDivisor(ShaderProgram.ATTR_INSTANCE, 1);
             this.instanceData = null;
         }
         glBindVertexArray(0);
