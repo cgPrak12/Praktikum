@@ -47,6 +47,44 @@ public class Util {
      */
     public static final float PI_MUL2 = 2.0f * (float)Math.PI;
     
+    /*
+     * Vertex array attribute 
+     */
+    
+    /**
+     * Attribut Index von positionMC
+     */
+    public static final int ATTR_POS = 0;
+
+    /**
+     * Attribut Index von normalMC
+     */
+    public static final int ATTR_NORMAL = 1;
+
+    /**
+     * Attribut Index von normalMC
+     */
+    public static final int ATTR_TANGENT = 5;
+
+    /**
+     * Attribut Index von vertexColor
+     */
+    public static final int ATTR_COLOR = 2;
+    
+    /**
+     * Attribut Index von vertexColor2
+     */
+    public static final int ATTR_COLOR2 = 3;
+    
+    /**
+     * Attribut Index von vertexColor2
+     */
+    public static final int ATTR_TEX = 4;
+    
+    
+    
+    
+    
     /**
      * Temporaere Matrix fuer einige Methoden.
      */

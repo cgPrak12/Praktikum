@@ -12,6 +12,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
 
@@ -25,6 +26,27 @@ public class TerrainMain {
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
+
+    
+    // textures
+    private static Texture normalQuaderTexture;
+    private static Texture quaderTexture;
+    
+    // geometries
+    private static Geometry quaderGeo = GeometryFactory.createQuad();
+    
+    // shader programs
+    private static ShaderProgram normalMappingSP;
+    
+    //quader matrix
+    private static final Matrix4f quadModelMatrices[] = {
+        Util.translationZ(1.0f, null),
+        Util.mul(null, Util.rotationY(1.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
+        Util.mul(null, Util.rotationY(2.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
+        Util.mul(null, Util.rotationY(3.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
+        Util.mul(null, Util.rotationX(1.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
+        Util.mul(null, Util.rotationX(3.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
+    };
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -38,12 +60,21 @@ public class TerrainMain {
         try {
             init();
             OpenCL.init();
-            glEnable(GL_CULL_FACE);
-            glFrontFace(GL_CCW);
-            glCullFace(GL_BACK);
-            glEnable(GL_DEPTH_TEST);
-            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+//            glEnable(GL_CULL_FACE);
+//            glFrontFace(GL_CCW);
+//            glCullFace(GL_BACK);
+//            glEnable(GL_DEPTH_TEST);
+//            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+            glDisable(GL_CULL_FACE);
+            //textures
+            normalQuaderTexture = Texture.generateTexture("./stone_wall_normal_map.jpg",0 );
+            quaderTexture = Texture.generateTexture("./stone_wall.jpg",1 );
             
+            //shaderprogramm erstellen
+            normalMappingSP = new ShaderProgram("./shader/Normal_VS.glsl", "./shader/Normal_FS.glsl");
+            normalMappingSP.use();
+            normalMappingSP.setUniform("textureImage", quaderTexture);
+            normalMappingSP.setUniform("normalTexture", normalQuaderTexture);
             render();
             OpenCL.destroy();
             destroy();
@@ -85,8 +116,13 @@ public class TerrainMain {
             
             shader.prepareRendering();
             
-            shader.DrawTexture(tex);
+            //shader.DrawTexture(tex);
+          
+            setActiveProgram(normalMappingSP);
             
+            quaderGeo.draw();
+            
+                        
             // TODO: postfx
             
             // present screen
@@ -165,5 +201,18 @@ public class TerrainMain {
      */
     private static void animate(long millis) {
 
+    }
+    
+    
+    /**
+     * Aendert das aktuelle Programm und bindet die viewProjMatrix an die
+     * entsprechende Uniform Variable.
+     * @param program das neue aktuelle Programm
+     */
+    private static void setActiveProgram(ShaderProgram program) {
+    	System.out.println(cam.getView());
+    	System.out.println(cam.getProjection());
+        program.setUniform("view", cam.getView());
+        program.setUniform("projection", cam.getProjection());
     }
 }
