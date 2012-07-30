@@ -4,6 +4,7 @@ import opengl.GL;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.util.vector.Matrix4f;
 
 /**
  *
@@ -19,6 +20,11 @@ public class DeferredShader {
     private int texPosition;
     private int texVertexColor;
     private int texNormal;
+    private Camera cam;
+    
+    public DeferredShader(Camera camTmp) {
+    	cam = camTmp;
+    }
     
     public void init() {
         // generate frame buffer object
@@ -42,10 +48,18 @@ public class DeferredShader {
     
     public void prepareRendering() {
         // TODO: Aktiviere Framebuffer zum Rendern der Szene
+    	
+    	Matrix4f modelMatrix = cam.getProjection();
+    	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+    	fboSP.setUniform("model", modelMatrix);
+    	fboSP.setUniform("modelIT", modelIT);
+    	fboSP.setUniform("viewProj", cam.getView());
+    	fboSP.setUniform("camPos", cam.getCamPos());
+    	
     }
     
     public Texture getWorldTexture() {
-        return null; // TODO
+        return texPosition; // TODO
     }
     
     public Texture getNormalTexture() {

@@ -59,7 +59,7 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        DeferredShader shader = new DeferredShader();
+        DeferredShader shader = new DeferredShader(cam);
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         while(bContinue && !Display.isCloseRequested()) {
