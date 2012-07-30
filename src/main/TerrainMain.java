@@ -4,16 +4,18 @@
  */
 package main;
 
-import static opengl.GL.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static opengl.GL.*;
 import opengl.OpenCL;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
-import util.*;
+import util.Camera;
+import util.DeferredShader;
+import util.Texture;
 
 /**
  *
