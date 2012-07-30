@@ -40,6 +40,13 @@ public class GeometryFactory {
         return geo;
     }
     
+    
+    /** Erstellt Grid der Dimension x*y
+     * 
+     * @param x Breite
+     * @param y Länge
+     * @return Gridgeometrie
+     */
     public static Geometry createGrid(int x, int y){
     	int vaid = glGenVertexArrays();
     	glBindVertexArray(vaid);        
