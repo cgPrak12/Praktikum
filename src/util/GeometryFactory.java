@@ -39,4 +39,45 @@ public class GeometryFactory {
         geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
         return geo;
     }
+    
+    public static Geometry createCube() {
+    	int vaid = glGenVertexArrays();
+    	glBindVertexArray(vaid);
+    	
+    	float[] cubeVertices  = {
+       		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f, // front top right
+       		-0.5f,  0.5f,  0.5f, 	0.0f, 1.0f, 1.0f, 1.0f, // front top left
+       		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 1.0f, 1.0f, // front bottom right
+       		-0.5f, -0.5f,  0.5f, 	0.0f, 0.0f, 1.0f, 1.0f, // front bottom left
+       		
+       		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 0.0f, 1.0f, // back top right
+       		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f, 0.0f, 1.0f, // back top left
+       		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
+       		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 0.0f, 1.0f  // back bottom left		
+       };
+       
+       int[] cubeIndices = {
+       		1, 3, 0, 2, // front side
+       		4, 6,		// right side
+       		5, 7,		// back side
+       		1, 3,		// left side
+       	   -1,			
+       		5, 1, 4, 0, // top
+       	   -1,
+       	    2, 3, 6, 7  // bottom	
+       };
+       
+       FloatBuffer cubeVertBuf = BufferUtils.createFloatBuffer(cubeVertices.length);
+       IntBuffer cubeIndBuf = BufferUtils.createIntBuffer(cubeIndices.length);
+       cubeVertBuf.put(cubeVertices);
+       cubeVertBuf.flip();
+       cubeIndBuf.put(cubeIndices);
+       cubeIndBuf.flip();
+       
+       Geometry geo = new Geometry();
+       geo.setIndices(cubeIndBuf, GL_TRIANGLE_STRIP);
+       geo.setVertices(cubeVertBuf);
+       geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+       return geo;
+    }
 }
