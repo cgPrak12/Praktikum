@@ -110,6 +110,9 @@ public class Geometry {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.ibid);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, this.indexValueBuffer, GL_STATIC_DRAW);
         
+        glEnable(GL_PRIMITIVE_RESTART);
+        glPrimitiveRestartIndex(-1);
+        
         int stride = 0;
         for(VertexAttribute attr : attributes) {
             stride += 4 * attr.size;

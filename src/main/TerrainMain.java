@@ -44,7 +44,7 @@ public class TerrainMain {
             glDisable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
-            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             
             render();
@@ -70,7 +70,7 @@ public class TerrainMain {
         simShader = new ShaderProgram("shader/simulation_vs.glsl",
                             "shader/simulation_fs.glsl");
         
-        Geometry quad = GeometryFactory.createScreenQuad();
+        Geometry quad = GeometryFactory.createTerrain(100,100,2);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -99,8 +99,8 @@ public class TerrainMain {
             simShader.setUniform("proj", cam.getProjection());
             simShader.setUniform("view", cam.getView());
             
-            System.out.println(cam.getView());
-            System.out.println(cam.getProjection());
+            //System.out.println(cam.getView());
+            //System.out.println(cam.getProjection());
 
             quad.draw();
             // TODO: postfx
