@@ -59,7 +59,6 @@ public class DeferredShader {
     	
     	// unbind frame buffer object
     	GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-    	GL.checkError("deferredshader.init()");
     }
     
     public void prepareRendering() {
