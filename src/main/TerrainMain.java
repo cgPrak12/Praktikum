@@ -45,8 +45,8 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-            program = new ShaderProgram(Util.getFileContents("./shader/Test_Vs.glsl"), Util.getFileContents("./shader/Test_Fs.glsl"));
-            program.use();
+            program = new ShaderProgram("./shader/Test_Vs.glsl","./shader/Test_Fs.glsl");
+         //   program.use();
             render();
             OpenCL.destroy();
             destroy();
@@ -105,7 +105,7 @@ public class TerrainMain {
     
     private static void updateUniforms() {
     	program.use();
-    	program.setUniform("viewproj", Util.mul(null, cam.getView(), cam.getProjection()));
+    	program.setUniform("viewProj", Util.mul(null, cam.getView(), cam.getProjection()));
     	program.setUniform("model", new Matrix4f());
 	}
 
