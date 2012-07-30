@@ -7,15 +7,16 @@ uniform vec3 camPos;
 
 in vec3 positionMC;
 in vec3 normalMC;
-in vec4 color;
+in vec4 vertexColor;
 
 out vec4 positionWC;
 out vec4 normalWC;
 out vec4 color1;
 
-void main(void) {
-   positionWC = viewProj * model * vec4(positionMC, 1.0);
+void main(void) { 
+   positionWC = model * vec4(positionMC, 1.0);
+   gl_Position = viewProj * positionWC;
    normalWC = modelIT * vec4(normalMC, 0.0);
-   color1 = color;
+   color1 = vertexColor;
    positionWC.w = length(positionWC.xyz - camPos);
 }

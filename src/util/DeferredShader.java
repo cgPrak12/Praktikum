@@ -10,6 +10,7 @@ import opengl.GL;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL32;
 import org.lwjgl.util.vector.Matrix4f;
 
 /**
@@ -18,13 +19,13 @@ import org.lwjgl.util.vector.Matrix4f;
  */
 public class DeferredShader {
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
-    private ShaderProgram fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+    private ShaderProgram fboSP         = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
     private Geometry screenQuadGeo = GeometryFactory.createScreenQuad();
-    private Geometry testCube = GeometryFactory.createCube();
+    private Geometry testCube 	   = GeometryFactory.createCube();
     
     private int frameBufferObjectId;
     
-    // TODO: add different textures
+    // TODO: ADD different textures
 	private Texture texPosition;
 	private Texture texVertexColor;
 	private Texture texNormal;
@@ -35,14 +36,11 @@ public class DeferredShader {
     }
    
     public void init() {
-    	// use fboSP
-    	fboSP.use();
-    	
         // generate frame buffer object
     	frameBufferObjectId = GL30.glGenFramebuffers();
     	
     	// generate textures
-    	// TODO: add different textures
+    	// TODO: ADD different textures
     	texPosition = 	 new Texture(GL11.GL_TEXTURE_2D, 0);
     	texVertexColor = new Texture(GL11.GL_TEXTURE_2D, 0);
     	texNormal = 	 new Texture(GL11.GL_TEXTURE_2D, 0);
@@ -51,26 +49,29 @@ public class DeferredShader {
     	GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBufferObjectId);
     	
     	// bind textures to attachments
-    	// TODO: bind added textures
+    	// TODO: BIND added textures
     	bindTexture(texPosition, 	GL30.GL_COLOR_ATTACHMENT0, 8);
     	bindTexture(texVertexColor, GL30.GL_COLOR_ATTACHMENT1, 8);
     	bindTexture(texNormal, 		GL30.GL_COLOR_ATTACHMENT2, 8);
     	
+    	// draw buffers (fbo): activate texture, fragdatalocation (sp) oder sowas in der Art
+    	
+    	
     	// unbind frame buffer object
     	GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+    	GL.checkError("deferredshader.init()");
     }
     
     public void prepareRendering() {
-
    		fboSP.use();
 
-    	Matrix4f modelMatrix = cam.getProjection();
+    	Matrix4f modelMatrix = new Matrix4f();
+    	
     	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-    	fboSP.setUniform("model", modelMatrix);
-    	fboSP.setUniform("modelIT", modelIT);
-    	fboSP.setUniform("viewProj", cam.getView());
-    	fboSP.setUniform("camPos", cam.getCamPos());
-
+    	fboSP.setUniform("model", 	 modelMatrix);
+    	fboSP.setUniform("modelIT",  modelIT);
+    	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+    	fboSP.setUniform("camPos", 	 cam.getCamPos());
     	
     	// bind Frame Buffer Object
     	GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBufferObjectId);
@@ -103,10 +104,10 @@ public class DeferredShader {
     }
     
     public void delete() {
-        drawTextureSP.use();
+        drawTextureSP.delete();
         screenQuadGeo.delete();
         
-        fboSP.use();
+        fboSP.delete();
         // TODO: delete textures
         texPosition.delete();
         texNormal.delete();

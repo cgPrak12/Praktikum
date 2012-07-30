@@ -41,9 +41,6 @@ public class GeometryFactory {
     }
     
     public static Geometry createCube() {
-    	int vaid = glGenVertexArrays();
-    	glBindVertexArray(vaid);
-    	
     	float[] cubeVertices  = {
        		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f, // front top right
        		-0.5f,  0.5f,  0.5f, 	0.0f, 1.0f, 1.0f, 1.0f, // front top left
@@ -77,7 +74,8 @@ public class GeometryFactory {
        Geometry geo = new Geometry();
        geo.setIndices(cubeIndBuf, GL_TRIANGLE_STRIP);
        geo.setVertices(cubeVertBuf);
-       geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+       geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+       geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
        return geo;
     }
 }

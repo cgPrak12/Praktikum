@@ -60,6 +60,7 @@ public class TerrainMain {
         int frames = 0;
         
         DeferredShader shader = new DeferredShader(cam);
+        shader.init();
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -84,7 +85,7 @@ public class TerrainMain {
             
             shader.prepareRendering();
             
-            shader.DrawTexture(tex);
+            shader.DrawTexture(shader.getDiffuseTexture());
             
             // TODO: postfx
             

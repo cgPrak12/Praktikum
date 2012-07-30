@@ -32,6 +32,7 @@ public class ShaderProgram {
         if(loc != -1) {
             Util.MAT_BUFFER.position(0);
             matrix.store(Util.MAT_BUFFER);
+            Util.MAT_BUFFER.position(0);
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         }
