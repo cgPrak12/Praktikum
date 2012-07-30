@@ -1,17 +1,24 @@
 #version 150 core
 
-
+uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-in vec3 positionMC;
-in vec2 texCoords;
+uniform sampler2D normalTexture;
 
-out vec3 normalWC;
+in vec3 positionMC;
+in vec2 vertexTexCoords;
+in vec3 normalMC;
+in vec3 tangentMC;
+
+out vec4 tangentWC;
+out vec4 normalWC;
 out vec2 fragmentTexCoords;
 
 void main(void)
 {
-	gl_Position = view * projection  * vec4(positionMC,1);
-	fragmentTexCoords = texCoords;
+	gl_Position =  projection *view * model *vec4(positionMC,1);
+	normalWC = model*vec4(normalMC,1);
+	tangentWC = model*vec4(tangentMC,1);
+	fragmentTexCoords = vertexTexCoords;
 }

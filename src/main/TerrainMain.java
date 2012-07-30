@@ -60,11 +60,12 @@ public class TerrainMain {
         try {
             init();
             OpenCL.init();
-//            glEnable(GL_CULL_FACE);
-//            glFrontFace(GL_CCW);
-//            glCullFace(GL_BACK);
-//            glEnable(GL_DEPTH_TEST);
-//            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glEnable(GL_DEPTH_TEST);
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+            
             glDisable(GL_CULL_FACE);
             //textures
             normalQuaderTexture = Texture.generateTexture("./stone_wall_normal_map.jpg",0 );
@@ -91,8 +92,8 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        DeferredShader shader = new DeferredShader();
-        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+        //DeferredShader shader = new DeferredShader();
+        //Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -114,7 +115,7 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            shader.prepareRendering();
+            //shader.prepareRendering();
             
             //shader.DrawTexture(tex);
           
@@ -129,8 +130,8 @@ public class TerrainMain {
             Display.update();
             Display.sync(60);
         }
-        shader.delete();
-        tex.delete();
+        //shader.delete();
+        //tex.delete();
     }
     
     /**
@@ -210,9 +211,8 @@ public class TerrainMain {
      * @param program das neue aktuelle Programm
      */
     private static void setActiveProgram(ShaderProgram program) {
-    	System.out.println(cam.getView());
-    	System.out.println(cam.getProjection());
         program.setUniform("view", cam.getView());
         program.setUniform("projection", cam.getProjection());
+        program.setUniform("model", new Matrix4f());
     }
 }

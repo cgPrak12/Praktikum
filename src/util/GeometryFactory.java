@@ -54,6 +54,7 @@ public class GeometryFactory {
             -1.0f, +1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
             +1.0f, +1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
         });
+    	
         vertexData.position(0);
                   
         IntBuffer indexData = BufferUtils.createIntBuffer(4);
@@ -63,6 +64,7 @@ public class GeometryFactory {
         Geometry geo = new Geometry();
         geo.setVertices(vertexData);
         geo.setIndices(indexData, GL_TRIANGLE_STRIP);
+        
         geo.addVertexAttribute(Util.ATTR_POS, 3, 0);
         geo.addVertexAttribute(Util.ATTR_NORMAL, 3, 12);
         geo.addVertexAttribute(Util.ATTR_TANGENT, 3, 24);

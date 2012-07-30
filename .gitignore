@@ -11,6 +11,11 @@ manifest.mf
 /build/
 /dist/
 .project
+<<<<<<< HEAD
 .classpath
 .metadata
 
+=======
+.manifest
+.classpath
+>>>>>>> master

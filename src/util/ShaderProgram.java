@@ -31,6 +31,7 @@ public class ShaderProgram {
         if(loc != -1) {
             Util.MAT_BUFFER.position(0);
             matrix.store(Util.MAT_BUFFER);
+            Util.MAT_BUFFER.position(0);
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         }
@@ -80,6 +81,7 @@ public class ShaderProgram {
      */
     public static final int ATTR_INSTANCE = 5;
     
+    public static final int ATTR_TANGENT = 6;
     /**
      * Erzeugt ein ShaderProgram aus einem Vertex- und Fragmentshader.
      * @param vs Pfad zum Vertexshader
@@ -111,11 +113,10 @@ public class ShaderProgram {
         System.out.print(log);
         
         glBindAttribLocation(this.id, ATTR_POS, "positionMC");
-        glBindAttribLocation(this.id, ATTR_NORMAL, "normalMC");        
-        glBindAttribLocation(this.id, ATTR_COLOR, "vertexColor");
-        glBindAttribLocation(this.id, ATTR_COLOR2, "vertexColor2");
+        glBindAttribLocation(this.id, ATTR_NORMAL, "normalMC");
+        glBindAttribLocation(this.id, ATTR_TANGENT, "tangentMC");
         glBindAttribLocation(this.id, ATTR_TEX, "vertexTexCoords");
-        glBindAttribLocation(this.id, ATTR_INSTANCE, "instancedData");
+        
         
         glLinkProgram(this.id);        
         
