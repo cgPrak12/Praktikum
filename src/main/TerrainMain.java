@@ -36,6 +36,8 @@ public class TerrainMain {
     
     private static ShaderProgram program; 
     
+    private static Geometry grid;
+    
     public static void main(String[] argv) {
         try {
             init();
@@ -65,7 +67,7 @@ public class TerrainMain {
         
 //        DeferredShader shader = new DeferredShader();
 //        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
-        Geometry grid = GeometryFactory.createGrid(10, 10);
+        grid = GeometryFactory.createGrid(10, 10);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
