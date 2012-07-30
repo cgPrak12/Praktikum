@@ -34,7 +34,9 @@ public class ShaderProgram {
             Util.MAT_BUFFER.position(0);
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
-        }
+        } else {
+            System.err.println("location of " + varName + " is -1");
+        }            
     }
     
     /**
@@ -48,7 +50,9 @@ public class ShaderProgram {
         if(loc != -1) {
             texture.bind();
             glUniform1i(loc, texture.getUnit());
-        }
+        } else {
+            System.err.println("location of " + varName + " is -1");
+        }            
     }
     
     /**
