@@ -12,6 +12,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
 
@@ -33,6 +34,8 @@ public class TerrainMain {
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
+    private static ShaderProgram program; 
+    
     public static void main(String[] argv) {
         try {
             init();
@@ -42,7 +45,8 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-            
+            program = new ShaderProgram(Util.getFileContents("./shader/Test_Vs.glsl"), Util.getFileContents("./shader/Test_Fs.glsl"));
+            program.use();
             render();
             OpenCL.destroy();
             destroy();
@@ -59,8 +63,9 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        DeferredShader shader = new DeferredShader();
-        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+//        DeferredShader shader = new DeferredShader();
+//        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+        Geometry grid = GeometryFactory.createGrid(10, 10);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -76,15 +81,17 @@ public class TerrainMain {
             }
             
             // input and animation
+            updateUniforms();
             handleInput(millis);
             animate(millis);
             
+            grid.draw();
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            shader.prepareRendering();
+//            shader.prepareRendering();
             
-            shader.DrawTexture(tex);
+//            shader.DrawTexture(tex);
             
             // TODO: postfx
             
@@ -92,11 +99,17 @@ public class TerrainMain {
             Display.update();
             Display.sync(60);
         }
-        shader.delete();
-        tex.delete();
+//        shader.delete();
+//        tex.delete();
     }
     
-    /**
+    private static void updateUniforms() {
+    	program.use();
+    	program.setUniform("viewproj", Util.mul(null, cam.getView(), cam.getProjection()));
+    	program.setUniform("model", new Matrix4f());
+	}
+
+	/**
      * Behandelt Input und setzt die Kamera entsprechend.
      * @param millis Millisekunden seit dem letzten Aufruf
      */
@@ -163,6 +176,5 @@ public class TerrainMain {
      * @param millis Millisekunden, die seit dem letzten Aufruf vergangen sind.
      */
     private static void animate(long millis) {
-
     }
 }

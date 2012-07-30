@@ -39,4 +39,53 @@ public class GeometryFactory {
         geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
         return geo;
     }
+    
+    public static Geometry createGrid(int x, int y){
+    	int vaid = glGenVertexArrays();
+    	glBindVertexArray(vaid);        
+    	
+    	
+    	float[] vertices = new float[2*x*y];
+    	float damping = 0.2f;
+    	int count = 0;
+    	for(int i = 0; i<y; i++){
+    		for(int j = 0; j<x; j++){
+    			vertices[count++] = j*damping;
+    			vertices[count++] = i*damping;
+    		}
+    	}
+    	
+    	int[] indices = new int[6*x*y];
+    	count = 0;
+    	for(int i = 0; i<(y-1); i++){
+    		for(int j = 0; j<(x-1); j++){
+    			indices[count++] = i+j*(x);  // 0 + 0*10 = 0
+    			System.out.println("1. : "+(i+j*(x)));
+    			indices[count++] = i+(j+1)*(x); // 0+1*10 = 10
+    			System.out.println("2. : "+(i+(j+1)*(x)));
+    			indices[count++] = i+1+(j+1)*(x); // 1+1*10 = 11
+    			System.out.println("3. : "+(i+1+(j+1)*(x)));
+    			
+    			indices[count++] = i+j*(x);  // 0 + 0*10 = 0
+    			System.out.println("4. : "+(i+j*(x)));
+    			indices[count++] = i+1+(j+1)*(x); // 1+1*10 = 11
+    			System.out.println("5. : "+(i+1+(j+1)*(x)));
+    			indices[count++] = i+j*(x)+1;  // 0 + 0*10 = 0
+    			System.out.println("6. : "+(i+j*(x)+1));
+       		}
+    	}
+    	
+    	FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+    	IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+    	
+    	fbu.put(vertices); fbu.flip();
+    	ibu.put(indices); ibu.flip();
+    	
+    	Geometry geo = new Geometry();
+    	geo.setVertices(fbu);
+    	geo.setIndices(ibu, GL_TRIANGLES);
+    	geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+    	
+    	return geo;
+    }
 }
