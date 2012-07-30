@@ -87,13 +87,13 @@ public class Particle {
         glBindBuffer(GL_ARRAY_BUFFER, this.vbid);
         glBufferData(GL_ARRAY_BUFFER, this.vertexValueBuffer, GL_STATIC_DRAW);
         
-        glEnableVertexAttribArray(Util.ATTR_POS);
-        glEnableVertexAttribArray(Util.ATTR_COLOR);
-        glEnableVertexAttribArray(Util.ATTR_INSTANCE);
+        glEnableVertexAttribArray(ShaderProgram.ATTR_POS);
+        glEnableVertexAttribArray(ShaderProgram.ATTR_COLOR);
+        glEnableVertexAttribArray(ShaderProgram.ATTR_INSTANCE);
 
-        glVertexAttribPointer(Util.ATTR_POS, 3, GL_FLOAT, false, 28, 0);
-        glVertexAttribPointer(Util.ATTR_COLOR, 3, GL_FLOAT, false, 28, 12);
-        glVertexAttribPointer(Util.ATTR_INSTANCE, 1, GL_FLOAT, false, 28, 24);
+        glVertexAttribPointer(ShaderProgram.ATTR_POS, 3, GL_FLOAT, false, 28, 0);
+        glVertexAttribPointer(ShaderProgram.ATTR_COLOR, 3, GL_FLOAT, false, 28, 12);
+        glVertexAttribPointer(ShaderProgram.ATTR_INSTANCE, 1, GL_FLOAT, false, 28, 24);
 
         glBindVertexArray(0);
     }
