@@ -13,9 +13,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
-import util.Camera;
-import util.DeferredShader;
-import util.Texture;
+import util.*;
 
 /**
  *
@@ -35,14 +33,18 @@ public class TerrainMain {
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
+    
+    // simulation 
+    private static ShaderProgram simShader;
+    
     public static void main(String[] argv) {
         try {
             init();
             OpenCL.init();
-            glEnable(GL_CULL_FACE);
+            glDisable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
-            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             
             render();
@@ -61,8 +63,14 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        DeferredShader shader = new DeferredShader();
-        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+        //DeferredShader shader = new DeferredShader();
+        //Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+        
+        // create a new shader program
+        simShader = new ShaderProgram("shader/simulation_vs.glsl",
+                            "shader/simulation_fs.glsl");
+        
+        Geometry quad = GeometryFactory.createScreenQuad();
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -84,18 +92,27 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            shader.prepareRendering();
+            //shader.prepareRendering();
             
-            shader.DrawTexture(tex);
+            //shader.DrawTexture(tex);
+            simShader.use();
+            simShader.setUniform("proj", cam.getProjection());
+            simShader.setUniform("view", cam.getView());
             
+            System.out.println(cam.getView());
+            System.out.println(cam.getProjection());
+
+            quad.draw();
             // TODO: postfx
             
             // present screen
             Display.update();
             Display.sync(60);
         }
-        shader.delete();
-        tex.delete();
+        //shader.delete();
+        //tex.delete();
+        
+        simShader.delete();
     }
     
     /**
