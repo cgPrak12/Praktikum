@@ -20,7 +20,7 @@ import util.*;
  * @author nico3000
  */
 public class TerrainMain {
-	//Test Commit
+	//Test2 Commit
     // current configurations
     private static boolean bContinue = true;
     private static boolean culling = true;
