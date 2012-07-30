@@ -45,13 +45,9 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-<<<<<<< HEAD
-            program = new ShaderProgram("./shader/Test_Vs.glsl","./shader/Test_Fs.glsl");
-         //   program.use();
-=======
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
->>>>>>> bce02244b5097d628f8d05c8e89987c66a1c42fd
+
             render();
             OpenCL.destroy();
             destroy();
