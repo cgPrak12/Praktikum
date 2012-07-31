@@ -54,7 +54,8 @@ public class GeometryFactory {
        };
        
        int[] cubeIndices = {
-    		5,4,7,6,2,4,0,5,1,7,3,2,1,0
+    		5, 4, 7, 6, 2, 4, 0, 
+    		5, 1, 7, 3, 2, 1, 0
        };
        
        FloatBuffer cubeVertBuf = BufferUtils.createFloatBuffer(cubeVertices.length);
