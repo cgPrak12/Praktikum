@@ -27,7 +27,6 @@ public class FrameBuffer {
 		count = 0;
 	}
 	
-	
 	public void addTexture(Texture tex, int internalFormat, int format) {
 		this.bind();
 		bindTexture(tex, GL30.GL_COLOR_ATTACHMENT0 + count, internalFormat, format);
@@ -57,12 +56,8 @@ public class FrameBuffer {
     }
     
     public void clearColor() {
-    	// bind Frame Buffer Object
-    	this.bind();
-
     	// set clear color
     	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   	
     }
     
     public void bind() {

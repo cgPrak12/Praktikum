@@ -5,12 +5,19 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 
 /**
- *
+ * Usage:
+ * - ShaderProgram.use()
+ * - set Uniforms
+ * - DeferredShader.prepareRendering(ShaderProgram )
+ * - (optional: DeferredShader.clear() )
+ * - draw-Aufruf der Geometry
+ * - DeferredShader.finish()
+ * - DeferredShader.drawTexture(Texture ...)
  * @author nico3000
  */
 public class DeferredShader {
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
-    private ShaderProgram fboSP         = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+    
     private Geometry screenQuadGeo = GeometryFactory.createScreenQuad();
     
     private FrameBuffer frameBuffer = new FrameBuffer();
@@ -39,22 +46,16 @@ public class DeferredShader {
     	frameBuffer.drawBuffers();
     }
     
-    public void prepareRendering() {
-   		fboSP.use();
-   		GL30.glBindFragDataLocation(fboSP.getId(), 0, "position");
-   		GL30.glBindFragDataLocation(fboSP.getId(), 1, "normal");
-   		GL30.glBindFragDataLocation(fboSP.getId(), 2, "color");
-
-   		
-    	Matrix4f modelMatrix = new Matrix4f();
-    	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-    	fboSP.setUniform("model", 	 modelMatrix);
-    	fboSP.setUniform("modelIT",  modelIT);
-    	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-    	fboSP.setUniform("camPos", 	 cam.getCamPos());
-    	
+    public void prepareRendering(ShaderProgram shaderProgram) {
+    	shaderProgram.use();
+   		GL30.glBindFragDataLocation(shaderProgram.getId(), 0, "position");
+   		GL30.glBindFragDataLocation(shaderProgram.getId(), 1, "normal");
+   		GL30.glBindFragDataLocation(shaderProgram.getId(), 2, "color");
+   		frameBuffer.bind();
+    }
+    
+    public void clear() {
     	frameBuffer.clearColor(); 
-
     }
     
     public void finish() {
@@ -84,7 +85,6 @@ public class DeferredShader {
         drawTextureSP.delete();
         screenQuadGeo.delete();
         
-        fboSP.delete();
         texPosition.delete();
         texNormal.delete();
         texVertexColor.delete();
