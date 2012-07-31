@@ -42,6 +42,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.CL10GL;
 import org.lwjgl.opencl.CLCommandQueue;
 import org.lwjgl.opencl.CLContext;
 import org.lwjgl.opencl.CLDevice;
@@ -95,6 +96,8 @@ public class Particle {
     private final PointerBuffer gwz = BufferUtils.createPointerBuffer(1);
     private final PointerBuffer lwz = BufferUtils.createPointerBuffer(1);
     
+    private static int GLheightmapID, GLnormalmapID;
+    
     // construct variables
     private int vaid = -1;                  // vertex array id
     private int vbid;                       // vertex buffer id
@@ -104,8 +107,8 @@ public class Particle {
     	MAX_PARTICLES = amount;
     	
         this.createCLContext(device_type, Util.getFileContents("./shader/particle_sim.cl"), drawable);
-        this.createData();
-        this.createBuffer();
+        //this.createData();
+        //this.createBuffer();
         this.createKernels();
         this.createShaderProgram();
         this.gwz.put(0, this.MAX_PARTICLES);
@@ -183,8 +186,11 @@ public class Particle {
         //specularTexture = Util.generateTexture("asteroid_spec.jpg");
     }
     
-    public void createData(){
+    public void createData(int heightmap, int normalmap){
     	
+        this.GLheightmapID = heightmap;
+        this.GLnormalmapID = normalmap;
+        
     	particles = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	particles.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
@@ -198,9 +204,10 @@ public class Particle {
     	veloBuffer = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	veloBuffer.position(0);
     	for(int i=0; i<MAX_PARTICLES*4; i++){
-    		veloBuffer.put(0.001f* (float)Math.random());
+    		veloBuffer.put(0.01f*(float)Math.random());
     	}
     	veloBuffer.position(0);
+        this.createBuffer();
     }
     
     public void updateSimulation(long deltaTime) {
@@ -288,6 +295,20 @@ public class Particle {
     	this.kernel0.setArg(0, this.old_pos);
     	this.kernel0.setArg(1, this.old_velos);
     	
+        CLMem heightmap = CL10GL.clCreateFromGLTexture2D(this.context, 
+                                                         CL10.CL_MEM_READ_ONLY,
+                                                         GL11.GL_TEXTURE_2D,
+                                                         0,
+                                                         GLheightmapID, null);
+        
+          CLMem normalmap = CL10GL.clCreateFromGLTexture2D(this.context, 
+                                                         CL10.CL_MEM_READ_ONLY,
+                                                         GL11.GL_TEXTURE_2D,
+                                                         0,
+                                                         GLnormalmapID, null);
+          
+          this.kernel0.setArg(2,heightmap);
+          //this.kernel0.setArg(3,normalmap);
     	/**
         this.kernel0 = clCreateKernel(this.program, "asteroid_sim");
         this.kernel0.setArg(0, this.old_pos);

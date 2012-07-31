@@ -53,8 +53,7 @@ public class TerrainMain {
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             
-            particles = new Particle(128, Device_Type.GPU, Display.getDrawable());
-            particles.createData();
+            
             
             render();
             OpenCL.destroy();
@@ -84,6 +83,9 @@ public class TerrainMain {
         Geometry terrain = GeometryFactory.createTerrainFromMap("maps/03.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
+        
+        particles = new Particle(128, Device_Type.GPU, Display.getDrawable());
+        particles.createData(heightTex.getId(), normalTex.getId());
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
