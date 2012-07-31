@@ -51,6 +51,7 @@ public class GeometryFactory {
     	int vaid = glGenVertexArrays();
     	glBindVertexArray(vaid);        
     	
+    	float [][][] image = Util.getImageContents("./face2face_usa_heightmap.jpg");
     	
     	float[] vertices = new float[3*x*y];
     	float damping = 0.1f;
