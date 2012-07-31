@@ -2,8 +2,10 @@ package util;
 
 import opengl.GL;
 import static opengl.GL.*;
+
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 /**
  *
@@ -34,6 +36,13 @@ public class ShaderProgram {
             Util.MAT_BUFFER.position(0);
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
+        }
+    }
+    
+    public void setUniform(String name, Vector3f vec) {
+        int location = glGetUniformLocation(this.id, name);
+        if(location != -1) {
+            glUniform3f(location, vec.x, vec.y, vec.z);
         }
     }
     
@@ -81,7 +90,7 @@ public class ShaderProgram {
      */
     public static final int ATTR_INSTANCE = 5;
     
-    public static final int ATTR_TANGENT = 6;
+    public static final int ATTR_TANGENT = 2;
     /**
      * Erzeugt ein ShaderProgram aus einem Vertex- und Fragmentshader.
      * @param vs Pfad zum Vertexshader
@@ -116,6 +125,7 @@ public class ShaderProgram {
         glBindAttribLocation(this.id, ATTR_NORMAL, "normalMC");
         glBindAttribLocation(this.id, ATTR_TANGENT, "tangentMC");
         glBindAttribLocation(this.id, ATTR_TEX, "vertexTexCoords");
+        
         
         
         glLinkProgram(this.id);        

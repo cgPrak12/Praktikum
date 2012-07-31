@@ -741,6 +741,7 @@ public class GL {
         return location;
     }
     
+    
     /**
      * OpenGL 1.1
      * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glLineWidth.xml">glLineWidth</a>

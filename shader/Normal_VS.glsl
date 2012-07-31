@@ -11,14 +11,18 @@ in vec2 vertexTexCoords;
 in vec3 normalMC;
 in vec3 tangentMC;
 
-out vec4 tangentWC;
 out vec4 normalWC;
 out vec2 fragmentTexCoords;
+out vec3 positionWC;
+out vec4 tangentWC;
 
 void main(void)
 {
-	gl_Position =  projection *view * model *vec4(positionMC,1);
-	normalWC = model*vec4(normalMC,1);
-	tangentWC = model*vec4(tangentMC,1);
+	vec4 positionWC_t = model * vec4(positionMC, 1.0);
+	positionWC = positionWC_t.xyz / positionWC_t.w;
+	gl_Position = projection * view * positionWC_t;
+	
+	normalWC = model*vec4(normalMC,0);
+	tangentWC = model*vec4(tangentMC,0);
 	fragmentTexCoords = vertexTexCoords;
 }

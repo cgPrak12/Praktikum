@@ -14,6 +14,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+
 import util.*;
 
 /**
@@ -27,13 +28,20 @@ public class TerrainMain {
     private static boolean culling = true;
     private static boolean wireframe = true;
 
+    //Lights
+    private static final Vector3f lightPosition1 = new Vector3f(0.0f, 1.0f, 2.0f);
+    private static final Vector3f lightPosition2 = new Vector3f(0.0f, 0.1f, -4.0f);
+    private static boolean holdLight =false;
     
     // textures
     private static Texture normalQuaderTexture;
     private static Texture quaderTexture;
+    private static Texture diffuseQuaderTexture;
+    private static Texture specularQuaderTexture;
     
     // geometries
     private static Geometry quaderGeo = GeometryFactory.createQuad();
+    private static Geometry sphere1 = GeometryFactory.createSphere(0.2f, 10, 10);
     
     // shader programs
     private static ShaderProgram normalMappingSP;
@@ -47,6 +55,7 @@ public class TerrainMain {
         Util.mul(null, Util.rotationX(1.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
         Util.mul(null, Util.rotationX(3.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
     };
+   
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -66,16 +75,20 @@ public class TerrainMain {
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             
-            glDisable(GL_CULL_FACE);
             //textures
-            normalQuaderTexture = Texture.generateTexture("./stone_wall_normal_map.jpg",0 );
-            quaderTexture = Texture.generateTexture("./stone_wall.jpg",1 );
+            normalQuaderTexture   = Texture.generateTexture("./stone_wall_normal_map.jpg",0 );
+            quaderTexture         = Texture.generateTexture("./stone_wall.jpg",1 );
+            diffuseQuaderTexture  = Texture.generateTexture("./stone_wall.jpg",2 );
+            specularQuaderTexture = Texture.generateTexture("./stone_wall_specular.jpg",3 );
             
             //shaderprogramm erstellen
             normalMappingSP = new ShaderProgram("./shader/Normal_VS.glsl", "./shader/Normal_FS.glsl");
             normalMappingSP.use();
             normalMappingSP.setUniform("textureImage", quaderTexture);
             normalMappingSP.setUniform("normalTexture", normalQuaderTexture);
+            normalMappingSP.setUniform("diffuseTexture", diffuseQuaderTexture);
+            normalMappingSP.setUniform("specularTexture", specularQuaderTexture);
+            
             render();
             OpenCL.destroy();
             destroy();
@@ -85,7 +98,7 @@ public class TerrainMain {
     }
     
     public static void render() throws LWJGLException {
-        glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // background color: dark red
         
         long last = System.currentTimeMillis();
         long now, millis;
@@ -120,10 +133,8 @@ public class TerrainMain {
             //shader.DrawTexture(tex);
           
             setActiveProgram(normalMappingSP);
+            quaderGeo.draw();  
             
-            quaderGeo.draw();
-            
-                        
             // TODO: postfx
             
             // present screen
@@ -152,6 +163,12 @@ public class TerrainMain {
                     case Keyboard.KEY_SPACE: moveDir.y += 1.0f; break;
                     case Keyboard.KEY_C: moveDir.y -= 1.0f; break;
                     case Keyboard.KEY_ESCAPE: bContinue = false; break;
+                    case Keyboard.KEY_P: 
+                    	if (holdLight==false)
+                    		{holdLight = true;}
+                    	else
+                    		{holdLight = false;}
+                    	break;
                 }
             } else {
                 switch(Keyboard.getEventKey()) {
@@ -201,7 +218,10 @@ public class TerrainMain {
      * @param millis Millisekunden, die seit dem letzten Aufruf vergangen sind.
      */
     private static void animate(long millis) {
-
+    	if (!holdLight)
+    	{
+    		Util.transformCoord(Util.rotationY(10e-4f * (float)millis, null), lightPosition1, lightPosition1);
+    	}
     }
     
     
@@ -214,5 +234,13 @@ public class TerrainMain {
         program.setUniform("view", cam.getView());
         program.setUniform("projection", cam.getProjection());
         program.setUniform("model", new Matrix4f());
+        program.setUniform("eyePosition", cam.getCamPos());
+        program.setUniform("lightPosition1", lightPosition1);
+        program.setUniform("lightPosition2", lightPosition2);
+    }
+    private static void matrix2uniform(Matrix4f matrix, int uniform){
+    	matrix.store(Util.MAT_BUFFER);
+    	Util.MAT_BUFFER.position(0);
+    	glUniformMatrix4(uniform, false, Util.MAT_BUFFER);
     }
 }
