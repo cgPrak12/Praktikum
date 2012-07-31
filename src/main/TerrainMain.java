@@ -84,8 +84,12 @@ public class TerrainMain {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             shader.prepareRendering();
+        	Geometry testCube = GeometryFactory.createCube();
+        	testCube.draw();
+            shader.finish();
+
+            shader.DrawTexture(shader.getWorldTexture());
             
-            shader.DrawTexture(shader.getDiffuseTexture());
             
             // TODO: postfx
             

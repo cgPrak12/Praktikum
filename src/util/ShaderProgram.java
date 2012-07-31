@@ -139,4 +139,8 @@ public class ShaderProgram {
         GL20.glDeleteShader(this.vs);
         GL20.glDeleteProgram(this.id);
     }
+    
+    public int getId() {
+    	return this.id;
+    }
 }
