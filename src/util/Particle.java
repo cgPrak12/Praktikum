@@ -191,14 +191,14 @@ public class Particle {
     		particles.put((float)(Math.sin(i) + Math.random()));
     		particles.put((float)(3+ Math.random()));
     		particles.put((float)(Math.cos(i) + Math.random()));
-    		particles.put(1);
+    		particles.put(1000);
     	}
     	particles.position(0);
     	
     	veloBuffer = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	veloBuffer.position(0);
     	for(int i=0; i<MAX_PARTICLES*4; i++){
-    		veloBuffer.put(0.0f);
+    		veloBuffer.put(0.001f* (float)Math.random());
     	}
     	veloBuffer.position(0);
     }
@@ -241,8 +241,8 @@ public class Particle {
         GL.glUniformMatrix4(viewProjLoc, false, Util.MAT_BUFFER);
         
         glBindVertexArray(vaid);
-
-        GL11.glPointSize(2);
+        
+        GL11.glPointSize(5);
         GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
         
         clEnqueueAcquireGLObjects(this.queue, this.old_pos, null, null);

@@ -26,7 +26,7 @@ global float4* velos)
     myVelo += myDVelo;
     velos[get_global_id(0)] = myVelo;
     //position[get_global_id(0)] = (float4)(myPos.s0123);
-    position[get_global_id(0)] = (float4)(myPos.s012 + myVelo.s012, myPos.s3);
+    position[get_global_id(0)] = (float4)(myPos.s012 + myVelo.s012, myPos.s3 -0.8333f);
 
 
 }
