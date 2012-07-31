@@ -69,8 +69,9 @@ float dt)
         barrier(CLK_LOCAL_MEM_FENCE);
     }
     
-    myVelo += myDVelo;
-    myVelo = orbitCorrection((float4)(myPos.s012, 1.0), (float4)(myVelo.s012, 1.0));
+    float4 gravity = (0,-1,0,0);
+    myVelo += myDVelo + gravity;
+    //myVelo = orbitCorrection((float4)(myPos.s012, 1.0), (float4)(myVelo.s012, 1.0));
     new_velos[get_global_id(0)] = myVelo;
     new_points[get_global_id(0)] = (float4)(myPos.s012 + dt * myVelo.s012, myPos.s3);
 }

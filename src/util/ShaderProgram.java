@@ -20,6 +20,10 @@ public class ShaderProgram {
         glUseProgram(this.id);
     }            
     
+    public int getID(){
+    	return this.id;
+    }
+    
     /**
      * Hilfsmethode, um eine Matrix in eine Uniform zu schreiben. Das
      * zugehoerige Programmobjekt muss aktiv sein.

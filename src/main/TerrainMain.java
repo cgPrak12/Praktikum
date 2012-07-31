@@ -8,11 +8,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static opengl.GL.*;
 import opengl.OpenCL;
+import opengl.OpenCL.Device_Type;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 import util.*;
 
 /**
@@ -33,6 +36,8 @@ public class TerrainMain {
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
+    // particles
+    private static Particle particles;
     
     // simulation 
     private static ShaderProgram simShader;
@@ -46,6 +51,9 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+            
+            particles = new Particle(64, Device_Type.GPU, Display.getDrawable());
+            particles.createData();
             
             render();
             OpenCL.destroy();
@@ -103,6 +111,9 @@ public class TerrainMain {
             //System.out.println(cam.getProjection());
 
             quad.draw();
+            
+            particles.getShaderProgram().use();
+            particles.draw(cam);
             // TODO: postfx
             
             // present screen
@@ -113,6 +124,7 @@ public class TerrainMain {
         //tex.delete();
         
         simShader.delete();
+        OpenCL.destroy();
     }
     
     /**
