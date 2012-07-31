@@ -51,16 +51,14 @@ public class GeometryFactory {
     	int vaid = glGenVertexArrays();
     	glBindVertexArray(vaid);        
     	
-    	float [][][] image = Util.getImageContents("./face2face_usa_heightmap.jpg");
     	float[] vertices = new float[4*x*y];
-    	float damping = 0.1f;
     	int count = 0;
 
     	
     	for(int i = 0; i<x; i++){
     		for(int j = 0; j<y; j++){
-    			vertices[count++] = i*damping;
-    			vertices[count++] = j*damping;
+    			vertices[count++] = i;
+    			vertices[count++] = j;
     			vertices[count++] = ((float)1/(float)x)*(float)i;
     			vertices[count++] = ((float)1/(float)y)*(float)j;
     		}
@@ -93,23 +91,18 @@ public class GeometryFactory {
     	geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 2*4);
     	
     	return geo;
-    }
-        
+    } 
     
-    public static Geometry createMxNGrid(int n){
-    	int gap = (n-1) - (((n+1)/4)-1)*4;
-    	return createGrid((n+1)/4-1, gap);
+    public Geometry createL(int length){
+    	float[] vertices = new float[4*length-1];
+    	int[] indices = new int[12*(length-2)];
+    	
+    	
+    	
+    	
+    	
+    	
+    	return null;
     }
-    
-//    public static Geometry createLGrid(int scase, int m){
-//    	float[] vertices = new float[(2*m+1)*2];
-//    	
-//    	switch(scase){
-//    	case 0:  
-//    		break;
-//    	case 1: break;
-//    	case 2: break;
-//    	case 3: break;
-//    	}
-//    }
+ 
 }
