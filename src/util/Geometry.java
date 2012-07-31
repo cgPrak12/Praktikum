@@ -28,8 +28,26 @@ public class Geometry {
     private int instanceCount;
     private int instanceAttributeSize;
     private final List<VertexAttribute> attributes = new LinkedList<VertexAttribute>();
+    
+    // simulation
+    private Texture normalTex;
 
-
+    /**
+     * Setzt die Normalen-Textur
+     * @param normalTex Texture mit Normalen der Geometrie
+     */
+    public void setNormalTex(Texture normalTex) {
+        this.normalTex = normalTex;
+    }
+    
+    /**
+     * Gibt die Normalen-Textur dieser Geometrie
+     * @ return Normalen-Textur
+     */
+    public Texture getNormalTex() {
+        return normalTex;
+    }
+    
     /**
      * Setzt den IntBuffer, der die Indexdaten dieser Geometrie beinhaltet und
      * die zugehoerige Topologie.

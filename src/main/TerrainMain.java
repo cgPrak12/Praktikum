@@ -6,6 +6,7 @@ package main;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import opengl.GL;
 import static opengl.GL.*;
 import opengl.OpenCL;
 import org.lwjgl.LWJGLException;
@@ -72,7 +73,8 @@ public class TerrainMain {
         
         //Geometry quad = GeometryFactory.createTerrain(100,100,2);
         
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/01.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/03.jpg",0.3f);
+        Texture normalTex = terrain.getNormalTex();
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -100,6 +102,7 @@ public class TerrainMain {
             simShader.use();
             simShader.setUniform("proj", cam.getProjection());
             simShader.setUniform("view", cam.getView());
+            simShader.setUniform("normalTex", normalTex);
             
             //System.out.println(cam.getView());
             //System.out.println(cam.getProjection());

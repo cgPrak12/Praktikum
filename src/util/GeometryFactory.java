@@ -105,6 +105,7 @@ public class GeometryFactory {
         return geo;
     }
     
+    final static public int NORMALTEX_UNIT = 2;
     
     static public Geometry createTerrainFromMap(String map, float amplitude) {
         // vertex array id
@@ -112,41 +113,10 @@ public class GeometryFactory {
         glBindVertexArray(vaid);
 
         // load height map
-        //Util.ImageContents ic = Util.loadImage(map);
         float[][][] ic = Util.getImageContents(map);
-        
-/*        
-        FloatBuffer vertexData = BufferUtils.createFloatBuffer(ic.width*ic.height*6);
-        for (int h = 0; h < ic.height; h++) {
-            for (int w = 0; w < ic.width; w++) {
-                vertexData.put(new float[]{w/(float)ic.width,
-                                            amplitude*ic.data.get(),
-                                            h/(float)ic.height});
-                // put normals
-                vertexData.put(new float[]{0,0,0});
-                
-                //ic.data.get(); ic.data.get();
-                ic.data.position(ic.data.position()+2);
-            }
-        }
-        vertexData.position(0);
-        
-        // indexbuffer
-        IntBuffer indexData = BufferUtils.createIntBuffer((ic.height-1)*2*ic.width+(ic.height-2));
-        for (int y = 0; y < ic.height-1; y++) {
-            for (int x = 0; x < ic.width; x++) {
-                indexData.put(y*ic.width + x);
-                indexData.put((y+1)*ic.width + x);
-                
-            }
-            if (y < ic.height-2)
-                indexData.put(-1);
-        }
-        indexData.position(0);
-  */      
-        
         float[][] env = new float[3][3];
-        FloatBuffer vertexData = BufferUtils.createFloatBuffer(ic[0].length*ic.length*6);
+        FloatBuffer vertexData = BufferUtils.createFloatBuffer(ic[0].length*ic.length*3);
+        FloatBuffer normalTexBuf = BufferUtils.createFloatBuffer(ic[0].length*ic.length*3);
         for (int h = 0; h < ic.length; h++) {
             for (int w = 0; w < ic[0].length; w++) {
                 vertexData.put(new float[]{w/(float)ic[0].length,
@@ -179,16 +149,18 @@ public class GeometryFactory {
                 float gz = env[0][0]+2*env[1][0]+env[2][0]
                             -env[0][2]-2*env[1][2]-env[2][2];
   
-                // put normals
-                Vector3f norm = new Vector3f(2.0f * gx, 0.5f * (float)Math.sqrt(1.0f - gx*gx - gz*gz), 2.0f * gz);
-                vertexData.put(norm.x);
-                vertexData.put(norm.y);
-                vertexData.put(norm.z);
                 
-                //ic.data.get(); ic.data.get();
-
+                // put normals to normalTexBuffer
+                Vector3f norm = new Vector3f(2.0f * gx,
+                        0.5f * (float)Math.sqrt(1.0f - gx*gx - gz*gz),
+                        2.0f * gz);
+                normalTexBuf.put(norm.x);
+                normalTexBuf.put(norm.y);
+                normalTexBuf.put(norm.z);
             }
-        }        vertexData.position(0);     
+        }
+        vertexData.position(0);
+        normalTexBuf.position(0);
         
         // indexbuffer
         IntBuffer indexData = BufferUtils.createIntBuffer((ic.length-1)*2*ic[0].length+(ic.length-2));
@@ -203,11 +175,29 @@ public class GeometryFactory {
         }
         indexData.position(0);
         
+        // create normal texture from normaltexturebuffer
+        Texture tex = new Texture(GL_TEXTURE_2D, NORMALTEX_UNIT);
+        tex.bind();
+        glTexImage2D(GL_TEXTURE_2D,
+                0,
+                GL_RGB8,
+                ic[0].length,
+                ic.length,
+                0,
+                GL_RGB,
+                GL_FLOAT,
+                normalTexBuf);
+        glGenerateMipmap(GL_TEXTURE_2D);        
+        
+        // create geometry
         Geometry geo = new Geometry();
         geo.setIndices(indexData, GL_TRIANGLE_STRIP);
         geo.setVertices(vertexData);
         geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
-        geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
+        geo.setNormalTex(tex);
+       
+        //geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
+        
 
         return geo;
     }
