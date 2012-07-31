@@ -6,5 +6,5 @@ in vec4 positionMC;
 
 void main(void)
 {
-    gl_Position = viewProj * vec4(positionWC.xyz, 1);
+    gl_Position = viewProj * vec4(positionMC.xyz, 1);
 }

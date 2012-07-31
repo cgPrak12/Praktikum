@@ -103,7 +103,7 @@ public class Particle {
     public Particle(int amount, Device_Type device_type, Drawable drawable) throws LWJGLException {
     	MAX_PARTICLES = amount;
     	
-        this.createCLContext(device_type, Util.getFileContents("./shader/AsteroidSim.cl"), drawable);
+        this.createCLContext(device_type, Util.getFileContents("./shader/particle_sim.cl"), drawable);
         this.createData();
         this.createBuffer();
         this.createKernels();
@@ -240,6 +240,19 @@ public class Particle {
         Util.MAT_BUFFER.position(0);
         GL.glUniformMatrix4(viewProjLoc, false, Util.MAT_BUFFER);
         
+        glBindVertexArray(vaid);
+
+        GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
+        
+        clEnqueueAcquireGLObjects(this.queue, this.old_pos, null, null);
+        
+        this.kernel0.setArg(5, 1e-3f);
+        clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
+        
+        clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
+        clFinish(this.queue);
+        
+        /**
         GL.glActiveTexture(GL.GL_TEXTURE0 + 0);
         GL.glBindTexture(GL.GL_TEXTURE_2D, this.diffuseTexture);
         GL.glUniform1i(this.diffTexLoc, 0);
@@ -247,7 +260,7 @@ public class Particle {
         GL.glActiveTexture(GL.GL_TEXTURE0 + 1);
         GL.glBindTexture(GL.GL_TEXTURE_2D, this.specularTexture);
         GL.glUniform1i(this.specTexLoc, 1);
-        
+        */
     }
     
     /**
@@ -258,17 +271,21 @@ public class Particle {
         
         this.old_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, this.veloBuffer);
         this.new_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, this.veloBuffer);
-        this.new_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
-        //this.old_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
+        //this.new_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
+        this.old_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
         
-        this.particles = null;
-        this.veloBuffer = null;
+        //this.particles = null;
+        //this.veloBuffer = null;
     }
     
     /**
      * Erstellt zwei OpenCL Kernel
      */
     private void createKernels() {
+    	
+    	this.kernel0 = clCreateKernel(this.program, "particle_sim");
+    	this.kernel0.setArg(0, this.old_pos);
+    	this.kernel0.setArg(1, this.old_velos);
     	
     	/**
         this.kernel0 = clCreateKernel(this.program, "asteroid_sim");
