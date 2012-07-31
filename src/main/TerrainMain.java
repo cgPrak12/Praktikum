@@ -42,9 +42,9 @@ public class TerrainMain {
         try {
             init();
             OpenCL.init();
-            glEnable(GL_CULL_FACE);
+            glDisable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
-            glCullFace(GL_BACK);
+//            glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
@@ -67,7 +67,7 @@ public class TerrainMain {
         
 //        DeferredShader shader = new DeferredShader();
 //        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
-        grid = GeometryFactory.createGrid(10, 10);
+        grid = GeometryFactory.createGrid(1000, 1000);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -86,10 +86,10 @@ public class TerrainMain {
             updateUniforms();
             handleInput(millis);
             animate(millis);
-            
-            grid.draw();
+            program.use();
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            grid.draw();
             
 //            shader.prepareRendering();
             
@@ -107,7 +107,7 @@ public class TerrainMain {
     
     private static void updateUniforms() {
     	program.use();
-    	program.setUniform("viewProj", Util.mul(null, cam.getView(), cam.getProjection()));
+    	program.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
     	program.setUniform("model", new Matrix4f());
 	}
 

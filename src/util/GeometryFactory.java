@@ -53,7 +53,7 @@ public class GeometryFactory {
     	
     	
     	float[] vertices = new float[2*x*y];
-    	float damping = 0.2f;
+    	float damping = 0.02f;
     	int count = 0;
     	for(int i = 0; i<y; i++){
     		for(int j = 0; j<x; j++){

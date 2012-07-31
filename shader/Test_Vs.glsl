@@ -3,11 +3,11 @@
 uniform mat4 model;
 uniform mat4 viewProj;
 
-in vec3 vs_in_pos;
+in vec2 positionMc;
 
 out vec3 fs_in_color;
 
 void main(void) {
-    gl_Position = viewProj * model * vec4(vs_in_pos, 1);
-	fs_in_color = sin(vs_in_pos);
+    gl_Position = viewProj * model * vec4(positionMc.x,0,positionMc.y, 1);
+	fs_in_color = vec3(sin(positionMc),1);
 }
