@@ -21,10 +21,20 @@ public class FrameBuffer {
 	private int frameBufferObjectId;
 	private List<Texture> textureList = new LinkedList<Texture>();
 	private int count;
+	private int renderBufferObjectId;
+	
 	
 	public FrameBuffer() {
 		frameBufferObjectId = GL30.glGenFramebuffers();
 		count = 0;
+		
+		renderBufferObjectId = GL30.glGenRenderbuffers();
+		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, renderBufferObjectId);
+		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL30.GL_DEPTH_COMPONENT32F, GL.WIDTH, GL.HEIGHT);
+		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, 0);
+		this.bind();
+		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, renderBufferObjectId);
+		this.unbind();
 	}
 	
 	public void addTexture(Texture tex, int internalFormat, int format) {

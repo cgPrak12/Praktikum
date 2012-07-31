@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Matrix4f;
  * - draw-Aufruf der Geometry
  * - DeferredShader.finish()
  * - DeferredShader.drawTexture(Texture ...)
+ * FragmentShader braucht als out-Variablen position, normal, color!
  * @author nico3000
  */
 public class DeferredShader {
@@ -51,6 +52,8 @@ public class DeferredShader {
    		GL30.glBindFragDataLocation(shaderProgram.getId(), 0, "position");
    		GL30.glBindFragDataLocation(shaderProgram.getId(), 1, "normal");
    		GL30.glBindFragDataLocation(shaderProgram.getId(), 2, "color");
+    	shaderProgram.setUniform("camPos", 	 cam.getCamPos());
+   		
    		frameBuffer.bind();
     }
     

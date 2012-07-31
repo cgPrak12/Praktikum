@@ -97,7 +97,6 @@ public class TerrainMain {
         	fboSP.setUniform("model", 	 modelMatrix);
         	fboSP.setUniform("modelIT",  modelIT);
         	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-        	fboSP.setUniform("camPos", 	 cam.getCamPos());
             
             shader.prepareRendering(fboSP);
             shader.clear();
@@ -106,7 +105,7 @@ public class TerrainMain {
 
         	shader.finish();
 
-            shader.DrawTexture(shader.getDiffuseTexture());
+            shader.DrawTexture(shader.getWorldTexture());
             
             
             // TODO: postfx
