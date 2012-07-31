@@ -6,6 +6,7 @@ package main;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import opengl.GL;
 import static opengl.GL.*;
 import opengl.OpenCL;
 import opengl.OpenCL.Device_Type;
@@ -78,7 +79,11 @@ public class TerrainMain {
         simShader = new ShaderProgram("shader/simulation_vs.glsl",
                             "shader/simulation_fs.glsl");
         
-        Geometry quad = GeometryFactory.createTerrain(100,100,2);
+        //Geometry quad = GeometryFactory.createTerrain(100,100,2);
+        
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/03.jpg",0.3f);
+        Texture normalTex = terrain.getNormalTex();
+        Texture heightTex = terrain.getHeightTex();
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -106,11 +111,13 @@ public class TerrainMain {
             simShader.use();
             simShader.setUniform("proj", cam.getProjection());
             simShader.setUniform("view", cam.getView());
+            simShader.setUniform("normalTex", normalTex);
+            simShader.setUniform("heightTex", heightTex);
             
             //System.out.println(cam.getView());
             //System.out.println(cam.getProjection());
 
-            quad.draw();
+            terrain.draw();
             
             particles.getShaderProgram().use();
             particles.draw(cam);
