@@ -107,7 +107,7 @@ public class TerrainMain {
 
         	shader.finish();
 
-            shader.DrawTexture(shader.getDiffuseTexture());
+            shader.DrawTexture(shader.getWorldTexture());
             
             
             // TODO: postfx
