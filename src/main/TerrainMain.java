@@ -75,6 +75,7 @@ public class TerrainMain {
         
         Geometry terrain = GeometryFactory.createTerrainFromMap("maps/03.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
+        Texture heightTex = terrain.getHeightTex();
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -103,6 +104,7 @@ public class TerrainMain {
             simShader.setUniform("proj", cam.getProjection());
             simShader.setUniform("view", cam.getView());
             simShader.setUniform("normalTex", normalTex);
+            simShader.setUniform("heightTex", heightTex);
             
             //System.out.println(cam.getView());
             //System.out.println(cam.getProjection());

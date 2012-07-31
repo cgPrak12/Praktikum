@@ -106,6 +106,7 @@ public class GeometryFactory {
     }
     
     final static public int NORMALTEX_UNIT = 2;
+    final static public int HEIGHTTEX_UNIT = 3;
     
     static public Geometry createTerrainFromMap(String map, float amplitude) {
         // vertex array id
@@ -117,11 +118,13 @@ public class GeometryFactory {
         float[][] env = new float[3][3];
         FloatBuffer vertexData = BufferUtils.createFloatBuffer(ic[0].length*ic.length*3);
         FloatBuffer normalTexBuf = BufferUtils.createFloatBuffer(ic[0].length*ic.length*3);
+        FloatBuffer heightTexBuf = BufferUtils.createFloatBuffer(ic[0].length*ic.length);
         for (int h = 0; h < ic.length; h++) {
             for (int w = 0; w < ic[0].length; w++) {
                 vertexData.put(new float[]{w/(float)ic[0].length,
                                             amplitude*ic[h][w][0],
                                             h/(float)ic.length});
+                heightTexBuf.put(amplitude*ic[h][w][0]);
                 
                 // set environment
                 env[0][0] = ic[h-1 >= 0 ? h-1 : h]
@@ -161,6 +164,7 @@ public class GeometryFactory {
         }
         vertexData.position(0);
         normalTexBuf.position(0);
+        heightTexBuf.position(0);
         
         // indexbuffer
         IntBuffer indexData = BufferUtils.createIntBuffer((ic.length-1)*2*ic[0].length+(ic.length-2));
@@ -189,13 +193,27 @@ public class GeometryFactory {
                 normalTexBuf);
         glGenerateMipmap(GL_TEXTURE_2D);        
         
+        // create height texture
+        Texture hTex = new Texture(GL_TEXTURE_2D, HEIGHTTEX_UNIT);
+        hTex.bind();
+        glTexImage2D(GL_TEXTURE_2D,
+                0,
+                GL_R8,
+                ic[0].length,
+                ic.length,
+                0,
+                GL_RED,
+                GL_FLOAT,
+                heightTexBuf);
+        glGenerateMipmap(GL_TEXTURE_2D);        
+        
         // create geometry
         Geometry geo = new Geometry();
         geo.setIndices(indexData, GL_TRIANGLE_STRIP);
         geo.setVertices(vertexData);
         geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
         geo.setNormalTex(tex);
-       
+        geo.setHeightTex(hTex);
         //geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
         
 

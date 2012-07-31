@@ -30,6 +30,7 @@ public class Geometry {
     private final List<VertexAttribute> attributes = new LinkedList<VertexAttribute>();
     
     // simulation
+    private Texture heightTex;
     private Texture normalTex;
 
     /**
@@ -39,13 +40,29 @@ public class Geometry {
     public void setNormalTex(Texture normalTex) {
         this.normalTex = normalTex;
     }
-    
+  
     /**
      * Gibt die Normalen-Textur dieser Geometrie
      * @ return Normalen-Textur
      */
     public Texture getNormalTex() {
         return normalTex;
+    }
+    
+    /**
+     * Setzt die Height-Textur
+     * @param heightTex Texture mit Hoehe der Geometrie
+     */
+    public void setHeightTex(Texture heightTex) {
+        this.heightTex = heightTex;
+    }
+    
+    /**
+     * Gibt die Height-Textur dieser Geometrie
+     * @ return Height-Textur
+     */
+    public Texture getHeightTex() {
+        return heightTex;
     }
     
     /**
