@@ -72,4 +72,26 @@ public class GeometryFactory {
        geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
        return geo;
     }
+    
+    public static Geometry createTestParticles(int num) {
+    	FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(num*3);
+    	for(int i = 0; i < num; i++) {
+    		vertexBuffer.put((float)Math.random()-0.5f);
+    		vertexBuffer.put((float)Math.random()*0.2f);
+    		vertexBuffer.put((float)Math.random()-0.5f);
+    	}
+    	vertexBuffer.position(0);
+    	
+    	IntBuffer indexBuffer = BufferUtils.createIntBuffer(num);
+    	for(int i = 0; i < num; i++) {
+    		indexBuffer.put(i);
+    	}
+    	indexBuffer.position(0);
+    	
+    	Geometry geo = new Geometry();
+    	geo.setVertices(vertexBuffer);
+    	geo.setIndices(indexBuffer, GL_POINTS);
+    	geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+    	return geo;
+    }
 }

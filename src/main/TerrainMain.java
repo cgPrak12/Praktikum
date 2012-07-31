@@ -12,6 +12,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
@@ -68,7 +69,7 @@ public class TerrainMain {
         shader.init();
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
-        Geometry testCube = GeometryFactory.createCube();
+        Geometry testCube = GeometryFactory.createTestParticles(200);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -100,6 +101,7 @@ public class TerrainMain {
             
             shader.prepareRendering(fboSP);
             shader.clear();
+            GL11.glPointSize(15);
         	
             testCube.draw();
 
