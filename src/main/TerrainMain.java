@@ -52,7 +52,7 @@ public class TerrainMain {
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             
-            particles = new Particle(64, Device_Type.GPU, Display.getDrawable());
+            particles = new Particle(1024, Device_Type.GPU, Display.getDrawable());
             particles.createData();
             
             render();

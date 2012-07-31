@@ -161,7 +161,7 @@ public class Particle {
      */
     private void createShaderProgram() {
         
-        shaderProgram = new ShaderProgram("./shader/Asteroid_VS.glsl", "./shader/Asteroid_FS.glsl");
+        shaderProgram = new ShaderProgram("./shader/Particle_VS.glsl", "./shader/Particle_FS.glsl");
         viewProjLoc = glGetUniformLocation(shaderProgram.getID(), "viewProj");
         diffTexLoc = glGetUniformLocation(shaderProgram.getID(), "diffuseTex");
         specTexLoc = glGetUniformLocation(shaderProgram.getID(), "specularTex");
@@ -188,9 +188,9 @@ public class Particle {
     	particles = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	particles.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
-    		particles.put((float)Math.sin(i));
-    		particles.put(3);
-    		particles.put((float)Math.cos(i));
+    		particles.put((float)(Math.sin(i) + Math.random()));
+    		particles.put((float)(3+ Math.random()));
+    		particles.put((float)(Math.cos(i) + Math.random()));
     		particles.put(1);
     	}
     	particles.position(0);
@@ -242,6 +242,7 @@ public class Particle {
         
         glBindVertexArray(vaid);
 
+        GL11.glPointSize(2);
         GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
         
         clEnqueueAcquireGLObjects(this.queue, this.old_pos, null, null);
