@@ -6,7 +6,7 @@ import org.lwjgl.util.vector.Matrix4f;
 
 /**
  * Usage:
- * - ShaderProgram.use()
+ * - ShaderProgram.use() (ggf. eigenes erstellen, sonst fbo Nutzen)
  * - set Uniforms
  * - DeferredShader.prepareRendering(ShaderProgram )
  * - (optional: DeferredShader.clear() )
@@ -18,7 +18,6 @@ import org.lwjgl.util.vector.Matrix4f;
  */
 public class DeferredShader {
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
-    
     private Geometry screenQuadGeo = GeometryFactory.createScreenQuad();
     
     private FrameBuffer frameBuffer = new FrameBuffer();
