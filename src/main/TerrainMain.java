@@ -58,8 +58,8 @@ public class TerrainMain {
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
-            clip = new ClipMap(8, 3);
-            L = clip.createBottomLeft();
+            clip = new ClipMap(15, 3);
+            L = clip.createTopLeft();
 //            grid2 = clip.createMxMgrid();
             
 //            tex = Texture.generateTexture(".\\face2face_usa_heightmap.jpg", 1);
