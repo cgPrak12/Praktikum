@@ -36,6 +36,15 @@ public class ShaderProgram {
             Util.MAT_BUFFER.position(0);
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
+        } else {
+            System.err.println("location of " + varName + " is -1");
+        }            
+    }
+    
+    public void setUniform(String varName, Vector3f vector) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+            glUniform3f(loc, vector.x, vector.y, vector.z);
         }
     }
     
@@ -57,7 +66,9 @@ public class ShaderProgram {
         if(loc != -1) {
             texture.bind();
             glUniform1i(loc, texture.getUnit());
-        }
+        } else {
+            System.err.println("location of " + varName + " is -1");
+        }            
     }
     
     /**
@@ -140,5 +151,9 @@ public class ShaderProgram {
         GL20.glDeleteShader(this.fs);
         GL20.glDeleteShader(this.vs);
         GL20.glDeleteProgram(this.id);
+    }
+    
+    public int getId() {
+    	return this.id;
     }
 }

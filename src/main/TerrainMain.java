@@ -66,6 +66,8 @@ public class TerrainMain {
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
+    private static ShaderProgram fboSP; 
+    
     public static void main(String[] argv) {
         try {
             init();
@@ -108,8 +110,19 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
+<<<<<<< HEAD
         //DeferredShader shader = new DeferredShader();
         //Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+=======
+        fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+        
+        DeferredShader shader = new DeferredShader();
+        shader.init();
+        shader.registerShaderProgram(fboSP);
+        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+>>>>>>> master
+        
+        Geometry testCube = GeometryFactory.createCube();
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -131,12 +144,33 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
+<<<<<<< HEAD
             //shader.prepareRendering();
             
             //shader.DrawTexture(tex);
           
             setActiveProgram(normalMappingSP);
             quaderGeo.draw();  
+=======
+            
+            fboSP.use();
+        	Matrix4f modelMatrix = new Matrix4f();
+        	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+        	fboSP.setUniform("model", 	 modelMatrix);
+        	fboSP.setUniform("modelIT",  modelIT);
+        	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+            fboSP.setUniform("camPos",   cam.getCamPos());
+            
+            shader.bind();
+            shader.clear();
+        	
+            testCube.draw();
+
+        	shader.finish();
+
+            shader.DrawTexture(shader.getWorldTexture());
+            
+>>>>>>> master
             
             // TODO: postfx
             

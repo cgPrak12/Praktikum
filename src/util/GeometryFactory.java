@@ -40,6 +40,7 @@ public class GeometryFactory {
         geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
         return geo;
     }
+<<<<<<< HEAD
     /**
      * Erzeugt ein Vierexk in der xy-Ebene. (4 Indizes)
      * @return VertexArrayObject ID
@@ -133,3 +134,39 @@ public class GeometryFactory {
     }   
 }
 
+=======
+    
+    public static Geometry createCube() {
+    	float[] cubeVertices  = {
+       		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f, // front top right
+       		-0.5f,  0.5f,  0.5f, 	0.0f, 1.0f, 1.0f, 1.0f, // front top left
+       		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 1.0f, 1.0f, // front bottom right
+       		-0.5f, -0.5f,  0.5f, 	0.0f, 0.0f, 1.0f, 1.0f, // front bottom left
+       		
+       		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 0.0f, 1.0f, // back top right
+       		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f, 0.0f, 1.0f, // back top left
+       		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
+       		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 0.0f, 1.0f  // back bottom left		
+       };
+       
+       int[] cubeIndices = {
+    		5, 4, 7, 6, 2, 4, 0, 
+    		5, 1, 7, 3, 2, 1, 0
+       };
+       
+       FloatBuffer cubeVertBuf = BufferUtils.createFloatBuffer(cubeVertices.length);
+       IntBuffer cubeIndBuf = BufferUtils.createIntBuffer(cubeIndices.length);
+       cubeVertBuf.put(cubeVertices);
+       cubeVertBuf.flip();
+       cubeIndBuf.put(cubeIndices);
+       cubeIndBuf.flip();
+       
+       Geometry geo = new Geometry();
+       geo.setIndices(cubeIndBuf, GL_TRIANGLE_STRIP);
+       geo.setVertices(cubeVertBuf);
+       geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+       geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
+       return geo;
+    }
+}
+>>>>>>> master
