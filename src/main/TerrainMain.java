@@ -35,7 +35,8 @@ public class TerrainMain {
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
-    private static ShaderProgram fboSP; 
+    private static ShaderProgram fboSP;
+    private static ShaderProgram waterSP;
     
     public static void main(String[] argv) {
         try {
@@ -64,12 +65,15 @@ public class TerrainMain {
         int frames = 0;
         
         fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+        waterSP = new ShaderProgram("./shader/WaterRenderer_VS.glsl", "./shader/WaterRenderer_FS.glsl");
         
         DeferredShader shader = new DeferredShader(cam);
         shader.init();
-        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+        DeferredShader waterShader = new DeferredShader(cam);
+        waterShader.init();
         
-        Geometry testCube = GeometryFactory.createTestParticles(200);
+        Geometry testCube = GeometryFactory.createCube();
+        Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -101,23 +105,40 @@ public class TerrainMain {
             
             shader.prepareRendering(fboSP);
             shader.clear();
-            GL11.glPointSize(15);
-        	
+            
             testCube.draw();
-
-        	shader.finish();
-
-            shader.DrawTexture(shader.getWorldTexture());
+        	
+            shader.finish();
+//            shader.DrawTexture(shader.getWorldTexture());
+            
             
             
             // TODO: postfx
+            
+            // START WATER
+            waterSP.use();
+            waterSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+            waterShader.prepareRendering(waterSP);
+            waterShader.clear();
+            glBlendFunc(GL_ONE, GL_ONE);
+            glEnable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
+            GL11.glPointSize(15);
+            testWaterParticles.draw();
+            GL11.glPointSize(GL11.GL_POINT_SIZE);
+            glDisable(GL_BLEND);
+            glEnable(GL_DEPTH_TEST);
+            waterShader.finish();
+            waterShader.DrawTexture(waterShader.getWorldTexture());
+            
+            // END WATER
             
             // present screen
             Display.update();
             Display.sync(60);
         }
         shader.delete();
-        tex.delete();
+        waterShader.delete();
     }
     
     /**

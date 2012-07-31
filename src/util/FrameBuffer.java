@@ -32,6 +32,7 @@ public class FrameBuffer {
 		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, renderBufferObjectId);
 		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL30.GL_DEPTH_COMPONENT32F, GL.WIDTH, GL.HEIGHT);
 		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, 0);
+		
 		this.bind();
 		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, renderBufferObjectId);
 		this.unbind();
@@ -39,6 +40,7 @@ public class FrameBuffer {
 	
 	public void addTexture(Texture tex, int internalFormat, int format) {
 		this.bind();
+		
 		bindTexture(tex, GL30.GL_COLOR_ATTACHMENT0 + count, internalFormat, format);
 		textureList.add(tex);
 		count++;	

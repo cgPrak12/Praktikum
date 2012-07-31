@@ -59,9 +59,9 @@ public class GeometryFactory {
        };
        
        FloatBuffer cubeVertBuf = BufferUtils.createFloatBuffer(cubeVertices.length);
-       IntBuffer cubeIndBuf = BufferUtils.createIntBuffer(cubeIndices.length);
        cubeVertBuf.put(cubeVertices);
        cubeVertBuf.flip();
+       IntBuffer cubeIndBuf = BufferUtils.createIntBuffer(cubeIndices.length);
        cubeIndBuf.put(cubeIndices);
        cubeIndBuf.flip();
        
