@@ -1,38 +1,46 @@
 package terrain;
 
-import java.nio.FloatBuffer;
 
 import util.Geometry;
 import util.GeometryFactory;
 
 public class ClipMap {
 	
-	private float[] vertices;
-	private float[] indices;
 	private int stage;
 	private int size;
 	private int m;
 	
 	public ClipMap(int n, int stage){
+		this.size = n;
+		this.stage = stage;
 		m = (n+1)/4;
 	}
 	
-	private Geometry createMxMgrid(){
+	public Geometry createMxMgrid(){
 		Geometry geo = GeometryFactory.createGrid(m-1, m-1);
 		return geo;
 	}
 	
-	private Geometry createNxMgrid(){
+	public Geometry createNxMgrid(){
 		Geometry geo = GeometryFactory.createGrid(m-1, (size-1)-((m-1)*4));
 		return geo;
 	}
 	
-	private Geometry createMxNgrid(){
+	public Geometry createMxNgrid(){
 		Geometry geo = GeometryFactory.createGrid((size-1)-((m-1)*4),m-1);
 		return geo;
 	}
 	
-	private Geometry createTopLeft(){
-		Geometry geo = 
+	public Geometry createTopLeft(){
+		return GeometryFactory.createL((size+1)/2, 3);
+	}
+	public Geometry createTopRight(){
+		return GeometryFactory.createL((size+1)/2, 2);
+	}
+	public Geometry createBottomLeft(){
+		return GeometryFactory.createL((size+1)/2, 1);
+	}
+	public Geometry createBottomRight(){
+		return GeometryFactory.createL((size+1)/2, 0);
 	}
 }

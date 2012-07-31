@@ -15,6 +15,8 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+
+import terrain.ClipMap;
 import util.*;
 
 /**
@@ -36,8 +38,12 @@ public class TerrainMain {
     private static float ingameTimePerSecond = 1.0f;
     
     private static ShaderProgram program; 
-    
+    //Geometries
     private static Geometry grid;
+    private static Geometry grid2;
+    private static Geometry L;
+    
+    private static ClipMap clip;
     
     private static Texture tex;
 
@@ -52,12 +58,15 @@ public class TerrainMain {
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
-
-            tex = Texture.generateTexture(".\\face2face_usa_heightmap.jpg", 1);
-            tex.bind();
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-            program.setUniform("elevation", tex);
+            clip = new ClipMap(8, 3);
+            L = clip.createBottomLeft();
+//            grid2 = clip.createMxMgrid();
+            
+//            tex = Texture.generateTexture(".\\face2face_usa_heightmap.jpg", 1);
+//            tex.bind();
+//            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+//            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+//            program.setUniform("elevation", tex);
 
             render();
             OpenCL.destroy();
@@ -77,7 +86,7 @@ public class TerrainMain {
         
 //        DeferredShader shader = new DeferredShader();
 //        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
-        grid = GeometryFactory.createGrid(2000, 1000);
+//        grid = GeometryFactory.createGrid(200, 100);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -99,7 +108,9 @@ public class TerrainMain {
             program.use();
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            grid.draw();
+//            grid.draw();
+            L.draw();
+//            grid2.draw();
             
 //            shader.prepareRendering();
             
