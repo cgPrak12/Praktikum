@@ -4,7 +4,8 @@ uniform mat4 model;
 uniform mat4 viewProj;
 
 
-in vec2 positionMc;
+in vec3 positionMc;
+
 
 out vec3 fs_in_color;
 

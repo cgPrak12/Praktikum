@@ -52,12 +52,13 @@ public class GeometryFactory {
     	glBindVertexArray(vaid);        
     	
     	
-    	float[] vertices = new float[2*x*y];
-    	float damping = 0.02f;
+    	float[] vertices = new float[3*x*y];
+    	float damping = 0.1f;
     	int count = 0;
     	for(int i = 0; i<y; i++){
     		for(int j = 0; j<x; j++){
     			vertices[count++] = j*damping;
+    			vertices[count++] = 0;
     			vertices[count++] = i*damping;
     		}
     	}
@@ -67,18 +68,18 @@ public class GeometryFactory {
     	for(int i = 0; i<(y-1); i++){
     		for(int j = 0; j<(x-1); j++){
     			indices[count++] = i+j*(x);  // 0 + 0*10 = 0
-    			System.out.println("1. : "+(i+j*(x)));
+//    			System.out.println("1. : "+(i+j*(x)));
     			indices[count++] = i+(j+1)*(x); // 0+1*10 = 10
-    			System.out.println("2. : "+(i+(j+1)*(x)));
+//    			System.out.println("2. : "+(i+(j+1)*(x)));
     			indices[count++] = i+1+(j+1)*(x); // 1+1*10 = 11
-    			System.out.println("3. : "+(i+1+(j+1)*(x)));
+//    			System.out.println("3. : "+(i+1+(j+1)*(x)));
     			
     			indices[count++] = i+j*(x);  // 0 + 0*10 = 0
-    			System.out.println("4. : "+(i+j*(x)));
+//    			System.out.println("4. : "+(i+j*(x)));
     			indices[count++] = i+1+(j+1)*(x); // 1+1*10 = 11
-    			System.out.println("5. : "+(i+1+(j+1)*(x)));
+//    			System.out.println("5. : "+(i+1+(j+1)*(x)));
     			indices[count++] = i+j*(x)+1;  // 0 + 0*10 = 0
-    			System.out.println("6. : "+(i+j*(x)+1));
+//    			System.out.println("6. : "+(i+j*(x)+1));
        		}
     	}
     	
@@ -91,7 +92,7 @@ public class GeometryFactory {
     	Geometry geo = new Geometry();
     	geo.setVertices(fbu);
     	geo.setIndices(ibu, GL_TRIANGLES);
-    	geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+    	geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
     	
     	return geo;
     }
