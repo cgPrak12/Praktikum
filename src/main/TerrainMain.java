@@ -70,7 +70,9 @@ public class TerrainMain {
         simShader = new ShaderProgram("shader/simulation_vs.glsl",
                             "shader/simulation_fs.glsl");
         
-        Geometry quad = GeometryFactory.createTerrain(100,100,2);
+        //Geometry quad = GeometryFactory.createTerrain(100,100,2);
+        
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/01.jpg",0.3f);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -102,7 +104,7 @@ public class TerrainMain {
             //System.out.println(cam.getView());
             //System.out.println(cam.getProjection());
 
-            quad.draw();
+            terrain.draw();
             // TODO: postfx
             
             // present screen
