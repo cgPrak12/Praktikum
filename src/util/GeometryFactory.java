@@ -52,20 +52,17 @@ public class GeometryFactory {
     	glBindVertexArray(vaid);        
     	
     	float [][][] image = Util.getImageContents("./face2face_usa_heightmap.jpg");
-    	System.out.println("Image.length x: " + image.length);
-    	System.out.println("Image.length y: " + image[0].length);
-    	System.out.println("Image.length z: " + image[0][0].length);
-    	System.out.println("Image Wert 0: " + image[0][0][0]);
-    	System.out.println("Image Wert 1: " + image[0][0][1]);
-    	System.out.println("Image Wert 2: " + image[0][0][2]);
-    	float[] vertices = new float[3*x*y];
+    	float[] vertices = new float[4*x*y];
     	float damping = 0.1f;
     	int count = 0;
+
+    	
     	for(int i = 0; i<x; i++){
     		for(int j = 0; j<y; j++){
     			vertices[count++] = i*damping;
-    			vertices[count++] = image[(image.length / x) * i][(image[0].length / y) * j][0];
     			vertices[count++] = j*damping;
+    			vertices[count++] = ((float)1/(float)x)*(float)i;
+    			vertices[count++] = ((float)1/(float)y)*(float)j;
     		}
     	}
     	
@@ -74,18 +71,12 @@ public class GeometryFactory {
     	for(int i = 0; i<(y-1); i++){
     		for(int j = 0; j<(x-1); j++){
     			indices[count++] = i+j*(x);  // 0 + 0*10 = 0
-//    			System.out.println("1. : "+(i+j*(x)));
     			indices[count++] = i+(j+1)*(x); // 0+1*10 = 10
-//    			System.out.println("2. : "+(i+(j+1)*(x)));
     			indices[count++] = i+1+(j+1)*(x); // 1+1*10 = 11
-//    			System.out.println("3. : "+(i+1+(j+1)*(x)));
     			
     			indices[count++] = i+j*(x);  // 0 + 0*10 = 0
-//    			System.out.println("4. : "+(i+j*(x)));
     			indices[count++] = i+1+(j+1)*(x); // 1+1*10 = 11
-//    			System.out.println("5. : "+(i+1+(j+1)*(x)));
     			indices[count++] = i+j*(x)+1;  // 0 + 0*10 = 0
-//    			System.out.println("6. : "+(i+j*(x)+1));
        		}
     	}
     	
@@ -98,8 +89,27 @@ public class GeometryFactory {
     	Geometry geo = new Geometry();
     	geo.setVertices(fbu);
     	geo.setIndices(ibu, GL_TRIANGLES);
-    	geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+    	geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+    	geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 2*4);
     	
     	return geo;
     }
+        
+    
+    public static Geometry createMxNGrid(int n){
+    	int gap = (n-1) - (((n+1)/4)-1)*4;
+    	return createGrid((n+1)/4-1, gap);
+    }
+    
+//    public static Geometry createLGrid(int scase, int m){
+//    	float[] vertices = new float[(2*m+1)*2];
+//    	
+//    	switch(scase){
+//    	case 0:  
+//    		break;
+//    	case 1: break;
+//    	case 2: break;
+//    	case 3: break;
+//    	}
+//    }
 }

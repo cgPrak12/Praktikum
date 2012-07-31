@@ -2,16 +2,16 @@
 
 uniform mat4 model;
 uniform mat4 viewProj;
+uniform sampler2D elevation;
 
-
-in vec3 positionMc;
-
-
+in vec2 positionMC;
+in vec2 vertexTexCoords;
+out vec2 texCoords;
 out vec3 fs_in_color;
 
 void main(void) {
-
-    gl_Position = viewProj * model * vec4(positionMc, 1);
-	fs_in_color = sin(positionMc);
-
+	float height = texture(elevation, vertexTexCoords).x;
+	vec3 pos = vec3(positionMC.x, height, positionMC.y);
+    gl_Position = viewProj * model * vec4(pos, 1);
+	texCoords = vertexTexCoords;
 }
