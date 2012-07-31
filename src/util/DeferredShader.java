@@ -5,12 +5,14 @@ import static opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static opengl.GL.glClear;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import opengl.GL;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL32;
 import org.lwjgl.util.vector.Matrix4f;
 
 /**
@@ -54,8 +56,15 @@ public class DeferredShader {
     	bindTexture(texVertexColor, GL30.GL_COLOR_ATTACHMENT1, 8);
     	bindTexture(texNormal, 		GL30.GL_COLOR_ATTACHMENT2, 8);
     	
-    	// draw buffers (fbo): activate texture, fragdatalocation (sp) oder sowas in der Art
-    	
+    	// draw buffers
+    	int[] buffersArray = {
+    			GL30.GL_COLOR_ATTACHMENT0,
+    			GL30.GL_COLOR_ATTACHMENT1,
+    			GL30.GL_COLOR_ATTACHMENT2
+    	};
+    	IntBuffer buffers = BufferUtils.createIntBuffer(buffersArray.length);
+    	buffers.put(buffersArray);
+    	GL20.glDrawBuffers(buffers);
     	
     	// unbind frame buffer object
     	GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
@@ -63,9 +72,12 @@ public class DeferredShader {
     
     public void prepareRendering() {
    		fboSP.use();
+   		GL30.glBindFragDataLocation(fboSP.getId(), GL30.GL_COLOR_ATTACHMENT0, "position");
+   		GL30.glBindFragDataLocation(fboSP.getId(), GL30.GL_COLOR_ATTACHMENT1, "normal");
+   		GL30.glBindFragDataLocation(fboSP.getId(), GL30.GL_COLOR_ATTACHMENT2, "color");
 
+   		
     	Matrix4f modelMatrix = new Matrix4f();
-    	
     	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
     	fboSP.setUniform("model", 	 modelMatrix);
     	fboSP.setUniform("modelIT",  modelIT);
