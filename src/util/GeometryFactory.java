@@ -52,15 +52,20 @@ public class GeometryFactory {
     	glBindVertexArray(vaid);        
     	
     	float [][][] image = Util.getImageContents("./face2face_usa_heightmap.jpg");
-    	
+    	System.out.println("Image.length x: " + image.length);
+    	System.out.println("Image.length y: " + image[0].length);
+    	System.out.println("Image.length z: " + image[0][0].length);
+    	System.out.println("Image Wert 0: " + image[0][0][0]);
+    	System.out.println("Image Wert 1: " + image[0][0][1]);
+    	System.out.println("Image Wert 2: " + image[0][0][2]);
     	float[] vertices = new float[3*x*y];
     	float damping = 0.1f;
     	int count = 0;
-    	for(int i = 0; i<y; i++){
-    		for(int j = 0; j<x; j++){
-    			vertices[count++] = j*damping;
-    			vertices[count++] = 0;
+    	for(int i = 0; i<x; i++){
+    		for(int j = 0; j<y; j++){
     			vertices[count++] = i*damping;
+    			vertices[count++] = image[(image.length / x) * i][(image[0].length / y) * j][0];
+    			vertices[count++] = j*damping;
     		}
     	}
     	

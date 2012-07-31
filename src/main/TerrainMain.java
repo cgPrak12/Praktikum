@@ -67,7 +67,7 @@ public class TerrainMain {
         
 //        DeferredShader shader = new DeferredShader();
 //        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
-        grid = GeometryFactory.createGrid(1000, 1000);
+        grid = GeometryFactory.createGrid(100, 100);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
