@@ -48,12 +48,13 @@ public class ShaderProgram {
         }
     }
     
-    public void setUniform(String name, Vector3f vec) {
-        int location = glGetUniformLocation(this.id, name);
-        if(location != -1) {
-            glUniform3f(location, vec.x, vec.y, vec.z);
+    public void setUniform(String varName, float vector) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+            glUniform1f(loc, vector);
         }
     }
+   
     
     /**
      * Hilfsmethode, um eine Textur in eine Uniform zu schreiben. Das

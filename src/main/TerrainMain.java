@@ -46,17 +46,8 @@ public class TerrainMain {
     
     // shader programs
     private static ShaderProgram normalMappingSP;
+    private static ShaderProgram BlurSP ;
     
-    //quader matrix
-    private static final Matrix4f quadModelMatrices[] = {
-        Util.translationZ(1.0f, null),
-        Util.mul(null, Util.rotationY(1.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
-        Util.mul(null, Util.rotationY(2.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
-        Util.mul(null, Util.rotationY(3.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
-        Util.mul(null, Util.rotationX(1.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
-        Util.mul(null, Util.rotationX(3.0f * Util.PI_DIV2, null), Util.translationZ(1.0f, null)),
-    };
-   
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -94,6 +85,10 @@ public class TerrainMain {
             normalMappingSP.setUniform("specularTexture", specularQuaderTexture);
             normalMappingSP.setUniform("bumpTexture", bumpQuaderTexture);
             
+            
+            //blurPosteffect
+            BlurSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl","./shader/Blur_FS.glsl");
+            
             render();
             OpenCL.destroy();
             destroy();
@@ -110,20 +105,18 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-<<<<<<< HEAD
-        //DeferredShader shader = new DeferredShader();
-        //Texture tex = Texture.generateTexture("asteroid.jpg", 0);
-=======
+
         fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
         
         DeferredShader shader = new DeferredShader();
         shader.init();
         shader.registerShaderProgram(fboSP);
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
->>>>>>> master
+
         
         Geometry testCube = GeometryFactory.createCube();
         
+        Geometry geo = GeometryFactory.createScreenQuad();
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -144,14 +137,8 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-<<<<<<< HEAD
-            //shader.prepareRendering();
-            
-            //shader.DrawTexture(tex);
-          
-            setActiveProgram(normalMappingSP);
-            quaderGeo.draw();  
-=======
+
+
             
             fboSP.use();
         	Matrix4f modelMatrix = new Matrix4f();
@@ -168,18 +155,23 @@ public class TerrainMain {
 
         	shader.finish();
 
-            shader.DrawTexture(shader.getWorldTexture());
+            //shader.DrawTexture(shader.getWorldTexture());
             
->>>>>>> master
+
             
             // TODO: postfx
+            BlurSP.use();
+            BlurSP.setUniform("worldTexture", shader.getWorldTexture());
+            BlurSP.setUniform("deltaBlur", 0.003f);
+            
+            geo.draw();
+
+            
             
             // present screen
             Display.update();
             Display.sync(60);
         }
-        //shader.delete();
-        //tex.delete();
     }
     
     /**
@@ -273,7 +265,6 @@ public class TerrainMain {
         program.setUniform("model", new Matrix4f());
         program.setUniform("eyePosition", cam.getCamPos());
         program.setUniform("lightPosition1", lightPosition1);
-        program.setUniform("lightPosition2", lightPosition2);
     }
     private static void matrix2uniform(Matrix4f matrix, int uniform){
     	matrix.store(Util.MAT_BUFFER);

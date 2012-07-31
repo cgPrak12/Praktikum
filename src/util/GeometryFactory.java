@@ -40,7 +40,7 @@ public class GeometryFactory {
         geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
         return geo;
     }
-<<<<<<< HEAD
+
     /**
      * Erzeugt ein Vierexk in der xy-Ebene. (4 Indizes)
      * @return VertexArrayObject ID
@@ -132,9 +132,8 @@ public class GeometryFactory {
         sphere.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 24);
         return sphere;
     }   
-}
 
-=======
+
     
     public static Geometry createCube() {
     	float[] cubeVertices  = {
@@ -169,4 +168,3 @@ public class GeometryFactory {
        return geo;
     }
 }
->>>>>>> master
