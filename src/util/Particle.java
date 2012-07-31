@@ -2,15 +2,20 @@ package util;
 
 import static opengl.GL.GL_ARRAY_BUFFER;
 import static opengl.GL.GL_FLOAT;
+import static opengl.GL.GL_R8;
+import static opengl.GL.GL_RED;
 import static opengl.GL.GL_STATIC_DRAW;
 import static opengl.GL.GL_POINTS;
+import static opengl.GL.GL_TEXTURE_2D;
 import static opengl.GL.glBindBuffer;
 import static opengl.GL.glBindVertexArray;
 import static opengl.GL.glBufferData;
 import static opengl.GL.glEnableVertexAttribArray;
 import static opengl.GL.glGenBuffers;
 import static opengl.GL.glGenVertexArrays;
+import static opengl.GL.glGenerateMipmap;
 import static opengl.GL.glGetUniformLocation;
+import static opengl.GL.glTexImage2D;
 import static opengl.GL.glUniform1f;
 import static opengl.GL.glUniform3f;
 import static opengl.GL.glVertexAttribPointer;
@@ -96,7 +101,8 @@ public class Particle {
     private final PointerBuffer gwz = BufferUtils.createPointerBuffer(1);
     private final PointerBuffer lwz = BufferUtils.createPointerBuffer(1);
     
-    private static int GLheightmapID, GLnormalmapID;
+    private int GLheightmapID, GLnormalmapID;
+    private CLMem heightmap, normalmap;
     
     // construct variables
     private int vaid = -1;                  // vertex array id
@@ -109,7 +115,7 @@ public class Particle {
         this.createCLContext(device_type, Util.getFileContents("./shader/particle_sim.cl"), drawable);
         //this.createData();
         //this.createBuffer();
-        this.createKernels();
+        
         this.createShaderProgram();
         this.gwz.put(0, this.MAX_PARTICLES);
         this.lwz.put(0, this.localWorkSize);   
@@ -210,27 +216,7 @@ public class Particle {
         this.createBuffer();
     }
     
-    public void updateSimulation(long deltaTime) {
-        
-        clEnqueueAcquireGLObjects(this.queue, this.new_pos, null, null);
-        clEnqueueAcquireGLObjects(this.queue, this.old_pos, null, null);
-        
-        if(this.swap) {
-            
-            this.kernel0.setArg(5, 1e-3f*deltaTime);
-            clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
-            
-        } else {
-            
-            this.kernel1.setArg(5, 1e-3f*deltaTime);
-            clEnqueueNDRangeKernel(this.queue, kernel1, 1, null, gwz, lwz, null, null);
-           
-        }
-        clEnqueueReleaseGLObjects(this.queue, this.new_pos, null, null);
-        clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
-        clFinish(this.queue);
-        this.swap = !this.swap;
-    }
+ 
     
     /**
      * Rendert das Partikelsystem
@@ -253,11 +239,15 @@ public class Particle {
         GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
         
         clEnqueueAcquireGLObjects(this.queue, this.old_pos, null, null);
+        clEnqueueAcquireGLObjects(this.queue, this.heightmap, null, null);
+        //clEnqueueAcquireGLObjects(this.queue, this.normalmap, null, null);
         
-        this.kernel0.setArg(5, 1e-3f);
+        //this.kernel0.setArg(5, 1e-3f);
         clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
-        
+
         clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
+        clEnqueueReleaseGLObjects(this.queue, this.heightmap, null, null);
+        //clEnqueueReleaseGLObjects(this.queue, this.normalmap, null, null);
         clFinish(this.queue);
         
         /**
@@ -278,12 +268,13 @@ public class Particle {
         this.construct();
         
         this.old_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, this.veloBuffer);
-        this.new_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, this.veloBuffer);
+        //this.new_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, this.veloBuffer);
         //this.new_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
         this.old_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
         
         //this.particles = null;
         //this.veloBuffer = null;
+        this.createKernels();
     }
     
     /**
@@ -295,20 +286,38 @@ public class Particle {
     	this.kernel0.setArg(0, this.old_pos);
     	this.kernel0.setArg(1, this.old_velos);
     	
-        CLMem heightmap = CL10GL.clCreateFromGLTexture2D(this.context, 
-                                                         CL10.CL_MEM_READ_ONLY,
-                                                         GL11.GL_TEXTURE_2D,
-                                                         0,
-                                                         GLheightmapID, null);
+    	/**
+        Texture hTex = new Texture(GL_TEXTURE_2D, 1);
+        hTex.bind();
+        FloatBuffer buff = BufferUtils.createFloatBuffer(400);
+        buff.position(400);
+        buff.flip();
         
-          CLMem normalmap = CL10GL.clCreateFromGLTexture2D(this.context, 
-                                                         CL10.CL_MEM_READ_ONLY,
-                                                         GL11.GL_TEXTURE_2D,
-                                                         0,
-                                                         GLnormalmapID, null);
-          
-          this.kernel0.setArg(2,heightmap);
-          //this.kernel0.setArg(3,normalmap);
+        glTexImage2D(GL_TEXTURE_2D,
+                0,
+                GL11.GL_RGBA8,
+                10,
+                10,
+                0,
+                GL11.GL_RGBA,
+                GL_FLOAT,
+                buff);
+        glGenerateMipmap(GL_TEXTURE_2D);  
+    	*/
+        heightmap = CL10GL.clCreateFromGLTexture2D(this.context, 
+                                                   CL10.CL_MEM_READ_ONLY,
+                                                   GL11.GL_TEXTURE_2D,
+                                                   0,
+                                                   GLheightmapID, null);
+        /**
+        normalmap = CL10GL.clCreateFromGLTexture2D(this.context, 
+                                                   CL10.CL_MEM_READ_ONLY,
+                                                   GL11.GL_TEXTURE_2D,
+                                                   0,
+                                                   GLnormalmapID, null);
+          */
+        this.kernel0.setArg(2,heightmap);
+        //this.kernel0.setArg(3,normalmap);
     	/**
         this.kernel0 = clCreateKernel(this.program, "asteroid_sim");
         this.kernel0.setArg(0, this.old_pos);
