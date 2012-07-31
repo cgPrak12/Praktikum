@@ -43,6 +43,7 @@ public class ArrayStruc {
 		{
 			return info[x][y];
 		}
+		// ueberarbeiten, wer will ;-)
 		else return null;
 	}
 
@@ -58,6 +59,7 @@ public class ArrayStruc {
 		{
 			info[x][y] = vi;
 		}
+		else System.err.println("error");
 	}
 	
 	public int getXDim()	{	return x; }

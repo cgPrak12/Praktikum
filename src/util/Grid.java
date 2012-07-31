@@ -18,9 +18,9 @@ public class Grid {
 	 * @param dst Komplettes Grid
 	 * @param cam Camera
 	 * @param size Größe des Quadrats
-	 * @return Liste mit allen Grids, das aktuelle Grid ist an Stelle size/2 + 1
+	 * @return Liste mit allen Grids, das aktuelle Grid ist an Stelle 1 + (2n+1)²/ 2
 	 */
-	public List<FloatBuffer> getGrids(ArrayStruc dst, Camera cam, int size)
+	public static List<FloatBuffer> getGrids(ArrayStruc dst, Camera cam, int size)
 	{
 		List<FloatBuffer> result = new LinkedList<FloatBuffer>();
 		
@@ -47,7 +47,7 @@ public class Grid {
 	 * @param q
 	 * @return
 	 */
-	private FloatBuffer minimizeGrid(ArrayStruc dst, int p, int q)
+	private static FloatBuffer minimizeGrid(ArrayStruc dst, int p, int q)
 	{
 		List<VertexInfo> help = new LinkedList<VertexInfo>();
 		
@@ -62,53 +62,55 @@ public class Grid {
 			// Spalte fuellen
 			help.add(dst.getInfo(p, i));
 		}
-				
+		
 		for(int i = 0; i < dst.getXDim(); i++)
 		{
 			// Zeile fuellen
 			help.add(dst.getInfo(i, q));
 		}
-				
-		// alle weiteren Kreuze durch Punkte, die auf einer Diagonalen mit (p|q) liegen
-		for(int i = 1; i < dst.getXDim() - p; i++)
+		
+		int up = 1;
+		for(int size = 1; p + size < dst.getXDim(); size += (up++))
 		{
-			// Spalten rechts von (p|q)
-			for(int j = 0; j < dst.getZDim(); j += i)
+			for(int i = 0; i < dst.getZDim(); i++)
 			{
-					help.add(dst.getInfo(p + i, j));
+				// Spalten rechts
+				help.add(dst.getInfo(p + size, i));
 			}
 		}
 		
-		for(int i = 1; i < p; i++)
+		up = 1;		
+		for(int size = 1; p - size >= 0; size += (up++))
 		{
-			// Spalten links von (p|q)
-			for(int j = 0; j < dst.getZDim(); j += i)
+			for(int i = 0; i < dst.getZDim(); i++)
 			{
-				help.add(dst.getInfo(p-i, j));
+				// Spalten links
+				help.add(dst.getInfo(p - size, i));
 			}
 		}
 		
-		for(int i = 1; i < dst.getZDim() - q; i++)
+		up=1;
+		for(int size = 1; q + size < dst.getZDim(); size += (up++))
 		{
-			// Zeilen unterhalb von (p|q)
-			for(int j = 0; j < dst.getXDim(); j += i)
+			for(int i = 0; i < dst.getXDim(); i++)
 			{
-				help.add(dst.getInfo(j, q + i));
+				// Zeilen unten
+				help.add(dst.getInfo(i, q + size));
 			}
 		}
 		
-		for(int i = 1; i < q; i++)
+		up=1;
+		for(int size = 1; q - size >= 0; size += (up++))
 		{
-			// Zeilen oberhalb von (p|q)
-			for(int j = 0; j < dst.getXDim(); j += i)
+			for(int i = 0; i < dst.getXDim(); i++)
 			{
-				help.add(dst.getInfo(j, q - i));
+				// Zeilen oben
+				help.add(dst.getInfo(i, q - size));
 			}
 		}
-		
 		
 		// Liste in ein FloatBuffer kopieren
-		FloatBuffer result = BufferUtils.createFloatBuffer(4 * help.size());
+		FloatBuffer result = BufferUtils.createFloatBuffer(7 * help.size());
 		for(VertexInfo vi : help)
 		{
 			result.put(vi.getX());
@@ -118,7 +120,8 @@ public class Grid {
 			result.put(vi.getNY());
 			result.put(vi.getNZ());
 			result.put(vi.getMat());
-		}		
+		}
+		
 		
 		return result;
 	}
@@ -129,7 +132,7 @@ public class Grid {
 	 * @param cam
 	 * @return
 	 */
-	public FloatBuffer minimizeGrid(ArrayStruc dst, Camera cam)
+	public static FloatBuffer minimizeGrid(ArrayStruc dst, Camera cam)
 	{
 		return minimizeGrid(dst, (int) cam.getCamPos().x, (int) cam.getCamPos().z);
 	}	

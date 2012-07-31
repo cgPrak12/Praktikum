@@ -17,9 +17,11 @@ public class VertexInfo {
 	private float normal_z;
 	private float mat;
 	
-	public VertexInfo(float h, float nx, float ny, float nz, float m)
+	public VertexInfo(float x, float h, float z, float nx, float ny, float nz, float m)
 	{
+		this.x = x;
 		this.height = h;
+		this.z = z;
 		normal_x = nx;
 		normal_y = ny;
 		normal_z = nz;
