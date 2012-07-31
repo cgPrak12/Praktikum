@@ -11,7 +11,7 @@ out vec3 fs_in_color;
 
 void main(void) {
 
-    gl_Position = viewProj * model * vec4(positionMc.x,0,positionMc.y, 1);
-	fs_in_color = vec3(sin(positionMc),1);
+    gl_Position = viewProj * model * vec4(positionMc, 1);
+	fs_in_color = sin(positionMc);
 
 }
