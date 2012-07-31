@@ -52,9 +52,9 @@ public class DeferredShader {
     	
     	// bind textures to attachments
     	// TODO: BIND added textures
-    	bindTexture(texPosition, 	GL30.GL_COLOR_ATTACHMENT0, 8);
-    	bindTexture(texVertexColor, GL30.GL_COLOR_ATTACHMENT1, 8);
-    	bindTexture(texNormal, 		GL30.GL_COLOR_ATTACHMENT2, 8);
+    	bindTexture(texPosition, 	GL30.GL_COLOR_ATTACHMENT0, GL11.GL_RGBA8, GL11.GL_RGBA);
+    	bindTexture(texVertexColor, GL30.GL_COLOR_ATTACHMENT1, GL11.GL_RGBA8, GL11.GL_RGBA);
+    	bindTexture(texNormal, 		GL30.GL_COLOR_ATTACHMENT2, GL11.GL_RGBA8, GL11.GL_RGBA);
     	
     	// draw buffers
     	int[] buffersArray = {
@@ -64,6 +64,7 @@ public class DeferredShader {
     	};
     	IntBuffer buffers = BufferUtils.createIntBuffer(buffersArray.length);
     	buffers.put(buffersArray);
+    	buffers.flip();
     	GL20.glDrawBuffers(buffers);
     	
     	// unbind frame buffer object
@@ -72,9 +73,9 @@ public class DeferredShader {
     
     public void prepareRendering() {
    		fboSP.use();
-   		GL30.glBindFragDataLocation(fboSP.getId(), GL30.GL_COLOR_ATTACHMENT0, "position");
-   		GL30.glBindFragDataLocation(fboSP.getId(), GL30.GL_COLOR_ATTACHMENT1, "normal");
-   		GL30.glBindFragDataLocation(fboSP.getId(), GL30.GL_COLOR_ATTACHMENT2, "color");
+   		GL30.glBindFragDataLocation(fboSP.getId(), 0, "position");
+   		GL30.glBindFragDataLocation(fboSP.getId(), 1, "normal");
+   		GL30.glBindFragDataLocation(fboSP.getId(), 2, "color");
 
    		
     	Matrix4f modelMatrix = new Matrix4f();
@@ -129,17 +130,10 @@ public class DeferredShader {
      * Binds a texture to the current Frame Buffer Object.
      * @param Texture texture to bind
      * @param attachment Must be GL_COLOR_ATTACHMENT0-15, binding point
-     * @param depth color depth (8, 16 or 32 [bit])
+     * @param internalFormat GL internal Format
+     * @param format GL Format
      */
-    private void bindTexture(Texture texture, int attachment, int depth) {
-    	// get color format
-    	int internalFormat;
-    	switch(depth) {
-    		case 32:          internalFormat = GL30.GL_RGBA32F; break;
-    		case 16:          internalFormat = GL30.GL_RGBA16F; break;
-    		case  8: default: internalFormat = GL11.GL_RGBA8; break;
-    	}
-    	
+    private void bindTexture(Texture texture, int attachment, int internalFormat, int format) {
     	// bind texture
     	texture.bind();
     	
@@ -148,7 +142,7 @@ public class DeferredShader {
     	GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
     	
     	// set texture information
-    	GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internalFormat, GL.HEIGHT, GL.WIDTH, 0, GL11.GL_RGBA, GL11.GL_FLOAT, (FloatBuffer) null);
+    	GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internalFormat, GL.HEIGHT, GL.WIDTH, 0, format, GL11.GL_FLOAT, (FloatBuffer) null);
     	
     	// attach texture to framebuffer
     	GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, texture.getId(), 0);
