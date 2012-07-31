@@ -64,8 +64,9 @@ public class TerrainMain {
         
         fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
         
-        DeferredShader shader = new DeferredShader(cam);
+        DeferredShader shader = new DeferredShader();
         shader.init();
+        shader.registerShaderProgram(fboSP);
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         Geometry testCube = GeometryFactory.createCube();
@@ -97,15 +98,16 @@ public class TerrainMain {
         	fboSP.setUniform("model", 	 modelMatrix);
         	fboSP.setUniform("modelIT",  modelIT);
         	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+            fboSP.setUniform("camPos",   cam.getCamPos());
             
-            shader.prepareRendering(fboSP);
+            shader.bind();
             shader.clear();
         	
             testCube.draw();
 
         	shader.finish();
 
-            shader.DrawTexture(shader.getWorldTexture());
+            shader.DrawTexture(shader.getDiffuseTexture());
             
             
             // TODO: postfx
