@@ -33,8 +33,8 @@ public class ArrayStruc {
 
 	/**
 	 * Getter
-	 * @param x x-coordinate
-	 * @param y y-coordinate
+	 * @param x x-position
+	 * @param y y-position
 	 * @return vertex information
 	 */
 	public VertexInfo getInfo(int x, int y)
@@ -48,8 +48,8 @@ public class ArrayStruc {
 
 	/**
 	 * Setter
-	 * @param x x-coordinate
-	 * @param y y-coordinate
+	 * @param x x-position
+	 * @param y y-position
 	 * @param vi new vertex information
 	 */
 	public void setInfo(int x, int y, VertexInfo vi)
@@ -59,5 +59,9 @@ public class ArrayStruc {
 			info[x][y] = vi;
 		}
 	}
+	
+	public int getXDim()	{	return x; }
+	
+	public int getZDim()	{	return y; }
 
 }

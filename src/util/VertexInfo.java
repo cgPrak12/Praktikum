@@ -1,8 +1,5 @@
 package util;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * represents a set of vertex information.
  * vertex information is typically a float, can also be a set of floats. 
@@ -12,39 +9,38 @@ import java.util.List;
 
 public class VertexInfo {
 	
-	private List<Info> list;
+	private float x;
+	private float height;
+	private float z;
+	private float normal_x;
+	private float normal_y;
+	private float normal_z;
+	private float mat;
 	
-	/**
-	 * Ctor, fills the list with all given information
-	 * @param floats
-	 */
-	public VertexInfo(Info ...floats)
+	public VertexInfo(float h, float nx, float ny, float nz, float m)
 	{
-		list = new LinkedList<Info>();
-		
-		for(Info f : floats)
-			list.add(f);
+		this.height = h;
+		normal_x = nx;
+		normal_y = ny;
+		normal_z = nz;
+		mat = m;
 	}
 	
-	/**
-	 * Getter
-	 * @param i index
-	 * @return value at given index
-	 */
-	Info getElem(int i)
-	{ 
-		return list.get(i);
-	}
+	public void setX(float x)		{ this.x = x; }
+	public void setHeight(float h)  { height = h; }
+	public void setZ(float z)		{ this.z = z; }
+	public void setNX(float nx) 	{ normal_x = nx; }
+	public void setNY(float ny) 	{ normal_y = ny; }
+	public void setNZ(float nz) 	{ normal_z = nz; }
+	public void setMat(float m) 	{ mat = m; }
 	
-	/**
-	 * Setter
-	 * @param i index
-	 * @param f new value
-	 */
-	void setElem(int i, Info f)
-	{
-		list.set(i, f);
-	}
+	public float getX()			{ return x; }
+	public float getHeight()	{ return height; }
+	public float getZ()			{ return z; }
+	public float getNX()  		{ return normal_x; }
+	public float getNY() 		{ return normal_y; }
+	public float getNZ()  		{ return normal_z; }
+	public float getMat() 		{ return mat; }
 	
-
+	
 }

@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -624,5 +626,18 @@ public class Util {
                 this.data.put(component / 255.0f);
             }
         }
+    }
+    
+    public static void fillList(List<Float> dst, VertexInfo vi, int x, int z)
+    {
+    	if(dst == null) dst = new LinkedList<Float>();
+    	
+    	dst.add((float) x);
+    	dst.add(vi.getHeight());
+    	dst.add((float) z);
+    	dst.add(vi.getNX());
+    	dst.add(vi.getNY());
+    	dst.add(vi.getNZ());
+    	dst.add(vi.getMat());
     }
 }
