@@ -38,6 +38,7 @@ public class TerrainMain {
     private static Texture quaderTexture;
     private static Texture diffuseQuaderTexture;
     private static Texture specularQuaderTexture;
+    private static Texture bumpQuaderTexture;
     
     // geometries
     private static Geometry quaderGeo = GeometryFactory.createQuad();
@@ -80,6 +81,7 @@ public class TerrainMain {
             quaderTexture         = Texture.generateTexture("./stone_wall.jpg",1 );
             diffuseQuaderTexture  = Texture.generateTexture("./stone_wall.jpg",2 );
             specularQuaderTexture = Texture.generateTexture("./stone_wall_specular.jpg",3 );
+            bumpQuaderTexture     = Texture.generateTexture("./stone_wall_bump.jpg",4 );
             
             //shaderprogramm erstellen
             normalMappingSP = new ShaderProgram("./shader/Normal_VS.glsl", "./shader/Normal_FS.glsl");
@@ -88,6 +90,7 @@ public class TerrainMain {
             normalMappingSP.setUniform("normalTexture", normalQuaderTexture);
             normalMappingSP.setUniform("diffuseTexture", diffuseQuaderTexture);
             normalMappingSP.setUniform("specularTexture", specularQuaderTexture);
+            normalMappingSP.setUniform("bumpTexture", bumpQuaderTexture);
             
             render();
             OpenCL.destroy();
