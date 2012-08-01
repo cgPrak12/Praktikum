@@ -162,7 +162,7 @@ public class GeometryFactory {
 		glBindVertexArray(vaid);
 
 		float[] vertices = new float[8 * length - 1];
-		int[] indices = new int[12 * length+1];
+		int[] indices = new int[11 * length-3];
 		int count = 0;
 		switch (scase) {
 		case 0:
@@ -232,7 +232,7 @@ public class GeometryFactory {
 		
 		int i=0;
 		count = 0;
-		while(i< indices.length){
+		while(i< indices.length-1){
 			indices[i++] = count+1;
 			indices[i++] = count;
 			indices[i++] = count+2;

@@ -55,7 +55,8 @@ public class TerrainMain {
             glFrontFace(GL_CCW);
 //            glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
-             
+            glEnable(GL_PRIMITIVE_RESTART);
+            glPrimitiveRestartIndex(-1);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
