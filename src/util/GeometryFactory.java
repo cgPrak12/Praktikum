@@ -53,9 +53,9 @@ public class GeometryFactory {
 
 		float[] vertices = new float[4 * x * y];
 		int count = 0;
-
-		for (int i = 0; i < x; i++) {
-			for (int j = 0; j < y; j++) {
+		
+		for (int j = 0; j < y; j++) {
+			for (int i = 0; i < x; i++) {
 				vertices[count++] = i;
 				vertices[count++] = j;
 			}
@@ -63,15 +63,15 @@ public class GeometryFactory {
 
 		int[] indices = new int[6 * x * y];
 		count = 0;
-		for (int i = 0; i < (y - 1); i++) {
-			for (int j = 0; j < (x - 1); j++) {
+		for (int i = 0; i < (y-1); i++) {
+			for (int j = 0; j < (x-1); j++) {
 				indices[count++] = i + j * (x); // 0 + 0*10 = 0
 				indices[count++] = i + (j + 1) * (x); // 0+1*10 = 10
 				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11
-
+				
 				indices[count++] = i + j * (x); // 0 + 0*10 = 0
-				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11
-				indices[count++] = i + j * (x) + 1; // 0 + 0*10 = 0
+				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11				
+				indices[count++] = i + j * (x) + 1; // 0 + 0*10+1 = 1
 			}
 		}
 

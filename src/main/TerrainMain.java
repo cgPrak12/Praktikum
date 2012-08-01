@@ -63,6 +63,7 @@ public class TerrainMain {
             clip = new ClipMap(14, 3, program);
             
 //            L = clip.createBottomLeft(); //ok
+          //  L = clip.createBottomLeft(); //fail 
 //            L = clip.createBottomRight(); // ok
 //            L = clip.createTopLeft();  //ok
 //            L = clip.createTopRight(); //ok
@@ -119,6 +120,8 @@ public class TerrainMain {
 //            L.draw();
 //            grid2.draw();
             clip.createClip();
+     //       L.draw();
+            
 //            shader.prepareRendering();
             
 //            shader.DrawTexture(tex);
