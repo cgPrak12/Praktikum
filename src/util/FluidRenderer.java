@@ -43,6 +43,11 @@ public class FluidRenderer {
     private ShaderProgram thicknessBlurSP2 = new ShaderProgram("./shader/fluid/ThicknessBlur_VS.glsl", "./shader/fluid/ThicknessBlur2_FS.glsl");
     private Texture thicknessBlurTexture2 = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
 
+    // FluidLighting-Path
+	private FrameBuffer lightingFrameBuffer = new FrameBuffer();
+    private ShaderProgram lightingSP = new ShaderProgram("./shader/fluid/FluidLighting_VS.glsl", "./shader/fluid/FluidLighting_FS.glsl");
+    private Texture lightingTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+
     // Final Image
     private FrameBuffer finalImageFB = new FrameBuffer();
     private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
@@ -63,6 +68,7 @@ public class FluidRenderer {
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
     	init(thicknessBlurSP2, thicknessBlurFrameBuffer2, "color", thicknessBlurTexture2);
+    	init(lightingSP, lightingFrameBuffer, "color", lightingTexture);
     	init(finalImageSP, finalImageFB, "color", finalImage);
 	} 
 	
@@ -201,6 +207,19 @@ public class FluidRenderer {
         	thicknessBlurFrameBuffer2.unbind();
 		}
     }
+	
+	private void fluidLighting() {  //TODO
+		
+		startPath(lightingSP, lightingFrameBuffer);
+		
+	    lightingSP.setUniform("thickness", thicknessTexture);
+	    lightingSP.setUniform("normal", thicknessTexture);
+	    lightingSP.setUniform("thickness", thicknessTexture);
+	    
+        screenQuadGeo.draw();
+        lightingFrameBuffer.unbind();
+	        
+	}
 
 	private void createFinalImage() {
 		if(textureNames.length != textures.length) throw new RuntimeException("Anzahl names und textures stimmt nicht ueberein!");
