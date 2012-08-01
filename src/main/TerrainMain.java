@@ -119,7 +119,7 @@ public class TerrainMain {
 //            grid.draw();
 //            L.draw();
 //            grid2.draw();
-            clip.createClip();
+            clip.generateMaps();
      //       L.draw();
             
 //            shader.prepareRendering();
