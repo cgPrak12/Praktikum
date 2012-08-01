@@ -55,19 +55,17 @@ public class GeometryFactory {
 		int[]indices = new int[((m-1)*2+3)*(n-1)];
 		
 		count=0;
-		int test =0;
 		
 		for(int i=0; i<n-1;i++){
 			for(int j=0; j<m;j++){
 				
 				indices[count++] = i*(m)+j;
-				test = i*m+j;
+		
 				indices[count++] = i*(m)+j+m;
-				test = i*m+j+m;			
 				
 			}
 			indices[count++] = -1;
-			test = -1;
+
 		}
 		
 		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
@@ -270,7 +268,7 @@ public class GeometryFactory {
 		
 		int i=0;
 		count = 0;
-		while(i< indices.length){
+		while(i< indices.length/2){
 			indices[i++] = count+1;
 			indices[i++] = count;
 			indices[i++] = count+2;
@@ -281,6 +279,18 @@ public class GeometryFactory {
 			
 			count += 2;
 		}
+		while(i< indices.length){
+			indices[i++] = count;
+			indices[i++] = count+1;
+			indices[i++] = count+2;
+			
+			indices[i++] = count+2;
+			indices[i++] = count+1;
+			indices[i++] = count+3;
+			
+			count += 2;
+		}
+		
 		
 		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
 		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
