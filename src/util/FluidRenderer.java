@@ -154,40 +154,14 @@ public class FluidRenderer {
 	
 	private void fluidThicknessBlur() {  //TODO
 
-	    startPath(thicknessSP, thicknessFrameBuffer);
+	    startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
+	    
+	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
 
-	    thicknessSP.setUniform("camera", cam.getCamPos());
+        screenQuadGeo.draw();
 
-        glBlendFunc(GL_ONE, GL_ONE);
-        glEnable(GL_BLEND);
-        glDisable(GL_DEPTH_TEST);
-
-        GL14.glPointParameteri(GL14.GL_POINT_SIZE_MIN, 1);
-        GL14.glPointParameteri(GL14.GL_POINT_SIZE_MAX, 1000);
-        FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(4);
-        floatBuffer.put(1.0f);
-        floatBuffer.put(1.0f);
-        floatBuffer.put(0.0f);
-        floatBuffer.put(0.0f);
-        floatBuffer.position(0);
-        GL14.glPointParameter(GL14.GL_POINT_DISTANCE_ATTENUATION, floatBuffer);
-
-
-        testWaterParticles.draw();
-
-        thicknessFrameBuffer.unbind();
+        thicknessBlurFrameBuffer.unbind();
         
-//        drawTextureSP.use();
-//        drawTextureSP.setUniform("image", thicknessTexture);
-//        screenQuadGeo.draw();
-        
-        
-        thicknessFrameBuffer.reset();
-        
-//        return thicknessFrameBuffer.getTexture(0);
-
-        
-        endPath(thicknessFrameBuffer);
     }
 
 	
