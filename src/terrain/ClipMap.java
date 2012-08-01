@@ -22,7 +22,7 @@ public class ClipMap {
 	}
 	
 	public Geometry createNxMgrid(){
-		Geometry geo = GeometryFactory.createGrid(m-1, (size-1)-((m-1)*4));
+		Geometry geo = GeometryFactory.createGrid(3, m);
 		return geo;
 	}
 	
