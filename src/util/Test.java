@@ -8,7 +8,7 @@ public class Test {
 	public static void main(String[] argv)
 	{
 		int maxX, maxZ;
-		maxX = maxZ = 2048;
+		maxX = maxZ = 512;
 		int size = 10;
 		
 		Map myAS = new Map(maxX, maxZ);
@@ -22,11 +22,11 @@ public class Test {
 			}
 		}
 		
-		FloatBuffer[] myFBArray = Grid.minimizeGrid(myAS, new Camera(), size, 49);
+		FloatBuffer[] myFBArray = GridFactory.minimizeGrid(myAS, new Camera(), size, 5);
 		
 		try
 		{
-			FileWriter fstream = new FileWriter("test5.txt");
+			FileWriter fstream = new FileWriter("test6.txt");
 			BufferedWriter out = new BufferedWriter(fstream);
 			
 			int[][] temp = new int[maxX][maxZ];
@@ -64,7 +64,8 @@ public class Test {
 			
 			out.close();			
 		}
-		catch (Exception e)
+		
+		catch (IOException e)
 		{
 			System.err.println("Error: " + e.getMessage());
 		}
