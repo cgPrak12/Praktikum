@@ -38,10 +38,6 @@ public class FrameBuffer {
 		this.unbind();
 	}
 	
-	public void renew() {
-		count = 0;
-		
-	}
 	
 	public void addTexture(Texture tex, int internalFormat, int format) {
 		this.bind();
@@ -53,6 +49,7 @@ public class FrameBuffer {
 		this.unbind();
 	}
 	
+
 	public void drawBuffers() {
     	// draw buffers
     	int[] buffersArray = new int[count]; 
@@ -109,4 +106,7 @@ public class FrameBuffer {
     	
     }
     
+    public void reset() {
+    	count = 0;
+    }
 }

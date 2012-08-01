@@ -7,48 +7,136 @@ import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-
 
 public class FluidRenderer {
 	
-	private Geometry testWaterParticles;
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
+	private int textureUnit = 50;
 	private Camera cam;
 	
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
     private Geometry screenQuadGeo 		= GeometryFactory.createScreenQuad();
     
+    // TiefenTextur
+    private FrameBuffer depthFrameBuffer = new FrameBuffer();
+    private ShaderProgram depthSP = new ShaderProgram("./shader/fluid/Depth_Texture_VS.glsl", "./shader/fluid/Depth_Texture_FS.glsl");
+    private Texture depthTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+
     // Thickness-Path
 	private FrameBuffer thicknessFrameBuffer = new FrameBuffer();
-    private ShaderProgram thicknessSP = new ShaderProgram("./shader/FluidThickness_VS.glsl", "./shader/FluidThickness_FS.glsl");
-    private Texture thicknessTex = new Texture(GL11.GL_TEXTURE_2D, 0);
+    private ShaderProgram thicknessSP = new ShaderProgram("./shader/fluid/Thickness_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
+    private Texture thicknessTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
 
-	public FluidRenderer(Camera camTmp) {
+    // ThicknessBlur-Path
+	private FrameBuffer thicknessBlurFrameBuffer = new FrameBuffer();
+    private ShaderProgram thicknessBlurSP = new ShaderProgram("./shader/fluid/ThicknessBlur_VS.glsl", "./shader/fluid/ThicknessBlur_FS.glsl");
+    private Texture thicknessBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
 
-    	testWaterParticles = GeometryFactory.createTestParticles(1024);
+    // Final Image
+    private FrameBuffer finalImageFB = new FrameBuffer();
+    private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
+    private Texture finalImage = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
+    private Texture[] textures = { thicknessTexture, depthTexture };
+    private String[] textureNames = { "thickness", "depth" };
+    
+
+    public FluidRenderer(Camera camTmp) {
+
     	cam = camTmp;
-	} 
-	    
-    public Texture fluidThickness() {
-
-        thicknessSP.use();
-        thicknessSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-        thicknessSP.setUniform("camera", cam.getCamPos());
-            	
-    	thicknessFrameBuffer.addTexture(thicknessTex, GL11.GL_RGBA8, GL11.GL_RGBA);
-    	thicknessFrameBuffer.drawBuffers();
     	
-   		GL30.glBindFragDataLocation(thicknessSP.getId(), 0, "color");
-   		thicknessFrameBuffer.bind();
-   		
-    	thicknessFrameBuffer.clearColor();
+    	// init shaderPrograms, frameBuffers, ...
+    	GL11.glPointSize(GL11.GL_POINT_SIZE);
+    	init(depthSP, depthFrameBuffer, "color", depthTexture);
+    	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
+    	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
+    	init(finalImageSP, finalImageFB, "color", finalImage);
+	} 
+	
+	public void render() {
+		// fluid depth
+		depthTexture();
+		// fluid thickness
+		fluidThickness();
+		// fluid thicknessBlur
+		fluidThicknessBlur();		
+		
+		// combine images to final image
+		createFinalImage();
+		
+		// Draws image
+        glDisable(GL_BLEND);
+		drawTextureSP.use();
+        drawTextureSP.setUniform("image", thicknessBlurTexture);
+        screenQuadGeo.draw();
         
+        // resets buffers
+        depthFrameBuffer.reset();
+        thicknessFrameBuffer.reset();
+        thicknessBlurFrameBuffer.reset();
+        
+        finalImageFB.reset();
+	}
+	
+	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
+    	fb.addTexture(tex, GL11.GL_RGBA8, GL11.GL_RGBA);
+    	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
+    	fb.drawBuffers();
+	}
+	
+	private void init(ShaderProgram sp, FrameBuffer fb, String[] attachmentNames, Texture[] textures) {
+    	if(attachmentNames.length != textures.length) throw new RuntimeException("Anzahl attachmentNames und Texturen stimmt nicht ueberein!");
+		
+    	for(int i = 0; i < textures.length; i++) { 
+			fb.addTexture(textures[i], GL11.GL_RGBA8, GL11.GL_RGBA);
+			GL30.glBindFragDataLocation(sp.getId(), i, attachmentNames[i]);
+		}
+    	fb.drawBuffers();
+	}
+	
+	private void startPath(ShaderProgram sp, FrameBuffer fb) {
+		sp.use();
+		sp.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+		fb.bind();
+		fb.clearColor();
+	}
+	    
+
+	private void endPath(FrameBuffer fb) {
+		fb.unbind();
+	}
+    
+	private void depthTexture() {
+		
+		depthSP.use();
+		
+		depthSP.setUniform("view", cam.getView());
+		depthSP.setUniform("proj", cam.getProjection());
+		
+        depthSP.setUniform("camPos", cam.getCamPos());
+   	    depthFrameBuffer.bind();
+   	    depthFrameBuffer.clearColor();
+    
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        
+        testWaterParticles.draw();
+        depthFrameBuffer.unbind();
+        
+	}
+	private void fluidThickness() {  //TODO
+
+	    startPath(thicknessSP, thicknessFrameBuffer);
+
+	    thicknessSP.setUniform("camera", cam.getCamPos());
+
         glBlendFunc(GL_ONE, GL_ONE);
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
-        GL14.glPointParameteri(GL14.GL_POINT_SIZE_MIN, 100);
-        GL14.glPointParameteri(GL14.GL_POINT_SIZE_MAX, 500);
+
+        GL14.glPointParameteri(GL14.GL_POINT_SIZE_MIN, 1);
+        GL14.glPointParameteri(GL14.GL_POINT_SIZE_MAX, 1000);
         FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(4);
         floatBuffer.put(1.0f);
         floatBuffer.put(1.0f);
@@ -56,20 +144,65 @@ public class FluidRenderer {
         floatBuffer.put(0.0f);
         floatBuffer.position(0);
         GL14.glPointParameter(GL14.GL_POINT_DISTANCE_ATTENUATION, floatBuffer);
+
+
         testWaterParticles.draw();
-        GL11.glPointSize(GL11.GL_POINT_SIZE);
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
+
         thicknessFrameBuffer.unbind();
         
-        drawTextureSP.use();
-        drawTextureSP.setUniform("image", thicknessTex);
-        screenQuadGeo.draw();
-        
-        thicknessFrameBuffer.renew();
-        
-        return thicknessFrameBuffer.getTexture(0);
-        
     }
+	
+	private void fluidThicknessBlur() {  //TODO
+
+	    startPath(thicknessSP, thicknessFrameBuffer);
+
+	    thicknessSP.setUniform("camera", cam.getCamPos());
+
+        glBlendFunc(GL_ONE, GL_ONE);
+        glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+
+        GL14.glPointParameteri(GL14.GL_POINT_SIZE_MIN, 1);
+        GL14.glPointParameteri(GL14.GL_POINT_SIZE_MAX, 1000);
+        FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(4);
+        floatBuffer.put(1.0f);
+        floatBuffer.put(1.0f);
+        floatBuffer.put(0.0f);
+        floatBuffer.put(0.0f);
+        floatBuffer.position(0);
+        GL14.glPointParameter(GL14.GL_POINT_DISTANCE_ATTENUATION, floatBuffer);
+
+
+        testWaterParticles.draw();
+
+        thicknessFrameBuffer.unbind();
+        
+//        drawTextureSP.use();
+//        drawTextureSP.setUniform("image", thicknessTexture);
+//        screenQuadGeo.draw();
+        
+        
+        thicknessFrameBuffer.reset();
+        
+//        return thicknessFrameBuffer.getTexture(0);
+
+        
+        endPath(thicknessFrameBuffer);
+    }
+
+	
+	
+	private void createFinalImage() {
+		if(textureNames.length != textures.length) throw new RuntimeException("Anzahl names und textures stimmt nicht ueberein!");
+		
+		startPath(finalImageSP, finalImageFB);
+
+		for(int i = 0; i < textures.length; i++) {
+			finalImageSP.setUniform(textureNames[i], textures[i]);
+		}
+
+		screenQuadGeo.draw();
+		endPath(finalImageFB);
+	}
     
 }
