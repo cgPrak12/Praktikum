@@ -5,7 +5,6 @@ import static opengl.GL.*;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-
 public class FluidRenderer {
 	
 	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
@@ -17,7 +16,7 @@ public class FluidRenderer {
     
     // Thickness-Path
 	private FrameBuffer thicknessFB = new FrameBuffer();
-    private ShaderProgram thicknessSP = new ShaderProgram("./shader/fluid/Renderer_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
+    private ShaderProgram thicknessSP = new ShaderProgram("./shader/fluid/Thickness_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
     private Texture thicknessTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
     // Final Image
