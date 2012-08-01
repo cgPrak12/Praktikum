@@ -58,8 +58,6 @@ public class GeometryFactory {
 			for (int j = 0; j < y; j++) {
 				vertices[count++] = i;
 				vertices[count++] = j;
-//				vertices[count++] = ((float) 1 / (float) x) * (float) i;
-//				vertices[count++] = ((float) 1 / (float) y) * (float) j;
 			}
 		}
 
@@ -89,7 +87,6 @@ public class GeometryFactory {
 		geo.setVertices(fbu);
 		geo.setIndices(ibu, GL_TRIANGLES);
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-//		geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 2 * 4);
 
 		return geo;
 	}
@@ -161,8 +158,8 @@ public class GeometryFactory {
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		float[] vertices = new float[8 * length - 1];
-		int[] indices = new int[11 * length-3];
+		float[] vertices = new float[4 * length + 4*(length- 1)];
+		int[] indices = new int[(length*6) + ((length-1)*6)-6];
 		int count = 0;
 		switch (scase) {
 		case 0:
@@ -170,7 +167,6 @@ public class GeometryFactory {
 				for (int j = 0; j < 2; j++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
-					System.out.println(j);
 				}
 			}
 			
@@ -178,23 +174,19 @@ public class GeometryFactory {
 				for (int i = 0; i < 2; i++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
-					System.out.println(j);
 				}
 			} break;
-		case 1:
-			for (int j = length-1; j >=0; j--) {
-				for (int i = 0; i < 2; i++) {
-					vertices[count++] = i;
-					vertices[count++] = j;
-					System.out.println(j);
-				}
-			}
-			
-			for (int i = 1; i < length; i++) {
+		case 1:			
+			for (int i = length-1; i >= 0; i--) {
 				for (int j = 0; j < 2; j++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
-					System.out.println(j);
+				}
+			}
+			for (int j = 1; j < length; j++) {
+				for (int i = 0; i < 2; i++) {
+					vertices[count++] = i+length-2;
+					vertices[count++] = j;
 				}
 			} break;
 		case 2:
@@ -202,14 +194,12 @@ public class GeometryFactory {
 				for (int j = length-2; j < length; j++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
-					System.out.println(j);
 				}
 			}
 			for (int j = length-2; j >= 0; j--) {
 				for (int i = length - 2; i < length; i++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
-					System.out.println(j);
 				}
 			} break;
 		case 3:
@@ -217,7 +207,6 @@ public class GeometryFactory {
 				for (int i = 0; i < 2; i++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
-					System.out.println(j);
 				}
 			}
 			
@@ -225,14 +214,13 @@ public class GeometryFactory {
 				for (int j = length-2; j < length; j++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
-					System.out.println(j);
 				}
 			} break;
 		}
 		
 		int i=0;
 		count = 0;
-		while(i< indices.length-1){
+		while(i< indices.length){
 			indices[i++] = count+1;
 			indices[i++] = count;
 			indices[i++] = count+2;
@@ -243,7 +231,6 @@ public class GeometryFactory {
 			
 			count += 2;
 		}
-		indices[i++] = -1;
 		
 		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
 		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);

@@ -2,6 +2,7 @@
 
 uniform mat4 model;
 uniform mat4 viewProj;
+uniform mat4 translation;
 //uniform sampler2D elevation;
 
 in vec2 positionMC;
@@ -12,6 +13,6 @@ in vec2 positionMC;
 void main(void) {
 	//float height = texture(elevation, vertexTexCoords).x;
 	//vec3 pos = vec3(positionMC.x, height, positionMC.y);
-    gl_Position = viewProj * model * vec4(positionMC.x, 0, positionMC.y, 1);
+    gl_Position = viewProj * model * translation *vec4(positionMC.x, 0, positionMC.y, 1);
 //	texCoords = vertexTexCoords;
 }

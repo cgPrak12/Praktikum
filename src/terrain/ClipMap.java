@@ -1,46 +1,74 @@
 package terrain;
 
 
+import org.lwjgl.util.vector.Matrix4f;
+
 import util.Geometry;
 import util.GeometryFactory;
+import util.ShaderProgram;
+import util.Util;
 
 public class ClipMap {
 	
 	private int stage;
-	private int size;
-	private int m;
+	private int gridsize;
+	private int middlesize;
+	private int lsize;
+	private ShaderProgram program;
+	private Matrix4f translation;
 	
-	public ClipMap(int n, int stage){
-		this.size = n;
+	public ClipMap(int n, int stage, ShaderProgram program){
+		this.gridsize = n/4+1;
+		this.middlesize = n%4;
+		this.lsize = n/2+2;
 		this.stage = stage;
-		m = (n+1)/4;
+		this.program = program;
 	}
 	
 	public Geometry createMxMgrid(){
-		Geometry geo = GeometryFactory.createGrid(m-1, m-1);
+		Geometry geo = GeometryFactory.createGrid(gridsize, gridsize);
 		return geo;
 	}
 	
 	public Geometry createNxMgrid(){
-		Geometry geo = GeometryFactory.createGrid(m-1, (size-1)-((m-1)*4));
+		Geometry geo = GeometryFactory.createGrid(middlesize, gridsize);
 		return geo;
 	}
 	
 	public Geometry createMxNgrid(){
-		Geometry geo = GeometryFactory.createGrid((size-1)-((m-1)*4),m-1);
+		Geometry geo = GeometryFactory.createGrid(gridsize,middlesize);
 		return geo;
 	}
 	
 	public Geometry createTopLeft(){
-		return GeometryFactory.createL((size+1)/2, 2);
+		return GeometryFactory.createL(lsize, 2);
 	}
 	public Geometry createTopRight(){
-		return GeometryFactory.createL((size+1)/2, 3);
+		return GeometryFactory.createL(lsize, 3);
 	}
 	public Geometry createBottomLeft(){
-		return GeometryFactory.createL((size+1)/2, 1);
+		return GeometryFactory.createL(lsize, 1);
 	}
 	public Geometry createBottomRight(){
-		return GeometryFactory.createL((size+1)/2, 0);
+		return GeometryFactory.createL(lsize, 0);
+	}
+	
+	public void setProgram(){
+		this.program.setUniform("translation", translation);
+	}
+	
+	public void createClip(){
+		translation = new Matrix4f();
+		Util.translationX(-3, translation);
+		setProgram();
+		createTopLeft().draw();
+		
+		Util.translationY(4, translation);
+		setProgram();
+		createTopRight().draw();
+		
+		Util.translationZ(6, translation);
+		setProgram();
+		createMxMgrid().draw();
 	}
 }
