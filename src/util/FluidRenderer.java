@@ -18,16 +18,57 @@ public class FluidRenderer {
     // Thickness-Path
 	private FrameBuffer thicknessFrameBuffer = new FrameBuffer();
     private ShaderProgram thicknessSP = new ShaderProgram("./shader/WaterRenderer_VS.glsl", "./shader/FluidThickness_FS.glsl");
-
+    
+    // TiefenTextur
+    private FrameBuffer depthFrameBuffer = new FrameBuffer();
+    private ShaderProgram depthSP = new ShaderProgram("./shader/Depth_Texture_VS.glsl", "./shader/Depth_Texture_FS.glsl");
+    private Texture tex;
+    
 	public FluidRenderer(Camera camTmp) {
 
     	testWaterParticles = GeometryFactory.createTestParticles(1024);
     	cam = camTmp;
+    	tex = new Texture(GL11.GL_TEXTURE_2D, 0);    	
+   	 	depthFrameBuffer.addTexture(tex, GL11.GL_RGBA8, GL11.GL_RGBA);
+   	 	depthFrameBuffer.drawBuffers();
+        GL11.glPointSize(GL11.GL_POINT_SIZE);
 	} 
+	
+	public Texture depthTexture(){
+		   
+		depthFrameBuffer.bind();
+		depthFrameBuffer.clearColor();
+		
+		depthSP.use();
+		
+		depthSP.setUniform("view", cam.getView());
+		depthSP.setUniform("proj", cam.getProjection());
+		
+        depthSP.setUniform("camPos", cam.getCamPos());
+   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
+   	    depthFrameBuffer.bind();
+   	    depthFrameBuffer.clearColor();
+    
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        
+        testWaterParticles.draw();
+        depthFrameBuffer.unbind();
+        
+        
+        
+        
+        drawTextureSP.use();
+        drawTextureSP.setUniform("image", tex);
+        screenQuadGeo.draw();
+        
+        return  depthFrameBuffer.getTexture(0);
+		
+	}
 	    
     public Texture fluidThickness() {
-    	
-
+   
+        thicknessFrameBuffer.renew();
         thicknessSP.use();
         thicknessSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
         

@@ -16,9 +16,11 @@ import org.lwjgl.opengl.GL30;
  * @author nico3000
  */
 public class DeferredShader {
+
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
     private Geometry screenQuadGeo 		= GeometryFactory.createScreenQuad();
     private FrameBuffer frameBuffer 	= new FrameBuffer();
+
     
 	private Texture texPosition;
 	private Texture texNormal;
@@ -50,7 +52,7 @@ public class DeferredShader {
    		GL30.glBindFragDataLocation(shaderProgram.getId(), 1, "normal");
    		GL30.glBindFragDataLocation(shaderProgram.getId(), 2, "color");
     	shaderProgram.setUniform("camPos", cam.getCamPos());
-   		
+
    		frameBuffer.bind();
     }
     

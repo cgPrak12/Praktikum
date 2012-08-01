@@ -48,6 +48,9 @@ public class FrameBuffer {
 		this.unbind();
 	}
 	
+	public void renew(){
+		count =0;
+	}
 	public void drawBuffers() {
     	// draw buffers
     	int[] buffersArray = new int[count]; 

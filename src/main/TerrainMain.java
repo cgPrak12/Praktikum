@@ -13,6 +13,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
@@ -47,7 +49,8 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-            
+            //glEnable(GL20.GL_POINT_SPRITE);
+            glEnable(GL32.GL_PROGRAM_POINT_SIZE);
             render();
             OpenCL.destroy();
             destroy();
@@ -113,6 +116,7 @@ public class TerrainMain {
             testCube.draw();
         	
             shader.finish();
+            
 //            shader.DrawTexture(shader.getWorldTexture());
             
             
@@ -136,8 +140,8 @@ public class TerrainMain {
 //            waterShader.finish();
 //            waterShader.DrawTexture(waterShader.getWorldTexture());
 
-            fluidRenderer.fluidThickness();
-            
+          //fluidRenderer.fluidThickness();
+         fluidRenderer.depthTexture();
             // END WATER
             
             // present screen
