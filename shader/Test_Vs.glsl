@@ -14,4 +14,4 @@ void main(void) {
 	//vec3 pos = vec3(positionMC.x, height, positionMC.y);
     gl_Position = viewProj * model * vec4(positionMC.x, 0, positionMC.y, 1);
 //	texCoords = vertexTexCoords;
-}
+}    

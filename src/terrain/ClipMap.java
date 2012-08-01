@@ -17,7 +17,7 @@ public class ClipMap {
 	}
 	
 	public Geometry createMxMgrid(){
-		Geometry geo = GeometryFactory.createGrid(m-1, m-1);
+		Geometry geo = GeometryFactory.createGrid(m, m);
 		return geo;
 	}
 	
