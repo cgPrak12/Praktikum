@@ -13,6 +13,6 @@ in vec2 positionMC;
 void main(void) {
 	//float height = texture(elevation, vertexTexCoords).x;
 	//vec3 pos = vec3(positionMC.x, height, positionMC.y);
-    gl_Position = viewProj * model * translation *vec4(positionMC.x, 0, positionMC.y, 1);
+    gl_Position = viewProj * model * translation *2 *vec4(positionMC.x, 0, positionMC.y, 1);
 //	texCoords = vertexTexCoords;
 }    
