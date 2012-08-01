@@ -11,11 +11,19 @@ const float gaussFilter[gaussRadius] = float[gaussRadius](
 );
  
 void main() {
-	vec2 actTexCoord = texCoord - float(int(gaussRadius/2)) * deltaBlur;
+	vec4 texturColor =texture2D(worldTexture, texCoord);
 	vec3 color = vec3(0.0, 0.0, 0.0); 
-	for (int i=0; i<gaussRadius; ++i) { 
-		color += gaussFilter[i] * texture2D(worldTexture, actTexCoord).xyz;
-		actTexCoord += deltaBlur;
+	if (texturColor.w > 3)
+	{
+		vec2 actTexCoord = texCoord - float(int(gaussRadius/2)) * (texturColor.w - 3.0) * deltaBlur;
+		for (int i=0; i<gaussRadius; ++i) { 
+			color += gaussFilter[i] * texture2D(worldTexture, actTexCoord).xyz;
+			actTexCoord += (texturColor.w - 3.0) * deltaBlur;
+		}
+	}
+	else
+	{
+		color = texturColor.xyz;
 	}
 	finalColor = vec4(color,1.0);
 }

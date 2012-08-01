@@ -47,7 +47,10 @@ public class TerrainMain {
     // shader programs
     private static ShaderProgram normalMappingSP;
     private static ShaderProgram BlurSP ;
+    private static ShaderProgram GodRaysSP;
+    private static ShaderProgram LightningSP;
     
+    //private static float specCoeff = 0.5f;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -75,19 +78,18 @@ public class TerrainMain {
             diffuseQuaderTexture  = Texture.generateTexture("./stone_wall.jpg",2 );
             specularQuaderTexture = Texture.generateTexture("./stone_wall_specular.jpg",3 );
             bumpQuaderTexture     = Texture.generateTexture("./stone_wall_bump.jpg",4 );
-            
-            //shaderprogramm erstellen
-            normalMappingSP = new ShaderProgram("./shader/Normal_VS.glsl", "./shader/Normal_FS.glsl");
-            normalMappingSP.use();
-            normalMappingSP.setUniform("textureImage", quaderTexture);
-            normalMappingSP.setUniform("normalTexture", normalQuaderTexture);
-            normalMappingSP.setUniform("diffuseTexture", diffuseQuaderTexture);
-            normalMappingSP.setUniform("specularTexture", specularQuaderTexture);
-            normalMappingSP.setUniform("bumpTexture", bumpQuaderTexture);
-            
+           
+
             
             //blurPosteffect
             BlurSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl","./shader/Blur_FS.glsl");
+            
+            //godRaysPosteffect
+			GodRaysSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/GodRayFS.glsl");            
+            
+            //Lightning
+            LightningSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/Normal_FS.glsl");   
+           
             
             render();
             OpenCL.destroy();
@@ -147,26 +149,40 @@ public class TerrainMain {
         	fboSP.setUniform("modelIT",  modelIT);
         	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
             fboSP.setUniform("camPos",   cam.getCamPos());
+            fboSP.setUniform("normalTexture", normalQuaderTexture);
+            fboSP.setUniform("specularTexture", specularQuaderTexture);
+            fboSP.setUniform("textureImage", quaderTexture);
             
             shader.bind();
             shader.clear();
-        	
+
             testCube.draw();
 
         	shader.finish();
 
-            //shader.DrawTexture(shader.getWorldTexture());
+            //shader.DrawTexture(shader.getDiffuseTexture());
             
 
             
             // TODO: postfx
-            BlurSP.use();
-            BlurSP.setUniform("worldTexture", shader.getWorldTexture());
-            BlurSP.setUniform("deltaBlur", 0.003f);
             
+			//  geo.draw();
+			LightningSP.use();
+            LightningSP.setUniform("normalTexture",  shader.getNormalTexture());
+            LightningSP.setUniform("diffuseTexture",  shader.getDiffuseTexture());
+            LightningSP.setUniform("specularTexture", shader.getSpecTexture());
+            LightningSP.setUniform("bumpTexture", bumpQuaderTexture);
+            LightningSP.setUniform("lightPosition1", lightPosition1);
+            
+            
+//			GodRaysSP.use();
+//			GodRaysSP.setUniform("worldTexture", shader.getDiffuseTexture());
+//			GodRaysSP.setUniform("normalTexture",  shader.getNormalTexture());
+//			
+//			BlurSP.use();
+//            BlurSP.setUniform("worldTexture", shader.getWorldTexture());
+//            BlurSP.setUniform("deltaBlur", 0.001f);
             geo.draw();
-
-            
             
             // present screen
             Display.update();
@@ -254,18 +270,7 @@ public class TerrainMain {
     }
     
     
-    /**
-     * Aendert das aktuelle Programm und bindet die viewProjMatrix an die
-     * entsprechende Uniform Variable.
-     * @param program das neue aktuelle Programm
-     */
-    private static void setActiveProgram(ShaderProgram program) {
-        program.setUniform("view", cam.getView());
-        program.setUniform("projection", cam.getProjection());
-        program.setUniform("model", new Matrix4f());
-        program.setUniform("eyePosition", cam.getCamPos());
-        program.setUniform("lightPosition1", lightPosition1);
-    }
+   
     private static void matrix2uniform(Matrix4f matrix, int uniform){
     	matrix.store(Util.MAT_BUFFER);
     	Util.MAT_BUFFER.position(0);

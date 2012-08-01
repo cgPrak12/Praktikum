@@ -102,7 +102,7 @@ public class ShaderProgram {
      */
     public static final int ATTR_INSTANCE = 5;
     
-    public static final int ATTR_TANGENT = 2;
+    public static final int ATTR_TANGENT = 6;
     /**
      * Erzeugt ein ShaderProgram aus einem Vertex- und Fragmentshader.
      * @param vs Pfad zum Vertexshader
@@ -136,7 +136,7 @@ public class ShaderProgram {
         glBindAttribLocation(this.id, ATTR_POS, "positionMC");
         glBindAttribLocation(this.id, ATTR_NORMAL, "normalMC");
         glBindAttribLocation(this.id, ATTR_TANGENT, "tangentMC");
-        glBindAttribLocation(this.id, ATTR_TEX, "vertexTexCoords");
+        glBindAttribLocation(this.id, ATTR_TEX, "texCoords");
         
         
         

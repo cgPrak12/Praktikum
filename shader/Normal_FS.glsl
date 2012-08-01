@@ -1,6 +1,5 @@
 #version 150 core
 
-uniform sampler2D textureImage;
 uniform sampler2D normalTexture;
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
@@ -14,9 +13,7 @@ const float k_a = 0.2;
 const float k_s = 0.001;
 const float es = 10.0;
 
-in vec2 fragmentTexCoords;
-in vec4 tangentWC;
-in vec4 normalWC;
+in vec2 texCoord;
 in vec3 positionWC;
 
 out vec4 finalColor;
@@ -41,22 +38,17 @@ vec3 getSpecular(vec3 pos, vec3 normal, vec3 c_s, vec3 maxIntensity, vec3 lightP
 
 void main(void)
 {
-	vec3 normal    = vec3( normalize(normalWC));
-	vec3 tangent   = vec3( normalize(tangentWC));
-	vec3 binormal  = cross(tangent,normal);
+	vec3 normal = 2 * texture(normalTexture, texCoord).rgb - vec3(1);
 	
-	vec3 mapNormal = 2 * texture(normalTexture, fragmentTexCoords).rgb - vec3(1);
-	normal = mapNormal.z*normal + mapNormal.y * binormal + mapNormal.x* tangent;
+	vec3 c_d =  texture(diffuseTexture,  texCoord).rgb;
+	vec3 c_a =  c_d;
+	vec3 c_s =  texture(specularTexture, texCoord).rgb;
 	
-	vec3 c_d =  texture(diffuseTexture,  fragmentTexCoords).rgb;
-	vec3 c_a =  texture(textureImage,    fragmentTexCoords).rgb;
-	vec3 c_s =  texture(specularTexture, fragmentTexCoords).rgb;
-	
-	vec3 position = eyePosition + 0.9 * texture(bumpTexture, fragmentTexCoords).r * normal;
+	vec3 position = eyePosition + 0.9 * texture(bumpTexture, texCoord).r * normal;
 	
 	vec3 color  = c_a*k_a; 
 		 color += getDiffuse (positionWC, normal, c_d, maxIntensity, lightPosition1);
-		 color += getSpecular(positionWC, normal, c_s, maxIntensity, lightPosition1, eyePosition, es);
+		 //color += getSpecular(positionWC, normal, c_s, maxIntensity, lightPosition1, eyePosition, es);
 		 
 	finalColor = vec4(color, 1);
 }

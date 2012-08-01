@@ -4,10 +4,8 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform sampler2D normalTexture;
-
 in vec3 positionMC;
-in vec2 vertexTexCoords;
+in vec2 texCoords;
 in vec3 normalMC;
 in vec3 tangentMC;
 
@@ -24,5 +22,5 @@ void main(void)
 	
 	normalWC = model*vec4(normalMC,0);
 	tangentWC = model*vec4(tangentMC,0);
-	fragmentTexCoords = vertexTexCoords;
+	fragmentTexCoords = texCoords;
 }

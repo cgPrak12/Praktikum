@@ -137,15 +137,16 @@ public class GeometryFactory {
     
     public static Geometry createCube() {
     	float[] cubeVertices  = {
-       		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f, // front top right
-       		-0.5f,  0.5f,  0.5f, 	0.0f, 1.0f, 1.0f, 1.0f, // front top left
-       		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 1.0f, 1.0f, // front bottom right
-       		-0.5f, -0.5f,  0.5f, 	0.0f, 0.0f, 1.0f, 1.0f, // front bottom left
+    		 //pos                    //color                 //normale         //tangente        //tex
+       		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,   0.0f,0.0f,1.0f,   1.0f,0.0f,0.0f,   1.0f,1.0f, // front top right
+       		-0.5f,  0.5f,  0.5f, 	0.0f, 1.0f, 1.0f, 1.0f,   0.0f,0.0f,1.0f,   1.0f,0.0f,0.0f,   0.0f,1.0f,// front top left
+       		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 1.0f, 1.0f,   0.0f,1.0f,1.0f,   1.0f,0.0f,0.0f,   1.0f,0.0f,// front bottom right
+       		-0.5f, -0.5f,  0.5f, 	0.0f, 0.0f, 1.0f, 1.0f,   0.0f,1.0f,1.0f,   1.0f,0.0f,0.0f,   0.0f,0.0f,// front bottom left
        		
-       		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 0.0f, 1.0f, // back top right
-       		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f, 0.0f, 1.0f, // back top left
-       		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
-       		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 0.0f, 1.0f  // back bottom left		
+       		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 0.0f, 1.0f,   0.0f,0.0f,1.0f,   1.0f,0.0f,0.0f,   0.0f,1.0f,// back top right
+       		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f, 0.0f, 1.0f,   0.0f,0.0f,1.0f,   1.0f,0.0f,0.0f,   1.0f,1.0f,// back top left
+       		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f,   0.0f,0.0f,1.0f,   1.0f,0.0f,0.0f,   0.0f,0.0f,// back bottom right
+       		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 0.0f, 1.0f,   0.0f,0.0f,1.0f,   1.0f,0.0f,0.0f,   1.0f,0.0f// back bottom left		
        };
        
        int[] cubeIndices = {
@@ -165,6 +166,9 @@ public class GeometryFactory {
        geo.setVertices(cubeVertBuf);
        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
        geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
+       geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 28);
+       geo.addVertexAttribute(ShaderProgram.ATTR_TANGENT, 3, 40);
+       geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 52);
        return geo;
     }
 }
