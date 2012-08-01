@@ -85,6 +85,7 @@ public class FluidRenderer {
         
         // resets buffers
         depthFrameBuffer.reset();
+		normalFrameBuffer.reset();
         thicknessFrameBuffer.reset();
         thicknessBlurFrameBuffer.reset();
         thicknessBlurFrameBuffer2.reset();
@@ -193,8 +194,6 @@ public class FluidRenderer {
         
     }
 
-	
-	
 	private void createFinalImage() {
 		if(textureNames.length != textures.length) throw new RuntimeException("Anzahl names und textures stimmt nicht ueberein!");
 		
@@ -206,6 +205,5 @@ public class FluidRenderer {
 
 		screenQuadGeo.draw();
 		endPath(finalImageFB);
-	}
-    
+	} 
 }
