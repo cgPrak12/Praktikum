@@ -105,7 +105,7 @@ public class FrameBuffer {
     
     public void reset() {
     	count = 0;
-    	IntBuffer buffers = BufferUtils.createIntBuffer(0);
+    	/*IntBuffer buffers = BufferUtils.createIntBuffer(0);
     	buffers.position(0);
     	this.bind();
     	GL20.glDrawBuffers(buffers);
@@ -113,6 +113,6 @@ public class FrameBuffer {
     	for(int i = 0; i < textureList.size(); i++) {
     		textureList.get(i).delete();
     		textureList.remove(i);
-    	}
+    	}*/
     }
 }
