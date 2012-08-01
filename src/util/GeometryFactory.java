@@ -34,10 +34,60 @@ public class GeometryFactory {
 		Geometry geo = new Geometry();
 		geo.setIndices(indexData, GL_TRIANGLE_STRIP);
 		geo.setVertices(vertexData);
-		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		 geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
 		return geo;
 	}
 
+	public static Geometry createMxNGrid(int m, int n){
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+		
+		float[] vertices = new float[2*m*n];
+		int count = 0;
+		
+		for(int y=0; y < n; y++){
+		for (int x=0; x < m; x++){
+			vertices[count++] = x;
+			vertices[count++] = y;
+			}
+		}
+		
+		int[]indices = new int[((m-1)*2+3)*(n-1)];
+		
+		count=0;
+		int test =0;
+		
+		for(int i=0; i<n-1;i++){
+			for(int j=0; j<m;j++){
+				
+				indices[count++] = i*(m)+j;
+				test = i*m+j;
+				indices[count++] = i*(m)+j+m;
+				test = i*m+j+m;			
+				
+			}
+			indices[count++] = -1;
+			test = -1;
+		}
+		
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		Geometry geo = new Geometry();
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+
+		return geo;		
+		
+
+	}
+	
 	/**
 	 * Erstellt Grid der Dimension x*y
 	 * 

@@ -33,12 +33,12 @@ public class ClipMap {
 	}
 	
 	public Geometry createNxMgrid(){
-		Geometry geo = GeometryFactory.createGrid(middlesize, gridsize+1);
+		Geometry geo = GeometryFactory.createGrid(middlesize+1, gridsize+1);
 		return geo;
 	}
 	
 	public Geometry createMxNgrid(){
-		Geometry geo = GeometryFactory.createGrid(gridsize+1,middlesize);
+		Geometry geo = GeometryFactory.createGrid(gridsize+1,middlesize+1);
 		return geo;
 	}
 	
@@ -61,72 +61,74 @@ public class ClipMap {
 	
 	public void createClip(){
 		translation = new Matrix4f();
-//		System.out.println((size/2)-(-size/2));
-		System.out.println(size/2-2*gridsize);
-		System.out.println(-size/2+2*gridsize);
-		// 1
-		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(size/2, null));
-		setProgram();
-		createMxMgrid().draw();
-
-		// 2
-		Util.mul(translation, Util.translationX(-size/2+gridsize, null), Util.translationZ(size/2, null));
-		setProgram();
-		createMxMgrid().draw();
-
-		// 3
-		Util.mul(translation, Util.translationX(size/2-gridsize-gridsize, null), Util.translationZ(size/2, null));
-		setProgram();
-		createMxMgrid().draw();
+//		// 1
+//		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(size/2, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//
+//		// 2
+//		Util.mul(translation, Util.translationX(-size/2+gridsize, null), Util.translationZ(size/2, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//
+//		// 3
+//		Util.mul(translation, Util.translationX(size/2-gridsize-gridsize, null), Util.translationZ(size/2, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//		
+//		// 4
+//		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(size/2, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//
+//		// 5
+//		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(size/2-gridsize, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//		
+//		// 6
+//		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(size/2-gridsize, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//		 
+//		// L
+//		Util.mul(translation, Util.translationX(-size/2+gridsize, null),Util.translationZ(size/2-2*gridsize-middlesize, null));
+//		setProgram();
+//		createTopRight().draw();
+//		
+//		// 7
+//		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(-size/2+2*gridsize, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//		
+//		// 8
+//		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(-size/2+2*gridsize, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//
+//		// 9
+//		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(-size/2+gridsize, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//		
+//		// 10
+//		Util.mul(translation, Util.translationX(-size/2+gridsize, null), Util.translationZ(-size/2+gridsize, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//
+//		// 11
+//		Util.mul(translation, Util.translationX(size/2-2*gridsize, null), Util.translationZ(-size/2+gridsize, null));
+//		setProgram();
+//		createMxMgrid().draw();
+//
+//		// 12
+//		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(-size/2+gridsize, null));
+//		setProgram();
+//		createMxMgrid().draw();
 		
-		// 4
-		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(size/2, null));
+		// Oben
+		Util.translationZ(size/2, null);
 		setProgram();
-		createMxMgrid().draw();
-
-		// 5
-		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(size/2-gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		
-		// 6
-		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(size/2-gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		 
-		// L
-		Util.mul(translation, Util.translationX(-size/2+gridsize, null),Util.translationZ(size/2-2*gridsize-middlesize, null));
-		setProgram();
-		createTopRight().draw();
-		
-		// 7
-		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(-size/2+2*gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		
-		// 8
-		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(-size/2+2*gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-
-		// 9
-		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(-size/2+gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		
-		// 10
-		Util.mul(translation, Util.translationX(-size/2+gridsize, null), Util.translationZ(-size/2+gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-
-		// 11
-		Util.mul(translation, Util.translationX(size/2-2*gridsize, null), Util.translationZ(-size/2+gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-
-		// 12
-		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(-size/2+gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
+		createMxNgrid().draw();
 	}
 }
