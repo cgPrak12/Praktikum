@@ -116,7 +116,6 @@ public class FluidRenderer {
 		fb.clearColor();
 	}
 	    
-
 	private void endPath(FrameBuffer fb) {
 		fb.unbind();
 	}
@@ -177,21 +176,19 @@ public class FluidRenderer {
     }
 	
 	private void fluidThicknessBlur() {  //TODO
-
-	    startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
-	    
+		startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
+		    
 	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
-
+	
         screenQuadGeo.draw();
-
+	
         thicknessBlurFrameBuffer.unbind();
-        
-        
+	        
+	        
 	    startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
 	    thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer2.unbind();
-        
     }
 
 	private void createFinalImage() {

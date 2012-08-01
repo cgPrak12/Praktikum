@@ -1,5 +1,4 @@
 #version 150
-
 in vec2 texCoords;
 
 uniform sampler2D thickness;
@@ -15,33 +14,35 @@ void main(void) {
 
 	vec4 texCoo;
 
-color =  ( texture( thickness, texCoords-vec2(12/800,0) )
-		 + texture( thickness, texCoords-vec2(11/800,0) )
-		 + texture( thickness, texCoords-vec2(10/800,0) )
-		 + texture( thickness, texCoords-vec2(9/800,0) )
-		 + texture( thickness, texCoords-vec2(8/800,0) )
-		 + texture( thickness, texCoords-vec2(7/800,0) )
-		 + texture( thickness, texCoords-vec2(6/800,0) )
-		 + texture( thickness, texCoords-vec2(5/800,0) ) 
-		 + texture( thickness, texCoords-vec2(4/800,0) )
-		 + texture( thickness, texCoords-vec2(3/800,0) )
-		 + texture( thickness, texCoords-vec2(2/800,0) )
-		 + texture( thickness, texCoords-vec2(1/800,0) )
+
+
+color =  ( texture( thickness, texCoords-vec2(12.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(11.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(10.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(9.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(8.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(7.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(6.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(5.0/800.0,0) ) 
+		 + texture( thickness, texCoords-vec2(4.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(3.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(2.0/800.0,0) )
+		 + texture( thickness, texCoords-vec2(1.0/800.0,0) )
 		 
 		 + texture( thickness, texCoords )
 		 
-		 + texture( thickness, texCoords+vec2(1/800,0) )
-		 + texture( thickness, texCoords+vec2(2/800,0) )
-		 + texture( thickness, texCoords+vec2(3/800,0) )
-		 + texture( thickness, texCoords+vec2(4/800,0) )
-		 + texture( thickness, texCoords+vec2(5/800,0) )
-		 + texture( thickness, texCoords+vec2(6/800,0) )
-		 + texture( thickness, texCoords+vec2(7/800,0) )
-		 + texture( thickness, texCoords+vec2(8/800,0) )
-		 + texture( thickness, texCoords+vec2(9/800,0) )
-		 + texture( thickness, texCoords+vec2(10/800,0) )
-		 + texture( thickness, texCoords+vec2(11/800,0) )
-		 + texture( thickness, texCoords+vec2(12/800,0) )
+		 + texture( thickness, texCoords+vec2(1.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(2.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(3.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(4.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(5.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(6.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(7.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(8.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(9.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(10.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(11.0/800.0,0) )
+		 + texture( thickness, texCoords+vec2(12.0/800.0,0) )
 		 ) / 25;
 		  /*
 		 + texture( thickness, texCoords-vec2(1/800,1/800) ) 
