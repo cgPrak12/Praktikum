@@ -55,12 +55,16 @@ public class TerrainMain {
             glFrontFace(GL_CCW);
 //            glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
+             
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
             clip = new ClipMap(15, 3);
-            L = clip.createTopLeft();
-//            grid2 = clip.createMxMgrid();
+            L = clip.createBottomLeft(); //fail 
+//            L = clip.createBottomRight(); // ok
+//            L = clip.createTopLeft();  //ok
+//            L = clip.createTopRight(); //ok
+            grid2 = clip.createMxMgrid();
             
 //            tex = Texture.generateTexture(".\\face2face_usa_heightmap.jpg", 1);
 //            tex.bind();
@@ -110,7 +114,7 @@ public class TerrainMain {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //            grid.draw();
             L.draw();
-//            grid2.draw();
+            grid2.draw();
             
 //            shader.prepareRendering();
             

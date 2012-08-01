@@ -153,8 +153,8 @@ public class GeometryFactory {
 	 * @param length 
 	 * @param scase 0 = Bottom Right
 	 * @param scase 1 = Bottom Left
-	 * @param scase 2 = Top Right
-	 * @param scase 3 = Top Left
+	 * @param scase 2 = Top Left
+	 * @param scase 3 = Top Right
 	 * @return
 	 */
 	public static Geometry createL(int length, int scase) {
@@ -162,11 +162,11 @@ public class GeometryFactory {
 		glBindVertexArray(vaid);
 
 		float[] vertices = new float[8 * length - 1];
-		int[] indices = new int[12 * (length - 2)];
+		int[] indices = new int[12 * length+1];
 		int count = 0;
 		switch (scase) {
 		case 0:
-			for (int i = 0; i < length; i++) {
+			for (int i = length-1; i >= 0; i--) {
 				for (int j = 0; j < 2; j++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
@@ -174,15 +174,15 @@ public class GeometryFactory {
 				}
 			}
 			
-			for (int i = length - 2; i < length; i++) {
-				for (int j = 2; j < length; j++) {
+			for (int j = 1; j < length; j++) {
+				for (int i = 0; i < 2; i++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
 					System.out.println(j);
 				}
 			} break;
 		case 1:
-			for (int j = length-1; j ==0; j--) {
+			for (int j = length-1; j >=0; j--) {
 				for (int i = 0; i < 2; i++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
@@ -190,7 +190,7 @@ public class GeometryFactory {
 				}
 			}
 			
-			for (int i = 2; i < length; i++) {
+			for (int i = 1; i < length; i++) {
 				for (int j = 0; j < 2; j++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
@@ -205,7 +205,7 @@ public class GeometryFactory {
 					System.out.println(j);
 				}
 			}
-			for (int j = length-3; j == 0; j--) {
+			for (int j = length-2; j >= 0; j--) {
 				for (int i = length - 2; i < length; i++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
@@ -221,7 +221,7 @@ public class GeometryFactory {
 				}
 			}
 			
-			for (int i = 2 ; i < length; i++) {
+			for (int i = 1 ; i < length; i++) {
 				for (int j = length-2; j < length; j++) {
 					vertices[count++] = i;
 					vertices[count++] = j;
@@ -243,6 +243,7 @@ public class GeometryFactory {
 			
 			count += 2;
 		}
+		indices[i++] = -1;
 		
 		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
 		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);

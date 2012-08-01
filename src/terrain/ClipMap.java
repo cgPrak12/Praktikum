@@ -32,10 +32,10 @@ public class ClipMap {
 	}
 	
 	public Geometry createTopLeft(){
-		return GeometryFactory.createL((size+1)/2, 3);
+		return GeometryFactory.createL((size+1)/2, 2);
 	}
 	public Geometry createTopRight(){
-		return GeometryFactory.createL((size+1)/2, 2);
+		return GeometryFactory.createL((size+1)/2, 3);
 	}
 	public Geometry createBottomLeft(){
 		return GeometryFactory.createL((size+1)/2, 1);
