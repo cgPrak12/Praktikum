@@ -14,7 +14,9 @@ out vec4 fragColor;
 void main(void) {
 	positionWC = vec4(positionMC, 1.0f);
 	gl_Position = viewProj * positionWC;
+	positionWC = viewProj * positionWC;
 	normalWC = vec4(normalMC, 0.0f);
 	fragColor = vertexColor;
 	positionWC.w = length(positionWC.xyz - camPos);
+	gl_PointSize = 100/(1+positionWC.w);
 }

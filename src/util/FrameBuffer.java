@@ -38,6 +38,11 @@ public class FrameBuffer {
 		this.unbind();
 	}
 	
+	public void renew() {
+		count = 0;
+		
+	}
+	
 	public void addTexture(Texture tex, int internalFormat, int format) {
 		this.bind();
 		
@@ -69,6 +74,7 @@ public class FrameBuffer {
     
     public void clearColor() {
     	// set clear color
+//    	this.bind();
     	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     
