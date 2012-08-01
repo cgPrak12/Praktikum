@@ -117,7 +117,7 @@ public class GeometryFactory {
         float[][][] ic = Util.getImageContents(map);
         float[][] env = new float[3][3];
         FloatBuffer vertexData = BufferUtils.createFloatBuffer(ic[0].length*ic.length*3);
-        FloatBuffer normalTexBuf = BufferUtils.createFloatBuffer(ic[0].length*ic.length*3);
+        FloatBuffer normalTexBuf = BufferUtils.createFloatBuffer(ic[0].length*ic.length*4);
         FloatBuffer heightTexBuf = BufferUtils.createFloatBuffer(ic[0].length*ic.length);
         for (int h = 0; h < ic.length; h++) {
             for (int w = 0; w < ic[0].length; w++) {
@@ -160,6 +160,7 @@ public class GeometryFactory {
                 normalTexBuf.put(norm.x);
                 normalTexBuf.put(norm.y);
                 normalTexBuf.put(norm.z);
+                normalTexBuf.put(0);
             }
         }
         vertexData.position(0);
@@ -184,11 +185,11 @@ public class GeometryFactory {
         tex.bind();
         glTexImage2D(GL_TEXTURE_2D,
                 0,
-                GL_RGB8,
+                GL_RGBA8,
                 ic[0].length,
                 ic.length,
                 0,
-                GL_RGB,
+                GL_RGBA,
                 GL_FLOAT,
                 normalTexBuf);
         glGenerateMipmap(GL_TEXTURE_2D);        

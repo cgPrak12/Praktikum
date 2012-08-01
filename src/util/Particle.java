@@ -39,8 +39,10 @@ import static opengl.OpenCL.clReleaseProgram;
 import static opengl.OpenCL.create;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import opengl.GL;
+import opengl.OpenCL;
 import opengl.OpenCL.Device_Type;
 
 import org.lwjgl.BufferUtils;
@@ -200,9 +202,9 @@ public class Particle {
     	particles = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	particles.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
-    		particles.put((float)(Math.sin(i) + Math.random()));
+    		particles.put((float)(Math.random()));
     		particles.put((float)(3+ Math.random()));
-    		particles.put((float)(Math.cos(i) + Math.random()));
+    		particles.put((float)(Math.random()));
     		particles.put(1000);
     	}
     	particles.position(0);
@@ -210,7 +212,7 @@ public class Particle {
     	veloBuffer = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	veloBuffer.position(0);
     	for(int i=0; i<MAX_PARTICLES*4; i++){
-    		veloBuffer.put(0.01f*(float)Math.random());
+    		veloBuffer.put(0.001f*(float)Math.random());
     	}
     	veloBuffer.position(0);
         this.createBuffer();
@@ -240,14 +242,14 @@ public class Particle {
         
         clEnqueueAcquireGLObjects(this.queue, this.old_pos, null, null);
         clEnqueueAcquireGLObjects(this.queue, this.heightmap, null, null);
-        //clEnqueueAcquireGLObjects(this.queue, this.normalmap, null, null);
+        clEnqueueAcquireGLObjects(this.queue, this.normalmap, null, null);
         
         //this.kernel0.setArg(5, 1e-3f);
         clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
 
         clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
         clEnqueueReleaseGLObjects(this.queue, this.heightmap, null, null);
-        //clEnqueueReleaseGLObjects(this.queue, this.normalmap, null, null);
+        clEnqueueReleaseGLObjects(this.queue, this.normalmap, null, null);
         clFinish(this.queue);
         
         /**
@@ -286,55 +288,28 @@ public class Particle {
     	this.kernel0.setArg(0, this.old_pos);
     	this.kernel0.setArg(1, this.old_velos);
     	
-    	/**
-        Texture hTex = new Texture(GL_TEXTURE_2D, 1);
-        hTex.bind();
-        FloatBuffer buff = BufferUtils.createFloatBuffer(400);
-        buff.position(400);
-        buff.flip();
-        
-        glTexImage2D(GL_TEXTURE_2D,
-                0,
-                GL11.GL_RGBA8,
-                10,
-                10,
-                0,
-                GL11.GL_RGBA,
-                GL_FLOAT,
-                buff);
-        glGenerateMipmap(GL_TEXTURE_2D);  
-    	*/
+
+    	IntBuffer errorCheck = BufferUtils.createIntBuffer(1);
+    	
         heightmap = CL10GL.clCreateFromGLTexture2D(this.context, 
                                                    CL10.CL_MEM_READ_ONLY,
                                                    GL11.GL_TEXTURE_2D,
                                                    0,
-                                                   GLheightmapID, null);
-        /**
-        normalmap = CL10GL.clCreateFromGLTexture2D(this.context, 
-                                                   CL10.CL_MEM_READ_ONLY,
-                                                   GL11.GL_TEXTURE_2D,
-                                                   0,
-                                                   GLnormalmapID, null);
-          */
-        this.kernel0.setArg(2,heightmap);
-        //this.kernel0.setArg(3,normalmap);
-    	/**
-        this.kernel0 = clCreateKernel(this.program, "asteroid_sim");
-        this.kernel0.setArg(0, this.old_pos);
-        this.kernel0.setArg(1, this.new_pos);
-        this.kernel0.setArg(2, this.old_velos);
-        this.kernel0.setArg(3, this.new_velos);
-        this.kernel0.setArg(4, this.MAX_PARTICLES);
-        this.kernel0.setArg(5, 0f);
+                                                   GLheightmapID, errorCheck);
         
-        this.kernel1 = clCreateKernel(this.program, "asteroid_sim");
-        this.kernel1.setArg(0, this.new_pos);
-        this.kernel1.setArg(1, this.old_pos);
-        this.kernel1.setArg(2, this.new_velos);
-        this.kernel1.setArg(3, this.old_velos);
-        this.kernel1.setArg(4, this.MAX_PARTICLES);
-        this.kernel1.setArg(5, 0f);
-    	*/
+        OpenCL.checkError(errorCheck.get(0));
+        
+        normalmap = CL10GL.clCreateFromGLTexture2D(this.context, 
+                CL10.CL_MEM_READ_ONLY,
+                GL11.GL_TEXTURE_2D,
+                0,
+                GLnormalmapID, errorCheck);
+
+        OpenCL.checkError(errorCheck.get(0));
+        
+        
+        this.kernel0.setArg(2,heightmap);
+        this.kernel0.setArg(3,normalmap);
     
     }
     
