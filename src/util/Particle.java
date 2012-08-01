@@ -203,7 +203,7 @@ public class Particle {
     	particles.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
     		particles.put((float)(Math.random()));
-    		particles.put((float)(3+ Math.random()));
+    		particles.put((float)(1+ Math.random()));
     		particles.put((float)(Math.random()));
     		particles.put(1000);
     	}
@@ -211,8 +211,11 @@ public class Particle {
     	
     	veloBuffer = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	veloBuffer.position(0);
-    	for(int i=0; i<MAX_PARTICLES*4; i++){
+    	for(int i=0; i<MAX_PARTICLES; i++){
+                veloBuffer.put(0);
     		veloBuffer.put(0.001f*(float)Math.random());
+                veloBuffer.put(0);
+                veloBuffer.put(0);
     	}
     	veloBuffer.position(0);
         this.createBuffer();

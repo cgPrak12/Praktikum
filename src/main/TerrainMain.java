@@ -84,7 +84,7 @@ public class TerrainMain {
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
-        particles = new Particle(128, Device_Type.GPU, Display.getDrawable());
+        particles = new Particle(2048, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -184,6 +184,7 @@ public class TerrainMain {
             }
         }
         
+        moveSpeed = moveSpeed * 0.25f;
         cam.move(moveSpeed * moveDir.z, moveSpeed * moveDir.x, moveSpeed * moveDir.y);
         
         while(Mouse.next()) {
