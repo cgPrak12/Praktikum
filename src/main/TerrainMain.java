@@ -12,6 +12,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
 
@@ -33,16 +34,22 @@ public class TerrainMain {
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
+/*    //einfache geometrie für ein quadrat
+    private static Geometry quad = null;
+    //shader erzeugen
+    private static ShaderProgram shader = null;*/
+    
+    
     public static void main(String[] argv) {
         try {
             init();
             OpenCL.init();
-            glEnable(GL_CULL_FACE);
+//            glEnable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-            
+                                    
             render();
             OpenCL.destroy();
             destroy();
@@ -59,8 +66,11 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        DeferredShader shader = new DeferredShader();
-        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+//        DeferredShader shader = new DeferredShader();
+//        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+
+        ShaderProgram  shaderProgram = new ShaderProgram("C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestVS.glsl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestFS.glsl");
+        Geometry quad = GeometryFactory.createFromOBJ("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Palma 001.obj");
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -81,19 +91,23 @@ public class TerrainMain {
             
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
-            shader.prepareRendering();
-            
-            shader.DrawTexture(tex);
+                        
+  //          shader.prepareRendering();
+  //          shader.DrawTexture(tex);
             
             // TODO: postfx
+            shaderProgram.use();
+            shaderProgram.setUniform("model", new Matrix4f());
+            shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+            quad.draw();
+
             
             // present screen
             Display.update();
             Display.sync(60);
         }
-        shader.delete();
-        tex.delete();
+//        shader.delete();
+//        tex.delete();
     }
     
     /**
@@ -101,7 +115,7 @@ public class TerrainMain {
      * @param millis Millisekunden seit dem letzten Aufruf
      */
     public static void handleInput(long millis) {
-        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
+        float moveSpeed = 2e-2f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
         float camSpeed = 5e-3f;
         
         while(Keyboard.next()) {

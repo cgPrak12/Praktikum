@@ -29,7 +29,6 @@ public class Geometry {
     private int instanceAttributeSize;
     private final List<VertexAttribute> attributes = new LinkedList<>();
 
-
     /**
      * Setzt den IntBuffer, der die Indexdaten dieser Geometrie beinhaltet und
      * die zugehoerige Topologie.
