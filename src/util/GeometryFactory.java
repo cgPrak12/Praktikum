@@ -46,7 +46,7 @@ public class GeometryFactory {
     public static Geometry createCube() {
     	float[] cubeVertices  = {
           		 0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // front top right
-        		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f, // front top left
+        		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 2.0f, 0.0f, 1.0f, // front top left
         		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 1.0f, // front bottom right
         		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 1.0f, 1.0f, // front bottom left
             		

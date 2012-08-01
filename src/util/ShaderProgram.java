@@ -38,6 +38,21 @@ public class ShaderProgram {
         } else {
             System.err.println("location of " + varName + " is -1");
         }            
+    }          
+    
+    /**
+     * Hilfsmethode, um eine Matrix in eine Uniform zu schreiben. Das
+     * zugehoerige Programmobjekt muss aktiv sein.
+     * @param matrix Quellmatrix
+     * @param varName Zielvariable im Shader
+     */
+    public void setUniform(String varName, float val) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+        	GL20.glUniform1f(loc, val);
+        } else {
+            System.err.println("location of " + varName + " is -1");
+        }            
     }
     
     public void setUniform(String varName, Vector3f vector) {

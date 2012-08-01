@@ -38,6 +38,10 @@ public class TerrainMain {
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
+    //tone mapping
+    private static int exposureLoc;
+    private static float exposure = 1.0f;
+    
     private static ShaderProgram fboSP; 
     
     public static void main(String[] argv) {
@@ -77,6 +81,7 @@ public class TerrainMain {
         Geometry screenQuad = GeometryFactory.createScreenQuad();
         
         ShaderProgram phongSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/PhongLighting_FS.glsl");
+        ShaderProgram toneSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/ToneMapping_FS.glsl");
         FrameBuffer enlightened = new FrameBuffer();
         enlightened.init(false, GL.WIDTH, GL.HEIGHT);
         enlightened.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
@@ -117,6 +122,7 @@ public class TerrainMain {
 
         	shader.finish();
         	
+        	// blinn-phong lighting
         	enlightened.bind();
         	phongSP.use();
         	phongSP.setUniform("normalTex",  shader.getNormalTexture());
@@ -129,8 +135,13 @@ public class TerrainMain {
         	enlightened.unbind();
         	
         	// tone mapping
+        	toneSP.use();
+        	toneSP.setUniform("diffuseTex", shader.getDiffuseTexture());
+        	toneSP.setUniform("exposure", exposure);
+        	screenQuad.draw();
         	
-        	shader.DrawTexture(enlightened.getTexture(0));
+        	
+        	//shader.DrawTexture(enlightened.getTexture(0));
             
             // TODO: postfx
             
@@ -186,6 +197,12 @@ public class TerrainMain {
                         break;
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
+                    case Keyboard.KEY_NUMPAD8: if (exposure <  19) exposure += 1.0f; ; break;
+                    case Keyboard.KEY_NUMPAD2:
+                    	if (exposure > 1.0)
+                    		exposure -= 1.0f;
+                    	else if (exposure <= 1.0 && exposure > 0)
+                    		exposure -= 0.1f ; break;
                 }
             }
         }
