@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL30;
 
 public class FluidRenderer {
 	
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024*2);
 	private int textureUnit = 50;
 	private Camera cam;
 	
@@ -37,6 +37,9 @@ public class FluidRenderer {
 	private FrameBuffer thicknessBlurFrameBuffer = new FrameBuffer();
     private ShaderProgram thicknessBlurSP = new ShaderProgram("./shader/fluid/ThicknessBlur_VS.glsl", "./shader/fluid/ThicknessBlur_FS.glsl");
     private Texture thicknessBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    private FrameBuffer thicknessBlurFrameBuffer2 = new FrameBuffer();
+    private ShaderProgram thicknessBlurSP2 = new ShaderProgram("./shader/fluid/ThicknessBlur_VS.glsl", "./shader/fluid/ThicknessBlur2_FS.glsl");
+    private Texture thicknessBlurTexture2 = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
 
     // Final Image
     private FrameBuffer finalImageFB = new FrameBuffer();
@@ -57,6 +60,7 @@ public class FluidRenderer {
     	init(normalSP, normalFrameBuffer, "color", normalTexture);
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
+    	init(thicknessBlurSP2, thicknessBlurFrameBuffer2, "color", thicknessBlurTexture2);
     	init(finalImageSP, finalImageFB, "color", finalImage);
 	} 
 	
@@ -76,13 +80,14 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", thicknessBlurTexture);
+        drawTextureSP.setUniform("image", thicknessBlurTexture2);
         screenQuadGeo.draw();
         
         // resets buffers
         depthFrameBuffer.reset();
         thicknessFrameBuffer.reset();
         thicknessBlurFrameBuffer.reset();
+        thicknessBlurFrameBuffer2.reset();
         
         finalImageFB.reset();
 	}
@@ -179,6 +184,12 @@ public class FluidRenderer {
         screenQuadGeo.draw();
 
         thicknessBlurFrameBuffer.unbind();
+        
+        
+	    startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
+	    thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
+        screenQuadGeo.draw();
+        thicknessBlurFrameBuffer2.unbind();
         
     }
 
