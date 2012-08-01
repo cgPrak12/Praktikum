@@ -88,5 +88,9 @@ public class DeferredShader {
         texNormal.delete();
         texVertexColor.delete();
     }
+    
+    public void reset() {
+    	frameBuffer.reset();
+    }
 
 }
