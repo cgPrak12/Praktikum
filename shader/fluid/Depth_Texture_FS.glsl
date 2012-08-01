@@ -7,7 +7,7 @@ in vec4 normalWC;
 in vec4 fragColor;
 in vec2 gl_PointCoord;
 
-out vec4 depth;
+out float depth;
 
 void main(void) {
 
@@ -26,6 +26,6 @@ void main(void) {
 	vec4 pixelPos = vec4(g.xyz + n*0.5,1.0);
 	
 	// position in xyz, depth in w !
-	depth = vec4(pixelPos.xyz, -pixelPos.z / pixelPos.w);
+	depth = -pixelPos.z / pixelPos.w;
 
 }

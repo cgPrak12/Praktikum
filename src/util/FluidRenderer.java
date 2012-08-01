@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL30;
 
 public class FluidRenderer {
 	
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024*2);
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
 	private int textureUnit = 50;
 	private Camera cam;
 	
@@ -82,7 +82,7 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", normalTexture);
+        drawTextureSP.setUniform("image", depthTexture);
         screenQuadGeo.draw();
         
         // resets buffers
@@ -146,6 +146,8 @@ public class FluidRenderer {
 		normalSP.setUniform("depthTex", depthTexture);
 		normalSP.setUniform("texSize", GL.WIDTH);
 		
+	    glDisable(GL_BLEND);
+	    glDisable(GL_DEPTH_TEST);
 		screenQuadGeo.draw();
 		endPath(normalFrameBuffer);
 	}

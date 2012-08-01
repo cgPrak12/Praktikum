@@ -10,5 +10,6 @@ float offset = 10.0/texSize;
 
 void main(void)
 {
-	color = texture(depthTex, texCoord);	
+	// get positions
+	vec4 posUdepth = texture(depthTex, texCoord);
 }
