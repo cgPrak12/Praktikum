@@ -6,8 +6,8 @@
  * @author vbruder
  */
 
-const vec4 upColor = vec4(1.0, 1.0, 0.0, 1.0);
-const vec4 downColor = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 upColor = vec4(1.0, 1.0, 0.9, 1.0);
+const vec4 downColor = vec4(0.0, 0.3, 0.0, 1.0);
 
 uniform sampler2D worldTex;
 uniform sampler2D normalTex;
@@ -15,19 +15,21 @@ uniform sampler2D diffuseTex;
 
 uniform vec3 camPos;
 
+uniform vec3 sunDir;
+
 in vec2 texCoord;
 
 out vec4 enlightenedColor;
 
-const float k_a = 1.0; // 0.05;
-const float k_spec = 1.0; // 0.3;
-const float k_dif = 1.0; // 0.06;
+const float k_a = 0.5; // 0.05;
+const float k_spec = 0.3; // 0.3;
+const float k_dif = 0.5; // 0.06;
 const float es = 16.0;
 const float sunIntensity = 1.0;
 
-const vec3 sunDir = vec3(1.0, 0.0, 0.0);
+//const vec3 sunDir = vec3(1.0, 0.0, 0.0);
 
-/**
+/**F
  * Calculate lightning with Blinn-Phong.
  * @param pos position of the point in world coords
  * @param normal normel of the point in world coords

@@ -15,8 +15,11 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
+
 import util.*;
 
 /**
@@ -39,8 +42,9 @@ public class TerrainMain {
     private static float ingameTimePerSecond = 1.0f;
     
     //tone mapping
-    private static int exposureLoc;
     private static float exposure = 1.0f;
+    
+    private static Vector4f sunDirection = new Vector4f(1.0f, 1.0f, 1.0f, 0f);
     
     private static ShaderProgram fboSP; 
     
@@ -102,6 +106,7 @@ public class TerrainMain {
             // input and animation
             handleInput(millis);
             animate(millis);
+            Matrix4f.transform(Util.rotationY(0.01f, null), sunDirection, sunDirection);
             
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -129,19 +134,24 @@ public class TerrainMain {
         	phongSP.setUniform("worldTex",   shader.getWorldTexture());
         	phongSP.setUniform("diffuseTex", shader.getDiffuseTexture());
         	phongSP.setUniform("camPos",     cam.getCamPos());
+        	phongSP.setUniform("sunDir",	 new Vector3f(sunDirection.x, sunDirection.y, sunDirection.z));
         	
         	screenQuad.draw();
         	
         	enlightened.unbind();
+        
         	
         	// tone mapping
         	toneSP.use();
         	toneSP.setUniform("diffuseTex", enlightened.getTexture(0));
         	toneSP.setUniform("exposure", exposure);
         	screenQuad.draw();
+        	
+        	
         	        	
 //        	shader.DrawTexture(enlightened.getTexture(0));
-            
+        	
+        	
             // TODO: postfx
             
             // present screen
@@ -202,6 +212,19 @@ public class TerrainMain {
                     		exposure -= 1.0f;
                     	else if (exposure <= 1.0 && exposure > 0)
                     		exposure -= 0.1f ; break;
+                    case Keyboard.KEY_K: 
+                    	Matrix4f.transform(Util.rotationY(0.1f, null), sunDirection, sunDirection);
+                    	break;
+                    	//sunDirection.x = 1.0f; sunDirection.y = 0.0f; sunDirection.z = 0.0f; break;
+                    case Keyboard.KEY_L: 
+                    	Matrix4f.transform(Util.rotationY(-0.1f, null), sunDirection, sunDirection);
+                    	break;
+                    case Keyboard.KEY_COMMA:
+                    	Matrix4f.transform(Util.rotationZ(-0.1f, null), sunDirection, sunDirection);
+                    	break;
+                    case Keyboard.KEY_O:
+                    	Matrix4f.transform(Util.rotationZ(0.1f, null), sunDirection, sunDirection);
+                    	break;
                 }
             }
         }
