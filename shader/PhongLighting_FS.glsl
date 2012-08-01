@@ -42,7 +42,7 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 {
 	vec3 finalColor = vec3(0.0, 0.0, 0.0);
 	vec3 view = normalize(camPos - pos);
-	vec3 half = normalize(-view + sunDir);
+	vec3 halfvec = normalize(-view + sunDir);
 	
 	//ambient
 	finalColor += (k_a * c_a);
@@ -51,7 +51,7 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 	finalColor += sunIntensity * k_dif * c_d * max(dot(sunDir, normal), 0.0);
 		
 	//specular
-	//finalColor += sunIntensity * k_spec * c_s * max(pow(dot(half, normal), (es + 4)), 0.0);
+	//finalColor += sunIntensity * k_spec * c_s * max(pow(dot(halfvec, normal), (es + 4)), 0.0);
 	
     return (finalColor);
 }

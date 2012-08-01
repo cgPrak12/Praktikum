@@ -17,6 +17,8 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -90,6 +92,18 @@ public class TerrainMain {
         enlightened.init(false, GL.WIDTH, GL.HEIGHT);
         enlightened.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
+        //Tone Mapping
+        Vector2f[] tc_offset = new Vector2f[25];
+    	int arraycounter = 0;
+    	for(int i = -2; i < 3; ++i) {
+    		for(int j = -2; j < 3; ++j) {
+    			tc_offset[arraycounter] = new Vector2f(i, j);
+    			System.out.println(tc_offset[arraycounter].x);
+    			System.out.println(tc_offset[arraycounter].y);
+    			++arraycounter;
+    		}
+    	}
+        
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -145,8 +159,8 @@ public class TerrainMain {
         	toneSP.use();
         	toneSP.setUniform("diffuseTex", enlightened.getTexture(0));
         	toneSP.setUniform("exposure", exposure);
+        	toneSP.setUniform("tc_offset", tc_offset);
         	screenQuad.draw();
-        	
         	
         	        	
 //        	shader.DrawTexture(enlightened.getTexture(0));

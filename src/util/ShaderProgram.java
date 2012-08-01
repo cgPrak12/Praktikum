@@ -1,9 +1,14 @@
 package util;
 
+import java.nio.FloatBuffer;
+
 import opengl.GL;
 import static opengl.GL.*;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
@@ -77,6 +82,18 @@ public class ShaderProgram {
             System.err.println("location of " + varName + " is -1");
         }            
     }
+    
+    public void setUniform(String varName, Vector2f[] vectorarray) {
+    	int loc = glGetUniformLocation(this.id, varName);
+    	FloatBuffer val = BufferUtils.createFloatBuffer(vectorarray.length * 2);
+        if(loc != -1) {
+        	for(int i = 0; i < vectorarray.length; ++i) {
+        		val.put(vectorarray[i].x);
+        		val.put(vectorarray[i].y);
+        	}
+        	GL20.glUniform2(loc, val);
+        }	
+	}
     
     /**
      * Attribut Index von positionMC
