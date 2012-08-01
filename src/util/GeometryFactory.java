@@ -33,24 +33,24 @@ public class GeometryFactory {
                 //Parse verticex coordinates (v)
                 if(lineElements.length>0 && lineElements[0].equals("v")) {
                     if(!lineElements[1].isEmpty() && !lineElements[2].isEmpty() && !lineElements[3].isEmpty()) {
-                        Vector3f vertex = new Vector3f(Float.parseFloat(lineElements[1]), Float.parseFloat(lineElements[2]), Float.parseFloat(lineElements[3]));
-                        model.vertexList.add(vertex);
-                    }
-                }
-
-                //Parse vertex texture coordinates (vt)
-                if(lineElements.length>0 && lineElements[0].equals("vt")) {
-                    if(!lineElements[1].isEmpty() && !lineElements[2].isEmpty() && !lineElements[3].isEmpty()) {
-                        Vector3f vertex = new Vector3f(Float.parseFloat(lineElements[1]), Float.parseFloat(lineElements[2]), Float.parseFloat(lineElements[3]));
-                        model.vertexTextureList.add(vertex);
+                        Vector3f vertexCoordinates = new Vector3f(Float.parseFloat(lineElements[1]), Float.parseFloat(lineElements[2]), Float.parseFloat(lineElements[3]));
+                        model.vertexList.add(vertexCoordinates);
                     }
                 }
                 
+                //Parse vertex texture coordinates (vt)
+                if(lineElements.length>0 && lineElements[0].equals("vt")) {
+                    if(!lineElements[1].isEmpty() && !lineElements[2].isEmpty() && !lineElements[3].isEmpty()) {
+                        Vector3f vertexTextureCoordinates = new Vector3f(Float.parseFloat(lineElements[1]), Float.parseFloat(lineElements[2]), Float.parseFloat(lineElements[3]));
+                        model.vertexTextureList.add(vertexTextureCoordinates);
+                    }
+                }
+
                 //Parse vertex normals (vn)
                 if(lineElements.length>0 && lineElements[0].equals("vn")) {
                     if(!lineElements[1].isEmpty() && !lineElements[2].isEmpty() && !lineElements[3].isEmpty()) {
-                        Vector3f vertex = new Vector3f(Float.parseFloat(lineElements[1]), Float.parseFloat(lineElements[2]), Float.parseFloat(lineElements[3]));
-                        model.vertexNormalList.add(vertex);
+                        Vector3f vertexNormals = new Vector3f(Float.parseFloat(lineElements[1]), Float.parseFloat(lineElements[2]), Float.parseFloat(lineElements[3]));
+                        model.vertexNormalList.add(vertexNormals);
                     }
                 }
                 
@@ -64,9 +64,11 @@ public class GeometryFactory {
                         faceGroup[3] = lineElements[4].split("/");
 
                         Face faceOne = new Face(Integer.parseInt(faceGroup[0][0])-1, Integer.parseInt(faceGroup[1][0])-1, Integer.parseInt(faceGroup[2][0])-1,
+                                                Integer.parseInt(faceGroup[0][1])-1, Integer.parseInt(faceGroup[1][1])-1, Integer.parseInt(faceGroup[2][1])-1,
                                                 Integer.parseInt(faceGroup[0][2])-1, Integer.parseInt(faceGroup[1][2])-1, Integer.parseInt(faceGroup[2][2])-1);
                         model.faceListe.add(faceOne);
                         Face faceTwo = new Face(Integer.parseInt(faceGroup[0][0])-1, Integer.parseInt(faceGroup[2][0])-1, Integer.parseInt(faceGroup[3][0])-1,
+                                                Integer.parseInt(faceGroup[0][1])-1, Integer.parseInt(faceGroup[2][1])-1, Integer.parseInt(faceGroup[3][1])-1,
                                                 Integer.parseInt(faceGroup[0][2])-1, Integer.parseInt(faceGroup[2][2])-1, Integer.parseInt(faceGroup[3][2])-1);
                         model.faceListe.add(faceTwo);
                     } else {
@@ -87,33 +89,64 @@ public class GeometryFactory {
         glBindVertexArray(vaid);
 
         //Erzeuge vertex Buffer
-        FloatBuffer vertexData = BufferUtils.createFloatBuffer(3*model.vertexList.size());
-        //Schreibe Vertexdaten aus der Vertex Liste in den Vertex Buffer
-        Iterator<Vector3f> vertexListIterator = model.vertexList.iterator();
-        while(vertexListIterator.hasNext())
-            vertexListIterator.next().store(vertexData);
-        vertexData.position(0);
-
-        
+        FloatBuffer vertexData = BufferUtils.createFloatBuffer(model.faceListe.size()*3*3);
         //Erzeuge index Buffer
         IntBuffer indexData = BufferUtils.createIntBuffer(model.faceListe.size()*3);
         //Schreibe Indexdaten aus der Index Liste in den Index Buffer
         Iterator<Face> faceIterator = model.faceListe.listIterator();
+        //Durchlaufe alle Faces
         while(faceIterator.hasNext()) {
-            Vector3f tmpVertexIndizies = faceIterator.next().vertexIndizies;
-            indexData.put((int)tmpVertexIndizies.x);
-            indexData.put((int)tmpVertexIndizies.y);
-            indexData.put((int)tmpVertexIndizies.z);
-        }
-        indexData.position(0);
+            //Speichere aktuelles Face zwischen
+            Face currentFace = faceIterator.next();
+            //Hole vertexCoordinaten zum jeweiligen vertexIndizies
+            model.vertexList.get((int)currentFace.vertexIndizies.x).store(vertexData);
+/*            model.vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).store(vertexData);
+            model.vertexNormalList.get((int)currentFace.vertexNormalIndizies.x).store(vertexData);*/
+            
+            model.vertexList.get((int)currentFace.vertexIndizies.y).store(vertexData);
+/*            model.vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).store(vertexData);
+            model.vertexNormalList.get((int)currentFace.vertexNormalIndizies.y).store(vertexData);*/
 
+            model.vertexList.get((int)currentFace.vertexIndizies.z).store(vertexData);
+/*            model.vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).store(vertexData);
+            model.vertexNormalList.get((int)currentFace.vertexNormalIndizies.z).store(vertexData);*/
+            
+/*            indexData.put((int)currentFace.vertexIndizies.x);
+            indexData.put((int)currentFace.vertexIndizies.y);
+            indexData.put((int)currentFace.vertexIndizies.z);*/
+        }
+        for(int i=0; i<model.faceListe.size()*3; i++) {
+            indexData.put(i);
+        }
+        
+        vertexData.position(0);
+        indexData.position(0);
+        
+/*        for(int i=0; i<vertexData.capacity(); i++) {
+            System.out.print(vertexData.get(i)+", ");
+            if((i+1)%3==0)
+                System.out.println();
+        }
+
+        for(int i=0; i<indexData.capacity(); i++) {
+            System.out.print(indexData.get(i)+", ");
+            if((i+1)%3==0)
+                System.out.println();
+        }*/
+        
+        /*
+v 0.000000 2.000000 0.000000
+v 0.000000 0.000000 0.000000
+v 2.000000 0.000000 0.000000
+v 2.000000 2.000000 0.000000
+         */
+        
         Geometry geo = new Geometry();
         geo.setIndices(indexData, GL_TRIANGLES);
         geo.setVertices(vertexData);
         geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
-/*      TODO:
-        geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
-        geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);*/
+/*        geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 3, 12);
+        geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 24);*/
         return geo;
     }
     

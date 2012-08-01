@@ -14,8 +14,11 @@ public class Face {
     Vector3f vertexTextureIndizies;
     Vector3f vertexNormalIndizies;
     
-    public Face(int vertexOne, int vertexTwo, int vertexThree, int normalOne, int normalTwo, int normalThree) {
+    public Face(int vertexOne, int vertexTwo, int vertexThree,
+                int textureOne, int textureTwo, int textureThree,
+                int normalOne, int normalTwo, int normalThree) {
         this.vertexIndizies = new Vector3f((float)vertexOne, (float)vertexTwo, (float)vertexThree);
+        this.vertexTextureIndizies = new Vector3f((float)textureOne, (float)textureTwo, (float)textureThree);
         this.vertexNormalIndizies = new Vector3f((float)normalOne, (float)normalTwo, (float)normalThree);
     }
     
