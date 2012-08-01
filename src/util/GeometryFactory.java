@@ -3,6 +3,9 @@ package util;
 import static opengl.GL.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+
+import opengl.GL;
+
 import org.lwjgl.BufferUtils;
 
 /**
@@ -42,20 +45,44 @@ public class GeometryFactory {
     
     public static Geometry createCube() {
     	float[] cubeVertices  = {
-       		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f, // front top right
-       		-0.5f,  0.5f,  0.5f, 	0.0f, 1.0f, 1.0f, 1.0f, // front top left
-       		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 1.0f, 1.0f, // front bottom right
-       		-0.5f, -0.5f,  0.5f, 	0.0f, 0.0f, 1.0f, 1.0f, // front bottom left
-       		
-       		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 0.0f, 1.0f, // back top right
-       		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f, 0.0f, 1.0f, // back top left
-       		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
-       		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 0.0f, 1.0f  // back bottom left		
-       };
+          		 0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // front top right
+        		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f, // front top left
+        		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 1.0f, // front bottom right
+        		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 1.0f, 1.0f, // front bottom left
+            		
+        		 0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  1.0f, 1.0f, 0.0f, 1.0f, // back top right
+        		 0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f, 1.0f, // back top left
+        		-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
+        		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 1.0f,  // back bottom left		
+
+          		 0.5f, 0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  2.0f, 2.0f, 2.0f, 1.0f, // front top right
+        		 0.5f, 0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 2.0f, 2.0f, 1.0f, // front top left
+        		-0.5f, 0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  2.0f, 0.0f, 2.0f, 1.0f, // front bottom right
+        		-0.5f, 0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 2.0f, 1.0f, // front bottom left
+                		
+         		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,  2.0f, 2.0f, 2.0f, 1.0f, // front top right
+     		 	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 2.0f, 2.0f, 1.0f, // front top left
+ 		 		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,  2.0f, 0.0f, 2.0f, 1.0f, // front bottom right
+ 		 		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 2.0f, 1.0f, // front bottom left
+                		
+          		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  2.0f, 2.0f, 2.0f, 1.0f, // front top right
+        		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 2.0f, 2.0f, 1.0f, // front top left
+        		 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  2.0f, 0.0f, 2.0f, 1.0f, // front bottom right
+        		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 2.0f, 1.0f, // front bottom left
+            		
+          		-0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  2.0f, 2.0f, 2.0f, 1.0f, // front top right
+        		-0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  0.0f, 2.0f, 2.0f, 1.0f, // front top left
+        		-0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  2.0f, 0.0f, 2.0f, 1.0f, // front bottom right
+        		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 2.0f, 1.0f, // front bottom left
+    	};
        
        int[] cubeIndices = {
-    		5, 4, 7, 6, 2, 4, 0, 
-    		5, 1, 7, 3, 2, 1, 0
+    		 0,  1,  2,  3, GL.RESTART_INDEX,
+    		 4,  5,  6,  7, GL.RESTART_INDEX,
+    		 8,  9, 10, 11, GL.RESTART_INDEX,
+    		12, 13, 14, 15, GL.RESTART_INDEX,
+    		16, 17, 18, 19, GL.RESTART_INDEX,
+    		20, 21, 22, 23, GL.RESTART_INDEX,
        };
        
        FloatBuffer cubeVertBuf = BufferUtils.createFloatBuffer(cubeVertices.length);
@@ -69,7 +96,8 @@ public class GeometryFactory {
        geo.setIndices(cubeIndBuf, GL_TRIANGLE_STRIP);
        geo.setVertices(cubeVertBuf);
        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
-       geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
+       geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
+       geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 24);
        return geo;
     }
 }

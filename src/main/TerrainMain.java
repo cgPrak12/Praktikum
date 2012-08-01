@@ -7,11 +7,14 @@ package main;
 import static opengl.GL.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import opengl.GL;
 import opengl.OpenCL;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
@@ -71,6 +74,12 @@ public class TerrainMain {
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         Geometry testCube = GeometryFactory.createCube();
+        Geometry screenQuad = GeometryFactory.createScreenQuad();
+        
+        ShaderProgram phongSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/PhongLighting_FS.glsl");
+        FrameBuffer enlightened = new FrameBuffer();
+        enlightened.init(false, GL.WIDTH, GL.HEIGHT);
+        enlightened.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -94,7 +103,7 @@ public class TerrainMain {
             
             
             fboSP.use();
-        	Matrix4f modelMatrix = new Matrix4f();
+        	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
         	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
         	fboSP.setUniform("model", 	 modelMatrix);
         	fboSP.setUniform("modelIT",  modelIT);
@@ -107,9 +116,21 @@ public class TerrainMain {
             testCube.draw();
 
         	shader.finish();
-
-            shader.DrawTexture(shader.getWorldTexture());
-            
+        	
+        	enlightened.bind();
+        	phongSP.use();
+        	phongSP.setUniform("normalTex",  shader.getNormalTexture());
+        	phongSP.setUniform("worldTex",   shader.getWorldTexture());
+        	phongSP.setUniform("diffuseTex", shader.getDiffuseTexture());
+        	phongSP.setUniform("camPos",     cam.getCamPos());
+        	
+        	screenQuad.draw();
+        	
+        	enlightened.unbind();
+        	
+        	// tone mapping
+        	
+        	shader.DrawTexture(enlightened.getTexture(0));
             
             // TODO: postfx
             

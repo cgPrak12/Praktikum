@@ -73,6 +73,13 @@ public class FrameBuffer {
     
     public void clearColor() {
     	// set clear color
+    	this.bind();
+    	FloatBuffer color = BufferUtils.createFloatBuffer(4);
+    	color.put(new float[] { 0, 0, 0, 0 });
+    	color.position(0);
+    	for(int i=0; i < this.textureList.size(); ++i) {
+    		GL30.glClearBuffer(GL11.GL_COLOR, i, color);
+    	}
     	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     
