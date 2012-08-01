@@ -18,7 +18,7 @@ public class ClipMap {
 	private Matrix4f translation;
 	
 	public ClipMap(int n, int stage, ShaderProgram program){
-		this.gridsize = n/4+1;
+		this.gridsize = n/4;
 		this.middlesize = n%4;
 		this.lsize = n/2+2;
 		this.stage = stage;
@@ -36,7 +36,9 @@ public class ClipMap {
 	}
 	
 	public Geometry createMxNgrid(){
-		Geometry geo = GeometryFactory.createMxNGrid(17,3+1);
+		//Geometry geo = GeometryFactory.createMxNGrid(gridsize+1, middlesize+1);
+		Geometry geo = GeometryFactory.createMxNGrid(4, 12);
+		
 		return geo;
 	}
 	
@@ -71,8 +73,10 @@ public class ClipMap {
 //		setProgram();
 //		createMxMgrid().draw();
 		
-		Util.translationZ(6, translation);
+		
 		setProgram();		
+		System.out.println(gridsize);
+		
 		createMxNgrid().draw();
 	}
 }
