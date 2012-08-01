@@ -37,10 +37,13 @@ public class ShaderProgram {
         }
     }
     
-    public void setInteger(String varName, int integer){
+    public void setFloat(String varName, float integer){
     	int loc = glGetUniformLocation(this.id, varName);
     	if(loc != -1){
-    		glUniform1i(loc, integer);
+    		glUniform1f(loc, integer);
+    	}
+    	else{
+    		System.err.println("bla");
     	}
     }
     

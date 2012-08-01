@@ -1,6 +1,5 @@
 package terrain;
 
-
 import org.lwjgl.util.vector.Matrix4f;
 
 import util.Geometry;
@@ -9,7 +8,7 @@ import util.ShaderProgram;
 import util.Util;
 
 public class ClipMap {
-	
+
 	private int stage;
 	private int gridsize;
 	private int middlesize;
@@ -17,130 +16,175 @@ public class ClipMap {
 	private ShaderProgram program;
 	private Matrix4f translation;
 	private float size;
-	
-	public ClipMap(int n, int stage, ShaderProgram program){
-		this.gridsize = n/4;
-		this.middlesize = n%4;
-		this.lsize = n/2+2;
+	private int current;
+
+	public ClipMap(int n, int stage, ShaderProgram program) {
+		this.gridsize = n / 4;
+		this.middlesize = n % 4;
+		this.lsize = n / 2 + 2;
 		this.stage = stage;
 		this.program = program;
 		this.size = n;
 	}
-	
-	public Geometry createMxMgrid(){
-		Geometry geo = GeometryFactory.createGrid(gridsize+1, gridsize+1);
+
+	public Geometry createMxMgrid() {
+		Geometry geo = GeometryFactory.createGrid(gridsize + 1, gridsize + 1);
 		return geo;
 	}
-	
-	public Geometry createNxMgrid(){
-		Geometry geo = GeometryFactory.createGrid(middlesize+1, gridsize+1);
+
+	public Geometry createNxMgrid() {
+		Geometry geo = GeometryFactory.createMxNGrid(middlesize + 1,
+				gridsize + 1);
 		return geo;
 	}
-	
-	public Geometry createMxNgrid(){
-		Geometry geo = GeometryFactory.createGrid(gridsize+1,middlesize+1);
+
+	public Geometry createMxNgrid() {
+		// Geometry geo = GeometryFactory.createMxNGrid(gridsize+1,
+		// middlesize+1);
+		// Geometry geo = GeometryFactory.createMxNGrid(4, 12);
+
+		Geometry geo = GeometryFactory.createMxNGrid(gridsize + 1,
+				middlesize + 1);
 		return geo;
 	}
-	
-	public Geometry createTopLeft(){
+
+	public Geometry createTopLeft() {
 		return GeometryFactory.createL(lsize, 2);
 	}
-	public Geometry createTopRight(){
+
+	public Geometry createTopRight() {
 		return GeometryFactory.createL(lsize, 3);
 	}
-	public Geometry createBottomLeft(){
+
+	public Geometry createBottomLeft() {
 		return GeometryFactory.createL(lsize, 1);
 	}
-	public Geometry createBottomRight(){
+
+	public Geometry createBottomRight() {
 		return GeometryFactory.createL(lsize, 0);
 	}
-	
-	public void setProgram(){
+
+	public void setProgram() {
 		this.program.setUniform("translation", translation);
 	}
-	
-	public void setScale(int scale){
-		this.program.setInteger("scale", scale);
+
+	public void setScale(float scale) {
+		this.program.setUniform("scale", Util.scale(scale, null));
 	}
-	
-	public void createClip(){
+
+	public void createClip() {
 		translation = new Matrix4f();
-		// 1
-		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(size/2, null));
-		setProgram();
-		createMxMgrid().draw();
 
-		// 2
-		Util.mul(translation, Util.translationX(-size/2+gridsize, null), Util.translationZ(size/2, null));
-		setProgram();
-		createMxMgrid().draw();
+		 // 1
+		 Util.mul(translation, Util.translationX(size/2-gridsize, null),
+		 Util.translationZ(size/2-gridsize, null));
+		 setProgram();
+		 createMxMgrid().draw();
+		
+		// // 2
+		// Util.mul(translation, Util.translationX(size/2-2*gridsize, null),
+		// Util.translationZ(size/2-gridsize-1, null));
+		// setProgram();
+		// createMxMgrid().draw();
+		//
+		// // 3
+		// Util.mul(translation, Util.translationX(-size/2+gridsize, null),
+		// Util.translationZ(size/2-gridsize-1, null));
+		// setProgram();
+		// createMxMgrid().draw();
+		//
+		// // 4
+		// Util.mul(translation, Util.translationX(-size/2, null),
+		// Util.translationZ(size/2-gridsize-1, null));
+		// setProgram();
+		// createMxMgrid().draw();
 
-		// 3
-		Util.mul(translation, Util.translationX(size/2-gridsize-gridsize, null), Util.translationZ(size/2, null));
-		setProgram();
-		createMxMgrid().draw();
-		
-		// 4
-		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(size/2, null));
-		setProgram();
-		createMxMgrid().draw();
+		// // 5
+		// Util.mul(translation, Util.translationX(size/2-gridsize, null),
+		// Util.translationZ(size/2-2*gridsize-1, null));
+		// setProgram();
+		// createMxMgrid().draw();
+		//
+		//
+		//
+		//
+		// // 5
+		// Util.mul(translation, Util.translationX(-size/2, null),
+		// Util.translationZ(-size/2+gridsize, null));
+		// setProgram();
+		// createMxMgrid().draw();
+		//
+		// // 6
+		// Util.mul(translation, Util.translationX(size/2-gridsize, null),
+		// Util.translationZ(-size/2+gridsize, null));
+		// setProgram();
+		// createMxMgrid().draw();
+		//
+		// // L
+		if (current % 2 == 1) {
+			Util.mul(translation,
+					Util.translationX(-size / 2 + gridsize, null),
+					Util.translationZ(-size / 2 + gridsize, null));
+			setProgram();
+			createTopRight().draw();
+		} else {
+			Util.mul(translation,
+					Util.translationX(-size / 2 + gridsize, null),
+					Util.translationZ(-size / 2 + gridsize, null));
+			setProgram();
+			createBottomLeft().draw();
+		}
+		//
+		// // 7
+		// Util.mul(translation, Util.translationX(-size/2, null),
+		// Util.translationZ(size/2-2*gridsize, null));
+		// setProgram();
+		// createMxMgrid().draw();
 
-		// 5
-		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(size/2-gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		
-		// 6
-		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(size/2-gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		 
-		// L
-		Util.mul(translation, Util.translationX(-size/2+gridsize, null),Util.translationZ(size/2-2*gridsize-middlesize, null));
-		setProgram();
-		createTopRight().draw();
-		
-		// 7
-		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(-size/2+2*gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		
-		// 8
-		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(-size/2+2*gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
+		// // 9
+		// Util.mul(translation, Util.translationX(size/2-gridsize, null),
+		// Util.translationZ(-size/2+1, null));
+		// setProgram();
+		// createMxMgrid().draw();
+		//
+		// // 10
+		// Util.mul(translation, Util.translationX(size/2-gridsize-gridsize,
+		// null), Util.translationZ(-size/2+1, null));
+		// setProgram();
+		// createMxMgrid().draw();
+		//
+		// // 11
+		// Util.mul(translation, Util.translationX(-size/2+gridsize, null),
+		// Util.translationZ(-size/2+1, null));
+		// setProgram();
+		// createMxMgrid().draw();
+		//
+		// // 12
+		// Util.mul(translation, Util.translationX(-size/2, null),
+		// Util.translationZ(-size/2+1, null));
+		// setProgram();
+		// createMxMgrid().draw();
 
-		
-		// 9
-		Util.mul(translation, Util.translationX(-size/2, null), Util.translationZ(-size/2+gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		
-		// 10
-		Util.mul(translation, Util.translationX(-size/2+gridsize, null), Util.translationZ(-size/2+gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-
-		// 11
-		Util.mul(translation, Util.translationX(size/2-2*gridsize, null), Util.translationZ(-size/2+gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-
-		// 12
-		Util.mul(translation, Util.translationX(size/2-gridsize, null), Util.translationZ(-size/2+gridsize, null));
-		setProgram();
-		createMxMgrid().draw();
-		
-//		// Oben
-//		Util.translationZ(size/2, null);
+		// Oben
+//		Util.mul(translation, Util.translationX(-middlesize / 2, null),
+//				Util.translationZ(size / 2 - gridsize - 1, null));
 //		setProgram();
-//		createMxNgrid().draw();
+//		createNxMgrid().draw();
+
+		// // Unten
+		// Util.mul(translation,Util.translationX(-middlesize/2,
+		// null),Util.translationZ(-size/2+1, null));
+		// setProgram();
+		// createNxMgrid().draw();
+
 	}
-	
-	public void generateMaps(){
-		for(int i=0; i<stage; i++){
-			setScale((int)Math.pow(2, i));
+
+	public void generateMaps() {
+		for (int i = 0; i < stage; i++) {
+			current = i;
+			setScale((float) Math.pow(2, i));
 			createClip();
 		}
+
 	}
 }

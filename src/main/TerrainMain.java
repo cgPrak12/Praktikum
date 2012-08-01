@@ -60,7 +60,7 @@ public class TerrainMain {
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
-            clip = new ClipMap(14, 3, program);
+            clip = new ClipMap(14, 5, program);
             
 //            L = clip.createBottomLeft(); //ok
           //  L = clip.createBottomLeft(); //fail 
