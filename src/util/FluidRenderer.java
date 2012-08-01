@@ -4,6 +4,8 @@ import static opengl.GL.*;
 
 import java.nio.FloatBuffer;
 
+import opengl.GL;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
@@ -56,7 +58,7 @@ public class FluidRenderer {
     	
     	// init shaderPrograms, frameBuffers, ...
     	GL11.glPointSize(GL11.GL_POINT_SIZE);
-    	init(depthSP, depthFrameBuffer, "color", depthTexture);
+    	init(depthSP, depthFrameBuffer, "depth", depthTexture);
     	init(normalSP, normalFrameBuffer, "color", normalTexture);
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
@@ -80,7 +82,7 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", thicknessBlurTexture2);
+        drawTextureSP.setUniform("image", normalTexture);
         screenQuadGeo.draw();
         
         // resets buffers
@@ -142,6 +144,7 @@ public class FluidRenderer {
 	private void fluidNormals() {
 		startPath(normalSP, normalFrameBuffer);
 		normalSP.setUniform("depthTex", depthTexture);
+		normalSP.setUniform("texSize", GL.WIDTH);
 		
 		screenQuadGeo.draw();
 		endPath(normalFrameBuffer);
@@ -177,13 +180,9 @@ public class FluidRenderer {
 	
 	private void fluidThicknessBlur() {  //TODO
 		startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
-		    
 	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
-	
         screenQuadGeo.draw();
-	
         thicknessBlurFrameBuffer.unbind();
-	        
 	        
 	    startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
 	    thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);

@@ -1,7 +1,6 @@
 #version 330
 
 in vec2 positionMC;
-
 out vec2 texCoord;
 
 void main(void)
