@@ -80,7 +80,9 @@ public class FluidRenderer {
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
-		fluidThicknessBlur();		
+		fluidThicknessBlur();
+		// fluid lighting
+		fluidLighting();
 		
 		// combine images to final image
 		createFinalImage();
@@ -97,6 +99,7 @@ public class FluidRenderer {
         thicknessFrameBuffer.reset();
         thicknessBlurFrameBuffer.reset();
         thicknessBlurFrameBuffer2.reset();
+        lightingFrameBuffer.reset();
         
         finalImageFB.reset();
 	}
