@@ -36,7 +36,7 @@ public class ClipMap {
 	}
 	
 	public Geometry createMxNgrid(){
-		Geometry geo = GeometryFactory.createGrid(gridsize,middlesize);
+		Geometry geo = GeometryFactory.createMxNGrid(17,3+1);
 		return geo;
 	}
 	
@@ -59,16 +59,20 @@ public class ClipMap {
 	
 	public void createClip(){
 		translation = new Matrix4f();
-		Util.translationX(-3, translation);
-		setProgram();
-		createTopLeft().draw();
-		
-		Util.translationY(4, translation);
-		setProgram();
-		createTopRight().draw();
+//		Util.translationX(-3, translation);
+//		setProgram();
+//		createTopLeft().draw();
+//		
+//		Util.translationY(4, translation);
+//		setProgram();
+//		createTopRight().draw();
+//		
+//		Util.translationZ(6, translation);
+//		setProgram();
+//		createMxMgrid().draw();
 		
 		Util.translationZ(6, translation);
-		setProgram();
-		createMxMgrid().draw();
+		setProgram();		
+		createMxNgrid().draw();
 	}
 }
