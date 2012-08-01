@@ -7,10 +7,11 @@ public class Test {
 	
 	public static void main(String[] argv)
 	{
-		int maxX = 64;
-		int maxZ = 128;
+		int maxX, maxZ;
+		maxX = maxZ = 2048;
+		int size = 10;
 		
-		ArrayStruc myAS = new ArrayStruc(maxX, maxZ);
+		Map myAS = new Map(maxX, maxZ);
 		
 		for(int i = 0; i < maxX; i++)
 		{
@@ -21,12 +22,11 @@ public class Test {
 			}
 		}
 		
-		FloatBuffer myFB = Grid.minimizeGrid(myAS, new Camera());
-		myFB.position(0);
+		FloatBuffer[] myFBArray = Grid.minimizeGrid(myAS, new Camera(), size, 4);
 		
 		try
 		{
-			FileWriter fstream = new FileWriter("test.txt");
+			FileWriter fstream = new FileWriter("test4.txt");
 			BufferedWriter out = new BufferedWriter(fstream);
 			
 			int[][] temp = new int[maxX][maxZ];
@@ -38,21 +38,24 @@ public class Test {
 				}
 			}
 			
-			for(int pos = 0; (pos * 7) < myFB.limit(); pos++)
+			for(int s = 0; s < size; s++)
 			{
-				temp[(int)myFB.get(7 * pos)][(int)myFB.get(7 * pos + 2)] = 1;
+				for(int pos = 0; (pos * 7) < myFBArray[s].limit(); pos++)
+				{
+					temp[(int)myFBArray[s].get(7 * pos)][(int)myFBArray[s].get(7 * pos + 2)] = s+1;
+				}
 			}
-						
+			
 			for(int i = 0; i < maxX; i++)
 			{
 				for(int j = 0; j < maxZ; j++)
 				{
 					if(temp[i][j] == 0)
 					{
-						out.write(" ");
+						out.write("  ");
 					}
 					else
-						out.write("+");
+						out.write(temp[i][j] + " ");
 				}
 				out.write("\r\n");
 			}

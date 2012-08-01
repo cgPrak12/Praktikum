@@ -9,163 +9,135 @@ import org.lwjgl.BufferUtils;
 public class Grid {
 	
 	/**
-	 * Berechnet die (minimierten) Grids in der angegebenen Umgebung der Camera.
-	 * Achtung am Rand!
-	 * Ist size z.B. 1 werden 9 Grids berechnet,
-	 *               2       25
-	 *               3       49
-	 *               n	  (2n+1)^2 
-	 * @param dst Komplettes Grid
-	 * @param cam Camera
-	 * @param size Größe des Quadrats
-	 * @return Liste mit allen Grids, das aktuelle Grid ist an Stelle 1 + (2n+1)²/ 2
+	 * Liefert ein FloatBuffer-Array mit allen Detail-Bloecken
+	 * result[0] ist dabei der innerste Block
+	 * quantity gibt die Anzahl der Bloecke an (1 nur der innerste, 10 liefert 9 weitere)
+	 * 
+	 * @param dst Karte
+	 * @param cam Kamera
+	 * @param quantity Unterteilung (auf einer Skala von 1 bis 10)
+	 * @param density Dichte (auf einer Skala von 1 bis 10)
+	 * @return
 	 */
-	public static List<FloatBuffer> getGrids(ArrayStruc dst, Camera cam, int size)
+	public static FloatBuffer[] minimizeGrid(Map dst, Camera cam, int quantity, int density)
 	{
-		List<FloatBuffer> result = new LinkedList<FloatBuffer>();
+		return minimizeGrid(dst, (int) cam.getCamPos().x, (int) cam.getCamPos().z, quantity, density);
+	}
+	
+	/**
+	 * Hilfsmethode
+	 * @param dst Karte
+	 * @param p x-Koordinate der Kameraposition
+	 * @param q y-Koordinate der Kameraposition
+	 * @param quantity Unterteilung (auf einer Skala von 1 bis 10)
+	 * @return
+	 */
+	private static FloatBuffer[] minimizeGrid(Map dst, int p, int q, int quantity, int density)
+	{
+		if(quantity <= 0 || quantity > 10) { quantity = 1; System.err.println("ERROR: wrong quantity!"); }
 		
-		if(size > 0 && size < 10)
+		if(density  <= 0 || density  > 50) { density  = 1; System.err.println("ERROR: wrong density!"); }
+		
+		FloatBuffer[] result = new FloatBuffer[quantity];
+		
+		if(p < 0 || q < 0 || p >= dst.getXDim() || q >= dst.getZDim())
 		{
-			int p = (int) cam.getCamPos().x;
-			int q = (int) cam.getCamPos().y;
-			
-			for(int i = -size; i <= size; i++)
+			// Kamera-Position
+			result[0] = BufferUtils.createFloatBuffer(0);
+			return result;
+		}
+		
+		List<VertexInfo> vertexList01 = new LinkedList<VertexInfo>();
+		
+		for(int i = -density; i <= density; i ++)
+		{
+			for(int j = -density; j <= density; j ++)
 			{
-				for(int j = -size; j <= size; j++)
+				if(p + i >= 0 && p + i < dst.getXDim() && q + j >= 0 && q + j < dst.getZDim())
 				{
-					result.add(minimizeGrid(dst, p + i, q + j));
+					vertexList01.add(dst.getInfo(p + i, q + j));
 				}
 			}
 		}
+		
+		// Fuelle den ersten FloatBuffer mit Vertices aus dem innersten Block
+		FloatBuffer fb01 = BufferUtils.createFloatBuffer(7 * vertexList01.size());
+		for(VertexInfo vi : vertexList01)
+		{
+			fillList(fb01, vi);
+		}
+		result[0] = fb01;
+		
+		for(int i = 1; i < quantity; i++)
+		{
+			result[i] = getOuterGrids(dst, p, q, quantity - 1)[i-1];
+		}
 		return result;
 	}
+	
 	
 	/**
 	 * 
 	 * @param dst
 	 * @param p
 	 * @param q
+	 * @param quantity
 	 * @return
 	 */
-	private static FloatBuffer minimizeGrid(ArrayStruc dst, int p, int q)
+	private static FloatBuffer[] getOuterGrids(Map dst, int p, int q, int quantity)
 	{
-		List<VertexInfo> help = new LinkedList<VertexInfo>();
+		FloatBuffer[] result = new FloatBuffer[quantity];
 		
-		if(p < 0 || q < 0 || p >= dst.getXDim() || q >= dst.getZDim())
+		@SuppressWarnings("unchecked")
+		List<VertexInfo>[] help = (LinkedList<VertexInfo>[]) new LinkedList[quantity];
+		
+		for(int i = 0; i < quantity; i++)
 		{
-			return BufferUtils.createFloatBuffer(0);
+			help[i] = new LinkedList<VertexInfo>();
 		}
-		
+
+		int density = 4;
 		int step = 1;
-		for(int density = 4; p - density >= 0 || p + density < dst.getZDim(); density *= 2)
+		int count = 0;
+		while(count < quantity && ((p - density)/2 >= 0 || (p + density)/2 < dst.getXDim() || (q - density)/2 >= 0 || (q + density)/2 < dst.getZDim()))
 		{	
 			for(int i = -density; i <= density; i += step)
 			{
-				for(int j = -density; j <=density; j += step)
+				for(int j = -density; j <= density; j += step)
 				{
-					if(p + i >= 0 && p + i < dst.getXDim() && p + j >= 0 && p + j < dst.getZDim())
+					if(p + i >= 0 && p + i < dst.getXDim() && q + j >= 0 && q + j < dst.getZDim() && 
+							!(i < density / 2 && i > -density / 2 && j < density / 2 && j > -density / 2))
 					{
-						System.out.println("adding thingy at [" + (p+i) + "][" + (p+j) + "]");
-						help.add(dst.getInfo(p + i, p + j));
+						help[count].add(dst.getInfo(p + i, q + j));
 					}
 				}
 			}
+			density *= 2;
 			step *= 2;
+			count++;
 		}
 		
-		
-		
-		
-		
-		
-		
-//		// erstes Kreuz
-//		for(int i = -factor; i <= factor; i++)
-//		{
-//			if(i >= 0 && i < dst.getZDim())
-//			{	// Zeile
-//				help.add(dst.getInfo(p, i));
-//			}
-//		}
-//		
-//		for(int i = -factor; i <= factor; i++)
-//		{
-//			if(i >= 0 && i < dst.getXDim())
-//			{	// Spalte
-//				help.add(dst.getInfo(i, q));
-//			}
-//		}
-//		
-//		int up = 1;
-//		for(int size = 1; p + size < dst.getXDim(); size += (up++))
-//		{
-//			for(int i = 0; i < dst.getZDim(); i++)
-//			{
-//				// Spalten rechts
-//				help.add(dst.getInfo(p + size, i));
-//			}
-//		}
-//		
-//		up = 1;		
-//		for(int size = 1; p - size >= 0; size += (up++))
-//		{
-//			for(int i = 0; i < dst.getZDim(); i++)
-//			{
-//				// Spalten links
-//				help.add(dst.getInfo(p - size, i));
-//			}
-//		}
-//		
-//		up=1;
-//		for(int size = 1; q + size < dst.getZDim(); size += (up++))
-//		{
-//			for(int i = 0; i < dst.getXDim(); i++)
-//			{
-//				// Zeilen unten
-//				help.add(dst.getInfo(i, q + size));
-//			}
-//		}
-//		
-//		up=1;
-//		for(int size = 1; q - size >= 0; size += (up++))
-//		{
-//			for(int i = 0; i < dst.getXDim(); i++)
-//			{
-//				// Zeilen oben
-//				help.add(dst.getInfo(i, q - size));
-//			}
-//		}
-		
-		// Liste in ein FloatBuffer kopieren
-		FloatBuffer result = BufferUtils.createFloatBuffer(7 * help.size());
-		for(VertexInfo vi : help)
+		for(int i = 0; i < quantity; i++)
 		{
-			result.put(vi.getX());
-			result.put(vi.getHeight());
-			result.put(vi.getZ());
-			result.put(vi.getNX());
-			result.put(vi.getNY());
-			result.put(vi.getNZ());
-			result.put(vi.getMat());
+			FloatBuffer fb = BufferUtils.createFloatBuffer(7 * help[i].size());
+			for(VertexInfo vi : help[i])
+			{
+				fillList(fb, vi);
+			}
+			result[i] = fb;
 		}
-		
-		
-		
-
-		
 		
 		return result;
-	}
-	
-	/**
-	 * 
-	 * @param dst
-	 * @param cam
-	 * @return
-	 */
-	public static FloatBuffer minimizeGrid(ArrayStruc dst, Camera cam)
-	{
-		return minimizeGrid(dst, (int) cam.getCamPos().x, (int) cam.getCamPos().z);
 	}	
 	
+    private static void fillList(FloatBuffer fb, VertexInfo vi)
+    {
+			fb.put(vi.getX());
+			fb.put(vi.getHeight());
+			fb.put(vi.getZ());
+			fb.put(vi.getNX());
+			fb.put(vi.getNY());
+			fb.put(vi.getNZ());
+			fb.put(vi.getMat());
+    }
 }
