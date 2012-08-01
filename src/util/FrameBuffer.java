@@ -106,4 +106,7 @@ public class FrameBuffer {
     	
     }
     
+    public void reset() {
+    	count = 0;
+    }
 }

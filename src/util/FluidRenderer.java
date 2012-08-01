@@ -3,41 +3,98 @@ package util;
 import static opengl.GL.*;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-
 
 public class FluidRenderer {
 	
-	private Geometry testWaterParticles;
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
+	private int textureUnit = 50;
 	private Camera cam;
 	
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
     private Geometry screenQuadGeo 		= GeometryFactory.createScreenQuad();
     
     // Thickness-Path
-	private FrameBuffer thicknessFrameBuffer = new FrameBuffer();
-    private ShaderProgram thicknessSP = new ShaderProgram("./shader/WaterRenderer_VS.glsl", "./shader/FluidThickness_FS.glsl");
+	private FrameBuffer thicknessFB = new FrameBuffer();
+    private ShaderProgram thicknessSP = new ShaderProgram("./shader/fluid/Thickness_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
+    private Texture thicknessTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
     // TiefenTextur
     private FrameBuffer depthFrameBuffer = new FrameBuffer();
-    private ShaderProgram depthSP = new ShaderProgram("./shader/Depth_Texture_VS.glsl", "./shader/Depth_Texture_FS.glsl");
-    private Texture tex;
+    private ShaderProgram depthSP = new ShaderProgram("./shader/fluid/Depth_Texture_VS.glsl", "./shader/fluid/Depth_Texture_FS.glsl");
+    private Texture depthTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
+    // Final Image
+    private FrameBuffer finalImageFB = new FrameBuffer();
+    private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
+    private Texture finalImage = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
+    private Texture[] textures = { thicknessTexture, depthTexture };
+    private String[] textureNames = { "thickness", "depth" };
     
 	public FluidRenderer(Camera camTmp) {
 
-    	testWaterParticles = GeometryFactory.createTestParticles(1024);
     	cam = camTmp;
-    	tex = new Texture(GL11.GL_TEXTURE_2D, 0);    	
-   	 	depthFrameBuffer.addTexture(tex, GL11.GL_RGBA8, GL11.GL_RGBA);
-   	 	depthFrameBuffer.drawBuffers();
-        GL11.glPointSize(GL11.GL_POINT_SIZE);
+    	
+    	// init shaderPrograms, frameBuffers, ...
+    	GL11.glPointSize(GL11.GL_POINT_SIZE);
+    	init(depthSP, depthFrameBuffer, "color", depthTexture);
+    	init(thicknessSP, thicknessFB, "color", thicknessTexture);
+    	init(finalImageSP, finalImageFB, "color", finalImage);
 	} 
 	
+	public void render() {
+		// fluid depth
+		depthTexture();
+		// fluid thickness
+		fluidThickness();
+		
+		
+		// combine images to final image
+		createFinalImage();
+		
+		// Draws image
+//		drawTextureSP.use();
+//        drawTextureSP.setUniform("image", depthTexture);
+//        screenQuadGeo.draw();
+        
+        // resets buffers
+        thicknessFB.reset();
+        
+        finalImageFB.reset();
+	}
+	
+	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
+    	fb.addTexture(tex, GL11.GL_RGBA8, GL11.GL_RGBA);
+    	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
+    	fb.drawBuffers();
+	}
+	
+	private void init(ShaderProgram sp, FrameBuffer fb, String[] attachmentNames, Texture[] textures) {
+    	if(attachmentNames.length != textures.length) throw new RuntimeException("Anzahl attachmentNames und Texturen stimmt nicht ueberein!");
+		
+    	for(int i = 0; i < textures.length; i++) { 
+			fb.addTexture(textures[i], GL11.GL_RGBA8, GL11.GL_RGBA);
+			GL30.glBindFragDataLocation(sp.getId(), i, attachmentNames[i]);
+		}
+    	fb.drawBuffers();
+	}
+	
+	private void startPath(ShaderProgram sp, FrameBuffer fb) {
+		sp.use();
+		sp.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+		fb.bind();
+		fb.clearColor();
+	}
+	    
+	private void endPath(FrameBuffer fb) {
+		fb.unbind();
+	}
+    
 	public Texture depthTexture(){
 		   
-		depthFrameBuffer.bind();
-		depthFrameBuffer.clearColor();
+//		depthFrameBuffer.bind();
+//		depthFrameBuffer.clearColor();
 		
 		depthSP.use();
 		
@@ -45,7 +102,7 @@ public class FluidRenderer {
 		depthSP.setUniform("proj", cam.getProjection());
 		
         depthSP.setUniform("camPos", cam.getCamPos());
-   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
+//   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
    	    depthFrameBuffer.bind();
    	    depthFrameBuffer.clearColor();
     
@@ -59,52 +116,43 @@ public class FluidRenderer {
         
         
         drawTextureSP.use();
-        drawTextureSP.setUniform("image", tex);
+        drawTextureSP.setUniform("image", depthTexture);
         screenQuadGeo.draw();
         
         return  depthFrameBuffer.getTexture(0);
 		
 	}
-	    
-    public Texture fluidThickness() {
-   
-        thicknessFrameBuffer.renew();
-        thicknessSP.use();
-        thicknessSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-        
-        
-    	Texture tex = new Texture(GL11.GL_TEXTURE_2D, 0);    	
-    	thicknessFrameBuffer.addTexture(tex, GL11.GL_RGBA8, GL11.GL_RGBA);
-    	thicknessFrameBuffer.drawBuffers();
+	
+	private void fluidThickness() {
+    	startPath(thicknessSP, thicknessFB);
     	
-//        waterShader.prepareRendering(waterSP);
-//    	thicknessSP.use();
-   		GL30.glBindFragDataLocation(thicknessSP.getId(), 0, "color");
-   		thicknessFrameBuffer.bind();
-   		
-//        waterShader.clear();
-    	thicknessFrameBuffer.clearColor();
-        
+
         glBlendFunc(GL_ONE, GL_ONE);
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
-//        GL11.glEnable(GL11.GL_POINT_SMOOTH);
-//        GL11.glEnable(GL20.GL_POINT_SPRITE);
+        
         GL11.glPointSize(15);
         testWaterParticles.draw();
         GL11.glPointSize(GL11.GL_POINT_SIZE);
+        
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
-//        waterShader.finish();
-        thicknessFrameBuffer.unbind();
         
-//        waterShader.DrawTexture(waterShader.getWorldTexture());
-        drawTextureSP.use();
-        drawTextureSP.setUniform("image", tex);
-        screenQuadGeo.draw();
-        
-        return thicknessFrameBuffer.getTexture(0);
-        
+        endPath(thicknessFB);
     }
+	
+	private void createFinalImage() {
+		if(textureNames.length != textures.length) throw new RuntimeException("Anzahl names und textures stimmt nicht ueberein!");
+		
+		startPath(finalImageSP, finalImageFB);
+
+		for(int i = 0; i < textures.length; i++) {
+			finalImageSP.setUniform(textureNames[i], textures[i]);
+		}
+
+		screenQuadGeo.draw();
+		endPath(finalImageFB);
+	}
     
 }
