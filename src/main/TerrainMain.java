@@ -160,24 +160,27 @@ public class TerrainMain {
 
         	shader.finish();
 
-            //shader.DrawTexture(shader.getDiffuseTexture());
+            shader.DrawTexture(shader.getSkyTexture());
             
 
             
             // TODO: postfx
             
 			//  geo.draw();
-			LightningSP.use();
-            LightningSP.setUniform("normalTexture",  shader.getNormalTexture());
-            LightningSP.setUniform("diffuseTexture",  shader.getDiffuseTexture());
-            LightningSP.setUniform("specularTexture", shader.getSpecTexture());
-            LightningSP.setUniform("bumpTexture", bumpQuaderTexture);
-            LightningSP.setUniform("lightPosition1", lightPosition1);
+//			LightningSP.use();
+//            LightningSP.setUniform("normalTexture",  shader.getNormalTexture());
+//            LightningSP.setUniform("diffuseTexture",  shader.getDiffuseTexture());
+//            LightningSP.setUniform("specularTexture", shader.getSpecTexture());
+//            LightningSP.setUniform("bumpTexture", bumpQuaderTexture);
+//            LightningSP.setUniform("lightPosition1", lightPosition1);
             
             
 //			GodRaysSP.use();
-//			GodRaysSP.setUniform("worldTexture", shader.getDiffuseTexture());
-//			GodRaysSP.setUniform("normalTexture",  shader.getNormalTexture());
+//			GodRaysSP.setUniform("worldTexture", shader.getSkyTexture());
+//			GodRaysSP.setUniform("diffuseTexture", shader.getDiffuseTexture());
+//			GodRaysSP.setUniform("model", 	 modelMatrix);
+//        	GodRaysSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+//			GodRaysSP.setUniform("lightPosition", lightPosition1);
 //			
 //			BlurSP.use();
 //            BlurSP.setUniform("worldTexture", shader.getWorldTexture());

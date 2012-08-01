@@ -10,11 +10,12 @@ in vec4 color1;
 in vec2 fragmentTexCoords;
 in vec4 tangentWC;
 
-
 out vec4 position;
 out vec4 normal;
 out vec4 color;
 out vec3 spec;
+out vec3 skyColor;
+
 
 void main(void) {
    vec3 normalAbs = normalize(vec3(normalWC));
@@ -30,4 +31,5 @@ void main(void) {
    color = texture(textureImage, fragmentTexCoords);
    position = positionWC;
    spec = texture(specularTexture, fragmentTexCoords).rgb ;
+   skyColor = vec3(1);
 }
