@@ -6,7 +6,7 @@
  * @author vbruder
  */
 
-const vec4 upColor = vec4(1.0, 1.0, 0.9, 1.0);
+const vec4 upColor = vec4(1.0, 1.0, 0.0, 1.0);
 const vec4 downColor = vec4(0.0, 0.0, 0.0, 1.0);
 
 uniform sampler2D worldTex;
@@ -19,13 +19,13 @@ in vec2 texCoord;
 
 out vec4 enlightenedColor;
 
-const float k_a = 1.0;
-const float k_spec = 1.0;
-const float k_dif = 1.0;
-const float es = 2.0;
+const float k_a = 1.0; // 0.05;
+const float k_spec = 1.0; // 0.3;
+const float k_dif = 1.0; // 0.06;
+const float es = 16.0;
 const float sunIntensity = 1.0;
 
-const vec3 sunDir = vec3(0.0, 1.0, 0.0);
+const vec3 sunDir = vec3(1.0, 0.0, 0.0);
 
 /**
  * Calculate lightning with Blinn-Phong.

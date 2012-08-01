@@ -136,12 +136,11 @@ public class TerrainMain {
         	
         	// tone mapping
         	toneSP.use();
-        	toneSP.setUniform("diffuseTex", shader.getDiffuseTexture());
+        	toneSP.setUniform("diffuseTex", enlightened.getTexture(0));
         	toneSP.setUniform("exposure", exposure);
         	screenQuad.draw();
-        	
-        	
-        	//shader.DrawTexture(enlightened.getTexture(0));
+        	        	
+//        	shader.DrawTexture(enlightened.getTexture(0));
             
             // TODO: postfx
             
