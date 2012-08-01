@@ -189,6 +189,18 @@ public class FluidRenderer {
 	    thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer2.unbind();
+        
+		for(int i = 0; i < 3; i++) {
+			startPath(thicknessBlurSP, thicknessBlurFrameBuffer);	    
+	    	thicknessBlurSP.setUniform("thickness", thicknessBlurTexture2);	
+	    	screenQuadGeo.draw();	
+        	thicknessBlurFrameBuffer.unbind();	        
+	        
+        	startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
+	    	thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
+        	screenQuadGeo.draw();
+        	thicknessBlurFrameBuffer2.unbind();
+		}
     }
 
 	private void createFinalImage() {
