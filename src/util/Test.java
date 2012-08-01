@@ -22,11 +22,11 @@ public class Test {
 			}
 		}
 		
-		FloatBuffer[] myFBArray = Grid.minimizeGrid(myAS, new Camera(), size, 4);
+		FloatBuffer[] myFBArray = Grid.minimizeGrid(myAS, new Camera(), size, 49);
 		
 		try
 		{
-			FileWriter fstream = new FileWriter("test4.txt");
+			FileWriter fstream = new FileWriter("test5.txt");
 			BufferedWriter out = new BufferedWriter(fstream);
 			
 			int[][] temp = new int[maxX][maxZ];
@@ -55,7 +55,9 @@ public class Test {
 						out.write("  ");
 					}
 					else
-						out.write(temp[i][j] + " ");
+							out.write(temp[i][j] + " ");
+						
+					
 				}
 				out.write("\r\n");
 			}

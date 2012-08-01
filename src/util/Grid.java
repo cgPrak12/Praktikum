@@ -21,6 +21,7 @@ public class Grid {
 	 */
 	public static FloatBuffer[] minimizeGrid(Map dst, Camera cam, int quantity, int density)
 	{
+		density = density - density % 4;
 		return minimizeGrid(dst, (int) cam.getCamPos().x, (int) cam.getCamPos().z, quantity, density);
 	}
 	
@@ -49,9 +50,9 @@ public class Grid {
 		
 		List<VertexInfo> vertexList01 = new LinkedList<VertexInfo>();
 		
-		for(int i = -density; i <= density; i ++)
+		for(int i = -density/2 ; i <= density/2; i ++)
 		{
-			for(int j = -density; j <= density; j ++)
+			for(int j = -density/2; j <= density/2; j ++)
 			{
 				if(p + i >= 0 && p + i < dst.getXDim() && q + j >= 0 && q + j < dst.getZDim())
 				{
@@ -70,7 +71,7 @@ public class Grid {
 		
 		for(int i = 1; i < quantity; i++)
 		{
-			result[i] = getOuterGrids(dst, p, q, quantity - 1)[i-1];
+			result[i] = getOuterGrids(dst, p, q, quantity - 1, density)[i-1];
 		}
 		return result;
 	}
@@ -84,7 +85,7 @@ public class Grid {
 	 * @param quantity
 	 * @return
 	 */
-	private static FloatBuffer[] getOuterGrids(Map dst, int p, int q, int quantity)
+	private static FloatBuffer[] getOuterGrids(Map dst, int p, int q, int quantity, int density)
 	{
 		FloatBuffer[] result = new FloatBuffer[quantity];
 		
@@ -96,8 +97,7 @@ public class Grid {
 			help[i] = new LinkedList<VertexInfo>();
 		}
 
-		int density = 4;
-		int step = 1;
+		int step = 2;
 		int count = 0;
 		while(count < quantity && ((p - density)/2 >= 0 || (p + density)/2 < dst.getXDim() || (q - density)/2 >= 0 || (q + density)/2 < dst.getZDim()))
 		{	
@@ -115,7 +115,7 @@ public class Grid {
 			density *= 2;
 			step *= 2;
 			count++;
-		}
+		}		
 		
 		for(int i = 0; i < quantity; i++)
 		{
