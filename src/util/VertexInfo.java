@@ -7,7 +7,7 @@ package util;
  *
  */
 
-public class VertexInfo {
+public class VertexInfo implements Comparable<VertexInfo> {
 	
 	private float x;
 	private float height;
@@ -43,6 +43,30 @@ public class VertexInfo {
 	public float getNY() 		{ return normal_y; }
 	public float getNZ()  		{ return normal_z; }
 	public float getMat() 		{ return mat; }
+
+	public int compareTo(VertexInfo vi2)
+	{
+		if(this.x < vi2.getX())
+		{
+//			System.out.print("-1 ");
+			return -1;
+		}
+		if(this.x == vi2.getX())
+		{
+			if(this.z < vi2.getZ())
+			{
+//				System.out.print("-1 ");
+				return -1;
+			}
+			if(this.z == vi2.getZ())
+			{
+//				System.out.print("0 ");
+				return 0;
+			}
+		}
+		System.out.print("1 ");
+		return 1;
+	}
 	
 	
 }

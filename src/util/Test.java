@@ -7,8 +7,8 @@ public class Test {
 	
 	public static void main(String[] argv)
 	{
-		int maxX = 128;
-		int maxZ = 256;
+		int maxX = 64;
+		int maxZ = 128;
 		
 		ArrayStruc myAS = new ArrayStruc(maxX, maxZ);
 		

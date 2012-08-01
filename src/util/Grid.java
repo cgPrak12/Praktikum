@@ -56,58 +56,85 @@ public class Grid {
 			return BufferUtils.createFloatBuffer(0);
 		}
 		
-		// erstes Kreuz
-		for(int i = 0; i < dst.getZDim(); i++)
-		{
-			// Spalte fuellen
-			help.add(dst.getInfo(p, i));
-		}
-		
-		for(int i = 0; i < dst.getXDim(); i++)
-		{
-			// Zeile fuellen
-			help.add(dst.getInfo(i, q));
-		}
-		
-		int up = 1;
-		for(int size = 1; p + size < dst.getXDim(); size += (up++))
-		{
-			for(int i = 0; i < dst.getZDim(); i++)
+		int step = 1;
+		for(int density = 4; p - density >= 0 || p + density < dst.getZDim(); density *= 2)
+		{	
+			for(int i = -density; i <= density; i += step)
 			{
-				// Spalten rechts
-				help.add(dst.getInfo(p + size, i));
+				for(int j = -density; j <=density; j += step)
+				{
+					if(p + i >= 0 && p + i < dst.getXDim() && p + j >= 0 && p + j < dst.getZDim())
+					{
+						System.out.println("adding thingy at [" + (p+i) + "][" + (p+j) + "]");
+						help.add(dst.getInfo(p + i, p + j));
+					}
+				}
 			}
+			step *= 2;
 		}
 		
-		up = 1;		
-		for(int size = 1; p - size >= 0; size += (up++))
-		{
-			for(int i = 0; i < dst.getZDim(); i++)
-			{
-				// Spalten links
-				help.add(dst.getInfo(p - size, i));
-			}
-		}
 		
-		up=1;
-		for(int size = 1; q + size < dst.getZDim(); size += (up++))
-		{
-			for(int i = 0; i < dst.getXDim(); i++)
-			{
-				// Zeilen unten
-				help.add(dst.getInfo(i, q + size));
-			}
-		}
 		
-		up=1;
-		for(int size = 1; q - size >= 0; size += (up++))
-		{
-			for(int i = 0; i < dst.getXDim(); i++)
-			{
-				// Zeilen oben
-				help.add(dst.getInfo(i, q - size));
-			}
-		}
+		
+		
+		
+		
+//		// erstes Kreuz
+//		for(int i = -factor; i <= factor; i++)
+//		{
+//			if(i >= 0 && i < dst.getZDim())
+//			{	// Zeile
+//				help.add(dst.getInfo(p, i));
+//			}
+//		}
+//		
+//		for(int i = -factor; i <= factor; i++)
+//		{
+//			if(i >= 0 && i < dst.getXDim())
+//			{	// Spalte
+//				help.add(dst.getInfo(i, q));
+//			}
+//		}
+//		
+//		int up = 1;
+//		for(int size = 1; p + size < dst.getXDim(); size += (up++))
+//		{
+//			for(int i = 0; i < dst.getZDim(); i++)
+//			{
+//				// Spalten rechts
+//				help.add(dst.getInfo(p + size, i));
+//			}
+//		}
+//		
+//		up = 1;		
+//		for(int size = 1; p - size >= 0; size += (up++))
+//		{
+//			for(int i = 0; i < dst.getZDim(); i++)
+//			{
+//				// Spalten links
+//				help.add(dst.getInfo(p - size, i));
+//			}
+//		}
+//		
+//		up=1;
+//		for(int size = 1; q + size < dst.getZDim(); size += (up++))
+//		{
+//			for(int i = 0; i < dst.getXDim(); i++)
+//			{
+//				// Zeilen unten
+//				help.add(dst.getInfo(i, q + size));
+//			}
+//		}
+//		
+//		up=1;
+//		for(int size = 1; q - size >= 0; size += (up++))
+//		{
+//			for(int i = 0; i < dst.getXDim(); i++)
+//			{
+//				// Zeilen oben
+//				help.add(dst.getInfo(i, q - size));
+//			}
+//		}
 		
 		// Liste in ein FloatBuffer kopieren
 		FloatBuffer result = BufferUtils.createFloatBuffer(7 * help.size());
@@ -121,6 +148,10 @@ public class Grid {
 			result.put(vi.getNZ());
 			result.put(vi.getMat());
 		}
+		
+		
+		
+
 		
 		
 		return result;
