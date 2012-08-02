@@ -103,7 +103,7 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", thicknessBlurTexture2);
+        drawTextureSP.setUniform("image", depthTexture);
         screenQuadGeo.draw();
         
         // resets buffers
