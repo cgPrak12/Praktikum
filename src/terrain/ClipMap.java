@@ -1,8 +1,6 @@
 package terrain;
 
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector2f;
-import org.lwjgl.util.vector.Vector3f;
 
 import util.Camera;
 import util.Geometry;
@@ -10,19 +8,32 @@ import util.GeometryFactory;
 import util.ShaderProgram;
 import util.Util;
 
-public class ClipMap {
 
+/** Clip Map
+ * @author Christoph, Michael
+ */
+
+@SuppressWarnings("unused")
+public class ClipMap {
+	
+	
+	//ClipMap Size
 	private int stage;
 	private int gridsize;
 	private int middlesize;
 	private int lsize;
+	private float size;
+	
+	//Shader Updates
 	private ShaderProgram program;
 	private Matrix4f translation;
-	private float size;
-	private Geometry mxm;
+
+	//Animation Params
 	private int[][] movement;
-	private Camera cam;
 	private float[][] temp;
+	private Camera cam;
+	//Cached Geometries
+	private Geometry mxm;
 	private Geometry mxn;
 	private Geometry nxm;
 	private Geometry topLeft;
@@ -30,75 +41,60 @@ public class ClipMap {
 	private Geometry bottomLeft;
 	private Geometry botomRight;
 	private Geometry center;
- 
-	public ClipMap(int n, int stage, ShaderProgram program, Camera cam) {
-		this.gridsize = n / 4;
-		this.middlesize = n % 4;
-		this.lsize = n / 2 + 2;
+	
+	
+	/** Erstellt eine ClipMap aus den gegebenen Parametern
+	 * 
+	 * @param size		Größe der ClipMap (Anzahl der Kästchen)
+	 * @param stage 	Anzahl der Auflösungslevel
+	 * @param program	Dazugehöriges Shaderprogram
+	 * @param cam		Kamera des Programms
+	 */
+	public ClipMap(int size, int stage, ShaderProgram program, Camera cam) {
+		this.gridsize = size / 4;
+		this.middlesize = size % 4;
+		this.lsize = size / 2 + 2;
 		this.stage = stage;
 		this.program = program;
-		this.size = n;
+		this.size = size;
 		this.cam = cam;
 		movement = new int[stage][2];
 		temp = new float[stage][2];
 		
-		setMxMgrid();
-		setMxNgrid();
-		setNxMgrid();
-		setTopLeft();
-		setTopRight();
-		setBottomLeft();
-		setBottomRight();
-		setCenter();
-		
-		for(int i: movement[0]) i = 0;
-		for(int i: movement[1]) i = 0;
-		for(float i: temp[0]) i = 0;
-		for(float i: temp[0]) i = 1;
-		
-	}
-
-	public void setMxMgrid() {
+		// Initialisierung der vorgeladenen Geometrien
 		mxm = GeometryFactory.createGridTex(gridsize + 1, gridsize + 1);
-	}
-
-	public void setNxMgrid() {
 		nxm = GeometryFactory.createMxNGrid(middlesize + 1, gridsize + 1);
-	}
-
-	public void setMxNgrid() {
 		mxn = GeometryFactory.createMxNGrid(gridsize + 1, middlesize + 1);
-	}
-
-	public void setTopLeft() {
 		topLeft = GeometryFactory.createL(lsize, 2);
-	}
-
-	public void setTopRight() {
 		topRight = GeometryFactory.createL(lsize, 3);
-	}
-
-	public void setBottomLeft() {
 		bottomLeft = GeometryFactory.createL(lsize, 1);
-	}
-
-	public void setBottomRight() {
 		botomRight = GeometryFactory.createL(lsize, 0);
-	}
-	
-	public void setCenter(){
 		center = GeometryFactory.createGrid(2 * (2 * gridsize + middlesize),
 				2 * (2 * gridsize + middlesize));
 	}
-
+	
+	
+	/**
+	 * Updatet des Shaderprogramm mit der neuen Translationsmatrix
+	 */
 	public void setProgram() {
 		this.program.setUniform("translation", translation);
 	}
-
+	
+	/** 
+	 * Legt den Scalefaktor des aktuellen Auflösungslevels fest
+	 * @param scale Skalierungsfaktor 2er Potenz
+	 */
+	
 	public void setScale(float scale) {
 		this.program.setUniform("scale", Util.scale(scale, null));
 	}
-
+	
+	/**  
+	 * Zeichnet die Geometrie eines ClipMap "Rings" aus den vorgeladenen Geometrien.
+	 * Nach Vorlage von http://research.microsoft.com/en-us/um/people/hoppe/gpugcm.pdf (S.33f.)
+	 * @param i Level des gezeichneten Rings
+	 */
 	public void createClip(int i) {
 
 		// 1
@@ -214,6 +210,9 @@ public class ClipMap {
 		mxn.draw();
 	}
 
+	/**
+	 * Generiert die Clip Map
+	 */
 	public void generateMaps() {
 		translation = new Matrix4f();
 		setScale(1);
@@ -238,7 +237,11 @@ public class ClipMap {
 		}
 
 	}
-
+	
+	/**Errechnet die Geschwindigkeit des aktuellen ClipMapRings anhand der Ebene
+	 * 
+	 * @param i aktuelle Auflösungsebene
+	 */
 	public void getMovement(int i) {
 		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);
 		temp[i][0] += cam.getAlt().x * Math.pow(2, -i);

@@ -12,12 +12,11 @@ import org.lwjgl.BufferUtils;
  */
 public class GeometryFactory {
 	/**
-	 * Erzeugt ein Vierexk in der xy-Ebene. (4 Indizes)
+	 * Erzeugt ein Viereck in der xy-Ebene. (4 Indizes)
 	 * 
 	 * @return VertexArrayObject ID
 	 * 
 	 */
-	private static Geometry geo = new Geometry();
 	
 	public static Geometry createScreenQuad() {
 		int vaid = glGenVertexArrays();
@@ -40,7 +39,12 @@ public class GeometryFactory {
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
 		return geo;
 	}
-
+	/**
+	 * Erzeugt ein Grid in der XZ-Ebene
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry
+	 */
 	public static Geometry createMxNGrid(int m, int n){
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
@@ -90,13 +94,10 @@ public class GeometryFactory {
 	}
 	
 	/**
-	 * Erstellt Grid der Dimension x*y
-	 * 
-	 * @param x
-	 *            Breite
-	 * @param y
-	 *            Länge
-	 * @return Gridgeometrie
+	 * Erzeugt ein Grid in der XZ-Ebene
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry
 	 */
 	public static Geometry createGrid(int x, int y) {
 		int vaid = glGenVertexArrays();
@@ -141,14 +142,12 @@ public class GeometryFactory {
 
 		return geo;
 	}
+	
 	/**
-	 * Erstellt Grid der Dimension x*y
-	 * 
-	 * @param x
-	 *            Breite
-	 * @param y
-	 *            Länge
-	 * @return Gridgeometrie
+	 * Erzeugt ein Grid in der XZ-Ebene
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry
 	 */
 	public static Geometry createGridTex(int x, int y) {
 		int vaid = glGenVertexArrays();
@@ -196,7 +195,7 @@ public class GeometryFactory {
 		
 		return geo;
 	}
-	/** Creates L Geometry for ClipMap 
+	/** Creates L Geometry
 	 * 
 	 * @param length 
 	 * @param scase 0 = Bottom Right
