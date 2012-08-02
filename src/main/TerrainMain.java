@@ -70,7 +70,7 @@ public class TerrainMain {
 //        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
 
         ShaderProgram  shaderProgram = new ShaderProgram("C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestVS.glsl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestFS.glsl");
-        Geometry quad = GeometryFactory.createFromOBJ("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Palma 001.obj");
+        Geometry quad = GeometryFactory.createFromOBJ("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\cube.obj");
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
