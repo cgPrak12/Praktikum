@@ -117,7 +117,7 @@ public class FluidRenderer {
     	fb.drawBuffers();
 	}
 	
-	private void init(ShaderProgram sp, FrameBuffer fb, String[] attachmentNames, Texture[] textures) {
+/*	private void init(ShaderProgram sp, FrameBuffer fb, String[] attachmentNames, Texture[] textures) {
     	if(attachmentNames.length != textures.length) throw new RuntimeException("Anzahl attachmentNames und Texturen stimmt nicht ueberein!");
 		
     	for(int i = 0; i < textures.length; i++) { 
@@ -125,7 +125,7 @@ public class FluidRenderer {
 			GL30.glBindFragDataLocation(sp.getId(), i, attachmentNames[i]);
 		}
     	fb.drawBuffers();
-	}
+	}*/
 	
 	private void startPath(ShaderProgram sp, FrameBuffer fb) {
 		sp.use();
