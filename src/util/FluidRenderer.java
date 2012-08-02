@@ -24,6 +24,12 @@ public class FluidRenderer {
     private ShaderProgram depthSP = new ShaderProgram("./shader/fluid/Depth_Texture_VS.glsl", "./shader/fluid/Depth_Texture_FS.glsl");
     private Texture depthTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
+    //HOrizontal_Blur
+   
+    private FrameBuffer hBlurFrameBuffer = new FrameBuffer();
+    private ShaderProgram hBlurSP = new ShaderProgram("./shader/fluid/Horizontal_Blur_Texture_VS.glsl", "./shader/fluid/Horizontal_Blur_Texture_FS.glsl");
+    private Texture hBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
     // Final Image
     private FrameBuffer finalImageFB = new FrameBuffer();
     private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
@@ -39,6 +45,7 @@ public class FluidRenderer {
     	// init shaderPrograms, frameBuffers, ...
     	GL11.glPointSize(GL11.GL_POINT_SIZE);
     	init(depthSP, depthFrameBuffer, "color", depthTexture);
+    	init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
     	init(thicknessSP, thicknessFB, "color", thicknessTexture);
     	init(finalImageSP, finalImageFB, "color", finalImage);
 	} 
@@ -54,9 +61,9 @@ public class FluidRenderer {
 		createFinalImage();
 		
 		// Draws image
-//		drawTextureSP.use();
-//        drawTextureSP.setUniform("image", depthTexture);
-//        screenQuadGeo.draw();
+		drawTextureSP.use();
+        drawTextureSP.setUniform("image", depthTexture);
+        screenQuadGeo.draw();
         
         // resets buffers
         thicknessFB.reset();
@@ -111,15 +118,30 @@ public class FluidRenderer {
         
         testWaterParticles.draw();
         depthFrameBuffer.unbind();
+        ////////////////////////////////////////////////////////////////////////////////////////
         
+		hBlurSP.use();
+		
+		hBlurSP.setUniform("view", cam.getView());
+		hBlurSP.setUniform("proj", cam.getProjection());
+		hBlurSP.setUniform("RTScene", depthFrameBuffer.getTexture(0));
+
+//   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
+		hBlurFrameBuffer.bind();
+		hBlurFrameBuffer.clearColor();
+    
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
         
+        testWaterParticles.draw();
+        hBlurFrameBuffer.unbind();
         
-        
-        drawTextureSP.use();
-        drawTextureSP.setUniform("image", depthTexture);
-        screenQuadGeo.draw();
-        
-        return  depthFrameBuffer.getTexture(0);
+//        
+//        drawTextureSP.use();
+//        drawTextureSP.setUniform("image", depthTexture);
+//        screenQuadGeo.draw();
+//        
+        return  hBlurFrameBuffer.getTexture(0);
 		
 	}
 	
