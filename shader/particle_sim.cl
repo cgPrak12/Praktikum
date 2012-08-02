@@ -85,12 +85,19 @@ image2d_t normalmap)
 	float4 movingDir = reflect(normal,myVelo);
 
 	myVelo+=gravity;
-	
+        float3 dVelo = (float3)(0);  	
 	if(myPos.s1 <= height.s0+RADIUS) {
-        //myPos.s1 = height.s0+RADIUS;
-        //myVelo = movingDir*0.1 + (float4)(0,0.0001,0,0);
-        //myVelo = movingDir*0.1 + normalize(normal)*0.0001;
-        myVelo = normalize(normal)*0.00001;
+            // ground contact, terrain<->particle
+            myPos.s1 = height.s0+0.001;
+            dVelo = normal.s012*0.0001;
+            myVelo += (float4)(dVelo,1);
+            myVelo *= 0.95;
+
+            //DO NOT USE, TESTING ONLY
+            //myPos.s1 = height.s0+RADIUS;
+            //myVelo = movingDir*0.1 + (float4)(0,0.0001,0,0);
+            //myVelo = movingDir*0.1 + normalize(normal)*0.0001;
+            //myVelo = normalize(normal)*0.00001;
     }
 
 
