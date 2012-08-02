@@ -1,5 +1,14 @@
 #version 150 core
 
+/**
+ * @brief Adds a bloom effect to the scene.
+ *		  Uses the original image as well as a bright image
+ *        and 4 blured images with different stages.
+ *
+ * @author vbruder
+ * @author kseidel
+ */
+
 uniform sampler2D origImage;
 uniform sampler2D brightImage;
 uniform sampler2D blur1;

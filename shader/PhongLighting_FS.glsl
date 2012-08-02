@@ -1,9 +1,10 @@
 #version 330
 
 /**
- * @brief Calculate lightning with Blinn-Phong and atmospheric lightning as ambient part.
+ * @brief Calculate lightning with Blinn-Phong model and atmospheric lightning as ambient.
  *
  * @author vbruder
+ * @author kseidel
  */
 
 const vec4 upColor = vec4(1.0, 1.0, 0.9, 1.0);

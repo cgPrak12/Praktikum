@@ -1,11 +1,17 @@
 #version 150 core
 
+/**
+ * @brief Calculates bright data of a scene.
+ *
+ * @author vbruder
+ * @author kseidel
+ */
+
 uniform sampler2D colorTex;
 uniform vec4 colorFactor;
 
 in vec2 texCoord;
 
-//out vec4 color;
 out vec4 brightness;
 
 void main(void)

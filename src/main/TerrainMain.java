@@ -23,6 +23,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import util.*;
+import window.MenuDialog;
 
 /**
  *
@@ -32,11 +33,15 @@ import util.*;
 public class TerrainMain {
     // current configurations
     private static boolean bContinue = true;
-    private static boolean culling = true;
+    public static boolean isCulling() {
+		return culling;
+	}
+
+	private static boolean culling   = true;
     private static boolean wireframe = true;
     
-    private static boolean bloom = true;
-    private static boolean tonemapping = true;
+    private static boolean bloom       =  true;
+    private static boolean tonemapping =  true;
     private static boolean rotatelight = false;
     
     // control
@@ -48,9 +53,9 @@ public class TerrainMain {
     private static float ingameTimePerSecond = 1.0f;
     
     //tone mapping
-    private static float exposure = 1.0f;
-    private static float bloomFactor = 1.0f;
-    
+    private static float exposure    = 0.5f;
+    private static float bloomFactor = 0.4f;
+    private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     private static Vector4f sunDirection = new Vector4f(1.0f, 1.0f, 1.0f, 0f);
     
     //offset
@@ -59,6 +64,7 @@ public class TerrainMain {
     private static ShaderProgram fboSP; 
     
     public static void main(String[] argv) {
+    	MenuDialog dialog = new MenuDialog();
         try {
             init();
             OpenCL.init();
@@ -127,12 +133,12 @@ public class TerrainMain {
         brightnessFBO.init(false, GL.WIDTH, GL.HEIGHT);
         brightnessFBO.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
-        //blur
+        //blur fbo
     	FrameBuffer blurFBO = new FrameBuffer();
         blurFBO.init(false, GL.WIDTH, GL.HEIGHT);
         blurFBO.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
-        //bloom
+        //bloom fbo
     	FrameBuffer bloomFBO = new FrameBuffer();
         bloomFBO.init(false, GL.WIDTH, GL.HEIGHT);
         bloomFBO.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
@@ -194,7 +200,7 @@ public class TerrainMain {
 	        	brightnessFBO.bind();
 	        	brightSP.use();
 	        	brightSP.setUniform("colorTex", enlightenedFBO.getTexture(0));
-	        	brightSP.setUniform("colorFactor", new Vector4f(1f, 1f, 1f, 1f));
+	        	brightSP.setUniform("colorFactor", brightnessFactor);
 	        	
 	        	screenQuad.draw();
 	        	
@@ -296,24 +302,49 @@ public class TerrainMain {
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
                     
-                    case Keyboard.KEY_NUMPAD8: if (exposure <  19) exposure += 1.0f; ; break;
+                    // exposure adjustment
+                    case Keyboard.KEY_NUMPAD8:
+                    	if (exposure <  19.0f && exposure >= 1.0f)
+                    		exposure += 1.0f;
+                    	else if (exposure < 1.0f)
+                    		exposure += 0.1f;
+                    	break;
                     case Keyboard.KEY_NUMPAD2:
-                    	if (exposure > 1.0)
+                    	if (exposure > 1.0f)
                     		exposure -= 1.0f;
-                    	else if (exposure <= 1.0 && exposure > 0)
-                    		exposure -= 0.1f ; break;
+                    	else if (exposure <= 1.0f && exposure > 0f)
+                    		exposure -= 0.1f ;
+                    	break;
                     		
-                    case Keyboard.KEY_NUMPAD7: if (bloomFactor <  19) exposure += 1.0f; ; break;
+                    // bloom adjustment
+                    case Keyboard.KEY_NUMPAD7:
+                    	if (bloomFactor <  19.0f && bloomFactor >= 1.0f)
+                    		bloomFactor += 1.0f;
+                    	else if (bloomFactor < 1.0f)
+                    		bloomFactor += 0.1f;
+                    	break;
                     case Keyboard.KEY_NUMPAD1:
-                    	if (bloomFactor > 1.0)
+                    	if (bloomFactor > 1.0f)
                     		bloomFactor -= 1.0f;
-                    	else if (bloomFactor <= 1.0 && bloomFactor > 0)
-                    		bloomFactor -= 0.1f ; 
+                    	else if (bloomFactor > 0f && bloomFactor <= 1.0f)
+                    		bloomFactor -= 0.1f;
+                    	break;
+                    	
+                    // brightness adjustment
+                    case Keyboard.KEY_NUMPAD9:
+                    	brightnessFactor.x += 0.1f;
+                    	brightnessFactor.y += 0.1f;
+                    	brightnessFactor.z += 0.1f;
+                       	break; 
+                    case Keyboard.KEY_NUMPAD3:
+                    	brightnessFactor.x -= 0.1f;
+                    	brightnessFactor.y -= 0.1f;
+                    	brightnessFactor.z -= 0.1f;
+                       	break; 
                     		
                     case Keyboard.KEY_K: 
                     	Matrix4f.transform(Util.rotationY(0.1f, null), sunDirection, sunDirection);
                     	break;
-                    	//sunDirection.x = 1.0f; sunDirection.y = 0.0f; sunDirection.z = 0.0f; break;
                     case Keyboard.KEY_L: 
                     	Matrix4f.transform(Util.rotationY(-0.1f, null), sunDirection, sunDirection);
                     	break;
@@ -379,4 +410,64 @@ public class TerrainMain {
     	
         return blur;
     }
+    
+	public static void setCulling(boolean culling) {
+		TerrainMain.culling = culling;
+	}
+
+	public static boolean isWireframe() {
+		return wireframe;
+	}
+
+	public static void setWireframe(boolean wireframe) {
+		TerrainMain.wireframe = wireframe;
+	}
+
+	public static boolean isBloom() {
+		return bloom;
+	}
+
+	public static void setBloom(boolean bloom) {
+		TerrainMain.bloom = bloom;
+	}
+
+	public static boolean isTonemapping() {
+		return tonemapping;
+	}
+
+	public static void setTonemapping(boolean tonemapping) {
+		TerrainMain.tonemapping = tonemapping;
+	}
+
+	public static boolean isRotatelight() {
+		return rotatelight;
+	}
+
+	public static void setRotatelight(boolean rotatelight) {
+		TerrainMain.rotatelight = rotatelight;
+	}
+
+	public static float getExposure() {
+		return exposure;
+	}
+
+	public static void setExposure(float exposure) {
+		TerrainMain.exposure = exposure;
+	}
+
+	public static float getBloomFactor() {
+		return bloomFactor;
+	}
+
+	public static void setBloomFactor(float bloomFactor) {
+		TerrainMain.bloomFactor = bloomFactor;
+	}
+
+	public static Vector4f getBrightnessFactor() {
+		return brightnessFactor;
+	}
+
+	public static void setBrightnessFactor(Vector4f brightnessFactor) {
+		TerrainMain.brightnessFactor = brightnessFactor;
+	}
 }
