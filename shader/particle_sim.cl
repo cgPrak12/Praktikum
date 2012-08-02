@@ -1,5 +1,6 @@
 #define LOCAL_MEM_SIZE 64
-#define RADIUS 0.004
+#define RADIUS 0.006
+#define WITH_COLLISION 1
 
 float xor128() {
   int x = 123456789;
@@ -44,8 +45,9 @@ image2d_t normalmap)
 
     // y-axis accelaration (gravity)  
     float4 gravity = (float4)(0,-0.00004,0,0);
-	
-	float4 collideVelo;
+
+    if (WITH_COLLISION) {	
+    float4 collideVelo;
     for(int tile=0; tile < get_num_groups(0); ++tile)
     {
         int toCopy = tile * get_local_size(0) + get_local_id(0);
@@ -79,19 +81,18 @@ image2d_t normalmap)
         
         barrier(CLK_LOCAL_MEM_FENCE);
     }
-
-
-
-	float4 movingDir = reflect(normal,myVelo);
+    
+    myVelo *= 0.95;
+    }
 
 	myVelo+=gravity;
         float3 dVelo = (float3)(0);  	
 	if(myPos.s1 <= height.s0+RADIUS) {
             // ground contact, terrain<->particle
-            myPos.s1 = height.s0+0.001;
+            myPos.s1 = height.s0+RADIUS;
             dVelo = normal.s012*0.0001;
             myVelo += (float4)(dVelo,1);
-            myVelo *= 0.95;
+            myVelo *= 0.9;
 
             //DO NOT USE, TESTING ONLY
             //myPos.s1 = height.s0+RADIUS;
@@ -104,7 +105,7 @@ image2d_t normalmap)
 	float lifetime = myPos.s3-0.8333f;
     //position[get_global_id(0)] = (float4)(myPos.s012 + myVelo.s012*4, lifetime);
     position[get_global_id(0)] = (float4)(myPos.s012, lifetime);
-    velos[get_global_id(0)] = myVelo*0.7;
+    velos[get_global_id(0)] = myVelo;
 }
 
 float3 getNormal(image2d_t heightmap, float2 pos)
