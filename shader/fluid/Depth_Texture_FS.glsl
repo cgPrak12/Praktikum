@@ -24,6 +24,8 @@ void main(void) {
 	vec4 g = view * positionWC;
 	g = g / g.w;
 	vec4 pixelPos = vec4(g.xyz + n*0.5,1.0);
+	
+	// position in xyz, depth in w !
 	depth = -pixelPos.z / pixelPos.w;
 
 }

@@ -38,7 +38,6 @@ public class TerrainMain {
     private static float ingameTimePerSecond = 1.0f;
     
     private static ShaderProgram fboSP;
-    private static ShaderProgram waterSP;
     
     public static void main(String[] argv) {
         try {
@@ -49,8 +48,11 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+
+            GL11.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
             //glEnable(GL20.GL_POINT_SPRITE);
             glEnable(GL32.GL_PROGRAM_POINT_SIZE);
+
             render();
             OpenCL.destroy();
             destroy();
@@ -60,7 +62,7 @@ public class TerrainMain {
     }
     
     public static void render() throws LWJGLException {
-        glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // background color: black
         
         long last = System.currentTimeMillis();
         long now, millis;
@@ -75,7 +77,6 @@ public class TerrainMain {
         FluidRenderer fluidRenderer = new FluidRenderer(cam);
         
         Geometry testCube = GeometryFactory.createCube();
-        Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
        
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -116,16 +117,14 @@ public class TerrainMain {
 //            shader.DrawTexture(shader.getWorldTexture());
             
             
+
             
             // TODO: postfx
             
-            // START WATER
-
-          //fluidRenderer.fluidThickness();
-         fluidRenderer.depthTexture();
+            // WATER
             fluidRenderer.render();
             
-            // END WATER
+            // TODO: combine images
             
             // present screen
             Display.update();

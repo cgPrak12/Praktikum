@@ -1,6 +1,5 @@
 package util;
 
-import opengl.GL;
 import static opengl.GL.*;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
@@ -38,10 +37,42 @@ public class ShaderProgram {
         }
     }
     
+    /**
+     * Hilfsmethode, um einen Vektor in eine Uniform zu schreiben. Das
+     * zugehoerige Programmobjekt muss aktiv sein.
+     * @param vector Vektor
+     * @param varName Zielvariable im Shader
+     */
     public void setUniform(String varName, Vector3f vector) {
         int loc = glGetUniformLocation(this.id, varName);
         if(loc != -1) {
             glUniform3f(loc, vector.x, vector.y, vector.z);
+        }
+    }
+    
+    /**
+     * Hilfsmethode, um einen Float in eine Uniform zu schreiben. Das
+     * zugehoerige Programmobjekt muss aktiv sein.
+     * @param f Float
+     * @param varName Zielvariable im Shader
+     */
+    public void setUniform(String varName, float f) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+            glUniform1f(loc, f);
+        }
+    }
+    
+    /**
+     * Hilfsmethode, um einen Integer in eine Uniform zu schreiben. Das
+     * zugehoerige Programmobjekt muss aktiv sein.
+     * @param i Integer
+     * @param varName Zielvariable im Shader
+     */
+    public void setUniform(String varName, int i) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+            glUniform1i(loc, i);
         }
     }
     
@@ -140,6 +171,10 @@ public class ShaderProgram {
         GL20.glDeleteProgram(this.id);
     }
     
+    /**
+     * Gibt die ID des ShaderPrograms zurück.
+     * @return id
+     */
     public int getId() {
     	return this.id;
     }
