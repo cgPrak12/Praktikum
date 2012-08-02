@@ -1,5 +1,12 @@
 #version 150 core
 
+/**
+ * @brief Blurs a texture. Mixed are 25 texels per texel.
+ *
+ * @author vbruder
+ * @author kseidel
+ */
+ 
 uniform sampler2D colorTex;
 uniform vec2 tc_offset[25];
 

@@ -1,9 +1,10 @@
 #version 330
 
 /**
- * @brief Performes tone mapping.
+ * @brief Performes tone mapping with adaptive exposure levels.
  *
  * @author vbruder
+ * @author kseidel
  */
  
 uniform sampler2D lightedTex;
@@ -33,7 +34,7 @@ void main(void)
 		
 		float kernelLuminance = dot(kernelcolor.rgb, vec3(0.3, 0.59, 0.11));
 		
-		float newExposure = kernelLuminance / 2.0 * exposure;
+		float newExposure = kernelLuminance * exposure;
 		newExposure = clamp(newExposure, 0.2f, 20.0f);
 		
 		toneMappedColor = 1.0 - exp2(-vColor * newExposure);
