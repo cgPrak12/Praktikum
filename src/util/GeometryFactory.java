@@ -45,35 +45,35 @@ public class GeometryFactory {
     
     public static Geometry createCube() {
     	float[] cubeVertices  = {
-          		 0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  100.0f, 0.0f, 0.0f, 1.0f, // front top right
-        		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 250.0f, 0.0f, 1.0f, // front top left
+          		 0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // front top right
+        		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f, // front top left
         		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 1.0f, // front bottom right
-        		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 1.0f, 1.0f, // front bottom left
+        		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f, // front bottom left
             		
-        		 0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  1.0f, 1.0f, 0.0f, 1.0f, // back top right
-        		 0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f, 1.0f, // back top left
-        		-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
-        		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 1.0f,  // back bottom left		
+        		 0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  10.0f, 1.0f, 0.0f, 1.0f, // back top right
+        		 0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 10.0f, 0.0f, 1.0f, // back top left
+        		-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  1.0f, 0.0f, 20.0f, 1.0f, // back bottom right
+        		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 30.0f, 1.0f,  // back bottom left		
 
-          		 0.5f, 0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  200.0f, 2.0f, 200.0f, 1.0f, // front top right
+          		 0.5f, 0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  20.0f, 2.0f, 20.0f, 1.0f, // front top right
         		 0.5f, 0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 2.0f, 2.0f, 1.0f, // front top left
-        		-0.5f, 0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  2.0f, 0.0f, 2.0f, 1.0f, // front bottom right
-        		-0.5f, 0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 2.0f, 1.0f, // front bottom left
+        		-0.5f, 0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  30.0f, 0.0f, 2.0f, 1.0f, // front bottom right
+        		-0.5f, 0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 5.0f, 1.0f, // front bottom left
                 		
-         		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,  2.0f, 2.0f, 2.0f, 1.0f, // front top right
-     		 	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 2.0f, 2.0f, 1.0f, // front top left
- 		 		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,  2.0f, 0.0f, 2.0f, 1.0f, // front bottom right
+         		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,  2.0f, 50.0f, 2.0f, 1.0f, // front top right
+     		 	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 2.0f, 20.0f, 1.0f, // front top left
+ 		 		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,  20.0f, 0.0f, 2.0f, 1.0f, // front bottom right
  		 		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 2.0f, 1.0f, // front bottom left
                 		
-          		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  2.0f, 200.0f, 200.0f, 1.0f, // front top right
-        		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 200.0f, 2.0f, 1.0f, // front top left
-        		 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  2.0f, 0.0f, 2.0f, 1.0f, // front bottom right
-        		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 2.0f, 1.0f, // front bottom left
+          		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.5f, 1.0f, 0.0f, 1.0f, // front top right
+        		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.5f, 1.0f, // front top left
+        		 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  2.0f, 0.0f, 0.5f, 1.0f, // front bottom right
+        		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.1f, 1.0f, // front bottom left
             		
-          		-0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  2.0f, 2.0f, 2.0f, 1.0f, // front top right
-        		-0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  0.0f, 2.0f, 2.0f, 1.0f, // front top left
-        		-0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  200.0f, 0.0f, 2.0f, 1.0f, // front bottom right
-        		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 2.0f, 1.0f, // front bottom left
+          		-0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  0.2f, 0.7f, 1.0f, 1.0f, // front top right
+        		-0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  0.0f, 2.0f, 0.2f, 1.0f, // front top left
+        		-0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  20.0f, 0.0f, 2.0f, 1.0f, // front bottom right
+        		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  5.0f, 10.0f, 2.0f, 1.0f, // front bottom left
     	};
        
        int[] cubeIndices = {

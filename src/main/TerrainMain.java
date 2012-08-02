@@ -34,20 +34,22 @@ public class TerrainMain {
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
+    
+    private static boolean bloom = true;
     private static boolean tonemapping = true;
-    private static boolean rotatelight = true;
-
+    private static boolean rotatelight = false;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
     private static final Camera cam = new Camera(); 
     
     // animation params
-    private static float ingameTime = 0;
+    private static float ingameTime = 0.0f;
     private static float ingameTimePerSecond = 1.0f;
     
     //tone mapping
     private static float exposure = 1.0f;
+    private static float bloomFactor = 1.0f;
     
     private static Vector4f sunDirection = new Vector4f(1.0f, 1.0f, 1.0f, 0f);
     
@@ -116,24 +118,24 @@ public class TerrainMain {
 
         
         //enlighted fbo
-        FrameBuffer enlightened = new FrameBuffer();
-        enlightened.init(false, GL.WIDTH, GL.HEIGHT);
-        enlightened.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        FrameBuffer enlightenedFBO = new FrameBuffer();
+        enlightenedFBO.init(false, GL.WIDTH, GL.HEIGHT);
+        enlightenedFBO.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
         //brightness fbo
-        FrameBuffer brightness = new FrameBuffer();
-        brightness.init(false, GL.WIDTH, GL.HEIGHT);
-        brightness.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        FrameBuffer brightnessFBO = new FrameBuffer();
+        brightnessFBO.init(false, GL.WIDTH, GL.HEIGHT);
+        brightnessFBO.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
         //blur
-    	FrameBuffer blur = new FrameBuffer();
-        blur.init(false, GL.WIDTH, GL.HEIGHT);
-        blur.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+    	FrameBuffer blurFBO = new FrameBuffer();
+        blurFBO.init(false, GL.WIDTH, GL.HEIGHT);
+        blurFBO.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
         //bloom
-    	FrameBuffer bloom = new FrameBuffer();
-        bloom.init(false, GL.WIDTH, GL.HEIGHT);
-        bloom.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+    	FrameBuffer bloomFBO = new FrameBuffer();
+        bloomFBO.init(false, GL.WIDTH, GL.HEIGHT);
+        bloomFBO.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -176,7 +178,7 @@ public class TerrainMain {
         	shader.finish();
         	
         	// blinn-phong lighting
-        	enlightened.bind();
+        	enlightenedFBO.bind();
         	phongSP.use();
         	phongSP.setUniform("normalTex",  shader.getNormalTexture());
         	phongSP.setUniform("worldTex",   shader.getWorldTexture());
@@ -184,45 +186,52 @@ public class TerrainMain {
         	phongSP.setUniform("camPos",     cam.getCamPos());
         	phongSP.setUniform("sunDir",	 new Vector3f(sunDirection.x, sunDirection.y, sunDirection.z));
         	
-        	screenQuad.draw();
+        	screenQuad.draw();        	
+        	enlightenedFBO.unbind();
         	
-        	enlightened.unbind();
-        	
-        	//brightness
-        	brightness.bind();
-        	brightSP.use();
-        	brightSP.setUniform("colorTex", enlightened.getTexture(0));
-        	brightSP.setUniform("colorFactor", new Vector4f(1f, 1f, 1f, 1f));
-        	
-        	screenQuad.draw();
-        	
-        	brightness.unbind();
-        	
-        	//blur
-        	FrameBuffer blured1 = genBlur(enlightened, screenQuad);
-        	FrameBuffer blured2 = genBlur(blured1, screenQuad);
-        	FrameBuffer blured3 = genBlur(blured2, screenQuad);
-        	FrameBuffer blured4 = genBlur(blured3, screenQuad);
-        	
-        	//bloom
-        	bloom.bind();
-        	bloomSP.use();
-        	bloomSP.setUniform("origImage", enlightened.getTexture(0));
-        	bloomSP.setUniform("brightImage", brightness.getTexture(0));
-        	bloomSP.setUniform("blur1", blured1.getTexture(0));
-        	bloomSP.setUniform("blur2", blured2.getTexture(0));
-        	bloomSP.setUniform("blur3", blured3.getTexture(0));
-        	bloomSP.setUniform("blur4", blured4.getTexture(0));
-        	bloomSP.setUniform("bloomLevel", 1.0f);
-        	
-        	screenQuad.draw();
-        	
-        	bloom.unbind();
+        	if(bloom) {       	
+	        	//brightness
+	        	brightnessFBO.bind();
+	        	brightSP.use();
+	        	brightSP.setUniform("colorTex", enlightenedFBO.getTexture(0));
+	        	brightSP.setUniform("colorFactor", new Vector4f(1f, 1f, 1f, 1f));
+	        	
+	        	screenQuad.draw();
+	        	
+	        	brightnessFBO.unbind();
+	        	
+	        	//blur
+	        	FrameBuffer blured1 = genBlur(enlightenedFBO, screenQuad);
+	        	FrameBuffer blured2 = genBlur(blured1, screenQuad);
+	        	FrameBuffer blured3 = genBlur(blured2, screenQuad);
+	        	FrameBuffer blured4 = genBlur(blured3, screenQuad);
+	        	
+	        	//bloom
+	        	bloomFBO.bind();
+	        	bloomSP.use();
+	        	bloomSP.setUniform("origImage", enlightenedFBO.getTexture(0));
+	        	bloomSP.setUniform("brightImage", brightnessFBO.getTexture(0));
+	        	bloomSP.setUniform("blur1", blured1.getTexture(0));
+	        	bloomSP.setUniform("blur2", blured2.getTexture(0));
+	        	bloomSP.setUniform("blur3", blured3.getTexture(0));
+	        	bloomSP.setUniform("blur4", blured4.getTexture(0));
+	        	bloomSP.setUniform("bloomLevel", bloomFactor);
+	        	
+	        	screenQuad.draw();	        	
+	        	bloomFBO.unbind();       	
+        	}
         	
         	// tone mapping
         	if(tonemapping) {
 	        	toneSP.use();
-	        	toneSP.setUniform("colorTex", brightness.getTexture(0));
+	        	
+	        	if(bloom) { 
+	        		toneSP.setUniform("colorTex", bloomFBO.getTexture(0));
+	        	}
+	        	else {
+	        		toneSP.setUniform("colorTex", enlightenedFBO.getTexture(0));
+	        	}
+	        		
 	        	toneSP.setUniform("exposure", exposure);
 	        	toneSP.setUniform("tc_offset", tc_offset_5);
         	}
@@ -286,12 +295,21 @@ public class TerrainMain {
                         break;
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
+                    
                     case Keyboard.KEY_NUMPAD8: if (exposure <  19) exposure += 1.0f; ; break;
                     case Keyboard.KEY_NUMPAD2:
                     	if (exposure > 1.0)
                     		exposure -= 1.0f;
                     	else if (exposure <= 1.0 && exposure > 0)
                     		exposure -= 0.1f ; break;
+                    		
+                    case Keyboard.KEY_NUMPAD7: if (bloomFactor <  19) exposure += 1.0f; ; break;
+                    case Keyboard.KEY_NUMPAD1:
+                    	if (bloomFactor > 1.0)
+                    		bloomFactor -= 1.0f;
+                    	else if (bloomFactor <= 1.0 && bloomFactor > 0)
+                    		bloomFactor -= 0.1f ; 
+                    		
                     case Keyboard.KEY_K: 
                     	Matrix4f.transform(Util.rotationY(0.1f, null), sunDirection, sunDirection);
                     	break;
@@ -308,6 +326,8 @@ public class TerrainMain {
                     case Keyboard.KEY_F5:
                     	tonemapping = !tonemapping; break;
                     case Keyboard.KEY_F6:
+                    	bloom = !bloom; break;
+                    case Keyboard.KEY_F9:
                     	rotatelight = !rotatelight; break;
                 }
             }
