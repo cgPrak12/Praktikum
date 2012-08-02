@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL30;
 
 public class FluidRenderer {
 	
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024 * 4);
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
 	private int textureUnit = 50;
 	private Camera cam;
 	
@@ -64,8 +64,8 @@ public class FluidRenderer {
     private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
     private Texture finalImage = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
-    private Texture[] textures = { thicknessTexture, depthTexture };
-    private String[] textureNames = { "thickness", "depth" };
+    private Texture[] textures = { thicknessBlurTexture2, vBlurTexture, lightingTexture };
+    private String[] textureNames = { "thickness", "depth", "light" };
     
 
     public FluidRenderer(Camera camTmp) {
@@ -103,7 +103,15 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", depthTexture);
+//        drawTextureSP.setUniform("image", depthTexture);
+//        drawTextureSP.setUniform("image", hBlurTexture);
+//        drawTextureSP.setUniform("image", vBlurTexture);
+//        drawTextureSP.setUniform("image", normalTexture);
+//        drawTextureSP.setUniform("image", thicknessTexture);
+//        drawTextureSP.setUniform("image", thicknessBlurTexture);
+//        drawTextureSP.setUniform("image", thicknessBlurTexture2);
+//        drawTextureSP.setUniform("image", lightingTexture);
+        drawTextureSP.setUniform("image", finalImage);
         screenQuadGeo.draw();
         
         // resets buffers
@@ -146,14 +154,14 @@ public class FluidRenderer {
     
 	private void depthTexture() {
 		
-		depthSP.use();
-		
+//		depthSP.use();
+//		
+		startPath(depthSP, depthFrameBuffer);
+//		depthSP.setUniform("proj", cam.getProjection());
 		depthSP.setUniform("view", cam.getView());
-		depthSP.setUniform("proj", cam.getProjection());
-		
         depthSP.setUniform("camPos", cam.getCamPos());
-   	    depthFrameBuffer.bind();
-   	    depthFrameBuffer.clearColor();
+//   	    depthFrameBuffer.bind();
+//   	    depthFrameBuffer.clearColor();
     
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
