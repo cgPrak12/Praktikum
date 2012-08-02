@@ -3,7 +3,7 @@
 uniform mat4 proj;
 uniform mat4 view;
 
-in vec4 positionMC;
+in vec3 positionMC;
 in vec3 normalMC;
 out vec3 coords;
 out vec3 normal;

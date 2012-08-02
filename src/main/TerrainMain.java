@@ -80,7 +80,7 @@ public class TerrainMain {
         
         //Geometry quad = GeometryFactory.createTerrain(100,100,2);
         
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/03.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/04.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
@@ -141,7 +141,7 @@ public class TerrainMain {
      * @param millis Millisekunden seit dem letzten Aufruf
      */
     public static void handleInput(long millis) {
-        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
+        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 0.1f : 1.0f)*(float)millis;
         float camSpeed = 5e-3f;
         
         while(Keyboard.next()) {
