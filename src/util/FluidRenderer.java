@@ -221,6 +221,7 @@ public class FluidRenderer {
     }
 	
 	private void fluidThicknessBlur() {  //TODO
+
 		startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
 	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
         screenQuadGeo.draw();
@@ -242,6 +243,7 @@ public class FluidRenderer {
         	screenQuadGeo.draw();
         	thicknessBlurFrameBuffer2.unbind();
 		}
+
     }
 	
 	private void fluidLighting() {  //TODO
