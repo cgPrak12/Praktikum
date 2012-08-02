@@ -81,74 +81,72 @@ public class GeometryFactory {
                     //Spalt Zeile in Elemente anhand von Leerzeichen auf
                     String[] lineElements = line.split(" {1,}");
                     String[][] faceGroup = new String[4][];
-                    if(lineElements[1].contains("/")) {
-                        //split lineElements into their index components 
-                        try {
-                            faceGroup[0] = lineElements[1].split("/");
-                            faceGroup[1] = lineElements[2].split("/");
+                    //split lineElements into their index components 
+
+                    try {
+                        faceGroup[0] = lineElements[1].split("/");
+                        faceGroup[1] = lineElements[2].split("/");
+                        //switch for facelines with only 2 face groups
+                        if(lineElements.length>3)
                             faceGroup[2] = lineElements[3].split("/");
-                        } catch(ArrayIndexOutOfBoundsException e) {
-                            System.out.println("Read error while splitting line elements (f) at line: "+i);
-                            System.out.println(e);
-                        }
+                        else
+                            faceGroup[2] = faceGroup[0];
+                    } catch(ArrayIndexOutOfBoundsException e) {
+                        System.out.println("Read error while splitting line elements (f) at line: "+i);
+                        System.out.println(e);
+                    }
                         
+                    Vector3f faceVertexIndizies = new Vector3f();
+                    Vector3f faceTextureIndizies = new Vector3f();
+                    Vector3f faceNormalIndizies = new Vector3f();
+
+                    //Switch for index groups with 1 (vertex only), 2 (vertex and texture) or 3 (vertex, texture and normal) elements
+                    if(faceGroup[0].length==1) {
+                        faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
+                    } else if(faceGroup[0].length==2) {
+                        faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
+                        faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[1][1])-1, Float.valueOf(faceGroup[2][1])-1);
+                    } else if(faceGroup[0].length==3) {
+                        faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
+                        faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[1][1])-1, Float.valueOf(faceGroup[2][1])-1);
+                        faceNormalIndizies = new Vector3f(Float.valueOf(faceGroup[0][2])-1, Float.valueOf(faceGroup[1][2])-1, Float.valueOf(faceGroup[2][2])-1);
+                    }
                         
-                        Vector3f faceVertexIndizies = new Vector3f();
-                        Vector3f faceTextureIndizies = new Vector3f();
-                        Vector3f faceNormalIndizies = new Vector3f();
+                    //Add the created faces to the face list
+                    try {
+                        model.faceListe.add(new Face(faceVertexIndizies, faceTextureIndizies, faceNormalIndizies));
+                    } catch(ArrayIndexOutOfBoundsException e) {
+                        System.out.println("Read error while creating Face one at line: "+i);
+                        System.out.println(e);
+                    }
+                        
+                    //if face consists of 2 triangles (4 index groups), then create a second triangle
+                    if(lineElements.length>4) {
+                        faceGroup[3] = lineElements[4].split("/");
+
+                        faceVertexIndizies = new Vector3f();
+                        faceTextureIndizies = new Vector3f();
+                        faceNormalIndizies = new Vector3f();
 
                         //Switch for index groups with 1 (vertex only), 2 (vertex and texture) or 3 (vertex, texture and normal) elements
                         if(faceGroup[0].length==1) {
-                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
+                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
                         } else if(faceGroup[0].length==2) {
-                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
-                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[1][1])-1, Float.valueOf(faceGroup[2][1])-1);
+                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
+                            faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[2][1])-1, Float.valueOf(faceGroup[3][1])-1);
                         } else if(faceGroup[0].length==3) {
-                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
-                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[1][1])-1, Float.valueOf(faceGroup[2][1])-1);
-                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][2])-1, Float.valueOf(faceGroup[1][2])-1, Float.valueOf(faceGroup[2][2])-1);
+                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
+                            faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[2][1])-1, Float.valueOf(faceGroup[3][1])-1);
+                            faceNormalIndizies = new Vector3f(Float.valueOf(faceGroup[0][2])-1, Float.valueOf(faceGroup[2][2])-1, Float.valueOf(faceGroup[3][2])-1);
                         }
-                        
-                        //Add the created faces to the face list
+
                         try {
-                            model.faceListe.add(new Face(faceVertexIndizies, faceVertexIndizies, faceVertexIndizies));
+                            model.faceListe.add(new Face(faceVertexIndizies, faceTextureIndizies, faceNormalIndizies));
                         } catch(ArrayIndexOutOfBoundsException e) {
-                            System.out.println("Read error while creating Face one at line: "+i);
+                            System.out.println("Read error while creating Face two at line: "+i);
                             System.out.println(e);
-                        }
-                        
-                        //if face consists of 2 triangles (4 index groups), then create a second triangle
-                        if(lineElements.length>4) {
-                            faceGroup[3] = lineElements[4].split("/");
-
-                            faceVertexIndizies = new Vector3f();
-                            faceTextureIndizies = new Vector3f();
-                            faceNormalIndizies = new Vector3f();
-
-                            //Switch for index groups with 1 (vertex only), 2 (vertex and texture) or 3 (vertex, texture and normal) elements
-                            if(faceGroup[0].length==1) {
-                                faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
-                            } else if(faceGroup[0].length==2) {
-                                faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
-                                faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[2][1])-1, Float.valueOf(faceGroup[3][1])-1);
-                            } else if(faceGroup[0].length==3) {
-                                faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
-                                faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[2][1])-1, Float.valueOf(faceGroup[3][1])-1);
-                                faceNormalIndizies = new Vector3f(Float.valueOf(faceGroup[0][2])-1, Float.valueOf(faceGroup[2][2])-1, Float.valueOf(faceGroup[3][2])-1);
-                            }
-
-                            try {
-                                model.faceListe.add(new Face(faceVertexIndizies, faceTextureIndizies, faceNormalIndizies));
-                            } catch(ArrayIndexOutOfBoundsException e) {
-                                System.out.println("Read error while creating Face two at line: "+i);
-                                System.out.println(e);
-                            }                        
-                        }
-                    } else {
-                        System.out.println("bla");
-                        model.faceListe.add(new Face(new Vector3f(Float.valueOf(lineElements[1])-1, Float.valueOf(lineElements[2])-1, Float.valueOf(lineElements[3])-1)));
-                        model.faceListe.add(new Face(new Vector3f(Float.valueOf(lineElements[1])-1, Float.valueOf(lineElements[3])-1, Float.valueOf(lineElements[4])-1)));
-                   }
+                        }                        
+                    }   
                 }
                 i++;
             } //end of while loop
@@ -175,9 +173,9 @@ public class GeometryFactory {
             //Hole vertexCoordinaten zum jeweiligen vertexIndizies
             model.vertexList.get((int)currentFace.vertexIndizies.x).store(vertexData);            
             //check if the model has texture coordinates
-            if(/*currentFace.vertexNormalIndizies != null &&*/ currentFace.vertexNormalIndizies.length()!=0)
+            if(currentFace.vertexTextureIndizies.length()!=0) {
                 model.vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).store(vertexData);
-            else
+            } else
                 new Vector3f().store(vertexData);
             //check if the model has normals
             if(currentFace.vertexNormalIndizies.length()!=0)
@@ -187,7 +185,7 @@ public class GeometryFactory {
             
             model.vertexList.get((int)currentFace.vertexIndizies.y).store(vertexData);
             //check if the model has texture coordinates
-            if(currentFace.vertexNormalIndizies.length()!=0)
+            if(currentFace.vertexTextureIndizies.length()!=0)
                 model.vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).store(vertexData);
             else
                 new Vector3f().store(vertexData);
@@ -199,7 +197,7 @@ public class GeometryFactory {
 
             model.vertexList.get((int)currentFace.vertexIndizies.z).store(vertexData);
             //check if the model has texture coordinates
-            if(currentFace.vertexNormalIndizies.length()!=0)
+            if(currentFace.vertexTextureIndizies.length()!=0)
                 model.vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).store(vertexData);
             else
                 new Vector3f().store(vertexData);
