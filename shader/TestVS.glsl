@@ -10,3 +10,4 @@ in vec3 positionMC;
 void main(void) {
     gl_Position = viewProj * model * scale * vec4(positionMC, 1);
 }
+

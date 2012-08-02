@@ -29,6 +29,10 @@ public class Material {
                                         //During rendering, the map_d value is
                                         //multiplied by the d value.
     
+    public Material() {
+        
+    }
+    
     public Material(String name, float specularEx, Vector3f ambientRef,
                     Vector3f diffuseRef, Vector3f specularRef,
                     float opticalDens, float dissolveFact,
@@ -44,5 +48,19 @@ public class Material {
         this.illuminationModel = illuminationModel;
         this.diffuseRefColorMap = diffuseRefColorMap;
         this.dissolveFactColorMap = dissolveFactColorMap;
+    }
+    
+    @Override
+    public String toString() {
+        return "name: "+name+"\n"
+                +"specularEx: "+specularEx+"\n"
+                +"ambientRef: "+ambientRef+"\n"
+                +"diffuseRef: "+diffuseRef+"\n"
+                +"specularRef: "+specularRef+"\n"
+                +"opticalDens: "+opticalDens+"\n"
+                +"dissolveFact: "+dissolveFact+"\n"
+                +"illuminationModel: "+illuminationModel+"\n"
+                +"diffuseRefColorMap: "+diffuseRefColorMap+"\n"
+                +"dissolveFactColorMap: "+dissolveFactColorMap+"\n\n";
     }
 }

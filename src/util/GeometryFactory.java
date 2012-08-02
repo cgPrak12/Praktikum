@@ -13,7 +13,65 @@ import opengl.GL;
  * Stellt Methoden zur Erzeugung von Geometrie bereit.
  * @author Sascha Kolodzey, Nico Marniok
  */
-public class GeometryFactory {    
+public class GeometryFactory {
+    public static List<Material> getMaterialListFromMTL(String mtlPath) {
+        List<Material> materialList = new LinkedList<Material>();
+        
+       //Open File
+        try (BufferedReader objBufferedReader = new BufferedReader(new FileReader(mtlPath))) {
+            //Loop through file line by line
+            String line = "";
+            int i=1;
+            
+            Material material = null;
+            while((line = objBufferedReader.readLine()) != null) {
+                //add previos used material object to list if one exists
+                //generate a new material object
+                //parse material name
+                if(line.startsWith("newmtl ")) {
+                    if(material!=null)
+                        materialList.add(material);
+                    material = new Material();
+                    material.name = line.split(" {1,}")[1];
+                } else if (line.startsWith("Ns ")) {
+                    material.specularEx = Float.valueOf(line.split(" {1,}")[1]);
+                } else if (line.startsWith("Ka ")) {
+                    material.ambientRef = new Vector3f(Float.valueOf(line.split(" {1,}")[1]),
+                                                   Float.valueOf(line.split(" {1,}")[2]),
+                                                   Float.valueOf(line.split(" {1,}")[3]));
+                } else if (line.startsWith("Kd ")) {
+                    material.diffuseRef = new Vector3f(Float.valueOf(line.split(" {1,}")[1]),
+                                                   Float.valueOf(line.split(" {1,}")[2]),
+                                                   Float.valueOf(line.split(" {1,}")[3]));                    
+                } else if (line.startsWith("Ks ")) {
+                    material.specularRef = new Vector3f(Float.valueOf(line.split(" {1,}")[1]),
+                                                   Float.valueOf(line.split(" {1,}")[2]),
+                                                   Float.valueOf(line.split(" {1,}")[3])); 
+                } else if (line.startsWith("Ni ")) {
+                    material.opticalDens = Float.valueOf(line.split(" {1,}")[1]);
+                } else if (line.startsWith("d ")) {
+                    material.dissolveFact = Float.valueOf(line.split(" {1,}")[1]);
+                } else if (line.startsWith("illum ")) {
+                    material.illuminationModel = Integer.parseInt(line.split(" {1,}")[1]);
+                } else if (line.startsWith("map_Kd ")) {
+                    String[] filePath = line.split("\\\\"); //POSSIBLE ERROR BECAUSE INVALID REGEXPR???
+                    material.diffuseRefColorMap = filePath[filePath.length-1];
+                } else if (line.startsWith("map_d ")) {
+                    String[] filePath = line.split("\\\\"); //POSSIBLE ERROR BECAUSE INVALID REGEXPR???
+                    material.dissolveFactColorMap = filePath[filePath.length-1];
+                }
+            } //end of while loop
+            //add the last material object to the list (its not being added in the while loop!)
+            if(material!=null)
+                        materialList.add(material);
+        } catch (IOException e) {
+            System.out.println("Problem beim Lesen der OBJ-Datei! Das Programm wird beendet.");
+            System.exit(0);
+        }     
+        
+        return materialList;
+    }
+    
     /**
      * Erzeugt eine Geometrie aus einer OBJ-Datei von Blender
      * @param objFile Pfad zur OBJ Datei
@@ -28,6 +86,7 @@ public class GeometryFactory {
             //Durchlaufe OBJ-File zeilenweise
             String line = "";
             int i=1;
+            System.out.println("Lese OBJ zeilenweise ein...");
             while((line = objBufferedReader.readLine()) != null) {
                 //Parse verticex coordinates (v)
                 if(line.startsWith("v ")) {
@@ -146,7 +205,8 @@ public class GeometryFactory {
             System.out.println("Problem beim Lesen der OBJ-Datei! Das Programm wird beendet.");
             System.exit(0);
         }               
-        
+     
+        System.out.println("Erzeuge Buffer...");
         int vaid = glGenVertexArrays();
         glBindVertexArray(vaid);
 
@@ -158,6 +218,8 @@ public class GeometryFactory {
         Iterator<Face> faceIterator = model.faceListe.listIterator();
         //Durchlaufe alle Faces
 
+        System.out.println("Durchlaufe Faces und erzeuge Vertex Buffer...");
+        int counter= 0;
         while(faceIterator.hasNext()) {
             //Speichere aktuelles Face zwischen
             Face currentFace = faceIterator.next();
@@ -165,9 +227,9 @@ public class GeometryFactory {
             //Hole vertexCoordinaten zum jeweiligen vertexIndizies
             model.vertexList.get((int)currentFace.vertexIndizies.x).store(vertexData);            
             //check if the model has texture coordinates
-            if(currentFace.vertexTextureIndizies.length()!=0) {
+            if(currentFace.vertexTextureIndizies.length()!=0)
                 model.vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).store(vertexData);
-            } else
+            else
                 new Vector3f().store(vertexData);
             //check if the model has normals
             if(currentFace.vertexNormalIndizies.length()!=0)
@@ -203,32 +265,17 @@ public class GeometryFactory {
             indexData.put((int)currentFace.vertexIndizies.y);
             indexData.put((int)currentFace.vertexIndizies.z);*/
         }
+        
+        System.out.println("Erzeuge Indexbuffer...");
         for(int i=0; i<model.faceListe.size()*3; i++) {
             indexData.put(i);
         }
         
+        System.out.println("Setze Bufferposition auf 0...");
         vertexData.position(0);
         indexData.position(0);
         
-/*        for(int i=0; i<vertexData.capacity(); i++) {
-            System.out.print(vertexData.get(i)+", ");
-            if((i+1)%3==0)
-                System.out.println();
-        }
-
-        for(int i=0; i<indexData.capacity(); i++) {
-            System.out.print(indexData.get(i)+", ");
-            if((i+1)%3==0)
-                System.out.println();
-        }*/
-        
-        /*
-v 0.000000 2.000000 0.000000
-v 0.000000 0.000000 0.000000
-v 2.000000 0.000000 0.000000
-v 2.000000 2.000000 0.000000
-         */
-        
+        System.out.println("Erzeuge geometrie Objekt...");
         Geometry geo = new Geometry();
         geo.setIndices(indexData, GL_TRIANGLES);
         geo.setVertices(vertexData);

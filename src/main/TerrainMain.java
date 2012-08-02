@@ -7,6 +7,7 @@ package main;
 import static opengl.GL.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import opengl.GL;
 import opengl.OpenCL;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -15,6 +16,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
+import java.util.*;
 
 /**
  *
@@ -70,7 +72,16 @@ public class TerrainMain {
 //        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
 
         ShaderProgram  shaderProgram = new ShaderProgram("C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestVS.glsl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestFS.glsl");
-        Geometry quad = GeometryFactory.createFromOBJ("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Tree.obj");
+        Geometry model = GeometryFactory.createFromOBJ("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj");
+        
+        List materialList = GeometryFactory.getMaterialListFromMTL("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl");
+        Iterator<Material> materialListIterator = materialList.listIterator();
+
+        while(materialListIterator.hasNext()) {
+            System.out.println("bla");
+            System.out.println(materialListIterator.next());
+            
+        }
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -97,11 +108,16 @@ public class TerrainMain {
             
             // TODO: postfx
             shaderProgram.use();
+            //scaliere große objekte
             shaderProgram.setUniform("scale", new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
+
+/*            //Testtextur erzeugen und anbinden
+            Texture testTexture = Texture.generateTexture("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Palma 001.png", 0);
+            shaderProgram.setUniform("texture", testTexture);*/
+            
             shaderProgram.setUniform("model", new Matrix4f());
             shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-            quad.draw();
-
+            model.draw();
             
             // present screen
             Display.update();
