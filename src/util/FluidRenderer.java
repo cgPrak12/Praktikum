@@ -93,11 +93,10 @@ public class FluidRenderer {
 		// combine images to final image
 		createFinalImage();
 		
-
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", depthTexture);
+        drawTextureSP.setUniform("image", normalTexture);
         screenQuadGeo.draw();
         
         // resets buffers
@@ -112,7 +111,13 @@ public class FluidRenderer {
 	}
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
-    	fb.addTexture(tex, GL11.GL_RGBA8, GL11.GL_RGBA);
+    	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
+    	fb.drawBuffers();
+	}
+	
+	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex, int internalFormat) {
+    	fb.addTexture(tex, internalFormat, GL11.GL_RGBA);
     	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
     	fb.drawBuffers();
 	}
@@ -183,8 +188,8 @@ public class FluidRenderer {
 	private void fluidNormals() {
 		startPath(normalSP, normalFrameBuffer);
 		normalSP.setUniform("depthTex", depthTexture);
-		normalSP.setUniform("texSize", GL.WIDTH);
-
+		normalSP.setUniform("texSize", (float)GL.WIDTH);
+		normalSP.setUniform("camPos", cam.getCamPos());
 		
 	    glDisable(GL_BLEND);
 	    glDisable(GL_DEPTH_TEST);
