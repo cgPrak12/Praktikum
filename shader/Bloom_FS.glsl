@@ -25,7 +25,6 @@ void main(void)
 	vec4 blurColor4 = texture(blur4, texCoord);
 	
 	vec4 bloom = brightPass + blurColor1 + blurColor2 + blurColor3 + blurColor4;
-	
 	vec4 color = baseImage + (bloomLevel * bloom);
 	
 	bloomColor = color;

@@ -93,6 +93,7 @@ public class ShaderProgram {
     }
     
     public void setUniform(String varName, Vector2f[] vectorarray) {
+    	GL.checkError("");
     	for(int i=0; i < vectorarray.length; ++i) {
     		int loc = glGetUniformLocation(this.id, varName + "[" + i + "]");
     		if(loc != -1) {
@@ -101,6 +102,7 @@ public class ShaderProgram {
     			System.err.println("location of " + varName + " is -1");
     		}
     	}
+    	GL.checkError("");
     	
 //    	FloatBuffer val = BufferUtils.createFloatBuffer(vectorarray.length * 2);
 //        if(loc != -1) {
