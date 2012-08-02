@@ -41,7 +41,7 @@ public class ClipMap {
 	private Geometry bottomLeft;
 	private Geometry botomRight;
 	private Geometry center;
-	
+	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um Faktor
 	
 	/** Erstellt eine ClipMap aus den gegebenen Parametern
 	 * 
@@ -60,6 +60,7 @@ public class ClipMap {
 		this.cam = cam;
 		movement = new int[stage][2];
 		temp = new float[stage][2];
+		
 		
 		// Initialisierung der vorgeladenen Geometrien
 		mxm = GeometryFactory.createGridTex(gridsize + 1, gridsize + 1);
@@ -87,7 +88,7 @@ public class ClipMap {
 	 */
 	
 	public void setScale(float scale) {
-		this.program.setUniform("scale", Util.scale(scale, null));
+		this.program.setUniform("scale", Util.scale(scale*generalScale, null));
 	}
 	
 	/**  

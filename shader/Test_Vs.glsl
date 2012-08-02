@@ -1,16 +1,10 @@
 #version 150 core
 
-uniform mat4 model;
-uniform mat4 viewProj;
-uniform mat4 translation;
-uniform mat4 scale;
-uniform mat4 viewTrans;
+uniform mat4 model, viewProj, translation, scale, viewTrans;
 uniform sampler2D elevation;
 
-in vec2 positionMC;
-out vec2 positionC;
-in vec2 vertexTexCoords;
-out vec2 texCoords;
+in vec2 positionMC, vertexTexCoords;
+out vec2 positionC, texCoords;
 //out vec3 fs_in_color;
 
 void main(void) {
