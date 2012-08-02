@@ -101,17 +101,13 @@ public class GeometryFactory {
                     Vector3f faceNormalIndizies = new Vector3f();
 
                     //Switch for index groups with 1 (vertex only), 2 (vertex and texture) or 3 (vertex, texture and normal) elements
-                    if(faceGroup[0].length==1) {
+                    if(faceGroup[0].length>=1)
                         faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
-                    } else if(faceGroup[0].length==2) {
-                        faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
+                    if(faceGroup[0].length>=2 && !faceGroup[0][1].isEmpty())
                         faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[1][1])-1, Float.valueOf(faceGroup[2][1])-1);
-                    } else if(faceGroup[0].length==3) {
-                        faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[1][0])-1, Float.valueOf(faceGroup[2][0])-1);
-                        faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[1][1])-1, Float.valueOf(faceGroup[2][1])-1);
+                    if(faceGroup[0].length>=3 && !faceGroup[0][2].isEmpty())
                         faceNormalIndizies = new Vector3f(Float.valueOf(faceGroup[0][2])-1, Float.valueOf(faceGroup[1][2])-1, Float.valueOf(faceGroup[2][2])-1);
-                    }
-                        
+
                     //Add the created faces to the face list
                     try {
                         model.faceListe.add(new Face(faceVertexIndizies, faceTextureIndizies, faceNormalIndizies));
@@ -129,16 +125,12 @@ public class GeometryFactory {
                         faceNormalIndizies = new Vector3f();
 
                         //Switch for index groups with 1 (vertex only), 2 (vertex and texture) or 3 (vertex, texture and normal) elements
-                        if(faceGroup[0].length==1) {
+                        if(faceGroup[0].length>=1)
                             faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
-                        } else if(faceGroup[0].length==2) {
-                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
+                        if(faceGroup[0].length>=2 && !faceGroup[0][1].isEmpty())
                             faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[2][1])-1, Float.valueOf(faceGroup[3][1])-1);
-                        } else if(faceGroup[0].length==3) {
-                            faceVertexIndizies = new Vector3f(Float.valueOf(faceGroup[0][0])-1, Float.valueOf(faceGroup[2][0])-1, Float.valueOf(faceGroup[3][0])-1);
-                            faceTextureIndizies = new Vector3f(Float.valueOf(faceGroup[0][1])-1, Float.valueOf(faceGroup[2][1])-1, Float.valueOf(faceGroup[3][1])-1);
+                        if(faceGroup[0].length>=3 && !faceGroup[0][2].isEmpty())
                             faceNormalIndizies = new Vector3f(Float.valueOf(faceGroup[0][2])-1, Float.valueOf(faceGroup[2][2])-1, Float.valueOf(faceGroup[3][2])-1);
-                        }
 
                         try {
                             model.faceListe.add(new Face(faceVertexIndizies, faceTextureIndizies, faceNormalIndizies));

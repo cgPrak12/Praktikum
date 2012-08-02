@@ -70,7 +70,7 @@ public class TerrainMain {
 //        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
 
         ShaderProgram  shaderProgram = new ShaderProgram("C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestVS.glsl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestFS.glsl");
-        Geometry quad = GeometryFactory.createFromOBJ("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\R2D2 by abrock.obj");
+        Geometry quad = GeometryFactory.createFromOBJ("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Tree.obj");
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -97,6 +97,7 @@ public class TerrainMain {
             
             // TODO: postfx
             shaderProgram.use();
+            shaderProgram.setUniform("scale", new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
             shaderProgram.setUniform("model", new Matrix4f());
             shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
             quad.draw();
