@@ -34,6 +34,9 @@ public class TerrainMain {
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
+    private static boolean tonemapping = true;
+    private static boolean rotatelight = true;
+
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -48,6 +51,9 @@ public class TerrainMain {
     
     private static Vector4f sunDirection = new Vector4f(1.0f, 1.0f, 1.0f, 0f);
     
+    //offset
+    private static Vector2f[] tc_offset_5;
+    
     private static ShaderProgram fboSP; 
     
     public static void main(String[] argv) {
@@ -59,7 +65,7 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-            
+            tc_offset_5 = generateTCOffset(5);            
             render();
             OpenCL.destroy();
             destroy();
@@ -68,7 +74,23 @@ public class TerrainMain {
         }
     }
     
-    public static void render() throws LWJGLException {
+    /**
+     *  Generate texturecoordinate_offset for blur and tone mapping
+     *  @param size Generate size * size offset
+     */
+    private static Vector2f[] generateTCOffset(int size) {
+        Vector2f[] tc_offset = new Vector2f[size*size];
+    	int arraycounter = 0;
+    	for(int i = (-size/2); i <= (size/2); ++i) {
+    		for(int j = (-size/2); j <= (size/2); ++j) {
+    			tc_offset[arraycounter] = new Vector2f(i, j);
+    			++arraycounter;
+    		}
+    	}
+        return tc_offset;
+	}
+
+	public static void render() throws LWJGLException {
         glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
         
         long last = System.currentTimeMillis();
@@ -88,21 +110,31 @@ public class TerrainMain {
         
         ShaderProgram phongSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/PhongLighting_FS.glsl");
         ShaderProgram toneSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/ToneMapping_FS.glsl");
+        ShaderProgram brightSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/Brightness_FS.glsl");
+    	ShaderProgram blurSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/Blur_FS.glsl");
+    	ShaderProgram bloomSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/Bloom_FS.glsl");
+
+        
+        //enlighted fbo
         FrameBuffer enlightened = new FrameBuffer();
         enlightened.init(false, GL.WIDTH, GL.HEIGHT);
         enlightened.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
-        //Tone Mapping
-        Vector2f[] tc_offset = new Vector2f[25];
-    	int arraycounter = 0;
-    	for(int i = -2; i < 3; ++i) {
-    		for(int j = -2; j < 3; ++j) {
-    			tc_offset[arraycounter] = new Vector2f(i, j);
-    			System.out.println(tc_offset[arraycounter].x);
-    			System.out.println(tc_offset[arraycounter].y);
-    			++arraycounter;
-    		}
-    	}
+        //brightness fbo
+        FrameBuffer brightness = new FrameBuffer();
+        brightness.init(false, GL.WIDTH, GL.HEIGHT);
+        brightness.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+        //blur
+    	FrameBuffer blur = new FrameBuffer();
+        blur.init(false, GL.WIDTH, GL.HEIGHT);
+        blur.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+        //bloom
+    	FrameBuffer bloom = new FrameBuffer();
+        bloom.init(false, GL.WIDTH, GL.HEIGHT);
+        bloom.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -120,8 +152,10 @@ public class TerrainMain {
             // input and animation
             handleInput(millis);
             animate(millis);
-            Matrix4f.transform(Util.rotationY(0.01f, null), sunDirection, sunDirection);
-            
+            if(rotatelight) {
+            	Matrix4f.transform(Util.rotationY(0.005f, null), sunDirection, sunDirection);
+            }
+            	
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
@@ -153,15 +187,47 @@ public class TerrainMain {
         	screenQuad.draw();
         	
         	enlightened.unbind();
-        
         	
-        	// tone mapping
-        	toneSP.use();
-        	toneSP.setUniform("diffuseTex", enlightened.getTexture(0));
-        	toneSP.setUniform("exposure", exposure);
-        	toneSP.setUniform("tc_offset", tc_offset);
+        	//brightness
+        	brightness.bind();
+        	brightSP.use();
+        	brightSP.setUniform("colorTex", enlightened.getTexture(0));
+        	brightSP.setUniform("colorFactor", new Vector4f(1f, 1f, 1f, 1f));
+        	
         	screenQuad.draw();
         	
+        	brightness.unbind();
+        	
+        	//blur
+        	FrameBuffer blured1 = genBlur(enlightened, screenQuad);
+        	FrameBuffer blured2 = genBlur(blured1, screenQuad);
+        	FrameBuffer blured3 = genBlur(blured2, screenQuad);
+        	FrameBuffer blured4 = genBlur(blured3, screenQuad);
+        	
+        	//bloom
+        	bloom.bind();
+        	bloomSP.use();
+        	bloomSP.setUniform("origImage", enlightened.getTexture(0));
+        	bloomSP.setUniform("brightImage", brightness.getTexture(0));
+        	bloomSP.setUniform("blur1", blured1.getTexture(0));
+        	bloomSP.setUniform("blur2", blured2.getTexture(0));
+        	bloomSP.setUniform("blur3", blured3.getTexture(0));
+        	bloomSP.setUniform("blur4", blured4.getTexture(0));
+        	bloomSP.setUniform("bloomLevel", 1.0f);
+        	
+        	screenQuad.draw();
+        	
+        	bloom.unbind();
+        	
+        	// tone mapping
+        	if(tonemapping) {
+	        	toneSP.use();
+	        	toneSP.setUniform("colorTex", brightness.getTexture(0));
+	        	toneSP.setUniform("exposure", exposure);
+	        	toneSP.setUniform("tc_offset", tc_offset_5);
+        	}
+        	screenQuad.draw();
+
         	        	
 //        	shader.DrawTexture(enlightened.getTexture(0));
         	
@@ -239,6 +305,10 @@ public class TerrainMain {
                     case Keyboard.KEY_O:
                     	Matrix4f.transform(Util.rotationZ(0.1f, null), sunDirection, sunDirection);
                     	break;
+                    case Keyboard.KEY_F5:
+                    	tonemapping = !tonemapping; break;
+                    case Keyboard.KEY_F6:
+                    	rotatelight = !rotatelight; break;
                 }
             }
         }
@@ -263,5 +333,30 @@ public class TerrainMain {
      */
     private static void animate(long millis) {
 
+    }
+    
+    /**
+     * 	Generate blured Framebuffer
+     * @param count Blur Iterations
+     * @param toBlur FrameBuffer to blur
+     * @param screenQuad screenQuad
+     */
+    
+    private static FrameBuffer genBlur(FrameBuffer toBlur, Geometry screenQuad) {
+        ShaderProgram blurSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/Blur_FS.glsl");
+    	
+    	FrameBuffer blur = new FrameBuffer();
+        blur = toBlur;
+        blur.bind();
+	    blurSP.use();
+	    blurSP.setUniform("colorTex", blur.getTexture(0));
+	    blurSP.setUniform("tc_offset", tc_offset_5);
+	    	
+	    screenQuad.draw();
+	    blurSP.delete();
+	    	
+	    blur.unbind();
+    	
+        return blur;
     }
 }

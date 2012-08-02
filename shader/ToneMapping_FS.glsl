@@ -6,7 +6,7 @@
  * @author vbruder
  */
  
-uniform sampler2D diffuseTex;
+uniform sampler2D colorTex;
 uniform float exposure;
 uniform vec2 tc_offset[25];
 
@@ -18,7 +18,7 @@ void main(void)
 {
 	vec4 hdrSample[25];
 	for(int i = 0; i < 25; ++i) {
-		hdrSample[i] = texture(diffuseTex, texCoord.st + tc_offset[i]);
+		hdrSample[i] = texture(colorTex, texCoord.st + tc_offset[i]);
 	}
 	
 	vec4 vColor = hdrSample[12];

@@ -7,10 +7,10 @@
  */
 
 const vec4 upColor = vec4(1.0, 1.0, 0.9, 1.0);
-const vec4 downColor = vec4(0.0, 0.3, 0.0, 1.0);
+const vec4 downColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-uniform sampler2D worldTex;
 uniform sampler2D normalTex;
+uniform sampler2D worldTex;
 uniform sampler2D diffuseTex;
 
 uniform vec3 camPos;
@@ -59,8 +59,10 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 
 void main(void)
 {
-	vec3 normal = texture(normalTex, texCoord).xyz;	
+
 	
+	vec3 normal = texture(normalTex, texCoord).xyz;	
+		
 	if(length(normal) < 0.1)
 	{
 		enlightenedColor = vec4(0.9,0.95,1.0,1);
@@ -85,5 +87,4 @@ void main(void)
 		enlightenedColor = vec4(calcLighting(positionWC, normal, diff, spec, ambi.rgb), 1.0);
 	
 	}
-
 }

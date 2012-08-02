@@ -7,9 +7,11 @@ import static opengl.GL.*;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 /**
  *
@@ -67,6 +69,13 @@ public class ShaderProgram {
         }
     }
     
+    public void setUniform(String varName, Vector4f vector) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+            GL20.glUniform4f(loc, vector.x, vector.y, vector.z, vector.w);
+        }
+    }
+    
     /**
      * Hilfsmethode, um eine Textur in eine Uniform zu schreiben. Das
      * zugehoerige Programmobjekt muss aktiv sein.
@@ -84,15 +93,23 @@ public class ShaderProgram {
     }
     
     public void setUniform(String varName, Vector2f[] vectorarray) {
-    	int loc = glGetUniformLocation(this.id, varName);
-    	FloatBuffer val = BufferUtils.createFloatBuffer(vectorarray.length * 2);
-        if(loc != -1) {
-        	for(int i = 0; i < vectorarray.length; ++i) {
-        		val.put(vectorarray[i].x);
-        		val.put(vectorarray[i].y);
-        	}
-        	GL20.glUniform2(loc, val);
-        }	
+    	for(int i=0; i < vectorarray.length; ++i) {
+    		int loc = glGetUniformLocation(this.id, varName + "[" + i + "]");
+    		if(loc != -1) {
+    			GL20.glUniform2f(loc, vectorarray[i].x, vectorarray[i].y);
+    		} else {
+    			System.err.println("location of " + varName + " is -1");
+    		}
+    	}
+    	
+//    	FloatBuffer val = BufferUtils.createFloatBuffer(vectorarray.length * 2);
+//        if(loc != -1) {
+//        	for(int i = 0; i < vectorarray.length; ++i) {
+//        		val.put(vectorarray[i].x);
+//        		val.put(vectorarray[i].y);
+//        	}
+//        	GL20.glUniform2(loc, val);
+//        }	
 	}
     
     /**
