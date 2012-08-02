@@ -206,8 +206,13 @@ public class TerrainMain {
 		       	toneSP.setUniform("tc_offset", tc_offset_5);
         	}
         	screenQuad.draw();*/
-        	
-        	FrameBuffer fbo = screenMan.getToneMapped(enlightened, bloomLevel, new Vector4f(1f,1f,1f,1f), exposure, screenQuad);
+        	FrameBuffer fbo;
+        	if(bloomOn) {
+        		fbo = screenMan.getToneMapped(enlightened, bloomLevel, new Vector4f(1f,1f,1f,1f), exposure, screenQuad);
+        	}
+        	else {
+        		fbo = screenMan.getLighting(shader, cam.getCamPos(), sunDirection, screenQuad);
+        	}
         	shader.DrawTexture(fbo.getTexture(0));
             // TODO: postfx
             
