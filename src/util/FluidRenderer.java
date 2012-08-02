@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL30;
 
 public class FluidRenderer {
 	
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024 * 4);
 	private int textureUnit = 50;
 	private Camera cam;
 	
@@ -102,7 +102,7 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", depthTexture);
+        drawTextureSP.setUniform("image", thicknessBlurTexture2);
         screenQuadGeo.draw();
         
         // resets buffers
@@ -237,7 +237,7 @@ public class FluidRenderer {
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer2.unbind();
         
-		for(int i = 0; i < 3; i++) {
+		/*for(int i = 0; i < 3; i++) {
 			startPath(thicknessBlurSP, thicknessBlurFrameBuffer);	    
 	    	thicknessBlurSP.setUniform("thickness", thicknessBlurTexture2);	
 	    	screenQuadGeo.draw();	
@@ -247,7 +247,7 @@ public class FluidRenderer {
 	    	thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
         	screenQuadGeo.draw();
         	thicknessBlurFrameBuffer2.unbind();
-		}
+		}*/
 
     }
 	
@@ -255,9 +255,9 @@ public class FluidRenderer {
 		
 		startPath(lightingSP, lightingFrameBuffer);
 		
-	    lightingSP.setUniform("thickness", thicknessTexture);
-	    lightingSP.setUniform("normal", thicknessTexture);
-	    lightingSP.setUniform("thickness", thicknessTexture);
+	    lightingSP.setUniform("depthTex", depthTexture);
+	    lightingSP.setUniform("normalTex", normalTexture);
+	    lightingSP.setUniform("camPos", cam.getCamPos());
 	    
         screenQuadGeo.draw();
         lightingFrameBuffer.unbind();

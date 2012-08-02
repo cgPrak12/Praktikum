@@ -3,7 +3,6 @@
 in vec2 positionMC;
 
 uniform mat4 viewProj;
-uniform vec3 camera;
 
 out vec2 texCoords;
 
