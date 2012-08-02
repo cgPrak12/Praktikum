@@ -46,6 +46,8 @@ public class TerrainMain {
     private static ClipMap clip;
     
     private static Texture tex;
+	private static Camera tmpcam;
+	private static float moveSpeed;
 
     public static void main(String[] argv) {
         try {
@@ -60,7 +62,8 @@ public class TerrainMain {
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
-            clip = new ClipMap(14, 5, program);
+            clip = new ClipMap(30, 10, program, cam);
+            tmpcam = cam;
             
 //            L = clip.createBottomLeft(); //ok
           //  L = clip.createBottomLeft(); //fail 
@@ -70,11 +73,11 @@ public class TerrainMain {
 //            
 //              grid2 = clip.createMxNgrid();
             
-//            tex = Texture.generateTexture(".\\face2face_usa_heightmap.jpg", 1);
-//            tex.bind();
-//            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-//            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-//            program.setUniform("elevation", tex);
+            tex = Texture.generateTexture(".\\face2face_usa_heightmap.jpg", 1);
+            tex.bind();
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+            program.setUniform("elevation", tex);
 
             render();
             OpenCL.destroy();
@@ -147,7 +150,7 @@ public class TerrainMain {
      * @param millis Millisekunden seit dem letzten Aufruf
      */
     public static void handleInput(long millis) {
-        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
+        moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
         float camSpeed = 5e-3f;
         
         while(Keyboard.next()) {

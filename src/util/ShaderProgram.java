@@ -25,7 +25,7 @@ public class ShaderProgram {
      * zugehoerige Programmobjekt muss aktiv sein.
      * @param matrix Quellmatrix
      * @param varName Zielvariable im Shader
-     */
+     */ 
     public void setUniform(String varName, Matrix4f matrix) {
         int loc = glGetUniformLocation(this.id, varName);
         if(loc != -1) {

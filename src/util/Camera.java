@@ -12,10 +12,13 @@ public final class Camera {
     private final Vector3f viewDir = new Vector3f(0,0,1);
     private final Vector3f upDir = new Vector3f(0,1,0);
     private final Vector3f sideDir = new Vector3f(1,0,0);
-    private final Vector3f camPos = new Vector3f(0,0,-1);
+    private final Vector3f camPos = new Vector3f(0,0,0);
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
     private boolean perspective = true;
+	private float altX;
+	private float altY;
+	private float altZ;
 
     /**
      * Default Constructor.
@@ -49,9 +52,16 @@ public final class Camera {
      * @param ud Bewegung nach oben/unten
      */
     public void move(float fb, float lr, float ud) {
-        camPos.x += fb * viewDir.x + lr * sideDir.x;
-        camPos.y += fb * viewDir.y + lr * sideDir.y + ud;
-        camPos.z += fb * viewDir.z + lr * sideDir.z;
+        altX = fb * viewDir.x + lr * sideDir.x;
+        altY = fb * viewDir.y + lr * sideDir.y + ud;
+        altZ = fb * viewDir.z + lr * sideDir.z;
+        camPos.x += altX;
+        camPos.y += altY;
+        camPos.z += altZ;
+    }
+    
+    public Vector3f getAlt(){
+    	return new Vector3f(altX,altY,altZ);
     }
     
     /**
@@ -67,9 +77,9 @@ public final class Camera {
      */
     public void updateProjection() {
         if(perspective) {
-            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+2f, projection);
+            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+3f, projection);
         } else {
-            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+2f, projection);
+            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+3f, projection);
         }
     }
     
