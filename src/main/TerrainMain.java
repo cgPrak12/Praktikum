@@ -48,6 +48,7 @@ public class TerrainMain {
     private static Texture tex;
 	private static Camera tmpcam;
 	private static float moveSpeed;
+	private static int updateCounter;
 
     public static void main(String[] argv) {
         try {
@@ -64,6 +65,7 @@ public class TerrainMain {
             program.use();
             clip = new ClipMap(30, 10, program, cam);
             tmpcam = cam;
+            updateCounter = 0;
             
 //            L = clip.createBottomLeft(); //ok
           //  L = clip.createBottomLeft(); //fail 
@@ -122,6 +124,8 @@ public class TerrainMain {
 //            grid.draw();
 //            L.draw();
 //            grid2.draw();
+//            updateCounter++;
+//            if(updateCounter%5)
             clip.generateMaps();
      //       L.draw();
             

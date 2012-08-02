@@ -19,10 +19,17 @@ public class ClipMap {
 	private ShaderProgram program;
 	private Matrix4f translation;
 	private float size;
-	private Geometry geo;
+	private Geometry mxm;
 	private int[][] movement;
 	private Camera cam;
 	private float[][] temp;
+	private Geometry mxn;
+	private Geometry nxm;
+	private Geometry topLeft;
+	private Geometry topRight;
+	private Geometry bottomLeft;
+	private Geometry botomRight;
+	private Geometry center;
  
 	public ClipMap(int n, int stage, ShaderProgram program, Camera cam) {
 		this.gridsize = n / 4;
@@ -35,6 +42,15 @@ public class ClipMap {
 		movement = new int[stage][2];
 		temp = new float[stage][2];
 		
+		setMxMgrid();
+		setMxNgrid();
+		setNxMgrid();
+		setTopLeft();
+		setTopRight();
+		setBottomLeft();
+		setBottomRight();
+		setCenter();
+		
 		for(int i: movement[0]) i = 0;
 		for(int i: movement[1]) i = 0;
 		for(float i: temp[0]) i = 0;
@@ -42,35 +58,37 @@ public class ClipMap {
 		
 	}
 
-	public Geometry createMxMgrid() {
-		geo = GeometryFactory.createGridTex(gridsize + 1, gridsize + 1);
-		return geo;
+	public void setMxMgrid() {
+		mxm = GeometryFactory.createGridTex(gridsize + 1, gridsize + 1);
 	}
 
-	public Geometry createNxMgrid() {
-		geo = GeometryFactory.createMxNGrid(middlesize + 1, gridsize + 1);
-		return geo;
+	public void setNxMgrid() {
+		nxm = GeometryFactory.createMxNGrid(middlesize + 1, gridsize + 1);
 	}
 
-	public Geometry createMxNgrid() {
-		geo = GeometryFactory.createMxNGrid(gridsize + 1, middlesize + 1);
-		return geo;
+	public void setMxNgrid() {
+		mxn = GeometryFactory.createMxNGrid(gridsize + 1, middlesize + 1);
 	}
 
-	public Geometry createTopLeft() {
-		return GeometryFactory.createL(lsize, 2);
+	public void setTopLeft() {
+		topLeft = GeometryFactory.createL(lsize, 2);
 	}
 
-	public Geometry createTopRight() {
-		return GeometryFactory.createL(lsize, 3);
+	public void setTopRight() {
+		topRight = GeometryFactory.createL(lsize, 3);
 	}
 
-	public Geometry createBottomLeft() {
-		return GeometryFactory.createL(lsize, 1);
+	public void setBottomLeft() {
+		bottomLeft = GeometryFactory.createL(lsize, 1);
 	}
 
-	public Geometry createBottomRight() {
-		return GeometryFactory.createL(lsize, 0);
+	public void setBottomRight() {
+		botomRight = GeometryFactory.createL(lsize, 0);
+	}
+	
+	public void setCenter(){
+		center = GeometryFactory.createGrid(2 * (2 * gridsize + middlesize),
+				2 * (2 * gridsize + middlesize));
 	}
 
 	public void setProgram() {
@@ -84,68 +102,67 @@ public class ClipMap {
 	public void createClip(int i) {
 
 		// 1
-		geo = createMxMgrid();
 		Util.mul(translation,
 				Util.translationX(size / 2 - gridsize - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(size / 2 - gridsize + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 2
 		Util.mul(translation, Util.translationX(size / 2 - 2 * gridsize
 				- middlesize / 2 + movement[i][0], null), Util.translationZ(size / 2 - gridsize
 				+ middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 3
 		Util.mul(translation,
 				Util.translationX(-size / 2 + gridsize - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(size / 2 - gridsize + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 4
 		Util.mul(translation,
 				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(size / 2 - gridsize + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 5
 		Util.mul(translation, Util.translationX(size / 2 - gridsize
 				- middlesize / 2 + movement[i][0], null), Util.translationZ(size / 2 - 2
 				* gridsize + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 6
 		Util.mul(translation, Util.translationX(-size / 2 - middlesize / 2 + movement[i][0],
 				null), Util.translationZ(size / 2 - 2 * gridsize + middlesize
 				/ 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 7
 		Util.mul(translation,
 				Util.translationX(size / 2 - gridsize - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(-size / 2 + gridsize + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 8
 		Util.mul(translation,
 				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(-size / 2 + gridsize + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 9
 		Util.mul(translation,
 				Util.translationX(size / 2 - gridsize - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 10
 		Util.mul(
@@ -154,47 +171,47 @@ public class ClipMap {
 						/ 2 + movement[i][0], null),
 				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 11
 		Util.mul(translation,
 				Util.translationX(-size / 2 + gridsize - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
 		// 12
 		Util.mul(translation,
 				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxm.draw();
 
-		geo = createNxMgrid();
 
 		// Oben
 		Util.mul(translation, Util.translationX(-middlesize + movement[i][0], null),
 				Util.translationZ(size / 2 - gridsize + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		nxm.draw();
 
 		// Unten
 		Util.mul(translation, Util.translationX(-middlesize + movement[i][0], null),
 				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1], null));
 		setProgram();
-		geo.draw();
+		nxm.draw();
 
-		geo = createMxNgrid();
 
 		// Links
-		Util.translationX(size / 2 - gridsize - middlesize / 2 + movement[i][0], translation);
+		Util.mul(translation, Util.translationX(size / 2 - gridsize - middlesize / 2 + movement[i][0], null),
+				Util.translationZ(movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxn.draw();
 
 		// Rechts
-		Util.translationX(-size / 2 - middlesize / 2 + movement[i][0], translation);
+		Util.mul(translation ,Util.translationX(-size / 2 - middlesize / 2 + movement[i][0], null),
+				Util.translationZ(movement[i][1], null));
 		setProgram();
-		geo.draw();
+		mxn.draw();
 	}
 
 	public void generateMaps() {
@@ -212,9 +229,7 @@ public class ClipMap {
 						+ movement[0][0], null),
 				Util.translationZ(-2 * gridsize + movement[0][1], null));
 		setProgram();
-		geo = GeometryFactory.createGrid(2 * (2 * gridsize + middlesize),
-				2 * (2 * gridsize + middlesize));
-		geo.draw();
+		center.draw();
 		
 		for (int i = 1; i < stage; i++) {
 			setScale((float) Math.pow(2, i));

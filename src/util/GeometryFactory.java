@@ -15,7 +15,10 @@ public class GeometryFactory {
 	 * Erzeugt ein Vierexk in der xy-Ebene. (4 Indizes)
 	 * 
 	 * @return VertexArrayObject ID
+	 * 
 	 */
+	private static Geometry geo = new Geometry();
+	
 	public static Geometry createScreenQuad() {
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
@@ -34,7 +37,7 @@ public class GeometryFactory {
 		Geometry geo = new Geometry();
 		geo.setIndices(indexData, GL_TRIANGLE_STRIP);
 		geo.setVertices(vertexData);
-		 geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
 		return geo;
 	}
 
