@@ -15,6 +15,6 @@ void main(void) {
 	n.z = sqrt(1.0-r2) * 0.05;//(1-r2) * 0.05;
 
 	color = vec4(0.0, 0.7*n.z, n.z, 0.0);
-
+	//color = vec4(n.z, n.z, n.z, 1);
 
 }

@@ -62,7 +62,7 @@ public class TerrainMain {
     }
     
     public static void render() throws LWJGLException {
-        glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // background color: black
         
         long last = System.currentTimeMillis();
         long now, millis;
@@ -117,16 +117,14 @@ public class TerrainMain {
 //            shader.DrawTexture(shader.getWorldTexture());
             
             
+
             
             // TODO: postfx
             
-            // START WATER
-
-          //fluidRenderer.fluidThickness();
-//         fluidRenderer.depthTexture();
+            // WATER
             fluidRenderer.render();
             
-            // END WATER
+            // TODO: combine images
             
             // present screen
             Display.update();

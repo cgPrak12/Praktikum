@@ -4,6 +4,8 @@ import static opengl.GL.*;
 
 import java.nio.FloatBuffer;
 
+import opengl.GL;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
@@ -22,6 +24,19 @@ public class FluidRenderer {
     private FrameBuffer depthFrameBuffer = new FrameBuffer();
     private ShaderProgram depthSP = new ShaderProgram("./shader/fluid/Depth_Texture_VS.glsl", "./shader/fluid/Depth_Texture_FS.glsl");
     private Texture depthTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
+
+    //HOrizontal_Blur
+   
+    private FrameBuffer hBlurFrameBuffer = new FrameBuffer();
+    private ShaderProgram hBlurSP = new ShaderProgram("./shader/fluid/Horizontal_Blur_Texture_VS.glsl", "./shader/fluid/Horizontal_Blur_Texture_FS.glsl");
+    private Texture hBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
+
+    // Normal-Path
+    private FrameBuffer normalFrameBuffer = new FrameBuffer();
+    private ShaderProgram normalSP = new ShaderProgram("./shader/fluid/Normal_VS.glsl", "./shader/fluid/Normal_FS.glsl");
+    private Texture normalTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
 
     // Thickness-Path
 	private FrameBuffer thicknessFrameBuffer = new FrameBuffer();
@@ -32,6 +47,15 @@ public class FluidRenderer {
 	private FrameBuffer thicknessBlurFrameBuffer = new FrameBuffer();
     private ShaderProgram thicknessBlurSP = new ShaderProgram("./shader/fluid/ThicknessBlur_VS.glsl", "./shader/fluid/ThicknessBlur_FS.glsl");
     private Texture thicknessBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    private FrameBuffer thicknessBlurFrameBuffer2 = new FrameBuffer();
+    private ShaderProgram thicknessBlurSP2 = new ShaderProgram("./shader/fluid/ThicknessBlur_VS.glsl", "./shader/fluid/ThicknessBlur2_FS.glsl");
+    private Texture thicknessBlurTexture2 = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+
+    // FluidLighting-Path
+	private FrameBuffer lightingFrameBuffer = new FrameBuffer();
+    private ShaderProgram lightingSP = new ShaderProgram("./shader/fluid/FluidLighting_VS.glsl", "./shader/fluid/FluidLighting_FS.glsl");
+    private Texture lightingTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+
 
     // Final Image
     private FrameBuffer finalImageFB = new FrameBuffer();
@@ -48,33 +72,46 @@ public class FluidRenderer {
     	
     	// init shaderPrograms, frameBuffers, ...
     	GL11.glPointSize(GL11.GL_POINT_SIZE);
-    	init(depthSP, depthFrameBuffer, "color", depthTexture);
+
+    	init(depthSP, depthFrameBuffer, "depth", depthTexture);
+		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
+    	init(normalSP, normalFrameBuffer, "color", normalTexture);
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
+    	init(thicknessBlurSP2, thicknessBlurFrameBuffer2, "color", thicknessBlurTexture2);
+    	init(lightingSP, lightingFrameBuffer, "color", lightingTexture);
     	init(finalImageSP, finalImageFB, "color", finalImage);
 	} 
 	
 	public void render() {
 		// fluid depth
 		depthTexture();
+		// fluid normals
+		fluidNormals();
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
-		fluidThicknessBlur();		
+		fluidThicknessBlur();
+		// fluid lighting
+		fluidLighting();
 		
 		// combine images to final image
 		createFinalImage();
 		
-		// Draws image
+
+		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", thicknessBlurTexture);
+        drawTextureSP.setUniform("image", depthTexture);
         screenQuadGeo.draw();
         
         // resets buffers
         depthFrameBuffer.reset();
+		normalFrameBuffer.reset();
         thicknessFrameBuffer.reset();
         thicknessBlurFrameBuffer.reset();
+        thicknessBlurFrameBuffer2.reset();
+        lightingFrameBuffer.reset();
         
         finalImageFB.reset();
 	}
@@ -102,7 +139,6 @@ public class FluidRenderer {
 		fb.clearColor();
 	}
 	    
-
 	private void endPath(FrameBuffer fb) {
 		fb.unbind();
 	}
@@ -123,8 +159,44 @@ public class FluidRenderer {
         
         testWaterParticles.draw();
         depthFrameBuffer.unbind();
+        ////////////////////////////////////////////////////////////////////////////////////////
         
+		hBlurSP.use();
+		
+		hBlurSP.setUniform("view", cam.getView());
+		hBlurSP.setUniform("proj", cam.getProjection());
+		hBlurSP.setUniform("RTScene", depthFrameBuffer.getTexture(0));
+
+//   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
+		hBlurFrameBuffer.bind();
+		hBlurFrameBuffer.clearColor();
+    
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        
+        testWaterParticles.draw();
+        hBlurFrameBuffer.unbind();
+        
+//        
+//        drawTextureSP.use();
+//        drawTextureSP.setUniform("image", depthTexture);
+//        screenQuadGeo.draw();
+//        
+   
 	}
+	
+	private void fluidNormals() {
+		startPath(normalSP, normalFrameBuffer);
+		normalSP.setUniform("depthTex", depthTexture);
+		normalSP.setUniform("texSize", GL.WIDTH);
+
+		
+	    glDisable(GL_BLEND);
+	    glDisable(GL_DEPTH_TEST);
+		screenQuadGeo.draw();
+		endPath(normalFrameBuffer);
+	}
+	
 	private void fluidThickness() {  //TODO
 
 	    startPath(thicknessSP, thicknessFrameBuffer);
@@ -135,6 +207,7 @@ public class FluidRenderer {
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
 
+    	// evtl. auslagern (vllt. sogar TerrainMain? Auf jeden Fall hier in den Konstruktor!)
         GL14.glPointParameteri(GL14.GL_POINT_SIZE_MIN, 1);
         GL14.glPointParameteri(GL14.GL_POINT_SIZE_MAX, 1000);
         FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(4);
@@ -154,18 +227,43 @@ public class FluidRenderer {
 	
 	private void fluidThicknessBlur() {  //TODO
 
-	    startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
-	    
+		startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
 	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
-
         screenQuadGeo.draw();
-
         thicknessBlurFrameBuffer.unbind();
+	        
+	    startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
+	    thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
+        screenQuadGeo.draw();
+        thicknessBlurFrameBuffer2.unbind();
         
-    }
+		for(int i = 0; i < 3; i++) {
+			startPath(thicknessBlurSP, thicknessBlurFrameBuffer);	    
+	    	thicknessBlurSP.setUniform("thickness", thicknessBlurTexture2);	
+	    	screenQuadGeo.draw();	
+        	thicknessBlurFrameBuffer.unbind();	        
+	        
+        	startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
+	    	thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
+        	screenQuadGeo.draw();
+        	thicknessBlurFrameBuffer2.unbind();
+		}
 
+    }
 	
-	
+	private void fluidLighting() {  //TODO
+		
+		startPath(lightingSP, lightingFrameBuffer);
+		
+	    lightingSP.setUniform("thickness", thicknessTexture);
+	    lightingSP.setUniform("normal", thicknessTexture);
+	    lightingSP.setUniform("thickness", thicknessTexture);
+	    
+        screenQuadGeo.draw();
+        lightingFrameBuffer.unbind();
+	        
+	}
+
 	private void createFinalImage() {
 		if(textureNames.length != textures.length) throw new RuntimeException("Anzahl names und textures stimmt nicht ueberein!");
 		
@@ -177,6 +275,5 @@ public class FluidRenderer {
 
 		screenQuadGeo.draw();
 		endPath(finalImageFB);
-	}
-    
+	} 
 }
