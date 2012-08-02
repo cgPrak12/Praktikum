@@ -25,14 +25,17 @@ public class FluidRenderer {
     private ShaderProgram depthSP = new ShaderProgram("./shader/fluid/Depth_Texture_VS.glsl", "./shader/fluid/Depth_Texture_FS.glsl");
     private Texture depthTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
-
-    //HOrizontal_Blur
-   
+    // Horizontal_Blur Tiefentextur
     private FrameBuffer hBlurFrameBuffer = new FrameBuffer();
-    private ShaderProgram hBlurSP = new ShaderProgram("./shader/fluid/Horizontal_Blur_Texture_VS.glsl", "./shader/fluid/Horizontal_Blur_Texture_FS.glsl");
+    private ShaderProgram hBlurSP = new ShaderProgram("./shader/fluid/Blur_Texture_VS.glsl", "./shader/fluid/Horizontal_Blur_Texture_FS.glsl");
     private Texture hBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+   
+    //Vertical_Blur
     
-
+    private FrameBuffer vBlurFrameBuffer = new FrameBuffer();
+    private ShaderProgram vBlurSP = new ShaderProgram("./shader/fluid/Blur_Texture_VS.glsl", "./shader/fluid/Vertical_Blur_Texture_FS.glsl");
+    private Texture vBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
     // Normal-Path
     private FrameBuffer normalFrameBuffer = new FrameBuffer();
     private ShaderProgram normalSP = new ShaderProgram("./shader/fluid/Normal_VS.glsl", "./shader/fluid/Normal_FS.glsl");
@@ -56,7 +59,6 @@ public class FluidRenderer {
     private ShaderProgram lightingSP = new ShaderProgram("./shader/fluid/FluidLighting_VS.glsl", "./shader/fluid/FluidLighting_FS.glsl");
     private Texture lightingTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
 
-
     // Final Image
     private FrameBuffer finalImageFB = new FrameBuffer();
     private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
@@ -67,7 +69,6 @@ public class FluidRenderer {
     
 
     public FluidRenderer(Camera camTmp) {
-
     	cam = camTmp;
     	
     	// init shaderPrograms, frameBuffers, ...
@@ -75,6 +76,7 @@ public class FluidRenderer {
 
     	init(depthSP, depthFrameBuffer, "depth", depthTexture);
 		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
+		init(vBlurSP, vBlurFrameBuffer, "color", vBlurTexture);
     	init(normalSP, normalFrameBuffer, "color", normalTexture);
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
@@ -98,7 +100,6 @@ public class FluidRenderer {
 		// combine images to final image
 		createFinalImage();
 		
-
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
@@ -117,20 +118,20 @@ public class FluidRenderer {
 	}
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
-    	fb.addTexture(tex, GL11.GL_RGBA8, GL11.GL_RGBA);
+    	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
     	fb.drawBuffers();
 	}
 	
-	private void init(ShaderProgram sp, FrameBuffer fb, String[] attachmentNames, Texture[] textures) {
+/*	private void init(ShaderProgram sp, FrameBuffer fb, String[] attachmentNames, Texture[] textures) {
     	if(attachmentNames.length != textures.length) throw new RuntimeException("Anzahl attachmentNames und Texturen stimmt nicht ueberein!");
 		
     	for(int i = 0; i < textures.length; i++) { 
-			fb.addTexture(textures[i], GL11.GL_RGBA8, GL11.GL_RGBA);
+			fb.addTexture(textures[i], GL30.GL_RGBA16F, GL11.GL_RGBA);
 			GL30.glBindFragDataLocation(sp.getId(), i, attachmentNames[i]);
 		}
     	fb.drawBuffers();
-	}
+	}*/
 	
 	private void startPath(ShaderProgram sp, FrameBuffer fb) {
 		sp.use();
@@ -156,40 +157,18 @@ public class FluidRenderer {
     
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
-        
+      
         testWaterParticles.draw();
         depthFrameBuffer.unbind();
-        ////////////////////////////////////////////////////////////////////////////////////////
-        
-		hBlurSP.use();
-		
-		hBlurSP.setUniform("view", cam.getView());
-		hBlurSP.setUniform("proj", cam.getProjection());
-		hBlurSP.setUniform("RTScene", depthFrameBuffer.getTexture(0));
-
-//   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
-		hBlurFrameBuffer.bind();
-		hBlurFrameBuffer.clearColor();
-    
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        
-        testWaterParticles.draw();
-        hBlurFrameBuffer.unbind();
-        
-//        
-//        drawTextureSP.use();
-//        drawTextureSP.setUniform("image", depthTexture);
-//        screenQuadGeo.draw();
-//        
+        blur(depthTexture,4);
    
 	}
 	
 	private void fluidNormals() {
 		startPath(normalSP, normalFrameBuffer);
 		normalSP.setUniform("depthTex", depthTexture);
-		normalSP.setUniform("texSize", GL.WIDTH);
-
+		normalSP.setUniform("texSize", (float)GL.WIDTH);
+		normalSP.setUniform("camPos", cam.getCamPos());
 		
 	    glDisable(GL_BLEND);
 	    glDisable(GL_DEPTH_TEST);
@@ -276,4 +255,50 @@ public class FluidRenderer {
 		screenQuadGeo.draw();
 		endPath(finalImageFB);
 	} 
+	private void blur(Texture scene, int counter){
+		
+		hBlurSP.use();
+		
+		hBlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
+		hBlurSP.setUniform("scene",  scene);
+
+//   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
+		hBlurFrameBuffer.bind();
+		hBlurFrameBuffer.clearColor();
+    
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        
+        screenQuadGeo.draw();
+        //testWaterParticles.draw();
+        hBlurFrameBuffer.unbind();
+// Vertical Blur
+		vBlurSP.use();
+		
+		vBlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
+		vBlurSP.setUniform("scene", hBlurTexture);
+
+
+		vBlurFrameBuffer.bind();
+		vBlurFrameBuffer.clearColor();
+    
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        
+        screenQuadGeo.draw();
+ 
+        vBlurFrameBuffer.unbind();
+		for(int i = 0; i < counter; i++) {
+			startPath(hBlurSP, hBlurFrameBuffer);	    
+			hBlurSP.setUniform("scene", vBlurTexture);	
+	    	screenQuadGeo.draw();	
+	    	hBlurFrameBuffer.unbind();	        
+	        
+        	startPath(vBlurSP, vBlurFrameBuffer);
+        	vBlurSP.setUniform("scene", hBlurTexture);
+        	screenQuadGeo.draw();
+        	vBlurFrameBuffer.unbind();
+		}
+		scene = vBlurTexture;
+	}
 }

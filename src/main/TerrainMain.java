@@ -34,7 +34,7 @@ public class TerrainMain {
     private static final Camera cam = new Camera(); 
     
     // animation params
-    private static float ingameTime = 0;
+//    private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
     private static ShaderProgram fboSP;
