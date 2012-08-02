@@ -25,14 +25,11 @@ public class FluidRenderer {
     private ShaderProgram depthSP = new ShaderProgram("./shader/fluid/Depth_Texture_VS.glsl", "./shader/fluid/Depth_Texture_FS.glsl");
     private Texture depthTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
-
-    //HOrizontal_Blur
-   
+    // Horizontal_Blur Tiefentextur
     private FrameBuffer hBlurFrameBuffer = new FrameBuffer();
     private ShaderProgram hBlurSP = new ShaderProgram("./shader/fluid/Horizontal_Blur_Texture_VS.glsl", "./shader/fluid/Horizontal_Blur_Texture_FS.glsl");
     private Texture hBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
-
     // Normal-Path
     private FrameBuffer normalFrameBuffer = new FrameBuffer();
     private ShaderProgram normalSP = new ShaderProgram("./shader/fluid/Normal_VS.glsl", "./shader/fluid/Normal_FS.glsl");
@@ -56,7 +53,6 @@ public class FluidRenderer {
     private ShaderProgram lightingSP = new ShaderProgram("./shader/fluid/FluidLighting_VS.glsl", "./shader/fluid/FluidLighting_FS.glsl");
     private Texture lightingTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
 
-
     // Final Image
     private FrameBuffer finalImageFB = new FrameBuffer();
     private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
@@ -67,7 +63,6 @@ public class FluidRenderer {
     
 
     public FluidRenderer(Camera camTmp) {
-
     	cam = camTmp;
     	
     	// init shaderPrograms, frameBuffers, ...
