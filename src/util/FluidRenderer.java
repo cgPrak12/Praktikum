@@ -25,9 +25,7 @@ public class FluidRenderer {
     private ShaderProgram depthSP = new ShaderProgram("./shader/fluid/Depth_Texture_VS.glsl", "./shader/fluid/Depth_Texture_FS.glsl");
     private Texture depthTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
-
-    //HOrizontal_Blur
-   
+    // Horizontal_Blur Tiefentextur
     private FrameBuffer hBlurFrameBuffer = new FrameBuffer();
     private ShaderProgram hBlurSP = new ShaderProgram("./shader/fluid/Blur_Texture_VS.glsl", "./shader/fluid/Horizontal_Blur_Texture_FS.glsl");
     private Texture hBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
@@ -38,7 +36,6 @@ public class FluidRenderer {
     private ShaderProgram vBlurSP = new ShaderProgram("./shader/fluid/Blur_Texture_VS.glsl", "./shader/fluid/Vertical_Blur_Texture_FS.glsl");
     private Texture vBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
-
     // Normal-Path
     private FrameBuffer normalFrameBuffer = new FrameBuffer();
     private ShaderProgram normalSP = new ShaderProgram("./shader/fluid/Normal_VS.glsl", "./shader/fluid/Normal_FS.glsl");
@@ -62,7 +59,6 @@ public class FluidRenderer {
     private ShaderProgram lightingSP = new ShaderProgram("./shader/fluid/FluidLighting_VS.glsl", "./shader/fluid/FluidLighting_FS.glsl");
     private Texture lightingTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
 
-
     // Final Image
     private FrameBuffer finalImageFB = new FrameBuffer();
     private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
@@ -73,7 +69,6 @@ public class FluidRenderer {
     
 
     public FluidRenderer(Camera camTmp) {
-
     	cam = camTmp;
     	
     	// init shaderPrograms, frameBuffers, ...
@@ -129,7 +124,7 @@ public class FluidRenderer {
     	fb.drawBuffers();
 	}
 	
-	private void init(ShaderProgram sp, FrameBuffer fb, String[] attachmentNames, Texture[] textures) {
+/*	private void init(ShaderProgram sp, FrameBuffer fb, String[] attachmentNames, Texture[] textures) {
     	if(attachmentNames.length != textures.length) throw new RuntimeException("Anzahl attachmentNames und Texturen stimmt nicht ueberein!");
 		
     	for(int i = 0; i < textures.length; i++) { 
@@ -137,7 +132,7 @@ public class FluidRenderer {
 			GL30.glBindFragDataLocation(sp.getId(), i, attachmentNames[i]);
 		}
     	fb.drawBuffers();
-	}
+	}*/
 	
 	private void startPath(ShaderProgram sp, FrameBuffer fb) {
 		sp.use();
@@ -211,6 +206,7 @@ public class FluidRenderer {
     }
 	
 	private void fluidThicknessBlur() {  //TODO
+
 		startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
 	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
         screenQuadGeo.draw();
@@ -232,6 +228,7 @@ public class FluidRenderer {
         	screenQuadGeo.draw();
         	thicknessBlurFrameBuffer2.unbind();
 		}
+
     }
 	
 	private void fluidLighting() {  //TODO

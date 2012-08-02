@@ -1,4 +1,5 @@
 #version 150
+
 in vec2 texCoords;
 
 uniform sampler2D thickness;
@@ -13,7 +14,6 @@ void main(void) {
 	int height = 800;
 
 	vec4 texCoo;
-
 
 
 color = /* ( texture( thickness, texCoords-vec2(12.0/800.0,0) )
