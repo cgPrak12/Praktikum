@@ -106,12 +106,12 @@ public class FluidRenderer {
 //        drawTextureSP.setUniform("image", depthTexture);
 //        drawTextureSP.setUniform("image", hBlurTexture);
 //        drawTextureSP.setUniform("image", vBlurTexture);
-//        drawTextureSP.setUniform("image", normalTexture);
+        drawTextureSP.setUniform("image", normalTexture);
 //        drawTextureSP.setUniform("image", thicknessTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture2);
 //        drawTextureSP.setUniform("image", lightingTexture);
-        drawTextureSP.setUniform("image", finalImage);
+//        drawTextureSP.setUniform("image", finalImage);
         screenQuadGeo.draw();
         
         // resets buffers
