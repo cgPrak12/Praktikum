@@ -201,7 +201,7 @@ public class GeometryFactory {
 	 * fertig !! ausprobieren obs wirklich bottomright ist
 	 */
 	
-	public static Geometry createBottomRight(int length){
+	public static Geometry createTopRight(int length){
 		
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
@@ -265,7 +265,7 @@ public class GeometryFactory {
 	}
 
 	
-	public static Geometry createBottomLeft(int length){
+	public static Geometry createBottomRight(int length){
 		
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
@@ -331,7 +331,7 @@ public class GeometryFactory {
 	 * 
 	 * LGeometry für TopRight
 	 */
-	public static Geometry createTopRight(int length){
+	public static Geometry createTopLeft(int length){
 		
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
@@ -399,7 +399,7 @@ public class GeometryFactory {
 	}
 	
 	
-	public static Geometry createTopLeft(int length){
+	public static Geometry createBottomLeft(int length){
 		
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);

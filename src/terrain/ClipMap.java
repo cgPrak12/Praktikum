@@ -46,6 +46,7 @@ public class ClipMap {
 	private Geometry bottomRight;
 	private Geometry center;
 	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um
+	private boolean update;
 											// Faktor
 
 	/**
@@ -61,6 +62,7 @@ public class ClipMap {
 	 *            Kamera des Programms
 	 */
 	public ClipMap(int size, int stage, ShaderProgram program, Camera cam) {
+		if((size+2)%2 != 0) throw new IllegalArgumentException("(size+2) muss Zweierpotenz sein!");
 		this.gridsize = size / 4;
 		this.middlesize = size % 4;
 		this.lsize = size / 2 + 2;
@@ -80,13 +82,13 @@ public class ClipMap {
 
 		mxn = GeometryFactory.createMxNGrid(middlesize + 1, gridsize + 1);
 		nxm = GeometryFactory.createMxNGrid(gridsize + 1, middlesize + 1);
-		topLeft = GeometryFactory.createTopLeft(lsize);
-		topRight = GeometryFactory.createTopRight(lsize);
-		bottomLeft = GeometryFactory.createBottomLeft(lsize);
+		bottomLeft = GeometryFactory.createTopLeft(lsize);
+		topLeft = GeometryFactory.createTopRight(lsize);
+		topRight = GeometryFactory.createBottomLeft(lsize);
 		bottomRight = GeometryFactory.createBottomRight(lsize);
 
-		center = GeometryFactory.createGrid(2 * (2 * gridsize)+gridsize,
-				2 * (2 * gridsize)+gridsize);
+		center = GeometryFactory.createGrid(4* gridsize+ middlesize+middlesize/2,
+				4* gridsize + middlesize + middlesize/2);
 
 	}
 
@@ -253,7 +255,6 @@ public class ClipMap {
 				.translationZ(movement[i][1] + correctionZ, null));
 		setProgram();
 		mxn.draw();
-
 	}
 
 	/**
@@ -320,22 +321,45 @@ public class ClipMap {
 	 *            aktuelle Auflösungsebene
 	 */
 	public void getMovement(int i) {
-		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);
-		temp[i][0] += cam.getAlt().x * Math.pow(2, -i);
+		if(!update){
+		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);temp[i][0] += cam.getAlt().x * Math.pow(2, -i);
+		} else{ temp[i][1] += cam.getAlt().z; temp[i][0] = cam.getAlt().x;} 
+		
+		
 		if (temp[i][1] > 2) {
 			movement[i][1] += 2;
+			switch(pq[i]){
+				case 2: pq[i] = 1; break;
+				case 3: pq[i] = 4; break; 
+				default: update = true; break;
+			}
 			temp[i][1] = 0;
 		}
 		if (temp[i][0] > 2) {
 			movement[i][0] += 2;
+			switch(pq[i]){
+				case 3: pq[i] = 2;
+				case 4: pq[i] = 1;
+				default: update = true; break;
+			}
 			temp[i][0] = 0;
 		}
 		if (temp[i][1] < -2) {
 			movement[i][1] -= 2;
+			switch(pq[i]){
+			case 1: pq[i] = 2; break;
+			case 4: pq[i] = 3; break;
+			default: update = true; break;
+			}
 			temp[i][1] = 0;
 		}
 		if (temp[i][0] < -2) {
 			movement[i][0] -= 2;
+			switch(pq[i]){
+			case 1: pq[i] = 4; break;
+			case 2: pq[i] = 3; break;
+			default: update = true; break;
+			}
 			temp[i][0] = 0;
 		}
 	}

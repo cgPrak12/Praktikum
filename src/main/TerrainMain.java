@@ -60,7 +60,7 @@ public class TerrainMain {
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(14, 3, program, cam);
+            clip = new ClipMap(62, 7, program, cam);
 
             
 
@@ -108,7 +108,7 @@ public class TerrainMain {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             clip.generateMaps();
-
+    
             Display.update();
             Display.sync(60);
         }
