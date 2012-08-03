@@ -50,9 +50,7 @@ public class TerrainMain {
     private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     
     private static Vector3f sunDirection = new Vector3f(1.0f, 1.0f, 1.0f);
-    
-    private static MenuDialog dialog;
-     
+         
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
     private static ShaderProgram fboSP; 
@@ -96,11 +94,13 @@ public class TerrainMain {
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         Geometry testCube = GeometryFactory.createCube();
-        Geometry screenQuad = GeometryFactory.createScreenQuad();
         
         //enlighted fbo
         FrameBuffer enlightenedFBO = new FrameBuffer();
-          
+        enlightenedFBO.init(false, GL.WIDTH, GL.HEIGHT);
+        FrameBuffer fbo = new FrameBuffer();
+        fbo.init(false, GL.WIDTH, GL.HEIGHT);
+
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -151,25 +151,26 @@ public class TerrainMain {
 
         	shader.finish();
         	
-        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection, screenQuad);
+        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
         	
         	//shader.DrawTexture(enlightenedFBO.getTexture(0));
 
-        	FrameBuffer fbo = enlightenedFBO;
         	if (tonemapping) {
             	if (bloom) {
-            		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure, screenQuad);
+//            		FrameBuffer fbo1 = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
+//            		FrameBuffer fbo2 = screenMan.getBrightness(enlightenedFBO, brightnessFactor);
+//            		fbo = screenMan.getHalfScreenView(fbo1, fbo2);
+            		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
             	}
             	else {
-            		fbo = screenMan.getToneMapped(enlightenedFBO, exposure, screenQuad);
+            		fbo = screenMan.getToneMapped(enlightenedFBO, exposure);
             	}
         	}
         	else {
             	if (bloom) {
-            		fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor, screenQuad);
+            		fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor);
             	}
         	}
-
         	shader.DrawTexture(fbo.getTexture(0));
         	
             // TODO: postfx
@@ -178,7 +179,7 @@ public class TerrainMain {
             Display.update();
             Display.sync(60);
         }
-        dialog.close();
+        MenuDialog.destroyInstance();
         screenMan.delete();
         shader.delete();
         tex.delete();
@@ -228,7 +229,7 @@ public class TerrainMain {
                         break;
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
-                    case Keyboard.KEY_M:  dialog = new MenuDialog(); break;
+                    case Keyboard.KEY_M:  MenuDialog.getInstance();; break;
                     
                     // exposure adjustment
                     case Keyboard.KEY_NUMPAD8:
@@ -364,6 +365,5 @@ public class TerrainMain {
 
 	public static void setBrightnessFactor(Vector4f brightnessFactor) {
 		TerrainMain.brightnessFactor.set(brightnessFactor);
-		System.out.println(TerrainMain.brightnessFactor);
 	}
 }

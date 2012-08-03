@@ -11,11 +11,20 @@ import org.lwjgl.util.vector.Vector4f;
 public class ScreenManipulation {
 	
 	//framebuffer
-	private static FrameBuffer fboBlur;
+	private static FrameBuffer fboBlur0;
+	private static FrameBuffer fboBlur1;
+	private static FrameBuffer fboBlur2;
+	private static FrameBuffer fboBlur3;
 	private static FrameBuffer fboBrightness;
 	private static FrameBuffer fboBloom;
 	private static FrameBuffer fboTone;
 	private static FrameBuffer fboPhong;
+	private static FrameBuffer fboHalf;
+	private static FrameBuffer brightness; 
+	private static FrameBuffer blured1;
+	private static FrameBuffer blured2;
+	private static FrameBuffer blured3;
+	private static FrameBuffer blured4;
 	
 	//shaderprograms
 	private static ShaderProgram spoBlur;
@@ -23,7 +32,12 @@ public class ScreenManipulation {
 	private static ShaderProgram spoBloom;
 	private static ShaderProgram spoTone;
 	private static ShaderProgram spoPhong;
+	private static ShaderProgram spoHalf;
+	
     private static Vector2f[] tc_offset_5;
+    
+    //screenquad
+    private Geometry screenQuad;
     
     /**
      * Initialize the ScreenManipulation
@@ -38,12 +52,28 @@ public class ScreenManipulation {
      */
 	
 	public void init(String vertexShader, String fragmentShaderBlur, String fragmentShaderBrightness, String fragmentShaderBloom, String fragmentShaderTone, String fragmentShaderPhong, int width, int height) {
+		//initalize pixeloffset
 		tc_offset_5 = generateTCOffset(5);
 		
+		//initalize screenquad
+		screenQuad = GeometryFactory.createScreenQuad();
+		
 		//initialize all the FrameBufferObjects
-		fboBlur = new FrameBuffer();
-		fboBlur.init(false, width, height);
-        fboBlur.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+		fboBlur0 = new FrameBuffer();
+		fboBlur0.init(false, width, height);
+        fboBlur0.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+    	fboBlur1 = new FrameBuffer();
+		fboBlur1.init(false, width, height);
+        fboBlur1.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+        fboBlur2 = new FrameBuffer();
+		fboBlur2.init(false, width, height);
+        fboBlur2.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+    	fboBlur3 = new FrameBuffer();
+		fboBlur3.init(false, width, height);
+        fboBlur3.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
 		fboBrightness = new FrameBuffer();
         fboBrightness.init(false, width, height);
@@ -61,12 +91,37 @@ public class ScreenManipulation {
 		fboPhong.init(false, width, height);
         fboPhong.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
         
+        fboHalf = new FrameBuffer();
+        fboHalf.init(false, width, height);
+        fboHalf.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+        brightness = new FrameBuffer();
+        brightness.init(false, width, height);
+        brightness.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+        blured1 = new FrameBuffer();
+        blured1.init(false, width, height);
+        blured1.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+        blured2 = new FrameBuffer();
+        blured2.init(false, width, height);
+        blured2.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+        blured3 = new FrameBuffer();
+        blured3.init(false, width, height);
+        blured3.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
+        blured4 = new FrameBuffer();
+        blured4.init(false, width, height);
+        blured4.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        
         //initialize all the FragmentShaderPrograms
 		spoBlur = new ShaderProgram(vertexShader, fragmentShaderBlur);
 		spoBrightness = new ShaderProgram(vertexShader, fragmentShaderBrightness);
 		spoBloom = new ShaderProgram(vertexShader, fragmentShaderBloom);
 		spoTone = new ShaderProgram(vertexShader, fragmentShaderTone);
 		spoPhong = new ShaderProgram(vertexShader, fragmentShaderPhong);
+		spoHalf = new ShaderProgram(vertexShader, "./shader/Half_FS.glsl");
 	}
 	
 	/**
@@ -77,7 +132,7 @@ public class ScreenManipulation {
 	 * @param screenQuad screenQuad
 	 * @return FrameBuffer with lighted Image
 	 */
-	public FrameBuffer getLighting(DeferredShader shader, Vector3f camPos, Vector3f sunDirection, Geometry screenQuad) {
+	public FrameBuffer getLighting(DeferredShader shader, Vector3f camPos, Vector3f sunDirection) {
 		fboPhong.bind();
 		
 		spoPhong.use();
@@ -87,12 +142,11 @@ public class ScreenManipulation {
 		spoPhong.setUniform("camPos",     camPos);
 		spoPhong.setUniform("sunDir",	 sunDirection);
 		
-		screenQuad.draw();
+		this.screenQuad.draw();
 		
 		fboPhong.unbind();
 		
 		return fboPhong;
-
 	}
 	
 	/**
@@ -101,20 +155,79 @@ public class ScreenManipulation {
 	 * @param screenQuad screenQuad
 	 * @return FrameBuffer with blured image
 	 */
-	public FrameBuffer getBlur5(FrameBuffer toBlur, Geometry screenQuad) {
-		fboBlur.bind();
+	public FrameBuffer getBlur51(FrameBuffer toBlur) {
+		fboBlur0.bind();
 		
 		spoBlur.use();
 		spoBlur.setUniform("colorTex", toBlur.getTexture(0));
 		spoBlur.setUniform("tc_offset", tc_offset_5);
 		  
-		screenQuad.draw();
+		this.screenQuad.draw();
 		
-		fboBlur.unbind();
+		fboBlur0.unbind();
 		
-		return fboBlur;
+		return fboBlur0;
 	}
 	
+	/**
+	 * Returns a FrameBuffer with blured image
+	 * @param toBlur FrameBuffer to blur
+	 * @param screenQuad screenQuad
+	 * @return FrameBuffer with blured image
+	 */
+	public FrameBuffer getBlur52(FrameBuffer toBlur) {
+		fboBlur1.bind();
+		
+		spoBlur.use();
+		spoBlur.setUniform("colorTex", toBlur.getTexture(0));
+		spoBlur.setUniform("tc_offset", tc_offset_5);
+		  
+		this.screenQuad.draw();
+		
+		fboBlur1.unbind();
+		
+		return fboBlur1;
+	}
+	
+	/**
+	 * Returns a FrameBuffer with blured image
+	 * @param toBlur FrameBuffer to blur
+	 * @param screenQuad screenQuad
+	 * @return FrameBuffer with blured image
+	 */
+	public FrameBuffer getBlur53(FrameBuffer toBlur) {
+		fboBlur2.bind();
+		
+		spoBlur.use();
+		spoBlur.setUniform("colorTex", toBlur.getTexture(0));
+		spoBlur.setUniform("tc_offset", tc_offset_5);
+		  
+		this.screenQuad.draw();
+		
+		fboBlur2.unbind();
+		
+		return fboBlur2;
+	}	
+	/**
+	 * Returns a FrameBuffer with blured image
+	 * @param toBlur FrameBuffer to blur
+	 * @param screenQuad screenQuad
+	 * @return FrameBuffer with blured image
+	 */
+	public FrameBuffer getBlur54(FrameBuffer toBlur) {
+		fboBlur3.bind();
+		
+		spoBlur.use();
+		spoBlur.setUniform("colorTex", toBlur.getTexture(0));
+		spoBlur.setUniform("tc_offset", tc_offset_5);
+		  
+		this.screenQuad.draw();
+		
+		fboBlur3.unbind();
+		
+		return fboBlur3;
+	}	
+
 	/**
 	 * Returns FrameBuffer with Brightnessinformations
 	 * @param toLight FrameBuffer to get brightness from
@@ -122,14 +235,14 @@ public class ScreenManipulation {
 	 * @param screenQuad screenQuad
 	 * @return FrameBuffer with Brightnessinformations
 	 */
-	public FrameBuffer getBrightness(FrameBuffer toLight, Vector4f brightnessFactor, Geometry screenQuad) {
+	public FrameBuffer getBrightness(FrameBuffer toLight, Vector4f brightnessFactor) {
 		fboBrightness.bind();
 		
     	spoBrightness.use();
     	spoBrightness.setUniform("colorTex", toLight.getTexture(0));
-    	spoBrightness.setUniform("colorFactor", new Vector4f(1f, 1f, 1f, 1f));
+    	spoBrightness.setUniform("colorFactor", brightnessFactor);
 		
-    	screenQuad.draw();
+    	this.screenQuad.draw();
     	
     	fboBrightness.unbind();
     	
@@ -144,13 +257,13 @@ public class ScreenManipulation {
 	 * @param screenQuad screenQuad
 	 * @return bloomed FrameBuffer
 	 */
-	public FrameBuffer getBloom(FrameBuffer origImage, float bloomLevel, Vector4f brightnessFactor, Geometry screenQuad) {
+	public FrameBuffer getBloom(FrameBuffer origImage, float bloomLevel, Vector4f brightnessFactor) {
 		//fill FrameBuffers neccesary for Bloom
-		FrameBuffer brightness = getBrightness(origImage, brightnessFactor, screenQuad);
-    	FrameBuffer blured1 = getBlur5(origImage, screenQuad);
-    	FrameBuffer blured2 = getBlur5(blured1, screenQuad);
-    	FrameBuffer blured3 = getBlur5(blured2, screenQuad);
-    	FrameBuffer blured4 = getBlur5(blured2, screenQuad);
+		brightness = getBrightness(origImage, brightnessFactor);
+    	blured1 = getBlur51(origImage);
+    	blured2 = getBlur52(blured1);
+    	blured3 = getBlur53(blured2);
+    	blured4 = getBlur54(blured2);
     	
     	fboBloom.bind();
     	
@@ -163,7 +276,7 @@ public class ScreenManipulation {
     	spoBloom.setUniform("blur3", blured3.getTexture(0));
     	spoBloom.setUniform("blur4", blured4.getTexture(0));
     	
-    	screenQuad.draw();
+    	this.screenQuad.draw();
     	
     	fboBloom.unbind();
     	
@@ -179,7 +292,7 @@ public class ScreenManipulation {
 	 * @param screenQuad screenQuad
 	 * @return tonemapped FrameBuffer
 	 */
-	public FrameBuffer getToneMapped(FrameBuffer origImage, float exposure, Geometry screenQuad) {
+	public FrameBuffer getToneMapped(FrameBuffer origImage, float exposure) {
 		fboTone.bind();
 		
 		spoTone.use();
@@ -187,7 +300,7 @@ public class ScreenManipulation {
     	spoTone.setUniform("exposure", exposure);
        	spoTone.setUniform("tc_offset", tc_offset_5);
        	
-       	screenQuad.draw();
+       	this.screenQuad.draw();
        	
        	fboTone.unbind();
        	
@@ -201,9 +314,9 @@ public class ScreenManipulation {
 	 * @param screenQuad screenQuad
 	 * @return bloomed and tonemapped FrameBuffer
 	 */
-	public FrameBuffer getToneMappedBloomed(FrameBuffer origImage, float bloomLevel, Vector4f brightnessFactor, float exposure, Geometry screenQuad) {
+	public FrameBuffer getToneMappedBloomed(FrameBuffer origImage, float bloomLevel, Vector4f brightnessFactor, float exposure) {
 		//Set neccesary Texutre for bloomed ToneMapping
-		Texture bloomed = getBloom(origImage, bloomLevel, brightnessFactor, screenQuad).getTexture(0);
+		Texture bloomed = getBloom(origImage, bloomLevel, brightnessFactor).getTexture(0);
 		
 		fboTone.bind();
 		
@@ -212,11 +325,26 @@ public class ScreenManipulation {
     	spoTone.setUniform("exposure", exposure);
        	spoTone.setUniform("tc_offset", tc_offset_5);
        	
-       	screenQuad.draw();
+       	this.screenQuad.draw();
        	
        	fboTone.unbind();
        	
        	return fboTone;
+	}
+	
+	public FrameBuffer getHalfScreenView(FrameBuffer image1, FrameBuffer image2) {
+		fboHalf.bind();
+		
+		spoHalf.use();
+		spoHalf.setUniform("leftImage", image1.getTexture(0));
+		spoHalf.setUniform("rightImage", image2.getTexture(0));
+		
+		this.screenQuad.draw();
+		
+		fboHalf.unbind();
+		
+		return fboHalf;
+		
 	}
 	
 	/**

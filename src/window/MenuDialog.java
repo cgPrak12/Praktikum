@@ -29,6 +29,7 @@ import java.awt.Dimension;
 
 public class MenuDialog extends JDialog {
 
+	private static MenuDialog mDial;
 	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
 	private JTextField textExposure;
@@ -50,7 +51,7 @@ public class MenuDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public MenuDialog() {
+	private MenuDialog() {
 		
 	    try {
 	        UIManager.setLookAndFeel(
@@ -393,6 +394,22 @@ public class MenuDialog extends JDialog {
 	
 	public void close() {
 		this.dispose();
+	}
+	
+	public static MenuDialog getInstance() {
+		if(mDial != null) {
+			return mDial;
+		}
+		else {
+			mDial = new MenuDialog();
+			return mDial;
+		}
+		
+	}
+	public static void destroyInstance() {
+		if(mDial != null) {
+			mDial.close();
+		}
 	}
 
 }

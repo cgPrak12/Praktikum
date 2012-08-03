@@ -16,6 +16,8 @@ import org.lwjgl.util.vector.Vector4f;
 public class ShaderProgram {
     private int id, vs, fs;
     
+    private int printed = 0;
+    
     public ShaderProgram(String vertexShader, String fragmentShader) {
         this.createShaderProgram(vertexShader, fragmentShader);
     }
@@ -39,7 +41,10 @@ public class ShaderProgram {
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         } else {
-            System.err.println("location of " + varName + " is -1");
+            if(printed <= 10) {
+            	System.err.println("location of " + varName + " is -1");
+            	++printed;
+            }
         }            
     }          
     
@@ -54,7 +59,10 @@ public class ShaderProgram {
         if(loc != -1) {
         	GL20.glUniform1f(loc, val);
         } else {
-            System.err.println("location of " + varName + " is -1");
+        	if(printed <= 10) {
+            	System.err.println("location of " + varName + " is -1");
+            	++printed;
+            }
         }            
     }
     
@@ -84,7 +92,10 @@ public class ShaderProgram {
             texture.bind();
             glUniform1i(loc, texture.getUnit());
         } else {
-            System.err.println("location of " + varName + " is -1");
+        	if(printed <= 10) {
+            	System.err.println("location of " + varName + " is -1");
+            	++printed;
+            }
         }            
     }
     
@@ -95,7 +106,10 @@ public class ShaderProgram {
     		if(loc != -1) {
     			GL20.glUniform2f(loc, vectorarray[i].x, vectorarray[i].y);
     		} else {
-    			System.err.println("location of " + varName + " is -1");
+    			if(printed <= 10) {
+                	System.err.println("location of " + varName + " is -1");
+                	++printed;
+                }
     		}
     	}
     	GL.checkError("");
