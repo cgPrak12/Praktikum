@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -13,11 +14,15 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.JCheckBox;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
 import org.lwjgl.util.vector.Vector4f;
@@ -51,23 +56,34 @@ public class MenuDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public MenuDialog() {
+		setResizable(false);
 		
 	    try {
 	        UIManager.setLookAndFeel(
 	            UIManager.getSystemLookAndFeelClassName());
 	    } catch (Exception e) { }
-		
+		 
+        Action closeAction = new AbstractAction(){
+			private static final long serialVersionUID = 2L;
+			public void actionPerformed(ActionEvent e) {
+                close();
+            }
+        };
+	    contentPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "closeAction");
+	    contentPanel.getActionMap().put("closeAction", closeAction);	    
+	    
 		setTitle("Graphic Menu");
-		setBounds(100, 100, 400, 450);
+		setBounds(100, 100, 425, 520);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		
 		GridBagLayout gbl_contentPanel = new GridBagLayout();
 		gbl_contentPanel.columnWidths = new int[]{36, 50, 200, 54, 0};
-		gbl_contentPanel.rowHeights = new int[]{36, 23, 23, 23, 31, 23, 2, 23, 23, 2, 0, 23, 0, 23, 0, 0, 0};
-		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPanel.rowHeights = new int[]{36, 23, 23, 23, 31, 23, 2, 23, 23, 2, 0, 0, 0, 23, 0, 23, 0, 0, 0};
+		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		
 		contentPanel.setLayout(gbl_contentPanel);
 		{
@@ -311,13 +327,33 @@ public class MenuDialog extends JDialog {
 			contentPanel.add(chckbxGlareFading, gbc_chckbxGlareFading);
 		}
 		{
+			JCheckBox chckbxNormalMapping = new JCheckBox("Normal Mapping");
+			chckbxNormalMapping.setIconTextGap(10);
+			GridBagConstraints gbc_chckbxNormalMapping = new GridBagConstraints();
+			gbc_chckbxNormalMapping.anchor = GridBagConstraints.WEST;
+			gbc_chckbxNormalMapping.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxNormalMapping.gridx = 2;
+			gbc_chckbxNormalMapping.gridy = 10;
+			contentPanel.add(chckbxNormalMapping, gbc_chckbxNormalMapping);
+		}
+		{
+			JCheckBox chckbxGodRays = new JCheckBox("God Rays");
+			chckbxGodRays.setIconTextGap(10);
+			GridBagConstraints gbc_chckbxGodRays = new GridBagConstraints();
+			gbc_chckbxGodRays.anchor = GridBagConstraints.WEST;
+			gbc_chckbxGodRays.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxGodRays.gridx = 2;
+			gbc_chckbxGodRays.gridy = 11;
+			contentPanel.add(chckbxGodRays, gbc_chckbxGodRays);
+		}
+		{
 			JSeparator separator = new JSeparator();
 			GridBagConstraints gbc_separator = new GridBagConstraints();
 			gbc_separator.anchor = GridBagConstraints.NORTH;
 			gbc_separator.fill = GridBagConstraints.HORIZONTAL;
 			gbc_separator.insets = new Insets(0, 0, 5, 5);
 			gbc_separator.gridx = 2;
-			gbc_separator.gridy = 10;
+			gbc_separator.gridy = 12;
 			contentPanel.add(separator, gbc_separator);
 		}
 		
@@ -329,7 +365,7 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxCulling.fill = GridBagConstraints.HORIZONTAL;
 			gbc_chckbxCulling.insets = new Insets(0, 0, 5, 5);
 			gbc_chckbxCulling.gridx = 2;
-			gbc_chckbxCulling.gridy = 11;
+			gbc_chckbxCulling.gridy = 13;
 			contentPanel.add(chckbxCulling, gbc_chckbxCulling);
 			chckbxCulling.addItemListener(new ItemListener() {
 			    public void itemStateChanged(ItemEvent e) {
@@ -352,7 +388,7 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxWireFrame.fill = GridBagConstraints.HORIZONTAL;
 			gbc_chckbxWireFrame.insets = new Insets(0, 0, 5, 5);
 			gbc_chckbxWireFrame.gridx = 2;
-			gbc_chckbxWireFrame.gridy = 12;
+			gbc_chckbxWireFrame.gridy = 14;
 			contentPanel.add(chckbxWireFrame, gbc_chckbxWireFrame);
 			chckbxWireFrame.addItemListener(new ItemListener() {
 			    public void itemStateChanged(ItemEvent e) {
@@ -365,6 +401,16 @@ public class MenuDialog extends JDialog {
 			    }
 			});
 			chckbxWireFrame.setSelected(main.TerrainMain.isWireframe());
+		}
+		{
+			JCheckBox chckbxShadows = new JCheckBox("Shadows");
+			chckbxShadows.setIconTextGap(10);
+			GridBagConstraints gbc_chckbxShadows = new GridBagConstraints();
+			gbc_chckbxShadows.anchor = GridBagConstraints.WEST;
+			gbc_chckbxShadows.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxShadows.gridx = 2;
+			gbc_chckbxShadows.gridy = 15;
+			contentPanel.add(chckbxShadows, gbc_chckbxShadows);
 		}
 		
 		{
