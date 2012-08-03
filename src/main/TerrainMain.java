@@ -45,7 +45,7 @@ public class TerrainMain {
     private static boolean tonemapping =  true;
     private static boolean rotatelight = false;
     private static boolean bloomBlend = false;
-    private static boolean bloomOn = true;
+    private static boolean bloom = true;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -197,7 +197,7 @@ public class TerrainMain {
 
 
         	FrameBuffer fbo;
-        	if(bloomOn) {
+        	if(bloom) {
         		fbo = screenMan.getToneMapped(enlightenedFBO, bloomFactor, new Vector4f(1f,1f,1f,1f), exposure, screenQuad);
         	}
         	else {
@@ -306,7 +306,7 @@ public class TerrainMain {
                     case Keyboard.KEY_F7:
                     	bloomBlend = !bloomBlend; break;
                     case Keyboard.KEY_F8:
-                    	bloomOn = !bloomOn; break;
+                    	bloom = !bloom; break;
                 }
             }
         }
@@ -355,11 +355,11 @@ public class TerrainMain {
 	}
 
 	public static boolean isBloom() {
-		return bloomOn;
+		return bloom;
 	}
 
 	public static void setBloom(boolean bloom) {
-		TerrainMain.bloomOn = bloomOn;
+		TerrainMain.bloom = bloom;
 	}
 
 	public static boolean isTonemapping() {
