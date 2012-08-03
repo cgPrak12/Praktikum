@@ -123,7 +123,6 @@ public class TerrainMain {
             
             // WATER
             fluidRenderer.render();
-            
             // TODO: combine images
             
             // present screen

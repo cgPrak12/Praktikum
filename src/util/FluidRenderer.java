@@ -8,8 +8,20 @@ import opengl.GL;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL21;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
+import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.GL33;
+import org.lwjgl.opengl.GL40;
+import org.lwjgl.opengl.GL41;
+import org.lwjgl.opengl.GL42;
+import org.lwjgl.util.vector.Vector3f;
 
 public class FluidRenderer {
 	
@@ -67,6 +79,9 @@ public class FluidRenderer {
     private Texture[] textures = { thicknessTexture, depthTexture };
     private String[] textureNames = { "thickness", "depth" };
     
+    private Texture cubemap;
+    private Geometry cube = GeometryFactory.createCube();
+    
 
     public FluidRenderer(Camera camTmp) {
     	cam = camTmp;
@@ -83,6 +98,7 @@ public class FluidRenderer {
     	init(thicknessBlurSP2, thicknessBlurFrameBuffer2, "color", thicknessBlurTexture2);
     	init(lightingSP, lightingFrameBuffer, "color", lightingTexture);
     	init(finalImageSP, finalImageFB, "color", finalImage);
+    	createCubeMap();
 	} 
 	
 	public void render() {
@@ -103,7 +119,7 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", depthTexture);
+        drawTextureSP.setUniform("image", lightingTexture);
         screenQuadGeo.draw();
         
         // resets buffers
@@ -115,6 +131,10 @@ public class FluidRenderer {
         lightingFrameBuffer.reset();
         
         finalImageFB.reset();
+	}
+	
+	public Texture getDepthTexture() {
+		return this.depthTexture;
 	}
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
@@ -150,6 +170,7 @@ public class FluidRenderer {
 		
 		depthSP.setUniform("view", cam.getView());
 		depthSP.setUniform("proj", cam.getProjection());
+		depthSP.setUniform("cubemapTex", cubemap);
 		
         depthSP.setUniform("camPos", cam.getCamPos());
    	    depthFrameBuffer.bind();
@@ -159,6 +180,11 @@ public class FluidRenderer {
         glEnable(GL_DEPTH_TEST);
       
         testWaterParticles.draw();
+//        Geometry cube = GeometryFactory.createCube();
+        
+//        cube.draw();
+        
+//        screenQuadGeo.draw();
         depthFrameBuffer.unbind();
         blur(depthTexture,4);
    
@@ -208,15 +234,17 @@ public class FluidRenderer {
 
 		startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
 	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
+	    thicknessBlurSP.setUniform("depth", depthTexture);
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer.unbind();
 	        
 	    startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
 	    thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
+	    thicknessBlurSP2.setUniform("depth", depthTexture);
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer2.unbind();
         
-		/*for(int i = 0; i < 3; i++) {
+		for(int i = 0; i < 1; i++) {
 			startPath(thicknessBlurSP, thicknessBlurFrameBuffer);	    
 	    	thicknessBlurSP.setUniform("thickness", thicknessBlurTexture2);	
 	    	screenQuadGeo.draw();	
@@ -226,7 +254,7 @@ public class FluidRenderer {
 	    	thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
         	screenQuadGeo.draw();
         	thicknessBlurFrameBuffer2.unbind();
-		}*/
+		}
 
     }
 	
@@ -237,10 +265,46 @@ public class FluidRenderer {
 	    lightingSP.setUniform("depthTex", depthTexture);
 	    lightingSP.setUniform("normalTex", normalTexture);
 	    lightingSP.setUniform("camPos", cam.getCamPos());
+	    lightingSP.setUniform("view", cam.getView());
 	    
         screenQuadGeo.draw();
         lightingFrameBuffer.unbind();
 	        
+	}
+	
+	private void createCubeMap() {
+
+		String[] cubeMapFileName = {"Cubemap/Cubemap_right.jpg","Cubemap/Cubemap_left.jpg","Cubemap/Cubemap_top.jpg",
+		                            "Cubemap/Cubemap_bottom.jpg","Cubemap/Cubemap_front.jpg","Cubemap/Cubemap_back.jpg"};
+		 
+		int[] cubeMapTargets = {GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL13.GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+				GL13.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL13.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z};
+       
+        cubemap = new Texture(GL13.GL_TEXTURE_CUBE_MAP, 15);
+        cubemap.bind();
+        
+		glTexParameteri(GL13.GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL13.GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+		
+		for(int i = 0; i < 6; i++) {
+//			Target := GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB+i;
+//			LoadTexture(cubeMapFileName[i],Cubemap[i], false, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, false);
+		
+        	Util.ImageContents contents = Util.loadImage(cubeMapFileName[i]);
+        	int format = 0;
+        	int internalFormat = 0;
+        	switch(contents.colorComponents) {
+            	case 1: internalFormat = GL_R8; format = GL_RED; break;
+            	case 2: internalFormat = GL_RG8; format = GL_RG; break;
+            	case 3: internalFormat = GL_RGB8; format = GL_RGB; break;
+            	case 4: internalFormat = GL_RGBA8; format = GL_RGBA; break;
+        	}
+            
+        	glTexImage2D(cubeMapTargets[i], 0, internalFormat, contents.width, contents.height, 0, format, GL_FLOAT, contents.data);
+        	
+		}
+		glGenerateMipmap(GL13.GL_TEXTURE_CUBE_MAP);
+		GL.checkError("cubemap");
 	}
 
 	private void createFinalImage() {

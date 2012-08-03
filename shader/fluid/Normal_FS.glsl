@@ -11,7 +11,7 @@ float offset = 1.0/texSize;
 vec3 eyePos(vec2 offset) {
 	// something with depth and texCoords, has to be improved!
 	vec2 newCoord = texCoord.xy+offset;
-	float depth = texture(depthTex, newCoord).x;
+	float depth = texture(depthTex, newCoord).w;
 	return vec3(newCoord, depth);
 }
 
@@ -26,7 +26,8 @@ void main(void) {
 	vec3 ddy2 = eye - eyePos(vec2(0, -offset));
 	if(abs(ddy2.z) < abs(ddy.z)) ddy = ddy2;
 	
-	vec3 normal = -cross(ddx, ddy);
-	color = vec4(normalize(normal),0);
+	vec3 normal = cross(ddx, ddy);
+	color = vec4(normal.x, normal.y, normal.z, 0);
+	color = vec4(normalize(color)); 
 }
 
