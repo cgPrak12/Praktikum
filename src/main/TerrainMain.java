@@ -11,16 +11,10 @@ import java.util.logging.Logger;
 import opengl.GL;
 import opengl.OpenCL;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.LWJGLUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector;
-import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -64,12 +58,7 @@ public class TerrainMain {
     private static Vector4f sunDirection = new Vector4f(1.0f, 1.0f, 1.0f, 0f);
     
     private static MenuDialog dialog;
-    
-    //offset
-    private static Vector2f[] tc_offset_5;
-    
-    private static Vector2f[] tc_offset_3;
-    
+     
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
     private static ShaderProgram fboSP; 
@@ -83,11 +72,12 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-            tc_offset_5 = generateTCOffset(5);
-            tc_offset_3 = generateTCOffset(3);
+            
+            //initialize ScreenManipulation with all the used Shaders
             screenMan.init("./shader/ScreenQuad_VS.glsl", "./shader/Blur_FS.glsl",
             "./shader/Brightness_FS.glsl", "./shader/Bloom_FS.glsl", "./shader/ToneMapping_FS.glsl",
             "./shader/PhongLighting_FS.glsl",GL.WIDTH, GL.HEIGHT);
+            
             render();
             OpenCL.destroy();
             destroy();
@@ -95,22 +85,6 @@ public class TerrainMain {
             Logger.getLogger(TerrainMain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    /**
-     *  Generate texturecoordinate_offset for blur and tone mapping
-     *  @param size Generate size * size offset
-     */
-    private static Vector2f[] generateTCOffset(int size) {
-        Vector2f[] tc_offset = new Vector2f[size*size];
-    	int arraycounter = 0;
-    	for(int i = (-size/2); i <= (size/2); ++i) {
-    		for(int j = (-size/2); j <= (size/2); ++j) {
-    			tc_offset[arraycounter] = new Vector2f(i, j);
-    			++arraycounter;
-    		}
-    	}
-        return tc_offset;
-	}
 
 	public static void render() throws LWJGLException {
         glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
@@ -130,12 +104,8 @@ public class TerrainMain {
         Geometry testCube = GeometryFactory.createCube();
         Geometry screenQuad = GeometryFactory.createScreenQuad();
         
-        ShaderProgram phongSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/PhongLighting_FS.glsl");
-        
         //enlighted fbo
         FrameBuffer enlightenedFBO = new FrameBuffer();
-        enlightenedFBO.init(false, GL.WIDTH, GL.HEIGHT);
-        enlightenedFBO.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
           
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -156,8 +126,8 @@ public class TerrainMain {
             if(rotatelight) {
             	Matrix4f.transform(Util.rotationY(0.005f, null), sunDirection, sunDirection);
             }
-            if(bloomBlend && bloomFactor >1f) {
-            	bloomFactor -= 0.06;
+            if(bloomBlend && bloomFactor >0.5f) {
+            	bloomFactor -= 0.08;
             }
             else {
             	bloomBlend = false;
@@ -181,22 +151,14 @@ public class TerrainMain {
 
         	shader.finish();
         	
-        	// blinn-phong lighting
-        	enlightenedFBO.bind();
-        	phongSP.use();
-        	phongSP.setUniform("normalTex",  shader.getNormalTexture());
-        	phongSP.setUniform("worldTex",   shader.getWorldTexture());
-        	phongSP.setUniform("diffuseTex", shader.getDiffuseTexture());
-        	phongSP.setUniform("camPos",     cam.getCamPos());
-        	phongSP.setUniform("sunDir",	 new Vector3f(sunDirection.x, sunDirection.y, sunDirection.z));
+        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection, screenQuad);
         	
-        	screenQuad.draw();        	
-        	enlightenedFBO.unbind();
+        	//shader.DrawTexture(enlightenedFBO.getTexture(0));
 
         	FrameBuffer fbo = enlightenedFBO;
         	if (tonemapping) {
             	if (bloom) {
-            		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure, screenQuad);        		
+        		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure, screenQuad);
             	}
             	else {
             		fbo = screenMan.getToneMapped(enlightenedFBO, exposure, screenQuad);
