@@ -58,11 +58,11 @@ public class ScreenManipulation {
 		return fbo;
 	}
 		
-	public FrameBuffer getBrightness(FrameBuffer toLight, Vector4f factor, Geometry screenQuad) {
+	public FrameBuffer getBrightness(FrameBuffer toLight, Vector4f brightnessFactor, Geometry screenQuad) {
 		fbo.bind();
     	spoBrightness.use();
     	spoBrightness.setUniform("colorTex", toLight.getTexture(0));
-    	spoBrightness.setUniform("colorFactor", new Vector4f(1f, 1f, 1f, 1f));
+    	spoBrightness.setUniform("colorFactor", brightnessFactor);
 		
     	screenQuad.draw();
     	
@@ -70,8 +70,8 @@ public class ScreenManipulation {
 		return fbo;
 	}
 	
-	public FrameBuffer getBloom(FrameBuffer origImage, float bloomLevel, Vector4f factor, Geometry screenQuad) {
-		Texture brightTex = getBrightness(origImage, factor, screenQuad).getTexture(0);
+	public FrameBuffer getBloom(FrameBuffer origImage, float bloomLevel, Vector4f brightnessFactor, Geometry screenQuad) {
+		Texture brightTex = getBrightness(origImage, brightnessFactor, screenQuad).getTexture(0);
     	FrameBuffer blured1 = getBlur5(origImage, screenQuad);
     	FrameBuffer blured2 = getBlur5(blured1, screenQuad);
     	FrameBuffer blured3 = getBlur5(blured2, screenQuad);
@@ -90,9 +90,20 @@ public class ScreenManipulation {
     	fbo.unbind();
     	return blured4;//fbo;
 	}
+
+	public FrameBuffer getToneMapped(FrameBuffer origImage, float exposure, Geometry screenQuad) {
+		fbo.bind();
+		spoTone.use();
+    	spoTone.setUniform("lightedTex", origImage.getTexture(0));
+    	spoTone.setUniform("exposure", exposure);
+       	spoTone.setUniform("tc_offset", tc_offset_5);
+       	screenQuad.draw();
+       	fbo.unbind();
+       	return fbo;
+	}
 	
-	public FrameBuffer getToneMapped(FrameBuffer origImage, float bloomLevel, Vector4f factor, float exposure, Geometry screenQuad) {
-		Texture bloomed = getBloom(origImage, bloomLevel, factor, screenQuad).getTexture(0);
+	public FrameBuffer getToneMappedBloomed(FrameBuffer origImage, float bloomLevel, Vector4f brightnessFactor, float exposure, Geometry screenQuad) {
+		Texture bloomed = getBloom(origImage, bloomLevel, brightnessFactor, screenQuad).getTexture(0);
 		fbo.bind();
 		spoTone.use();
     	spoTone.setUniform("lightedTex", bloomed);

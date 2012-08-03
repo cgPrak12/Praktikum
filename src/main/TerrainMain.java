@@ -26,6 +26,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import util.*;
 //import window.MenuDialog;
+import window.MenuDialog;
 
 /**
  *
@@ -56,11 +57,13 @@ public class TerrainMain {
     private static float ingameTimePerSecond = 1.0f;
     
     //tone mapping
-    private static float exposure    = 0.5f;
-    private static float bloomFactor = 0.4f;
+    private static float exposure    = 0.4f;
+    private static float bloomFactor = 0.3f;
     private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     
     private static Vector4f sunDirection = new Vector4f(1.0f, 1.0f, 1.0f, 0f);
+    
+    private static MenuDialog dialog;
     
     //offset
     private static Vector2f[] tc_offset_5;
@@ -72,7 +75,6 @@ public class TerrainMain {
     private static ShaderProgram fboSP; 
     
     public static void main(String[] argv) {
-    	//MenuDialog dialog = new MenuDialog();
         try {
             init();
             OpenCL.init();
@@ -129,8 +131,6 @@ public class TerrainMain {
         Geometry screenQuad = GeometryFactory.createScreenQuad();
         
         ShaderProgram phongSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/PhongLighting_FS.glsl");
-        ShaderProgram toneSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/ToneMapping_FS.glsl");
-
         
         //enlighted fbo
         FrameBuffer enlightenedFBO = new FrameBuffer();
@@ -166,7 +166,6 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            
             fboSP.use();
         	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
         	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
@@ -193,23 +192,31 @@ public class TerrainMain {
         	
         	screenQuad.draw();        	
         	enlightenedFBO.unbind();
-        	
 
-
-        	FrameBuffer fbo;
-        	if(bloom) {
-        		fbo = screenMan.getToneMapped(enlightenedFBO, bloomFactor, new Vector4f(1f,1f,1f,1f), exposure, screenQuad);
+        	FrameBuffer fbo = enlightenedFBO;
+        	if (tonemapping) {
+            	if (bloom) {
+            		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure, screenQuad);        		
+            	}
+            	else {
+            		fbo = screenMan.getToneMapped(enlightenedFBO, exposure, screenQuad);
+            	}
         	}
         	else {
-        		fbo = screenMan.getLighting(shader, cam.getCamPos(), sunDirection, screenQuad);
+            	if (bloom) {
+            		fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor, screenQuad);
+            	}
         	}
+
         	shader.DrawTexture(fbo.getTexture(0));
+        	
             // TODO: postfx
             
             // present screen
             Display.update();
             Display.sync(60);
         }
+        dialog.close();
         screenMan.delete();
         shader.delete();
         tex.delete();
@@ -259,6 +266,7 @@ public class TerrainMain {
                         break;
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
+                    case Keyboard.KEY_M:  dialog = new MenuDialog(); break;
                     
                     // exposure adjustment
                     case Keyboard.KEY_NUMPAD8:
@@ -331,17 +339,8 @@ public class TerrainMain {
      */
     private static void animate(long millis) {
 
-    }
-    
-    /**
-     * 	Generate blured Framebuffer
-     * @param count Blur Iterations
-     * @param toBlur FrameBuffer to blur
-     * @param screenQuad screenQuad
-     */
-    
+    }  
 
-    
 	public static void setCulling(boolean culling) {
 		TerrainMain.culling = culling;
 	}
@@ -399,6 +398,7 @@ public class TerrainMain {
 	}
 
 	public static void setBrightnessFactor(Vector4f brightnessFactor) {
-		TerrainMain.brightnessFactor = brightnessFactor;
+		TerrainMain.brightnessFactor.set(brightnessFactor);
+		System.out.println(TerrainMain.brightnessFactor);
 	}
 }
