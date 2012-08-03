@@ -50,8 +50,8 @@ public class GeometryFactory {
 		
 		for(int y=0; y < n; y++){
 		for (int x=0; x < m; x++){
-			vertices[count++] = x;
 			vertices[count++] = y;
+			vertices[count++] = x;
 			}
 		}
 		
@@ -62,9 +62,9 @@ public class GeometryFactory {
 		for(int i=0; i<n-1;i++){
 			for(int j=0; j<m;j++){
 				
+				indices[count++] = i*(m)+j+m;
 				indices[count++] = i*(m)+j;
 		
-				indices[count++] = i*(m)+j+m;
 				
 			}
 			indices[count++] = -1;
@@ -308,4 +308,274 @@ public class GeometryFactory {
 		
 		return geo;
 	}
+	
+	/*
+	 * fertig !! ausprobieren obs wirklich bottomright ist
+	 */
+	
+	public static Geometry createBottomRight(int length){
+		
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[4 * length + 4*(length- 1)];
+		int[] indices = new int[2*length+(length-2)*4+(length-2)*10];
+		int count = 0;		
+		 	
+		for (int x = 0; x < length; x++) {
+			for (int y = 0; y < 2; y++) {
+				vertices[count++] = y;
+				vertices[count++] = x;
+			}
+		}
+		
+		for (int x = length-2; x < length; x++) {
+			for (int y = 2; y < length; y++) {
+				vertices[count++] = y;
+				vertices[count++] = x;
+	        }
+		}
+		
+		int icount = 0;
+		for(int i=0 ; i<2*length; i+=2){
+			indices[icount++] = i+1;
+			indices[icount++] = i ;
+		}
+		    indices[icount++] = -1;    		
+		    indices[icount++] = 2*length;
+			indices[icount++] = 2*length-3;
+			indices[icount++] = 3*length-2;
+		    indices[icount++] = 2*length-1;
+
+		    indices[icount++]=-1;
+		 for(int j = 0; j<length-3; j++){
+			 for(int i =1; i>=0; i--){
+				 indices[icount++] = 2*length +i+j;
+			 }
+			 for(int i=1; i>=0; i--){
+				 indices[icount++]= 3*length +i+j-2;
+			 }
+			 indices[icount++] = -1;
+		}
+//		for(int i:indices){
+//			System.out.println(i);
+//		}
+				
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);	fbu.flip();
+		ibu.put(indices);	ibu.flip();
+		
+		Geometry geo = new Geometry();
+		
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);	
+		
+		
+		return geo;
+	}
+
+	
+	public static Geometry createBottomLeft(int length){
+		
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[4 * length + 4*(length- 1)];
+		int[] indices = new int[2*length+(length-2)*4+(length-2)*10];
+		int count = 0;		
+		 	
+		for (int x = 0; x < length; x++) {
+			for (int y = 0; y < 2; y++) {
+				vertices[count++] = y;
+				vertices[count++] = x;
+			}
+		}
+		
+		for (int x = 0; x < 2; x++) {
+			for (int y = 2; y < length; y++) {
+				vertices[count++] = y;
+				vertices[count++] = x;
+	        }
+		}
+		
+		int icount = 0;
+		for(int i=0 ; i<2*length; i+=2){
+			indices[icount++] = i+1;
+			indices[icount++] = i ;
+		}
+		    indices[icount++] = -1;    		
+		    indices[icount++] = 2*length;
+			indices[icount++] = 1;//1
+			indices[icount++] = 3*length-2;
+		    indices[icount++] = 3;//3
+
+		    indices[icount++]=-1;
+		 for(int j = 0; j<length-3; j++){
+			 for(int i =1; i>=0; i--){
+				 indices[icount++] = 2*length +i+j;
+			 }
+			 for(int i=1; i>=0; i--){
+				 indices[icount++]= 3*length +i+j-2;
+			 }
+			 indices[icount++] = -1;
+		}
+//		for(int i:indices){
+//			System.out.println(i);
+//		}
+				
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);	fbu.flip();
+		ibu.put(indices);	ibu.flip();
+		
+		Geometry geo = new Geometry();
+		
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);	
+		
+		
+		return geo;
+	}
+	/*
+	 * 
+	 * LGeometry für TopRight
+	 */
+	public static Geometry createTopRight(int length){
+		
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[4 * length + 4*(length- 1)];
+		int[] indices = new int[(length-2)*5+2*length+1];
+		int count = 0;		
+		 	
+		for (int x = 0; x < length; x++) {
+			for (int y = 0; y < 2; y++) {
+				vertices[count++] = y;
+				vertices[count++] = x;
+			}
+		}
+		
+		for (int x = length-2; x < length; x++) {
+			for (int y = -1; y > -length+1; y--) {
+				vertices[count++] = y;
+				vertices[count++] = x;
+	        }
+		}
+//		for(float i : vertices){
+//			System.out.println("vert: " + i);
+//		}
+		
+		int icount = 0;
+		for(int i=0 ; i<2*length; i+=2){
+			indices[icount++] = i+1;
+			indices[icount++] = i ;
+		}
+		    indices[icount++] = -1; 
+		    
+		    indices[icount++] = 2*length-4;
+		    indices[icount++] = 2*length;
+		    indices[icount++] = 2*length-2;
+		    indices[icount++] = 3*length-2;
+
+		    indices[icount++]=-1;
+		 for(int j = 0; j<length-3; j++){
+			 for(int i =0; i<2; i++){
+				 indices[icount++] = 2*length +i+j;
+			 }
+			 for(int i=0; i<2; i++){
+				 indices[icount++]= 3*length +i+j-2;
+			 }
+			 indices[icount++] = -1;
+		}
+//		for(int i:indices){
+//			System.out.println(i);
+//		}
+				
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);	fbu.flip();
+		ibu.put(indices);	ibu.flip();
+		
+		Geometry geo = new Geometry();
+		
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);	
+		
+		
+		return geo;
+	}
+	
+	
+	public static Geometry createTopLeft(int length){
+		
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[4 * length + 4*(length- 1)];
+		int[] indices = new int[(length-2)*5+2*length+1];
+		int count = 0;		
+		 	
+		for (int x = 0; x < length; x++) {
+			for (int y = 0; y < 2; y++) {
+				vertices[count++] = y;
+				vertices[count++] = x;
+			}
+		}
+		
+		for (int x = 0; x < 2; x++) {
+			for (int y = -1; y > -length+1; y--) {
+				vertices[count++] = y;
+				vertices[count++] = x;
+	        }
+		}
+		for(float i : vertices){
+			System.out.println("vert: " + i);
+		}
+		
+		int icount = 0;
+		for(int i=0 ; i<2*length; i+=2){
+			indices[icount++] = i+1;
+			indices[icount++] = i ;
+		}
+		    indices[icount++] = -1; 
+		    
+		    indices[icount++] = 0;
+		    indices[icount++] = 2*length;
+		    indices[icount++] = 2;
+		    indices[icount++] = 3*length-2;
+
+		    indices[icount++]=-1;
+		 for(int j = 0; j<length-3; j++){
+			 for(int i =0; i<2; i++){
+				 indices[icount++] = 2*length +i+j;
+			 }
+			 for(int i=0; i<2; i++){
+				 indices[icount++]= 3*length +i+j-2;
+			 }
+			 indices[icount++] = -1;
+		}
+		for(int i:indices){
+			System.out.println(i);
+		}
+				
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);	fbu.flip();
+		ibu.put(indices);	ibu.flip();
+		
+		Geometry geo = new Geometry();
+		
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);	
+		
+		
+		return geo;
+	}
+
 }

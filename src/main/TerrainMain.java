@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import sun.font.CreatedFontTracker;
 import terrain.ClipMap;
 import util.*;
 
@@ -63,12 +64,16 @@ public class TerrainMain {
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
-            clip = new ClipMap(30, 10, program, cam);
+            clip = new ClipMap(14 , 2, program, cam);
+            
+
+            
+            
             tmpcam = cam;
             updateCounter = 0;
             
 //            L = clip.createBottomLeft(); //ok
-          //  L = clip.createBottomLeft(); //fail 
+            //  L = clip.setBottomLeft(); //fail 
 //            L = clip.createBottomRight(); // ok
 //            L = clip.createTopLeft();  //ok
 //            L = clip.createTopRight(); //ok
@@ -126,8 +131,11 @@ public class TerrainMain {
 //            grid2.draw();
 //            updateCounter++;
 //            if(updateCounter%5)
-            clip.generateMaps();
-     //       L.draw();
+     
+              clip.generateMaps();
+            
+             
+             
             
 //            shader.prepareRendering();
             
