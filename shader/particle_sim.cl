@@ -1,6 +1,7 @@
 #define LOCAL_MEM_SIZE 64
 #define RADIUS 0.006
 #define WITH_COLLISION 1
+#define GRIDLEN 84
 
 float xor128() {
   int x = 123456789;
@@ -25,17 +26,24 @@ float4 reflect(float4 normal, float4 einfall) {
 }
 
 float3 getNormal(image2d_t, float2);
+void add2GridCounter(global int*, global int4*, float3);
 
 kernel void particle_sim(
 global float4* position, 
 global float4* velos,
 image2d_t heightmap,
-image2d_t normalmap) 
+image2d_t normalmap,
+global int* gridCounter,
+global int4* gridCells) 
 {	
     local float4 sharedMem[LOCAL_MEM_SIZE];
 	
     float4 myPos = position[get_global_id(0)];
     float4 myVelo = velos[get_global_id(0)];
+
+
+    add2GridCounter(gridCounter,gridCells,myPos.s012);
+
 	
 	myPos.s012 += myVelo.s012*4;
 	
@@ -136,4 +144,31 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 	return normalize(c1+c2+c3+c4);
 }
 
+void add2GridCounter(global int* gridCounter, global int4* gridCells, float3 pos)
+{
+    int gx = (int)(pos.s0*GRIDLEN);
+    int gy = (int)(pos.s1*GRIDLEN);
+    int gz = (int)(pos.s2*GRIDLEN);
+    int id = gx + gy*GRIDLEN + gz*GRIDLEN*GRIDLEN;
 
+    int mid = atomic_add(gridCounter+id,1);
+    int gid = get_global_id(0);
+    switch (mid) {
+        case 0: gridCells[id].s0 = gid;
+            break;
+        case 1: gridCells[id].s1 = gid;
+            break;
+        case 2: gridCells[id].s2 = gid;
+            break;
+        case 3: gridCells[id].s3 = gid;
+            break;
+        default: break;
+    }
+    
+}
+
+kernel void gridclear_sim(
+global int* gridCounter) 
+{
+    gridCounter[get_global_id(0)] = 0;
+}	

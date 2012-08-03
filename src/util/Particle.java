@@ -1,5 +1,6 @@
 package util;
 
+import java.nio.ByteBuffer;
 import static opengl.GL.GL_ARRAY_BUFFER;
 import static opengl.GL.GL_FLOAT;
 import static opengl.GL.GL_R8;
@@ -81,6 +82,11 @@ public class Particle {
     //opencl buffer
     private CLMem old_pos, new_pos, old_velos, new_velos;
     
+    private CLMem gridCounters;
+    private IntBuffer gridCounterBuf;
+    private CLMem gridCells;
+    private int gridLen = 84;
+    
     //shader
     private int diffuseTexture;
     private int specularTexture;
@@ -115,6 +121,7 @@ public class Particle {
     	MAX_PARTICLES = amount;
     	
         this.createCLContext(device_type, Util.getFileContents("./shader/particle_sim.cl"), drawable);
+      //  this.createCLContext(device_type, Util.getFileContents("./shader/gridclear_sim.cl"), drawable);
         //this.createData();
         //this.createBuffer();
         
@@ -248,13 +255,34 @@ public class Particle {
         clEnqueueAcquireGLObjects(this.queue, this.normalmap, null, null);
         
         //this.kernel0.setArg(5, 1e-3f);
+        clEnqueueNDRangeKernel(this.queue, kernel1, 1, null, 
+                BufferUtils.createPointerBuffer(1).put(0,84*84*84), 
+                BufferUtils.createPointerBuffer(1).put(0,1), null, null);
         clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
 
         clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
         clEnqueueReleaseGLObjects(this.queue, this.heightmap, null, null);
         clEnqueueReleaseGLObjects(this.queue, this.normalmap, null, null);
-        clFinish(this.queue);
         
+        
+//        CL10.clEnqueueReadBuffer(queue, this.gridCounters, 1, 0, gridCounterBuf,
+//                null,null);
+        clFinish(this.queue);
+//
+//        int b;
+//        int sum = 0;
+//
+//        for (int i = 0; i < gridCounterBuf.capacity();i++)
+//        {
+//            b = gridCounterBuf.get(i);
+//            if (b > 0){
+//                System.out.print(b+" ");
+//                
+//            }
+//            sum += b;
+//        }
+//        System.out.println("Summe = " + sum);
+//        
         /**
         GL.glActiveTexture(GL.GL_TEXTURE0 + 0);
         GL.glBindTexture(GL.GL_TEXTURE_2D, this.diffuseTexture);
@@ -265,7 +293,7 @@ public class Particle {
         GL.glUniform1i(this.specTexLoc, 1);
         */
     }
-    
+        
     /**
      * Erstellt alle notwendigen OpenCL Buffer
      */
@@ -276,6 +304,18 @@ public class Particle {
         //this.new_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, this.veloBuffer);
         //this.new_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
         this.old_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
+        
+        // grid counters
+        this.gridCounters = clCreateBuffer(this.context, CL_MEM_READ_WRITE,
+                (long)gridLen*gridLen*gridLen*4);
+        this.gridCounterBuf = BufferUtils.createIntBuffer(gridLen*gridLen*gridLen);
+        //this.gridCounters = clCreateBuffer(this.context,
+        //        CL_MEM_READ_WRITE,
+        //        this.gridCounterBuf);
+        
+        this.gridCells = clCreateBuffer(this.context, CL_MEM_READ_WRITE,
+                (long)gridLen*gridLen*gridLen*4*4);
+
         
         //this.particles = null;
         //this.veloBuffer = null;
@@ -291,6 +331,9 @@ public class Particle {
     	this.kernel0.setArg(0, this.old_pos);
     	this.kernel0.setArg(1, this.old_velos);
     	
+        // kernel to initialize the grid with zeros
+        this.kernel1 = clCreateKernel(this.program, "gridclear_sim");
+        this.kernel1.setArg(0, this.gridCounters);
 
     	IntBuffer errorCheck = BufferUtils.createIntBuffer(1);
     	
@@ -313,6 +356,8 @@ public class Particle {
         
         this.kernel0.setArg(2,heightmap);
         this.kernel0.setArg(3,normalmap);
+        this.kernel0.setArg(4,this.gridCounters);
+        this.kernel0.setArg(5,this.gridCells);
     
     }
     

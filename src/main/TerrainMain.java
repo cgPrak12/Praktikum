@@ -80,7 +80,7 @@ public class TerrainMain {
         
         //Geometry quad = GeometryFactory.createTerrain(100,100,2);
         
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/04.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/03.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
