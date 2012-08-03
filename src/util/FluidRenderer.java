@@ -163,21 +163,24 @@ public class FluidRenderer {
     
 	private void depthTexture() {
 		
-//		depthSP.use();
-//		
-		startPath(depthSP, depthFrameBuffer);
-//		depthSP.setUniform("proj", cam.getProjection());
+		depthSP.use();
+		
 		depthSP.setUniform("view", cam.getView());
+
+		depthSP.setUniform("proj", cam.getProjection());
+		depthSP.setUniform("viewDistance",cam.getViewDistance());
+		
+
         depthSP.setUniform("camPos", cam.getCamPos());
-//   	    depthFrameBuffer.bind();
-//   	    depthFrameBuffer.clearColor();
+   	    depthFrameBuffer.bind();
+   	    depthFrameBuffer.clearColor();
     
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
       
         testWaterParticles.draw();
         depthFrameBuffer.unbind();
-        blur(depthTexture,4);
+        blur(depthTexture, 0);
    
 	}
 	
@@ -287,6 +290,7 @@ public class FluidRenderer {
 		
 		hBlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
 		hBlurSP.setUniform("scene",  scene);
+		vBlurSP.setUniform("depthTex", depthTexture);
 
 //   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
 		hBlurFrameBuffer.bind();
@@ -303,7 +307,7 @@ public class FluidRenderer {
 		
 		vBlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
 		vBlurSP.setUniform("scene", hBlurTexture);
-
+		vBlurSP.setUniform("depthTex", depthTexture);
 
 		vBlurFrameBuffer.bind();
 		vBlurFrameBuffer.clearColor();
@@ -317,11 +321,13 @@ public class FluidRenderer {
 		for(int i = 0; i < counter; i++) {
 			startPath(hBlurSP, hBlurFrameBuffer);	    
 			hBlurSP.setUniform("scene", vBlurTexture);	
+			vBlurSP.setUniform("depthTex",  depthTexture);
 	    	screenQuadGeo.draw();	
 	    	hBlurFrameBuffer.unbind();	        
 	        
         	startPath(vBlurSP, vBlurFrameBuffer);
         	vBlurSP.setUniform("scene", hBlurTexture);
+        	vBlurSP.setUniform("depthTex",  depthTexture);
         	screenQuadGeo.draw();
         	vBlurFrameBuffer.unbind();
 		}

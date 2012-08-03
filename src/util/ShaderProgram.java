@@ -14,6 +14,7 @@ public class ShaderProgram {
     
     public ShaderProgram(String vertexShader, String fragmentShader) {
         this.createShaderProgram(vertexShader, fragmentShader);
+     
     }
     
     public void use() {

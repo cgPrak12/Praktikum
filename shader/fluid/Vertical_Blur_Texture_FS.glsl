@@ -1,25 +1,37 @@
 #version 150
 
+uniform sampler2D depthTex;
+uniform sampler2D scene;
+
 in vec2 texCoords;
 
-uniform sampler2D scene;
 
 
 out vec4 color;
 
 void main(void) {
 
-color =  ( texture( scene, texCoords-vec2(0, 4.0*4.0/800.0) ) * 0.05
-		 + texture( scene, texCoords-vec2(0, 4.0*3.0/800.0) ) * 0.09
-		 + texture( scene, texCoords-vec2(0, 4.0*2.0/800.0) ) * 0.12
-		 + texture( scene, texCoords-vec2(0, 4.0*1.0/800.0) ) * 0.15
-		 
-		 + texture( scene, texCoords ) * 0.16
-		 
-		 + texture( scene, texCoords+vec2(0, 4.0*1.0/800.0) ) * 0.15
-		 + texture( scene, texCoords+vec2(0, 4.0*2.0/800.0) ) * 0.12
-		 + texture( scene, texCoords+vec2(0, 4.0*3.0/800.0) ) * 0.09
-		 + texture( scene, texCoords+vec2(0, 4.0*4.0/800.0) ) * 0.05
-		 ) ;
-		
+float depth = texture2D(depthTex, texCoords).w;
+float size = textureSize(depthTex, 0).y;
+float sum = 0;
+float i = 0;
+for(float j=-5;j<=5;j++){
+	float sample= texture2D(depthTex, texCoords + j*vec2(0, 1.0/size)).w;
+	
+	//spatial domain
+	float r = j;
+	float w = pow(2.72,-r*r);
+	
+	//range domain
+	float r2=(sample-depth)*3.0;                      
+	float g=pow(2.72,-r2*r2);
+	
+	sum+=sample*g*0.7;//*w*g;
+	i+=w*g;
+}
+
+if(i>0.0){
+sum/=i;
+}
+color =vec4(texture2D(depthTex, texCoords).xyz,sum);
 } 
