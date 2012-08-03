@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package main;
 
 import static opengl.GL.*;
@@ -19,13 +15,10 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import util.*;
-//import window.MenuDialog;
 import window.MenuDialog;
 
 /**
- *
  * @author nico3000
- * test
  */
 public class TerrainMain {
     // current configurations
@@ -309,6 +302,9 @@ public class TerrainMain {
     private static void animate(long millis) {
 
     }  
+
+    
+    //Getter and setter 
 
 	public static void setCulling(boolean culling) {
 		TerrainMain.culling = culling;
