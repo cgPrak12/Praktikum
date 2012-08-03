@@ -209,11 +209,11 @@ public class GeometryFactory {
 	}
 
 	/**
-	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten rechts"
+	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben rechts"
 	 * 
 	 * @param length
 	 *            Länge einer Kante
-	 * @return BottomRightL Geometrie
+	 * @return TopRightL Geometrie
 	 */
 
 	public static Geometry createTopRight(int length){
@@ -285,11 +285,11 @@ public class GeometryFactory {
 	}
 
 	/**
-	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten links"
+	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten rechts"
 	 * 
 	 * @param length
 	 *            Länge "einer" Kante
-	 * @return BottomLeftL Geometrie
+	 * @return BottomRechtsL Geometrie
 	 */
 
 	public static Geometry createBottomRight(int length){
@@ -355,11 +355,11 @@ public class GeometryFactory {
 	}
 
 	/**
-	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben rechts"
+	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben links"
 	 * 
 	 * @param length
 	 *            Länge einer Kante
-	 * @return TopRightL Geometrie
+	 * @return TopLeftL Geometrie
 	 */
 	public static Geometry createTopLeft(int length){
 
@@ -424,11 +424,11 @@ public class GeometryFactory {
 	}
 
 	/**
-	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben links"
+	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten links"
 	 * 
 	 * @param length
 	 *            Länge einer Kante
-	 * @return TopLeftL Geometrie
+	 * @return BottomLeftL Geometrie
 	 */
 
 	public static Geometry createBottomLeft(int length){
