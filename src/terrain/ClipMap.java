@@ -322,10 +322,14 @@ public class ClipMap {
 	 */
 	public void getMovement(int i) {
 		if(!update){
-		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);temp[i][0] += cam.getAlt().x * Math.pow(2, -i);
-		} else{ temp[i][1] += cam.getAlt().z; temp[i][0] = cam.getAlt().x;} 
+		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);
+		temp[i][0] += cam.getAlt().x * Math.pow(2, -i);
+		} else{ 
+			temp[i][1] += cam.getAlt().z; 
+			temp[i][0] = cam.getAlt().x;} 
 		
 		
+		//positive z richtung
 		if (temp[i][1] > 2) {
 			movement[i][1] += 2;
 			switch(pq[i]){
@@ -335,6 +339,7 @@ public class ClipMap {
 			}
 			temp[i][1] = 0;
 		}
+		//positive x richtung
 		if (temp[i][0] > 2) {
 			movement[i][0] += 2;
 			switch(pq[i]){
@@ -344,6 +349,8 @@ public class ClipMap {
 			}
 			temp[i][0] = 0;
 		}
+		
+		// negative z_richtung
 		if (temp[i][1] < -2) {
 			movement[i][1] -= 2;
 			switch(pq[i]){
@@ -353,6 +360,7 @@ public class ClipMap {
 			}
 			temp[i][1] = 0;
 		}
+		//negative X Richtung
 		if (temp[i][0] < -2) {
 			movement[i][0] -= 2;
 			switch(pq[i]){
