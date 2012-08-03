@@ -25,7 +25,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import util.*;
-import window.MenuDialog;
+//import window.MenuDialog;
 
 /**
  *
@@ -72,7 +72,7 @@ public class TerrainMain {
     private static ShaderProgram fboSP; 
     
     public static void main(String[] argv) {
-    	MenuDialog dialog = new MenuDialog();
+    	//MenuDialog dialog = new MenuDialog();
         try {
             init();
             OpenCL.init();
@@ -156,8 +156,11 @@ public class TerrainMain {
             if(rotatelight) {
             	Matrix4f.transform(Util.rotationY(0.005f, null), sunDirection, sunDirection);
             }
-            if(bloomBlend && bloomLevel >1f) {
-            	bloomLevel -= 0.06;
+            if(bloomBlend && bloomFactor >1f) {
+            	bloomFactor -= 0.06;
+            }
+            else {
+            	bloomBlend = false;
             }
             	
             // clear screen
@@ -195,7 +198,7 @@ public class TerrainMain {
 
         	FrameBuffer fbo;
         	if(bloomOn) {
-        		fbo = screenMan.getToneMapped(enlightenedFBO, bloomLevel, new Vector4f(1f,1f,1f,1f), exposure, screenQuad);
+        		fbo = screenMan.getToneMapped(enlightenedFBO, bloomFactor, new Vector4f(1f,1f,1f,1f), exposure, screenQuad);
         	}
         	else {
         		fbo = screenMan.getLighting(shader, cam.getCamPos(), sunDirection, screenQuad);
@@ -269,7 +272,7 @@ public class TerrainMain {
                     		exposure -= 1.0f;
                     	else if (exposure <= 1.0f && exposure > 0f)
                     		exposure -= 0.1f ;
-                    		
+                    	break;
                     // bloom adjustment
                     case Keyboard.KEY_NUMPAD7:
                     	if (bloomFactor <  19.0f && bloomFactor >= 1.0f)
@@ -352,11 +355,11 @@ public class TerrainMain {
 	}
 
 	public static boolean isBloom() {
-		return bloom;
+		return bloomOn;
 	}
 
 	public static void setBloom(boolean bloom) {
-		TerrainMain.bloom = bloom;
+		TerrainMain.bloomOn = bloomOn;
 	}
 
 	public static boolean isTonemapping() {
