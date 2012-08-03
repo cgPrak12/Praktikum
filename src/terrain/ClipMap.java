@@ -47,7 +47,8 @@ public class ClipMap {
 	private Geometry center;
 	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um
 	private boolean update;
-											// Faktor
+
+	// Faktor
 
 	/**
 	 * Erstellt eine ClipMap aus den gegebenen Parametern
@@ -62,7 +63,9 @@ public class ClipMap {
 	 *            Kamera des Programms
 	 */
 	public ClipMap(int size, int stage, ShaderProgram program, Camera cam) {
-		if((size+2)%2 != 0) throw new IllegalArgumentException("(size+2) muss Zweierpotenz sein!");
+		if ((size + 2) % 2 != 0)
+			throw new IllegalArgumentException(
+					"(size+2) muss Zweierpotenz sein!");
 		this.gridsize = size / 4;
 		this.middlesize = size % 4;
 		this.lsize = size / 2 + 2;
@@ -73,7 +76,7 @@ public class ClipMap {
 		movement = new int[stage][2];
 		temp = new float[stage][2];
 		pq = new int[stage];
-		for(int i: pq) i = 4;
+		for (int i=0; i<pq.length;i++) pq[i] = 2;
 		correctionX = 0;
 		correctionZ = 0;
 
@@ -87,8 +90,8 @@ public class ClipMap {
 		topRight = GeometryFactory.createBottomLeft(lsize);
 		bottomRight = GeometryFactory.createBottomRight(lsize);
 
-		center = GeometryFactory.createGrid(4* gridsize+ middlesize+middlesize/2,
-				4* gridsize + middlesize + middlesize/2);
+		center = GeometryFactory.createGrid(4 * gridsize + middlesize
+				+ middlesize / 2, 4 * gridsize + middlesize + middlesize / 2);
 
 	}
 
@@ -120,7 +123,6 @@ public class ClipMap {
 	 *            Level des gezeichneten Rings
 	 */
 	public void createClip(int i) {
-
 
 		// 1
 		Util.mul(
@@ -173,9 +175,12 @@ public class ClipMap {
 		mxm.draw();
 
 		// 6
-		Util.mul(translation, Util.translationX(-size / 2 - middlesize / 2
-				+ movement[i][0] + correctionX, null), Util.translationZ(size / 2 - 2
-				* gridsize + middlesize / 2 + movement[i][1] + correctionZ, null));
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
 		setProgram();
 		mxm.draw();
 
@@ -190,55 +195,68 @@ public class ClipMap {
 		mxm.draw();
 
 		// 8
-		Util.mul(translation, Util.translationX(-size / 2 - middlesize / 2
-				+ movement[i][0] + correctionX, null), Util.translationZ(-size / 2 + gridsize
-				+ middlesize / 2 + movement[i][1] + correctionZ, null));
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(-size / 2 + gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
 		setProgram();
 		mxm.draw();
 
 		// 9
-		Util.mul(translation, Util.translationX(size / 2 - gridsize
-				- middlesize / 2 + movement[i][0] + correctionX, null), Util.translationZ(
-				-size / 2 + middlesize / 2 + movement[i][1] + correctionZ, null));
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+						+ correctionZ, null));
 		setProgram();
 		mxm.draw();
 
 		// 10
-		Util.mul(translation, Util.translationX(size / 2 - gridsize - gridsize
-				- middlesize / 2 + movement[i][0] + correctionX, null), Util.translationZ(
-				-size / 2 + middlesize / 2 + movement[i][1] + correctionZ, null));
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - gridsize - gridsize - middlesize
+						/ 2 + movement[i][0] + correctionX, null),
+				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+						+ correctionZ, null));
 		setProgram();
 		mxm.draw();
 
 		// 11
-		Util.mul(translation, Util.translationX(-size / 2 + gridsize
-				- middlesize / 2 + movement[i][0] + correctionX, null), Util.translationZ(
-				-size / 2 + middlesize / 2 + movement[i][1] + correctionZ, null));
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 + gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+						+ correctionZ, null));
 		setProgram();
 		mxm.draw();
 
 		// 12
-		Util.mul(translation, Util.translationX(-size / 2 - middlesize / 2
-				+ movement[i][0] + correctionX, null), Util.translationZ(-size / 2
-				+ middlesize / 2 + movement[i][1] + correctionZ, null));
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+						+ correctionZ, null));
 		setProgram();
 		mxm.draw();
 
 		// Oben
-		Util.mul(
-				translation,
-				Util.translationX(-middlesize + movement[i][0] + correctionX, null),
-				Util.translationZ(size / 2 - gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
+		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
+				+ correctionX, null), Util.translationZ(size / 2 - gridsize
+				+ middlesize / 2 + movement[i][1] + correctionZ, null));
 		setProgram();
 		nxm.draw();
 
 		// Unten
-		Util.mul(translation, Util.translationX(-middlesize + movement[i][0] + correctionX,
-				null), Util.translationZ(-size / 2 + middlesize / 2
-				+ movement[i][1] + correctionZ, null));
+		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
+				+ correctionX, null), Util.translationZ(-size / 2 + middlesize
+				/ 2 + movement[i][1] + correctionZ, null));
 		setProgram();
-		nxm.draw();		
+		nxm.draw();
 
 		// Links
 		Util.mul(
@@ -250,9 +268,11 @@ public class ClipMap {
 		mxn.draw();
 
 		// Rechts
-		Util.mul(translation, Util.translationX(-size / 2 - middlesize / 2
-				+ movement[i][0] + correctionX, null), Util
-				.translationZ(movement[i][1] + correctionZ, null));
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(movement[i][1] + correctionZ, null));
 		setProgram();
 		mxn.draw();
 	}
@@ -262,56 +282,69 @@ public class ClipMap {
 	 */
 	public void generateMaps() {
 		translation = new Matrix4f();
-		getViewDir();
-		System.out.println(getViewDir());
 		setScale(1);
-		temp[0][1] += cam.getAlt().z;
-		temp[0][0] += cam.getAlt().x;
-		if (temp[0][1] > 2) {
+		System.out.println("Bewegung X: "+temp[0][0]+ "Bewegung Y: " +temp[0][1]);
+		
+		if (temp[0][1]  > 2) {
 			movement[0][1] += 2;
+			switch(pq[0]){
+			case 1: pq[0] = 2; update = true; break;
+			case 2: pq[0] = 1; break;
+			case 3: pq[0] = 4; break;
+			case 4: pq[0] = 3; update = true; break;
+			default: update=true; break;
+			}
 			temp[0][1] = 0;
 		}
 		if (temp[0][0] > 2) {
 			movement[0][0] += 2;
+			switch(pq[0]){
+			case 1: pq[0] = 4; update = true;
+			case 2: pq[0] = 3; update = true;
+			case 3: pq[0] = 2; break;
+			case 4: pq[0] = 1; break;
+			default: update = true; pq[0] = 3; break;
+			}
 			temp[0][0] = 0;
 		}
 		if (temp[0][1] < -2) {
 			movement[0][1] -= 2;
+			switch(pq[0]){
+			case 1: pq[0] = 2; break;
+			case 2: pq[0] = 1; update = true; break;
+			case 3: pq[0] = 4; update = true; break;
+			case 4: pq[0] = 3; break;
+			default: update = true; break;
+			}
 			temp[0][1] = 0;
 		}
 		if (temp[0][0] < -2) {
 			movement[0][0] -= 2;
+			switch(pq[0]){
+			case 1: pq[0] = 2; break;
+			case 2: pq[0] = 3; break;
+			case 3: pq[0] = 4; update = true; break;
+			case 4: pq[0] = 1; update = true; break;
+			default: update = true; break;
+			}
 			temp[0][0] = 0;
 		}
-		Util.mul(
-				translation,
-				Util.translationX(2 * (-gridsize - middlesize) +middlesize
-						+ movement[0][0] + correctionX, null),
-				Util.translationZ(-2 * gridsize + movement[0][1] + correctionZ, null));
+		temp[0][1] += cam.getAlt().z;
+		temp[0][0] += cam.getAlt().x;
+
+		Util.mul(translation, Util.translationX(2 * (-gridsize - middlesize)
+				+ middlesize + movement[0][0] + correctionX, null), Util
+				.translationZ(-2 * gridsize + movement[0][1] + correctionZ,
+						null));
 		setProgram();
 		center.draw();
 
 		for (int i = 1; i < stage; i++) {
 			setScale((float) Math.pow(2, i));
+			temp[0][0]= 1.9f;
 			getMovement(i);
 			createClip(i);
 		}
-
-	}
-
-	public int getViewDir() {
-
-		int vd=0;
-		if (cam.getViewDir().x > 0 && cam.getViewDir().z > 0)
-		vd = 1; 
-		if (cam.getViewDir().x < 0 && cam.getViewDir().z > 0)
-		vd = 2;
-		if (cam.getViewDir().x < 0 && cam.getViewDir().z < 0)
-		vd = 3;
-		if (cam.getViewDir().x > 0 && cam.getViewDir().z < 0)
-		vd = 4;
-		
-		return vd;
 	}
 
 	/**
@@ -321,59 +354,77 @@ public class ClipMap {
 	 *            aktuelle Auflösungsebene
 	 */
 	public void getMovement(int i) {
-		if(!update){
-		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);
-		temp[i][0] += cam.getAlt().x * Math.pow(2, -i);
-		} else{ 
-			temp[i][1] += cam.getAlt().z; 
-			temp[i][0] = cam.getAlt().x;} 
-		
-		
-		//positive z richtung
+
+		// Positiv Z
+
 		if (temp[i][1] > 2) {
 			movement[i][1] += 2;
 			switch(pq[i]){
-				case 2: pq[i] = 1; break;
-				case 3: pq[i] = 4; break; 
-				default: update = true; break;
+			case 1: pq[i] = 2; update = true; break;
+			case 2: pq[i] = 1; break;
+			case 3: pq[i] = 4; break;
+			case 4: pq[i] = 3; update = true; break;
+			default: update=true; break;
 			}
 			temp[i][1] = 0;
 		}
-		//positive x richtung
+
+		// Positiv X
+
 		if (temp[i][0] > 2) {
 			movement[i][0] += 2;
 			switch(pq[i]){
-				case 3: pq[i] = 2;
-				case 4: pq[i] = 1;
-				default: update = true; break;
+			case 1: pq[i] = 4; update = true; break;
+			case 2: pq[i] = 3; update = true; break;
+			case 3: pq[i] = 2; break;
+			case 4: pq[i] = 1; break;
+			default: update = true; break;
 			}
 			temp[i][0] = 0;
 		}
+
 		
-		// negative z_richtung
+
+		// Negativ Z
+
 		if (temp[i][1] < -2) {
 			movement[i][1] -= 2;
 			switch(pq[i]){
 			case 1: pq[i] = 2; break;
+			case 2: pq[i] = 1; update = true; break;
+			case 3: pq[i] = 4; update = true; break;
 			case 4: pq[i] = 3; break;
 			default: update = true; break;
 			}
 			temp[i][1] = 0;
 		}
-		//negative X Richtung
+
+		// Negativ X
+
 		if (temp[i][0] < -2) {
 			movement[i][0] -= 2;
 			switch(pq[i]){
 			case 1: pq[i] = 4; break;
 			case 2: pq[i] = 3; break;
+			case 3: pq[i] = 2; update = true; break;
+			case 4: pq[i] = 1; update = true; break;
 			default: update = true; break;
 			}
 			temp[i][0] = 0;
 		}
+		float tmp = getUpdate(i);
+		temp[i][1] += cam.getAlt().z * tmp;
+		temp[i][0] += cam.getAlt().x * tmp;
 	}
 	
-	private boolean criticalPQ(int viewPQ, int stage){
-		return false;
+	private float getUpdate(int stage){
+		if(update){
+			update = false;
+			return 1f;
+		}
+		else{
+			update = false;
+			return (float)Math.pow(2, -stage);
+		}
 	}
-
 }
