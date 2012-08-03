@@ -301,6 +301,7 @@ public class ClipMap {
 			}
 			temp[0][1] = 0;
 		}
+		//Positiv X --- Nach Links
 		if (temp[0][0] > 2) {
 			movement[0][0] += 2;
 			switch(pq[0]){
@@ -311,6 +312,7 @@ public class ClipMap {
 					temp[k][0] = 0;
 				}
 				spaceX = (int)Math.pow(2, stage);
+				System.out.println(spaceX);
 			}else{
 				spaceX--;
 			}break;
@@ -321,6 +323,7 @@ public class ClipMap {
 					temp[k][0] = 0;
 				}
 				spaceX = (int)Math.pow(2, stage);
+				System.out.println(spaceX);
 			}else{
 				spaceX--;
 			}break;

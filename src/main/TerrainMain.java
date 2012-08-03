@@ -95,7 +95,7 @@ public class TerrainMain {
             frameTimeDelta += millis;
             ++frames;
             if(frameTimeDelta > 1000) {
-                System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
+//                System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
                 frameTimeDelta -= 1000;
                 frames = 0;
             }
