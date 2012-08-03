@@ -35,17 +35,9 @@ void main(void)
 	
 	vec4 bloom = brightPass + blurColor1 + blurColor2 + blurColor3 + blurColor4;
 	vec4 color;
-	if(bloomLevel < 1.0f) 
-	{
-		color = baseImage;
-	}
-	else
-	{
-		color = baseImage + (bloomLevel * bloom);
-	}
-	
-	
+	color = baseImage + (bloomLevel * bloom);
 	bloomColor = color;
+	//bloomColor = baseImage;
 	bloomColor.a = 1f;
 	// color = 1.0 - exp2(-color * exposure);
 	// bloomColor = color;

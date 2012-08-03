@@ -65,55 +65,55 @@ public class ScreenManipulation {
         
     	fboBlur1 = new FrameBuffer();
 		fboBlur1.init(false, width, height);
-        fboBlur1.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        fboBlur1.addTexture(new Texture(GL_TEXTURE_2D, 1), GL30.GL_RGBA16F, GL_RGBA);
         
         fboBlur2 = new FrameBuffer();
 		fboBlur2.init(false, width, height);
-        fboBlur2.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        fboBlur2.addTexture(new Texture(GL_TEXTURE_2D, 2), GL30.GL_RGBA16F, GL_RGBA);
         
     	fboBlur3 = new FrameBuffer();
 		fboBlur3.init(false, width, height);
-        fboBlur3.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        fboBlur3.addTexture(new Texture(GL_TEXTURE_2D, 3), GL30.GL_RGBA16F, GL_RGBA);
         
 		fboBrightness = new FrameBuffer();
         fboBrightness.init(false, width, height);
-        fboBrightness.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        fboBrightness.addTexture(new Texture(GL_TEXTURE_2D, 4), GL30.GL_RGBA16F, GL_RGBA);
         
 		fboBloom = new FrameBuffer();
         fboBloom.init(false, width, height);
-        fboBloom.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        fboBloom.addTexture(new Texture(GL_TEXTURE_2D, 5), GL30.GL_RGBA16F, GL_RGBA);
         
         fboTone = new FrameBuffer();	
         fboTone.init(false, width, height);
-        fboTone.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        fboTone.addTexture(new Texture(GL_TEXTURE_2D, 6), GL30.GL_RGBA16F, GL_RGBA);
         
         fboPhong = new FrameBuffer();
 		fboPhong.init(false, width, height);
-        fboPhong.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        fboPhong.addTexture(new Texture(GL_TEXTURE_2D, 7), GL30.GL_RGBA16F, GL_RGBA);
         
         fboHalf = new FrameBuffer();
         fboHalf.init(false, width, height);
-        fboHalf.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        fboHalf.addTexture(new Texture(GL_TEXTURE_2D, 8), GL30.GL_RGBA16F, GL_RGBA);
         
         brightness = new FrameBuffer();
         brightness.init(false, width, height);
-        brightness.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        brightness.addTexture(new Texture(GL_TEXTURE_2D, 9), GL30.GL_RGBA16F, GL_RGBA);
         
         blured1 = new FrameBuffer();
         blured1.init(false, width, height);
-        blured1.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        blured1.addTexture(new Texture(GL_TEXTURE_2D, 10), GL30.GL_RGBA16F, GL_RGBA);
         
         blured2 = new FrameBuffer();
         blured2.init(false, width, height);
-        blured2.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        blured2.addTexture(new Texture(GL_TEXTURE_2D, 11), GL30.GL_RGBA16F, GL_RGBA);
         
         blured3 = new FrameBuffer();
         blured3.init(false, width, height);
-        blured3.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        blured3.addTexture(new Texture(GL_TEXTURE_2D, 12), GL30.GL_RGBA16F, GL_RGBA);
         
         blured4 = new FrameBuffer();
         blured4.init(false, width, height);
-        blured4.addTexture(new Texture(GL_TEXTURE_2D, 0), GL30.GL_RGBA16F, GL_RGBA);
+        blured4.addTexture(new Texture(GL_TEXTURE_2D, 13), GL30.GL_RGBA16F, GL_RGBA);
         
         //initialize all the FragmentShaderPrograms
 		spoBlur = new ShaderProgram(vertexShader, fragmentShaderBlur);
