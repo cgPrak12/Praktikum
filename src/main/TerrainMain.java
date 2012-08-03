@@ -72,17 +72,9 @@ public class TerrainMain {
 //        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
 
         ShaderProgram  shaderProgram = new ShaderProgram("C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestVS.glsl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestFS.glsl");
-        Geometry model = GeometryFactory.createFromOBJ("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj");
         
-        List materialList = GeometryFactory.getMaterialListFromMTL("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl");
-        Iterator<Material> materialListIterator = materialList.listIterator();
-
-        while(materialListIterator.hasNext()) {
-            System.out.println("bla");
-            System.out.println(materialListIterator.next());
-            
-        }
-        
+        List geometryList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl");
+                
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -117,7 +109,10 @@ public class TerrainMain {
             
             shaderProgram.setUniform("model", new Matrix4f());
             shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-            model.draw();
+
+            Iterator<Geometry> geometryListIterator = geometryList.listIterator();
+            while(geometryListIterator.hasNext())
+                geometryListIterator.next().draw();
             
             // present screen
             Display.update();
