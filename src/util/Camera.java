@@ -102,4 +102,19 @@ public final class Camera {
         return camPos;
     }
     
+    public void setCamPos(Vector3f camPos) {
+    	this.camPos.set(camPos);
+    }
+    
+    public void setCamDir(Vector3f viewDir) {
+    	this.viewDir.set(viewDir);
+    }
+    
+    public void setCamSideDir(Vector3f sideDir) {
+    	this.sideDir.set(sideDir);
+    }
+    
+    public void setUpDir(Vector3f upDir) {
+    	this.upDir.set(upDir);
+    }
 }

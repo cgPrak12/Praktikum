@@ -77,7 +77,7 @@ public class ScreenManipulation {
 	 * @param screenQuad screenQuad
 	 * @return FrameBuffer with lighted Image
 	 */
-	public FrameBuffer getLighting(DeferredShader shader, Vector3f camPos, Vector4f sunDirection, Geometry screenQuad) {
+	public FrameBuffer getLighting(DeferredShader shader, Vector3f camPos, Vector3f sunDirection, Geometry screenQuad) {
 		fboPhong.bind();
 		
 		spoPhong.use();
@@ -85,7 +85,7 @@ public class ScreenManipulation {
 		spoPhong.setUniform("worldTex",   shader.getWorldTexture());
 		spoPhong.setUniform("diffuseTex", shader.getDiffuseTexture());
 		spoPhong.setUniform("camPos",     camPos);
-		spoPhong.setUniform("sunDir",	 new Vector3f(sunDirection.x, sunDirection.y, sunDirection.z));
+		spoPhong.setUniform("sunDir",	 sunDirection);
 		
 		screenQuad.draw();
 		

@@ -45,6 +45,7 @@ public class TerrainMain {
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
     private static final Camera cam = new Camera(); 
+    private static final Camera shadowCam = new Camera();
     
     // animation params
     private static float ingameTime = 0.0f;
@@ -55,7 +56,7 @@ public class TerrainMain {
     private static float bloomFactor = 0.3f;
     private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     
-    private static Vector4f sunDirection = new Vector4f(1.0f, 1.0f, 1.0f, 0f);
+    private static Vector3f sunDirection = new Vector3f(1.0f, 1.0f, 1.0f);
     
     private static MenuDialog dialog;
      
@@ -114,6 +115,10 @@ public class TerrainMain {
             last = now;     
             frameTimeDelta += millis;
             ++frames;
+            
+            shadowCam.setCamDir(sunDirection);
+            shadowCam.setCamPos(new Vector3f(-sunDirection.x * 10f, -sunDirection.y * 10f, -sunDirection.z * 10f));
+            
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
                 frameTimeDelta -= 1000;
@@ -124,7 +129,9 @@ public class TerrainMain {
             handleInput(millis);
             animate(millis);
             if(rotatelight) {
-            	Matrix4f.transform(Util.rotationY(0.005f, null), sunDirection, sunDirection);
+            	Vector4f sunDirection4f = new Vector4f(sunDirection.x, sunDirection.y, sunDirection.z, 0f);
+            	Matrix4f.transform(Util.rotationY(0.005f, null), sunDirection4f, sunDirection4f);
+            	sunDirection.set(sunDirection4f.x, sunDirection4f.y, sunDirection4f.z);
             }
             if(bloomBlend && bloomFactor >0.5f) {
             	bloomFactor -= 0.08;
