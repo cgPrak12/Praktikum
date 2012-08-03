@@ -13,14 +13,11 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 
-import javax.swing.AbstractButton;
-import javax.swing.ButtonModel;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.JCheckBox;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import org.lwjgl.util.vector.Vector4f;
@@ -28,9 +25,11 @@ import org.lwjgl.util.vector.Vector4f;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.Dimension;
 
 public class MenuDialog extends JDialog {
 
+	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
 	private JTextField textExposure;
 	private JTextField textBrightness;
@@ -52,17 +51,23 @@ public class MenuDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public MenuDialog() {
+		
+	    try {
+	        UIManager.setLookAndFeel(
+	            UIManager.getSystemLookAndFeelClassName());
+	    } catch (Exception e) { }
+		
 		setTitle("Graphic Menu");
-		setBounds(100, 100, 400, 400);
+		setBounds(100, 100, 400, 450);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		
 		GridBagLayout gbl_contentPanel = new GridBagLayout();
 		gbl_contentPanel.columnWidths = new int[]{36, 50, 200, 54, 0};
-		gbl_contentPanel.rowHeights = new int[]{36, 23, 23, 23, 31, 23, 2, 23, 23, 2, 23, 23, 0};
+		gbl_contentPanel.rowHeights = new int[]{36, 23, 23, 23, 31, 23, 2, 23, 23, 2, 0, 23, 0, 23, 0, 0, 0};
 		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		
 		contentPanel.setLayout(gbl_contentPanel);
 		{
@@ -76,11 +81,13 @@ public class MenuDialog extends JDialog {
 		}
 		
 		// Slider and label
+		
+		// Exposure Slider
 		{
 			final JSlider slideExposure = new JSlider();
+			slideExposure.setValue((int) (main.TerrainMain.getExposure() * 100.0f));
 			slideExposure.setSnapToTicks(true);
 			slideExposure.setMajorTickSpacing(20);
-			slideExposure.setValue(10);
 			slideExposure.setMinorTickSpacing(1);
 			slideExposure.setMaximum(200);
 			GridBagConstraints gbc_slideExposure = new GridBagConstraints();
@@ -92,7 +99,10 @@ public class MenuDialog extends JDialog {
 			contentPanel.add(slideExposure, gbc_slideExposure);
 			slideExposure.addChangeListener(new ChangeListener(){
 	            public void stateChanged(ChangeEvent e) {
-	            	main.TerrainMain.setExposure(((float) slideExposure.getValue()) / 10.0f);
+	            	float newValue = ((float) slideExposure.getValue()) / 100.0f;
+	            	main.TerrainMain.setExposure(newValue);
+	    			String txt = Float.toString(newValue);
+	    			textExposure.setText(txt);	            	
 	            }
 	        });
 		}
@@ -101,15 +111,18 @@ public class MenuDialog extends JDialog {
 			textExposure.setBorder(null);
 			textExposure.setBackground(UIManager.getColor("Button.background"));
 			GridBagConstraints gbc_textExposure = new GridBagConstraints();
-			gbc_textExposure.anchor = GridBagConstraints.WEST;
+			gbc_textExposure.anchor = GridBagConstraints.EAST;
 			gbc_textExposure.insets = new Insets(0, 0, 5, 0);
 			gbc_textExposure.gridx = 3;
 			gbc_textExposure.gridy = 1;
 			contentPanel.add(textExposure, gbc_textExposure);
 			textExposure.setColumns(6);
 			textExposure.setEditable(false);
+			String txt = Float.toString(main.TerrainMain.getExposure());
+			textExposure.setText(txt);
 		}
 		
+		// Brightness slider
 		{
 			JLabel lblBrightness = new JLabel("Brightness");
 			GridBagConstraints gbc_lblBrightness = new GridBagConstraints();
@@ -121,11 +134,11 @@ public class MenuDialog extends JDialog {
 		}
 		{
 			final JSlider slideBrightness = new JSlider();
+			slideBrightness.setValue((int) (main.TerrainMain.getBrightnessFactor().x * 100.0f));
 			slideBrightness.setSnapToTicks(true);
 			slideBrightness.setMajorTickSpacing(20);
 			slideBrightness.setMinorTickSpacing(1);
 			slideBrightness.setMaximum(200);
-			slideBrightness.setValue(10);
 			GridBagConstraints gbc_slideBrightness = new GridBagConstraints();
 			gbc_slideBrightness.anchor = GridBagConstraints.NORTH;
 			gbc_slideBrightness.fill = GridBagConstraints.HORIZONTAL;
@@ -135,8 +148,10 @@ public class MenuDialog extends JDialog {
 			contentPanel.add(slideBrightness, gbc_slideBrightness);
 			slideBrightness.addChangeListener(new ChangeListener(){
 	            public void stateChanged(ChangeEvent e) {
-	            	float v = ((float) slideBrightness.getValue()) / 10.0f;
-	            	main.TerrainMain.setBrightnessFactor(new Vector4f(v, v, v, v));
+	            	float newValue = ((float) slideBrightness.getValue()) / 100.0f;
+	            	main.TerrainMain.setBrightnessFactor(new Vector4f(newValue, newValue, newValue, newValue));
+	    			String txt = Float.toString(newValue);
+	    			textBrightness.setText(txt);
 	            }
 	        });
 		}
@@ -145,15 +160,19 @@ public class MenuDialog extends JDialog {
 			textBrightness.setBorder(null);
 			textBrightness.setBackground(UIManager.getColor("Button.background"));
 			GridBagConstraints gbc_textBrightness = new GridBagConstraints();
-			gbc_textBrightness.anchor = GridBagConstraints.WEST;
+			gbc_textBrightness.anchor = GridBagConstraints.EAST;
 			gbc_textBrightness.insets = new Insets(0, 0, 5, 0);
 			gbc_textBrightness.gridx = 3;
 			gbc_textBrightness.gridy = 2;
 			contentPanel.add(textBrightness, gbc_textBrightness);
 			textBrightness.setColumns(6);
 			textBrightness.setEditable(false);
+			String txt = Float.toString(main.TerrainMain.getBrightnessFactor().x);
+			textBrightness.setText(txt);
 		}
 		
+		
+		// Bloom slider
 		{
 			JLabel lblBloom = new JLabel("Bloom");
 			GridBagConstraints gbc_lblBloom = new GridBagConstraints();
@@ -165,9 +184,9 @@ public class MenuDialog extends JDialog {
 		}
 		{
 			final JSlider slideBloom = new JSlider();
+			slideBloom.setValue((int) (main.TerrainMain.getBloomFactor() * 100.0f));
 			slideBloom.setMajorTickSpacing(20);
 			slideBloom.setMinorTickSpacing(1);
-			slideBloom.setValue(10);
 			slideBloom.setMaximum(200);
 			slideBloom.setSnapToTicks(true);
 			GridBagConstraints gbc_slideBloom = new GridBagConstraints();
@@ -179,7 +198,10 @@ public class MenuDialog extends JDialog {
 			contentPanel.add(slideBloom, gbc_slideBloom);
 			slideBloom.addChangeListener(new ChangeListener(){
 	            public void stateChanged(ChangeEvent e) {
-	            	main.TerrainMain.setBloomFactor(((float) slideBloom.getValue()) / 10.0f);
+	            	float newValue = ((float) slideBloom.getValue()) / 100.0f;
+	            	main.TerrainMain.setBloomFactor(newValue);
+	    			String txt = Float.toString(newValue);
+	    			textBloom.setText(txt);
 	            }
 	        });
 		}
@@ -189,12 +211,14 @@ public class MenuDialog extends JDialog {
 			textBloom.setEditable(false);
 			textBloom.setBackground(UIManager.getColor("Button.background"));
 			GridBagConstraints gbc_textBloom = new GridBagConstraints();
-			gbc_textBloom.anchor = GridBagConstraints.WEST;
+			gbc_textBloom.anchor = GridBagConstraints.EAST;
 			gbc_textBloom.insets = new Insets(0, 0, 5, 0);
 			gbc_textBloom.gridx = 3;
 			gbc_textBloom.gridy = 3;
 			contentPanel.add(textBloom, gbc_textBloom);
 			textBloom.setColumns(6);
+			String txt = Float.toString(main.TerrainMain.getBloomFactor());
+			textBloom.setText(txt);
 		}
 		
 		// Checkboxes
@@ -232,29 +256,6 @@ public class MenuDialog extends JDialog {
 		}
 		
 		{
-			JCheckBox chckbxBloom = new JCheckBox("Bloom");
-			chckbxBloom.setIconTextGap(10);
-			GridBagConstraints gbc_chckbxBloom = new GridBagConstraints();
-			gbc_chckbxBloom.anchor = GridBagConstraints.NORTH;
-			gbc_chckbxBloom.fill = GridBagConstraints.HORIZONTAL;
-			gbc_chckbxBloom.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxBloom.gridx = 2;
-			gbc_chckbxBloom.gridy = 7;
-			contentPanel.add(chckbxBloom, gbc_chckbxBloom);
-			chckbxBloom.addItemListener(new ItemListener() {
-			    public void itemStateChanged(ItemEvent e) {
-			    	boolean temp;
-			    	if (e.getStateChange() == 1)
-			    		temp = true;
-			    	else
-			    		temp = false;
-			        main.TerrainMain.setBloom(temp);
-			    }
-			});
-			chckbxBloom.setSelected(main.TerrainMain.isBloom());
-		}
-		
-		{
 			JCheckBox chckbxToneMapping = new JCheckBox("Tone Mapping");
 			chckbxToneMapping.setIconTextGap(10);
 			GridBagConstraints gbc_chckbxToneMapping = new GridBagConstraints();
@@ -262,7 +263,7 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxToneMapping.fill = GridBagConstraints.HORIZONTAL;
 			gbc_chckbxToneMapping.insets = new Insets(0, 0, 5, 5);
 			gbc_chckbxToneMapping.gridx = 2;
-			gbc_chckbxToneMapping.gridy = 8;
+			gbc_chckbxToneMapping.gridy = 7;
 			contentPanel.add(chckbxToneMapping, gbc_chckbxToneMapping);
 			chckbxToneMapping.addItemListener(new ItemListener() {
 			    public void itemStateChanged(ItemEvent e) {
@@ -276,6 +277,39 @@ public class MenuDialog extends JDialog {
 			});
 			chckbxToneMapping.setSelected(main.TerrainMain.isTonemapping());
 		}
+		
+		{
+			JCheckBox chckbxBloom = new JCheckBox("Bloom");
+			chckbxBloom.setIconTextGap(10);
+			GridBagConstraints gbc_chckbxBloom = new GridBagConstraints();
+			gbc_chckbxBloom.anchor = GridBagConstraints.NORTH;
+			gbc_chckbxBloom.fill = GridBagConstraints.HORIZONTAL;
+			gbc_chckbxBloom.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxBloom.gridx = 2;
+			gbc_chckbxBloom.gridy = 8;
+			contentPanel.add(chckbxBloom, gbc_chckbxBloom);
+			chckbxBloom.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			    	boolean temp;
+			    	if (e.getStateChange() == 1)
+			    		temp = true;
+			    	else
+			    		temp = false;
+			        main.TerrainMain.setBloom(temp);
+			    }
+			});
+			chckbxBloom.setSelected(main.TerrainMain.isBloom());
+		}
+		{
+			JCheckBox chckbxGlareFading = new JCheckBox("Glare Fading");
+			chckbxGlareFading.setIconTextGap(10);
+			GridBagConstraints gbc_chckbxGlareFading = new GridBagConstraints();
+			gbc_chckbxGlareFading.anchor = GridBagConstraints.WEST;
+			gbc_chckbxGlareFading.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxGlareFading.gridx = 2;
+			gbc_chckbxGlareFading.gridy = 9;
+			contentPanel.add(chckbxGlareFading, gbc_chckbxGlareFading);
+		}
 		{
 			JSeparator separator = new JSeparator();
 			GridBagConstraints gbc_separator = new GridBagConstraints();
@@ -283,31 +317,8 @@ public class MenuDialog extends JDialog {
 			gbc_separator.fill = GridBagConstraints.HORIZONTAL;
 			gbc_separator.insets = new Insets(0, 0, 5, 5);
 			gbc_separator.gridx = 2;
-			gbc_separator.gridy = 9;
+			gbc_separator.gridy = 10;
 			contentPanel.add(separator, gbc_separator);
-		}
-		
-		{
-			JCheckBox chckbxWireFrame = new JCheckBox("Wire Frame");
-			chckbxWireFrame.setIconTextGap(10);
-			GridBagConstraints gbc_chckbxWireFrame = new GridBagConstraints();
-			gbc_chckbxWireFrame.anchor = GridBagConstraints.NORTH;
-			gbc_chckbxWireFrame.fill = GridBagConstraints.HORIZONTAL;
-			gbc_chckbxWireFrame.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxWireFrame.gridx = 2;
-			gbc_chckbxWireFrame.gridy = 10;
-			contentPanel.add(chckbxWireFrame, gbc_chckbxWireFrame);
-			chckbxWireFrame.addItemListener(new ItemListener() {
-			    public void itemStateChanged(ItemEvent e) {
-			    	boolean temp;
-			    	if (e.getStateChange() == 1)
-			    		temp = true;
-			    	else
-			    		temp = false;
-			        main.TerrainMain.setWireframe(temp);
-			    }
-			});
-			chckbxWireFrame.setSelected(main.TerrainMain.isWireframe());
 		}
 		
 		{
@@ -316,7 +327,7 @@ public class MenuDialog extends JDialog {
 			GridBagConstraints gbc_chckbxCulling = new GridBagConstraints();
 			gbc_chckbxCulling.anchor = GridBagConstraints.NORTH;
 			gbc_chckbxCulling.fill = GridBagConstraints.HORIZONTAL;
-			gbc_chckbxCulling.insets = new Insets(0, 0, 0, 5);
+			gbc_chckbxCulling.insets = new Insets(0, 0, 5, 5);
 			gbc_chckbxCulling.gridx = 2;
 			gbc_chckbxCulling.gridy = 11;
 			contentPanel.add(chckbxCulling, gbc_chckbxCulling);
@@ -334,11 +345,37 @@ public class MenuDialog extends JDialog {
 		}
 		
 		{
+			JCheckBox chckbxWireFrame = new JCheckBox("Wire Frame");
+			chckbxWireFrame.setIconTextGap(10);
+			GridBagConstraints gbc_chckbxWireFrame = new GridBagConstraints();
+			gbc_chckbxWireFrame.anchor = GridBagConstraints.NORTH;
+			gbc_chckbxWireFrame.fill = GridBagConstraints.HORIZONTAL;
+			gbc_chckbxWireFrame.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxWireFrame.gridx = 2;
+			gbc_chckbxWireFrame.gridy = 12;
+			contentPanel.add(chckbxWireFrame, gbc_chckbxWireFrame);
+			chckbxWireFrame.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			    	boolean temp;
+			    	if (e.getStateChange() == 1)
+			    		temp = true;
+			    	else
+			    		temp = false;
+			        main.TerrainMain.setWireframe(temp);
+			    }
+			});
+			chckbxWireFrame.setSelected(main.TerrainMain.isWireframe());
+		}
+		
+		{
 			JPanel buttonPane = new JPanel();
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
+				okButton.setSize(new Dimension(75, 23));
+				okButton.setPreferredSize(new Dimension(75, 23));
+				okButton.setMinimumSize(new Dimension(75, 23));
+				okButton.setMaximumSize(new Dimension(75, 23));
 				okButton.setActionCommand("OK");
 				okButton.addActionListener(new ActionListener() {		        	 
 		            public void actionPerformed(ActionEvent e)
@@ -346,6 +383,7 @@ public class MenuDialog extends JDialog {
 		                close();
 		            }
 		        });
+				buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 			}
