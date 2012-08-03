@@ -34,9 +34,10 @@ void main(void)
 	vec4 blurColor4 = texture(blur4, texCoord);
 	
 	vec4 bloom = brightPass + blurColor1 + blurColor2 + blurColor3 + blurColor4;
-	vec4 color = baseImage + (bloomLevel * bloom);
-	
+	vec4 color;
+	color = baseImage + (bloomLevel * bloom);
 	bloomColor = color;
+	//bloomColor = baseImage;
 	bloomColor.a = 1f;
 	// color = 1.0 - exp2(-color * exposure);
 	// bloomColor = color;
