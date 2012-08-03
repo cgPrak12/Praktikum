@@ -41,10 +41,10 @@ void main(void)
 
     float h = coords.y+0.4;
 
-//    fragColor = vec4(0.5+0.5*getNormal(vec2(coords.x,coords.z)),1.0);
+    fragColor = vec4(0.5+0.5*getNormal(vec2(coords.x,coords.z)),1.0);
 
-    vec3 color = texture(heightTex, vec2(coords.x,coords.z)).xyz + vec3(0.4);
-    fragColor = vec4(color,1.0);
+//    vec3 color = texture(heightTex, vec2(coords.x,coords.z)).xyz + vec3(0.4);
+//    fragColor = vec4(color,1.0);
 
 // DO NOT USE!
 //    vec3 color = texture(normalTex, vec2(coords.x,coords.z)).xyz;

@@ -80,11 +80,11 @@ public class TerrainMain {
         
         //Geometry quad = GeometryFactory.createTerrain(100,100,2);
         
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/03.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/04.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
-        particles = new Particle(2048, Device_Type.GPU, Display.getDrawable());
+        particles = new Particle(2048*4, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         
         while(bContinue && !Display.isCloseRequested()) {

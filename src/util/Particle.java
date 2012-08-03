@@ -209,9 +209,9 @@ public class Particle {
     	particles = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	particles.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
-    		particles.put(0.48f+(float)(Math.random())*0.05f);
+    		particles.put(0.45f+(float)(Math.random())*0.05f);
     		particles.put(0.1f+(float)i*0.001f);
-    		particles.put(0.25f+(float)(Math.random())*0.05f);
+    		particles.put(0.18f+(float)(Math.random())*0.05f);
     		particles.put(1000);
     	}
     	particles.position(0);

@@ -1,5 +1,5 @@
 #define LOCAL_MEM_SIZE 64
-#define RADIUS 0.006
+#define RADIUS 0.007
 #define WITH_COLLISION 1
 #define GRIDLEN 84
 
@@ -25,8 +25,13 @@ float4 reflect(float4 normal, float4 einfall) {
 	return (float4)(-2*dot(norm.s012,einfall.s012)*norm.s012 + einfall.s012, 0.0f);
 }
 
+
+
 float3 getNormal(image2d_t, float2);
 void add2GridCounter(global int*, global int4*, float3);
+int getCellId(float3 pos, int3 dpos);
+
+
 
 kernel void particle_sim(
 global float4* position, 
@@ -54,6 +59,49 @@ global int4* gridCells)
     // y-axis accelaration (gravity)  
     float4 gravity = (float4)(0,-0.00004,0,0);
 
+    int gIds[4];
+    for(int i=-1; i<=1; i++){
+        for(int j=-1; j<=1; j++){
+            for(int k=-1; k<=1; k++){
+                //if (k == 0 && j == 0 && i == 0) continue;
+                int id = getCellId(myPos.s012, (int3)(i,j,k));
+                if (id > GRIDLEN*GRIDLEN*GRIDLEN || id < 0) continue;
+                int num = gridCounter[id];
+                num = num > 4 ? 4 : num;
+                
+                int4 gids = gridCells[id];
+                switch (num) {
+                    case 4: gIds[3] = gids.s3;
+                    case 3: gIds[2] = gids.s2;
+                    case 2: gIds[1] = gids.s1;
+                    case 1: gIds[0] = gids.s0;
+                }
+                
+                for (int m = 0; m < num; m++) {
+                    ///////////////////////////////////////////////////////////
+                    float4 oPos = position[gIds[m]];
+                    float4 oVelo = velos[gIds[m]];                    
+                    float4 n = (oPos - myPos);
+                    float distance = length(n.s012);
+                    if(distance < RADIUS*2)
+                    {
+                        if(myPos.s1 > oPos.s1){
+                                myVelo-=gravity*0.1;
+                        }
+                        myVelo+=normalize(n)*-0.00008;
+                    }
+                    ///////////////////////////////////////////////////////////
+                }
+            }
+        }
+ myVelo *= 0.75;
+    }
+    
+   
+    barrier(CLK_GLOBAL_MEM_FENCE);
+
+
+/*
     if (WITH_COLLISION) {	
     float4 collideVelo;
     for(int tile=0; tile < get_num_groups(0); ++tile)
@@ -89,9 +137,9 @@ global int4* gridCells)
         
         barrier(CLK_LOCAL_MEM_FENCE);
     }
-    
     myVelo *= 0.95;
     }
+   */ 
 
 	myVelo+=gravity;
         float3 dVelo = (float3)(0);  	
@@ -144,13 +192,22 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 	return normalize(c1+c2+c3+c4);
 }
 
+int getCellId(float3 pos, int3 dpos)
+{
+    int3 gp = (int3)((int)(pos.s0*GRIDLEN),
+                     (int)(pos.s1*GRIDLEN),
+                     (int)(pos.s2*GRIDLEN));
+    return  (gp.s0+dpos.s0) + (gp.s1+dpos.s1)*GRIDLEN + (gp.s2+dpos.s2)*GRIDLEN*GRIDLEN;
+}
+
 void add2GridCounter(global int* gridCounter, global int4* gridCells, float3 pos)
 {
-    int gx = (int)(pos.s0*GRIDLEN);
-    int gy = (int)(pos.s1*GRIDLEN);
-    int gz = (int)(pos.s2*GRIDLEN);
-    int id = gx + gy*GRIDLEN + gz*GRIDLEN*GRIDLEN;
-
+//    int gx = (int)(pos.s0*GRIDLEN);
+//    int gy = (int)(pos.s1*GRIDLEN);
+//    int gz = (int)(pos.s2*GRIDLEN);
+    int id = getCellId(pos, (int3)(0));
+    //int id = gp.s0 + gp.s1*GRIDLEN + gp.s2*GRIDLEN*GRIDLEN;
+    if (id > GRIDLEN*GRIDLEN*GRIDLEN || id <0) return;
     int mid = atomic_add(gridCounter+id,1);
     int gid = get_global_id(0);
     switch (mid) {
