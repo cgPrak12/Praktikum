@@ -24,5 +24,5 @@ void main(void) {
    color1 = vertexColor;
    fragmentTexCoords = texCoords;
    positionWC.w = length(positionWC.xyz - camPos);
-   tangentWC = modelIT * vec4(tangentMC, 0.0);
+   tangentWC = modelIT * vec4(tangentMC, 0);
 }

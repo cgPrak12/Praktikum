@@ -25,11 +25,11 @@ void main(void) {
    
    normal =vec4(   mapNormal.z * normalAbs 
    				 + mapNormal.y * binormal 
-   				 + mapNormal.x * tangent , 0.0);
-   				 
+				 + mapNormal.x * tangent , 1.0);
+				 
    //color = color1;
    color = texture(textureImage, fragmentTexCoords);
    position = positionWC;
    spec = texture(specularTexture, fragmentTexCoords).rgb ;
-   skyColor = vec3(1);
+   skyColor = length(normal) * vec3(1);
 }

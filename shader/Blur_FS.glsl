@@ -1,6 +1,7 @@
 #version 330
 
 uniform sampler2D worldTexture;
+uniform sampler2D diffuseTexture;
 uniform float deltaBlur;
 in vec2 texCoord;
 
@@ -11,14 +12,15 @@ const float gaussFilter[gaussRadius] = float[gaussRadius](
 );
  
 void main() {
-	vec4 texturColor =texture2D(worldTexture, texCoord);
+	vec4 texturColor =texture2D(diffuseTexture, texCoord);
 	vec3 color = vec3(0.0, 0.0, 0.0); 
-	if (texturColor.w > 3)
+	float eyeDist = texture2D(worldTexture, texCoord).w;
+	if (eyeDist > 3)
 	{
-		vec2 actTexCoord = texCoord - float(int(gaussRadius/2)) * (texturColor.w - 3.0) * deltaBlur;
+		vec2 actTexCoord = texCoord - float(int(gaussRadius/2)) * (eyeDist - 3.0) * deltaBlur;
 		for (int i=0; i<gaussRadius; ++i) { 
-			color += gaussFilter[i] * texture2D(worldTexture, actTexCoord).xyz;
-			actTexCoord += (texturColor.w - 3.0) * deltaBlur;
+			color += gaussFilter[i] * texture2D(diffuseTexture, actTexCoord).xyz;
+			actTexCoord += (eyeDist - 3.0) * deltaBlur;
 		}
 	}
 	else

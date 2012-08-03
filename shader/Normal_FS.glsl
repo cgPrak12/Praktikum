@@ -48,7 +48,7 @@ void main(void)
 	
 	vec3 color  = c_a*k_a; 
 		 color += getDiffuse (positionWC, normal, c_d, maxIntensity, lightPosition1);
-		 //color += getSpecular(positionWC, normal, c_s, maxIntensity, lightPosition1, eyePosition, es);
+		 color += getSpecular(positionWC, normal, c_s, maxIntensity, lightPosition1, eyePosition, es);
 		 
 	finalColor = vec4(color, 1);
 }

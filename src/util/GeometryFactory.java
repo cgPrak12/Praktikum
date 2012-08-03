@@ -50,10 +50,10 @@ public class GeometryFactory {
         FloatBuffer vertexData = BufferUtils.createFloatBuffer((3+3+3+2)*4);
         vertexData.put(new float[] {
             // position          // normal          // tangent         // tex coords
-            -1.0f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1f, 0f, 0f,
-            +1.0f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 1f, 0f, 0f,
-            -1.0f, +1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 1f, 0f, 0f,
-            +1.0f, +1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 1f, 0f, 0f
+            0.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1f, 0f, 0f,
+            0.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 1f, 0f, 0f,
+            0.0f, +1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 1f, 0f, 0f,
+            0.0f, +1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 1f, 0f, 0f
         });
     	
         vertexData.position(0);
@@ -73,6 +73,75 @@ public class GeometryFactory {
         return geo;
     }
     
+    
+    
+    /**
+     * Erzeugt eine Kugel mit Texturekoordinaten und Normalen.
+     * @param r Radius der Kugel
+     * @param n Anzahl der vertikalen Streifen
+     * @param k Anzahl der horizontalen Streifen
+     * @return Geometrie der Kugel
+     */
+    public static Geometry createSkyDome(float r, int n, int k) {
+        FloatBuffer fb = BufferUtils.createFloatBuffer((3+3+3+2) * (n+1)*(k+1));
+        
+        float dTheta = Util.PI / (float)k;
+        float dPhi = Util.PI_MUL2 / (float)n;
+        float theta = 0;
+        for(int j=0; j <= k; ++j) {
+            float sinTheta = (float)Math.sin(theta);
+            float cosTheta = (float)Math.cos(theta);
+            float phi = 0;
+            for(int i=0; i <= n; ++i) {
+                float sinPhi = (float)Math.sin(phi);
+                float cosPhi = (float)Math.cos(phi);
+                
+                // position
+                fb.put(r*sinTheta*cosPhi);  
+                fb.put(r*cosTheta);
+                fb.put(r*sinTheta*sinPhi);
+                
+                // normal
+                fb.put(0.0f);    
+                fb.put(0.0f);
+                fb.put(0.0f);
+                
+                //tangent
+                fb.put(cosTheta*cosPhi);    
+                fb.put(cosTheta*sinPhi);
+                fb.put(-sinTheta);
+                
+                // tex coords
+                fb.put(phi / Util.PI_MUL2);
+                fb.put(theta / Util.PI);
+                                
+                phi += dPhi;
+            }
+            theta += dTheta;
+        }
+        fb.position(0);
+        
+        IntBuffer ib = BufferUtils.createIntBuffer(k*(2*(n+1)+1));
+        for(int j=0; j < k; ++j) {
+            for(int i=0; i <= n; ++i) {
+                
+                ib.put(j*(n+1) + i);
+                ib.put((j+1)*(n+1) + i);
+            }
+            ib.put(RESTART_INDEX);
+        }
+        ib.position(0);
+        
+        Geometry sphere = new Geometry();
+        sphere.setIndices(ib, GL_TRIANGLE_STRIP);
+        sphere.setVertices(fb);
+        sphere.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+        sphere.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
+        sphere.addVertexAttribute(ShaderProgram.ATTR_TANGENT, 3, 24);
+        sphere.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 36);
+        return sphere;
+    }   
+
     /**
      * Erzeugt eine Kugel mit Texturekoordinaten und Normalen.
      * @param r Radius der Kugel
@@ -81,7 +150,7 @@ public class GeometryFactory {
      * @return Geometrie der Kugel
      */
     public static Geometry createSphere(float r, int n, int k) {
-        FloatBuffer fb = BufferUtils.createFloatBuffer((3+3+2) * (n+1)*(k+1));
+        FloatBuffer fb = BufferUtils.createFloatBuffer((3+3+3+2) * (n+1)*(k+1));
         
         float dTheta = Util.PI / (float)k;
         float dPhi = Util.PI_MUL2 / (float)n;
@@ -103,6 +172,11 @@ public class GeometryFactory {
                 fb.put(sinTheta*cosPhi);    
                 fb.put(cosTheta);
                 fb.put(sinTheta*sinPhi);
+             
+                //tangent
+                fb.put(cosTheta*cosPhi);    
+                fb.put(cosTheta*sinPhi);
+                fb.put(-sinTheta);
                 
                 // tex coords
                 fb.put(phi / Util.PI_MUL2);
@@ -117,8 +191,9 @@ public class GeometryFactory {
         IntBuffer ib = BufferUtils.createIntBuffer(k*(2*(n+1)+1));
         for(int j=0; j < k; ++j) {
             for(int i=0; i <= n; ++i) {
-                ib.put((j+1)*(n+1) + i);
+            	ib.put((j+1)*(n+1) + i);
                 ib.put(j*(n+1) + i);
+                
             }
             ib.put(RESTART_INDEX);
         }
@@ -129,11 +204,10 @@ public class GeometryFactory {
         sphere.setVertices(fb);
         sphere.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
         sphere.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
-        sphere.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 24);
+        sphere.addVertexAttribute(ShaderProgram.ATTR_TANGENT, 3, 24);
+        sphere.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 36);
         return sphere;
-    }   
-
-
+    } 
     
     public static Geometry createCube() {
     	float[] cubeVertices  = {
