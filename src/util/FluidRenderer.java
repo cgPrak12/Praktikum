@@ -10,10 +10,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.util.vector.Matrix4f;
 
 public class FluidRenderer {
 	
 	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
+	private Geometry testCube = GeometryFactory.createCube();
 	private int textureUnit = 50;
 	private Camera cam;
 	
@@ -40,7 +42,10 @@ public class FluidRenderer {
     private FrameBuffer normalFrameBuffer = new FrameBuffer();
     private ShaderProgram normalSP = new ShaderProgram("./shader/fluid/Normal_VS.glsl", "./shader/fluid/Normal_FS.glsl");
     private Texture normalTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
-
+    private FrameBuffer normalWCFrameBuffer = new FrameBuffer();
+    private ShaderProgram normalWCSP = new ShaderProgram("./shader/fluid/NormalWC_VS.glsl", "./shader/fluid/NormalWC_FS.glsl");
+    private Texture normalWCTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
     // Thickness-Path
 	private FrameBuffer thicknessFrameBuffer = new FrameBuffer();
     private ShaderProgram thicknessSP = new ShaderProgram("./shader/fluid/Thickness_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
@@ -78,6 +83,7 @@ public class FluidRenderer {
 		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
 		init(vBlurSP, vBlurFrameBuffer, "color", vBlurTexture);
     	init(normalSP, normalFrameBuffer, "color", normalTexture);
+    	init(normalWCSP, normalWCFrameBuffer, "color", normalWCTexture);
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
     	init(thicknessBlurSP2, thicknessBlurFrameBuffer2, "color", thicknessBlurTexture2);
@@ -90,6 +96,8 @@ public class FluidRenderer {
 		depthTexture();
 		// fluid normals
 		fluidNormals();
+		// fluid normals in WC
+		fluidNormalsWC();
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
@@ -106,7 +114,8 @@ public class FluidRenderer {
 //        drawTextureSP.setUniform("image", depthTexture);
 //        drawTextureSP.setUniform("image", hBlurTexture);
 //        drawTextureSP.setUniform("image", vBlurTexture);
-        drawTextureSP.setUniform("image", normalTexture);
+//        drawTextureSP.setUniform("image", normalTexture);
+        drawTextureSP.setUniform("image", normalWCTexture);
 //        drawTextureSP.setUniform("image", thicknessTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture2);
@@ -183,6 +192,16 @@ public class FluidRenderer {
 		screenQuadGeo.draw();
 		endPath(normalFrameBuffer);
 	}
+
+	private void fluidNormalsWC() {
+		startPath(normalWCSP, normalWCFrameBuffer);
+		normalWCSP.setUniform("depthTex", depthTexture);
+		normalWCSP.setUniform("camPos", cam.getCamPos());
+		glDisable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+		screenQuadGeo.draw();
+		endPath(normalWCFrameBuffer);
+	}
 	
 	private void fluidThickness() {  //TODO
 
@@ -204,7 +223,6 @@ public class FluidRenderer {
         floatBuffer.put(0.0f);
         floatBuffer.position(0);
         GL14.glPointParameter(GL14.GL_POINT_DISTANCE_ATTENUATION, floatBuffer);
-
 
         testWaterParticles.draw();
 
