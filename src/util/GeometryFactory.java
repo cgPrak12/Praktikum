@@ -12,12 +12,11 @@ import org.lwjgl.BufferUtils;
  */
 public class GeometryFactory {
 	/**
-	 * Erzeugt ein Vierexk in der xy-Ebene. (4 Indizes)
+	 * Erzeugt ein Viereck in der xy-Ebene. (4 Indizes)
 	 * 
 	 * @return VertexArrayObject ID
 	 * 
 	 */
-	private static Geometry geo = new Geometry();
 	
 	public static Geometry createScreenQuad() {
 		int vaid = glGenVertexArrays();
@@ -40,7 +39,12 @@ public class GeometryFactory {
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
 		return geo;
 	}
-
+	/**
+	 * Erzeugt ein Grid in der XZ-Ebene
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry
+	 */
 	public static Geometry createMxNGrid(int m, int n){
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
@@ -90,13 +94,10 @@ public class GeometryFactory {
 	}
 	
 	/**
-	 * Erstellt Grid der Dimension x*y
-	 * 
-	 * @param x
-	 *            Breite
-	 * @param y
-	 *            Länge
-	 * @return Gridgeometrie
+	 * Erzeugt ein Grid in der XZ-Ebene
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry
 	 */
 	public static Geometry createGrid(int x, int y) {
 		int vaid = glGenVertexArrays();
@@ -141,14 +142,12 @@ public class GeometryFactory {
 
 		return geo;
 	}
+	
 	/**
-	 * Erstellt Grid der Dimension x*y
-	 * 
-	 * @param x
-	 *            Breite
-	 * @param y
-	 *            Länge
-	 * @return Gridgeometrie
+	 * Erzeugt ein Grid in der XZ-Ebene
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry
 	 */
 	public static Geometry createGridTex(int x, int y) {
 		int vaid = glGenVertexArrays();
@@ -196,118 +195,7 @@ public class GeometryFactory {
 		
 		return geo;
 	}
-	/** Creates L Geometry for ClipMap 
-	 * 
-	 * @param length 
-	 * @param scase 0 = Bottom Right
-	 * @param scase 1 = Bottom Left
-	 * @param scase 2 = Top Left
-	 * @param scase 3 = Top Right
-	 * @return
-	 */
-	public static Geometry createL(int length, int scase) {
-		int vaid = glGenVertexArrays();
-		glBindVertexArray(vaid);
 
-		float[] vertices = new float[4 * length + 4*(length- 1)];
-		int[] indices = new int[(length*6) + ((length-1)*6)-6];
-		int count = 0;
-		switch (scase) {
-		case 0:
-			for (int i = length-1; i >= 0; i--) {
-				for (int j = 0; j < 2; j++) {
-					vertices[count++] = i;
-					vertices[count++] = j;
-				}
-			}
-			
-			for (int j = 1; j < length; j++) {
-				for (int i = 0; i < 2; i++) {
-					vertices[count++] = i;
-					vertices[count++] = j;
-				}
-			} break;
-		case 1:			
-			for (int i = length-1; i >= 0; i--) {
-				for (int j = 0; j < 2; j++) {
-					vertices[count++] = i;
-					vertices[count++] = j;
-				}
-			}
-			for (int j = 1; j < length; j++) {
-				for (int i = 0; i < 2; i++) {
-					vertices[count++] = i+length-2;
-					vertices[count++] = j;
-				}
-			} break;
-		case 2:
-			for (int i = 0; i < length; i++) {
-				for (int j = length-2; j < length; j++) {
-					vertices[count++] = i;
-					vertices[count++] = j;
-				}
-			}
-			for (int j = length-2; j >= 0; j--) {
-				for (int i = length - 2; i < length; i++) {
-					vertices[count++] = i;
-					vertices[count++] = j;
-				}
-			} break;
-		case 3:
-			for (int j = 0; j < length; j++) {
-				for (int i = 0; i < 2; i++) {
-					vertices[count++] = i;
-					vertices[count++] = j;
-				}
-			}
-			
-			for (int i = 1 ; i < length; i++) {
-				for (int j = length-2; j < length; j++) {
-					vertices[count++] = i;
-					vertices[count++] = j;
-				}
-			} break;
-		}
-		
-		int i=0;
-		count = 0;
-		while(i< indices.length/2){
-			indices[i++] = count+1;
-			indices[i++] = count;
-			indices[i++] = count+2;
-			
-			indices[i++] = count+1;
-			indices[i++] = count+2;
-			indices[i++] = count+3;
-			
-			count += 2;
-		}
-		while(i< indices.length){
-			indices[i++] = count;
-			indices[i++] = count+1;
-			indices[i++] = count+2;
-			
-			indices[i++] = count+2;
-			indices[i++] = count+1;
-			indices[i++] = count+3;
-			
-			count += 2;
-		}
-		
-		
-		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
-		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
-		fbu.put(vertices);	fbu.flip();
-		ibu.put(indices);	ibu.flip();
-		
-		Geometry geo = new Geometry();
-		
-		geo.setVertices(fbu);
-		geo.setIndices(ibu, GL_TRIANGLES);
-		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-		
-		return geo;
-	}
 	
 	/*
 	 * fertig !! ausprobieren obs wirklich bottomright ist

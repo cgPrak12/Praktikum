@@ -111,5 +111,9 @@ public final class Camera {
     public Vector3f getCamPos() {
         return camPos;
     }
+
+	public Vector3f getViewDir() {
+		return viewDir;
+	}
     
 }

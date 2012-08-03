@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-import sun.font.CreatedFontTracker;
+
 import terrain.ClipMap;
 import util.*;
 
@@ -35,21 +35,17 @@ public class TerrainMain {
     private static final Camera cam = new Camera(); 
     
     // animation params
-    private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
+    private static float moveSpeed;
     
+    //Shader Programs
     private static ShaderProgram program; 
-    //Geometries
-    private static Geometry grid;
-    private static Geometry grid2;
-    private static Geometry L;
     
+    //Geometries
     private static ClipMap clip;
     
+    //Textures
     private static Texture tex;
-	private static Camera tmpcam;
-	private static float moveSpeed;
-	private static int updateCounter;
 
     public static void main(String[] argv) {
         try {
@@ -57,28 +53,18 @@ public class TerrainMain {
             OpenCL.init();
             glDisable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
-//            glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_PRIMITIVE_RESTART);
             glPrimitiveRestartIndex(-1);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
-            clip = new ClipMap(14 , 2, program, cam);
-            
 
             
+            clip = new ClipMap(6, 10, program, cam);
             
-            tmpcam = cam;
-            updateCounter = 0;
-            
-//            L = clip.createBottomLeft(); //ok
-            //  L = clip.setBottomLeft(); //fail 
-//            L = clip.createBottomRight(); // ok
-//            L = clip.createTopLeft();  //ok
-//            L = clip.createTopRight(); //ok
-//            
-//              grid2 = clip.createMxNgrid();
+
+
             
             tex = Texture.generateTexture(".\\face2face_usa_heightmap.jpg", 1);
             tex.bind();
@@ -102,12 +88,7 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-//        DeferredShader shader = new DeferredShader();
-//        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
-//        grid = GeometryFactory.createGrid(200, 100);
-        
         while(bContinue && !Display.isCloseRequested()) {
-            // time handling
             now = System.currentTimeMillis();
             millis = now - last;
             last = now;     
@@ -124,31 +105,13 @@ public class TerrainMain {
             handleInput(millis);
             animate(millis);
             program.use();
-            // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//            grid.draw();
-//            L.draw();
-//            grid2.draw();
-//            updateCounter++;
-//            if(updateCounter%5)
-     
-              clip.generateMaps();
-            
-             
-             
-            
-//            shader.prepareRendering();
-            
-//            shader.DrawTexture(tex);
-            
-            // TODO: postfx
-            
-            // present screen
+
+            clip.generateMaps();
+
             Display.update();
             Display.sync(60);
         }
-//        shader.delete();
-//        tex.delete();
     }
     
     private static void updateUniforms() {

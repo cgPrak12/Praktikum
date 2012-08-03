@@ -1,6 +1,5 @@
 package util;
 
-import opengl.GL;
 import static opengl.GL.*;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
@@ -35,16 +34,6 @@ public class ShaderProgram {
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         }
-    }
-    
-    public void setFloat(String varName, float integer){
-    	int loc = glGetUniformLocation(this.id, varName);
-    	if(loc != -1){
-    		glUniform1f(loc, integer);
-    	}
-    	else{
-    		System.err.println("bla");
-    	}
     }
     
     /**
