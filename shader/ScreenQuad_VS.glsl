@@ -1,12 +1,17 @@
 #version 330
+uniform mat4 model;
+uniform mat4 viewProj;
+uniform mat4 scale;
 
-in vec2 positionMC;
+in vec3 positionMC;
+in vec2 vertexTexCoords;
 
 out vec2 texCoord;
 
 void main(void)
 {
-    gl_Position = vec4(positionMC, 0.0, 1.0);
-    texCoord = vec2(0.5, 0.5) + 0.5 * positionMC;
-    texCoord.y = 1.0 - texCoord.y;
+    gl_Position = viewProj * model * vec4(positionMC, 1);
+
+//    gl_Position = vec4(positionMC, 0.0, 1.0);
+    texCoord = vertexTexCoords;
 }

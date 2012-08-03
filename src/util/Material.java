@@ -11,8 +11,10 @@ import org.lwjgl.util.vector.Vector3f;
  * @author Floh1111
  */
 public class Material {
+    private static int textureUnitCounter = 0;
+    
     public String materialLibraryName;
-    public String name;
+    public String materialName;
     public float specularEx; //Ns, Specular exponent
     public Vector3f ambientRef; //Ka, ambient reflectance
     public Vector3f diffuseRef; //Kd, diffuse reflectance
@@ -24,16 +26,36 @@ public class Material {
                                       //a color map (i.e. an image file).
                                       //During rendering, the map_Kd value is
                                       //multiplied by the Kd value.
+    public Texture textureDiffuseRefColorMap;
     public String dissolveFactColorMap; //map_d, File name of the file
                                         //containing  a color map (i.e. an image
                                         //file
                                         //During rendering, the map_d value is
                                         //multiplied by the d value.
+    public Texture textureDissolveFactColorMap;
+    
+    public void loadTextures() {
+        String texturePath = "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\";
+        if(this.diffuseRefColorMap != null && !this.diffuseRefColorMap.isEmpty()) {
+            try {
+                this.textureDiffuseRefColorMap = Texture.generateTexture(texturePath+diffuseRefColorMap, textureUnitCounter++);
+            } catch(IllegalArgumentException e) {
+                System.out.println("Failed to load Texture "+texturePath+diffuseRefColorMap);
+            }
+        }
+        if(this.dissolveFactColorMap != null && !this.dissolveFactColorMap.isEmpty()) {
+            try {
+                this.textureDissolveFactColorMap = Texture.generateTexture(texturePath+dissolveFactColorMap, textureUnitCounter++);
+            } catch(IllegalArgumentException e) {
+                System.out.println("Failed to load Texture "+texturePath+dissolveFactColorMap);
+            }
+        }
+    }
     
     @Override
     public String toString() {
         return "materialLibraryName: "+materialLibraryName+"\n"
-                +"name: "+name+"\n"
+                +"materialName: "+materialName+"\n"
                 +"specularEx: "+specularEx+"\n"
                 +"ambientRef: "+ambientRef+"\n"
                 +"diffuseRef: "+diffuseRef+"\n"
@@ -42,6 +64,8 @@ public class Material {
                 +"dissolveFact: "+dissolveFact+"\n"
                 +"illuminationModel: "+illuminationModel+"\n"
                 +"diffuseRefColorMap: "+diffuseRefColorMap+"\n"
-                +"dissolveFactColorMap: "+dissolveFactColorMap+"\n\n";
+                +"textureDiffuseRefColorMap: "+textureDiffuseRefColorMap+"\n"
+                +"dissolveFactColorMap: "+dissolveFactColorMap+"\n"
+                +"textureDissolveFactColorMap: "+textureDissolveFactColorMap+"\n\n";
     }
 }

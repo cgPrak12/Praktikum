@@ -5,8 +5,11 @@ package util;
  * @author nico3000
  */
 public class DeferredShader {
-    private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
-    private Geometry screenQuadGeo = GeometryFactory.createScreenQuad();
+    private ShaderProgram drawTextureSP;
+
+    public DeferredShader(ShaderProgram shader) {
+        this.drawTextureSP = shader;
+    }
     
     public void init() {
         // TODO
@@ -28,14 +31,20 @@ public class DeferredShader {
         return null; // TODO
     }
     
-    public void DrawTexture(Texture tex) {
+    public void draw(Geometry geometry, Texture texture) {
         drawTextureSP.use();
-        drawTextureSP.setUniform("image", tex);
-        screenQuadGeo.draw();
+        drawTextureSP.setUniform("image", texture);
+        geometry.draw();
     }
+    
+/*    public void DrawTexture(Geometry geometry, Texture texture) {
+        drawTextureSP.use();
+        drawTextureSP.setUniform("image", texture);
+        geometry.draw();
+    }*/
     
     public void delete() {
         //drawTextureSP.
-        screenQuadGeo.delete();
+        //screenQuadGeo.delete();
     }
 }

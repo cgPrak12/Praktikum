@@ -68,14 +68,12 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-//        DeferredShader shader = new DeferredShader();
-//        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
-
-        ShaderProgram  shaderProgram = new ShaderProgram("C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestVS.glsl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestFS.glsl");
+        ShaderProgram shaderProgram = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
         
-        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\uh60.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\uh60.mtl");
-//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl");
-                
+//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.mtl");
+        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl");
+
+        
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -95,25 +93,19 @@ public class TerrainMain {
             
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                        
-  //          shader.prepareRendering();
-  //          shader.DrawTexture(tex);
             
-            // TODO: postfx
-            shaderProgram.use();
-            //scaliere große objekte
-            shaderProgram.setUniform("scale", new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
-
-/*            //Testtextur erzeugen und anbinden
-            Texture testTexture = Texture.generateTexture("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Palma 001.png", 0);
-            shaderProgram.setUniform("texture", testTexture);*/
-            
-            shaderProgram.setUniform("model", new Matrix4f());
-            shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-
             Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
-            while(modelPartListIterator.hasNext())
-                modelPartListIterator.next().geometry.draw();
+            while(modelPartListIterator.hasNext()) {
+                ModelPart modelPart = modelPartListIterator.next();
+                
+                shaderProgram.use();
+//                shaderProgram.setUniform("scale", new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
+                shaderProgram.setUniform("model", new Matrix4f());
+                shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));   
+                shaderProgram.setUniform("image", modelPart.material.textureDiffuseRefColorMap);
+
+                modelPart.geometry.draw();
+            }
             
             // present screen
             Display.update();

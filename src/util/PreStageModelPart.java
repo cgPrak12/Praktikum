@@ -50,7 +50,7 @@ public class PreStageModelPart {
         Iterator<Material> materialListIterator = materialList.listIterator();
         while(materialListIterator.hasNext()) {
             Material currentMaterial = materialListIterator.next();
-            if(currentMaterial.name.equals(this.materialName))
+            if(currentMaterial.materialName.equals(this.materialName))
                 modelPart.material = currentMaterial;
         }
         

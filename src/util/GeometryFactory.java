@@ -18,27 +18,16 @@ public class GeometryFactory {
         List<Material> materialList = getMaterialListFromMTL(mtlFile);
         List<ModelPart> modelPartList = getModelPartListFromOBJ(objFile, materialList);
 
-        
-/*        Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
+        Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
         while(modelPartListIterator.hasNext()) {
-            ModelPart currentModelPart = modelPartListIterator.next();
-
-
-        }*/
-        
-/*        List materialList = GeometryFactory.getMaterialListFromMTL();
-        Iterator<Material> materialListIterator = materialList.listIterator();
-
-        while(materialListIterator.hasNext()) {
-            System.out.println("bla");
-            System.out.println(materialListIterator.next());
-            
-        }*/
+            System.out.println(modelPartListIterator.next());
+        }
         
         return modelPartList;
     }
     
     public static List<Material> getMaterialListFromMTL(String mtlPath) {
+        System.out.println("Reading MTL-file and creating material objects...");
         List<Material> materialList = new LinkedList<Material>();
         
        //Open File
@@ -54,13 +43,12 @@ public class GeometryFactory {
                 //generate a new material object
                 //parse material name
                 if(line.startsWith("newmtl ")) {
-                    if(material!=null)
+                    if(material!=null) {
+                        material.loadTextures();
                         materialList.add(material);
+                    }
                     material = new Material();
-                    material.name = line.split(" {1,}")[1];
-                    
-                    
-                    
+                    material.materialName = line.split(" {1,}")[1];
                 } else if (line.startsWith("Ns ")) {
                     material.specularEx = Float.valueOf(line.split(" {1,}")[1]);
                 } else if (line.startsWith("Ka ")) {
@@ -90,8 +78,10 @@ public class GeometryFactory {
                 }
             } //end of while loop
             //add the last material object to the list (its not being added in the while loop!)
-            if(material!=null)
-                        materialList.add(material);
+            if(material!=null) {
+                material.loadTextures();
+                materialList.add(material);
+            }
         } catch (IOException e) {
             System.out.println("Problem beim Lesen der OBJ-Datei! Das Programm wird beendet.");
             System.exit(0);
@@ -205,6 +195,8 @@ public class GeometryFactory {
                     System.out.println("Create preStageModelPart...");
                     preStageModelPart = new PreStageModelPart();
                     faceList = new LinkedList<Face>();
+                    
+                    preStageModelPart.materialName = line.split(" {1,}")[1];
                 } else if(line.startsWith("s ")) { //Parse smoothing group
                     if(line.split(" {1,}")[1].equals("off"))
                         preStageModelPart.smoothingGroup = 0;

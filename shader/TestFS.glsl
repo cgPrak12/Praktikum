@@ -1,9 +1,13 @@
 #version 150 core
+uniform sampler2D colorTex; //textur laden
+
+in vec2 fragmentTexCoords;
+
+out vec4 fragmentColor;
 
 const vec4 color = vec4(0.0, 1.0, 0.0, 1.0); // blue
 
-out vec4 fs_out_color;
-
 void main(void) {
-    fs_out_color = color;
+//    fragColor = texture(colorTex, fragmentTexCoords);
+    fragmentColor = color;
 }
