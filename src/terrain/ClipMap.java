@@ -2,6 +2,8 @@ package terrain;
 
 import org.lwjgl.util.vector.Matrix4f;
 
+import com.sun.org.apache.xml.internal.resolver.readers.XCatalogReader;
+
 import util.Camera;
 import util.Geometry;
 import util.GeometryFactory;
@@ -47,6 +49,7 @@ public class ClipMap {
 	private Geometry center;
 	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um
 	private boolean update;
+	private int spaceX;
 
 	// Faktor
 
@@ -79,6 +82,7 @@ public class ClipMap {
 		for (int i=0; i<pq.length;i++) pq[i] = 2;
 		correctionX = 0;
 		correctionZ = 0;
+		spaceX = 0;
 
 		// Initialisierung der vorgeladenen Geometrien
 		mxm = GeometryFactory.createGridTex(gridsize + 1, gridsize + 1);
@@ -283,7 +287,9 @@ public class ClipMap {
 	public void generateMaps() {
 		translation = new Matrix4f();
 		setScale(1);
-		System.out.println(temp[0][0]);
+		temp[0][1] += cam.getAlt().z;
+		temp[0][0] += cam.getAlt().x;
+
 		if (temp[0][1]  > 2) {
 			movement[0][1] += 2;
 			switch(pq[0]){
@@ -298,8 +304,26 @@ public class ClipMap {
 		if (temp[0][0] > 2) {
 			movement[0][0] += 2;
 			switch(pq[0]){
-			case 1: pq[0] = 4; update = true;
-			case 2: pq[0] = 3; update = true;
+			case 1: pq[0] = 4; 
+			if(spaceX == 0){
+				for(int j=1; j<movement.length; j++) movement[j][0] += 2;
+				for(int k=1; k<temp.length; k++){
+					temp[k][0] = 0;
+				}
+				spaceX = (int)Math.pow(2, stage);
+			}else{
+				spaceX--;
+			}break;
+			case 2: pq[0] = 3;
+			if(spaceX == 0){
+				for(int j=1; j<movement.length; j++) movement[j][0] += 2;
+				for(int k=1; k<temp.length; k++){
+					temp[k][0] = 0;
+				}
+				spaceX = (int)Math.pow(2, stage);
+			}else{
+				spaceX--;
+			}break;
 			case 3: pq[0] = 2; break;
 			case 4: pq[0] = 1; break;
 			default: update = true; pq[0] = 3; break;
@@ -320,16 +344,23 @@ public class ClipMap {
 		if (temp[0][0] < -2) {
 			movement[0][0] -= 2;
 			switch(pq[0]){
-			case 1: pq[0] = 2; break;
+			case 1: pq[0] = 4; spaceX--; break;
 			case 2: pq[0] = 3; break;
-			case 3: pq[0] = 4; update = true; break;
-			case 4: pq[0] = 1; update = true; break;
+			case 3: pq[0] = 2; update = true; break;
+			case 4: pq[0] = 1; 
+			if(spaceX == 0 || Math.pow(2, stage)-spaceX == 0){
+				for(int j=1; j<movement.length; j++) movement[j][0] -= 2;
+				for(int k=1; k<temp.length; k++){
+					temp[k][0] = 0;
+				}
+				spaceX = -(int)Math.pow(2, stage);
+			}else{
+				spaceX++;
+			}break;
 			default: update = true; break;
 			}
 			temp[0][0] = 0;
 		}
-		temp[0][1] += cam.getAlt().z;
-		temp[0][0] += cam.getAlt().x;
 
 		Util.mul(translation, Util.translationX(2 * (-gridsize - middlesize)
 				+ middlesize + movement[0][0] + correctionX, null), Util
@@ -352,14 +383,16 @@ public class ClipMap {
 	 *            aktuelle Auflösungsebene
 	 */
 	public void getMovement(int i) {
+		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);
+		temp[i][0] += cam.getAlt().x * Math.pow(2, -i);
 		// Positiv Z
 		if (temp[i][1] > 2) {
 			movement[i][1] += 2;
 			switch(pq[i]){
-			case 1: pq[i] = 2; update = true; break;
+			case 1: pq[i] = 2; break;
 			case 2: pq[i] = 1; break;
 			case 3: pq[i] = 4; break;
-			case 4: pq[i] = 3; update = true; break;
+			case 4: pq[i] = 3; break;
 			default: update=true; break;
 			}
 			temp[i][1] = 0;
@@ -368,8 +401,8 @@ public class ClipMap {
 		if (temp[i][0] > 2) {
 			movement[i][0] += 2;
 			switch(pq[i]){
-			case 1: pq[i] = 4; update = true; break;
-			case 2: pq[i] = 3; update = true; break;
+			case 1: pq[i] = 4; break;
+			case 2: pq[i] = 3; break;
 			case 3: pq[i] = 2; break;
 			case 4: pq[i] = 1; break;
 			default: update = true; break;
@@ -400,8 +433,6 @@ public class ClipMap {
 			}
 			temp[i][0] = 0;
 		}
-		temp[i][1] += cam.getAlt().z * getUpdate(i);
-		temp[i][0] += cam.getAlt().x * getUpdate(i);
 	}
 	
 	private float getUpdate(int stage){

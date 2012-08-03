@@ -60,7 +60,7 @@ public class TerrainMain {
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(14, 7, program, cam);
+            clip = new ClipMap(6, 3, program, cam);
 
             
 
