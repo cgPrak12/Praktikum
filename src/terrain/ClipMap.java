@@ -31,6 +31,7 @@ public class ClipMap {
 	// Animation Params
 	private int[][] movement;
 	private float[][] temp;
+	private int[] pq;
 	private Camera cam;
 	private float correctionX;
 	private float correctionZ;
@@ -69,20 +70,24 @@ public class ClipMap {
 		this.cam = cam;
 		movement = new int[stage][2];
 		temp = new float[stage][2];
+		pq = new int[stage];
+		for(int i: pq) i = 4;
 		correctionX = 0;
 		correctionZ = 0;
 
 		// Initialisierung der vorgeladenen Geometrien
 		mxm = GeometryFactory.createGridTex(gridsize + 1, gridsize + 1);
-		nxm = GeometryFactory.createMxNGrid(middlesize + 1, gridsize + 1);
-		mxn = GeometryFactory.createMxNGrid(gridsize + 1, middlesize + 1);
+
+		mxn = GeometryFactory.createMxNGrid(middlesize + 1, gridsize + 1);
+		nxm = GeometryFactory.createMxNGrid(gridsize + 1, middlesize + 1);
 		topLeft = GeometryFactory.createTopLeft(lsize);
 		topRight = GeometryFactory.createTopRight(lsize);
 		bottomLeft = GeometryFactory.createBottomLeft(lsize);
 		bottomRight = GeometryFactory.createBottomRight(lsize);
 
-		center = GeometryFactory.createGrid(2 * (2 * gridsize + middlesize),
-				2 * (2 * gridsize + middlesize));
+		center = GeometryFactory.createGrid(2 * (2 * gridsize)+gridsize,
+				2 * (2 * gridsize)+gridsize);
+
 	}
 
 	/**
@@ -256,31 +261,32 @@ public class ClipMap {
 	 */
 	public void generateMaps() {
 		translation = new Matrix4f();
-		posGaps();
+		getViewDir();
+		System.out.println(getViewDir());
 		setScale(1);
 		temp[0][1] += cam.getAlt().z;
 		temp[0][0] += cam.getAlt().x;
-		if (temp[0][1] > 1) {
-			movement[0][1] += 1;
+		if (temp[0][1] > 2) {
+			movement[0][1] += 2;
 			temp[0][1] = 0;
 		}
-		if (temp[0][0] > 1) {
-			movement[0][0] += 1;
+		if (temp[0][0] > 2) {
+			movement[0][0] += 2;
 			temp[0][0] = 0;
 		}
-		if (temp[0][1] < -1) {
-			movement[0][1] -= 1;
+		if (temp[0][1] < -2) {
+			movement[0][1] -= 2;
 			temp[0][1] = 0;
 		}
-		if (temp[0][0] < -1) {
-			movement[0][0] -= 1;
+		if (temp[0][0] < -2) {
+			movement[0][0] -= 2;
 			temp[0][0] = 0;
 		}
 		Util.mul(
 				translation,
-				Util.translationX(2 * (-gridsize - middlesize) + middlesize / 2
-						+ movement[0][0] + correctionX + correctionX/2, null),
-				Util.translationZ(-2 * gridsize + movement[0][1] + correctionZ + correctionZ/2, null));
+				Util.translationX(2 * (-gridsize - middlesize) +middlesize
+						+ movement[0][0] + correctionX, null),
+				Util.translationZ(-2 * gridsize + movement[0][1] + correctionZ, null));
 		setProgram();
 		center.draw();
 
@@ -292,18 +298,19 @@ public class ClipMap {
 
 	}
 
-	public void posGaps() {
+	public int getViewDir() {
 
-		int pq = 0;
+		int vd=0;
 		if (cam.getViewDir().x > 0 && cam.getViewDir().z > 0)
-		{pq = 1; correctionX = middlesize; correctionZ = 0;}
+		vd = 1; 
 		if (cam.getViewDir().x < 0 && cam.getViewDir().z > 0)
-		{pq = 2; correctionX = 0; correctionZ = 0;}
+		vd = 2;
 		if (cam.getViewDir().x < 0 && cam.getViewDir().z < 0)
-		{pq = 3; correctionX = 0; correctionZ = -middlesize;}
+		vd = 3;
 		if (cam.getViewDir().x > 0 && cam.getViewDir().z < 0)
-		{pq = 4; correctionX = middlesize; correctionZ = -middlesize;}
-		System.out.println(pq);
+		vd = 4;
+		
+		return vd;
 	}
 
 	/**
@@ -315,22 +322,26 @@ public class ClipMap {
 	public void getMovement(int i) {
 		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);
 		temp[i][0] += cam.getAlt().x * Math.pow(2, -i);
-		if (temp[i][1] > 1) {
-			movement[i][1] += 1;
+		if (temp[i][1] > 2) {
+			movement[i][1] += 2;
 			temp[i][1] = 0;
 		}
-		if (temp[i][0] > 1) {
-			movement[i][0] += 1;
+		if (temp[i][0] > 2) {
+			movement[i][0] += 2;
 			temp[i][0] = 0;
 		}
-		if (temp[i][1] < -1) {
-			movement[i][1] -= 1;
+		if (temp[i][1] < -2) {
+			movement[i][1] -= 2;
 			temp[i][1] = 0;
 		}
-		if (temp[i][0] < -1) {
-			movement[i][0] -= 1;
+		if (temp[i][0] < -2) {
+			movement[i][0] -= 2;
 			temp[i][0] = 0;
 		}
+	}
+	
+	private boolean criticalPQ(int viewPQ, int stage){
+		return false;
 	}
 
 }
