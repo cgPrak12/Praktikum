@@ -73,7 +73,8 @@ public class TerrainMain {
 
         ShaderProgram  shaderProgram = new ShaderProgram("C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestVS.glsl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\shader\\TestFS.glsl");
         
-        List geometryList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl");
+        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\uh60.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\uh60.mtl");
+//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl");
                 
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -110,9 +111,9 @@ public class TerrainMain {
             shaderProgram.setUniform("model", new Matrix4f());
             shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
 
-            Iterator<Geometry> geometryListIterator = geometryList.listIterator();
-            while(geometryListIterator.hasNext())
-                geometryListIterator.next().draw();
+            Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
+            while(modelPartListIterator.hasNext())
+                modelPartListIterator.next().geometry.draw();
             
             // present screen
             Display.update();

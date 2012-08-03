@@ -14,30 +14,17 @@ import opengl.GL;
  * @author Sascha Kolodzey, Nico Marniok
  */
 public class GeometryFactory {
-    public static List<Geometry> importFromBlender(String objFile, String mtlFile) {
-        Model model = new Model();
-        model.objectList = getObjectListFromOBJ(objFile);
-        model.materialList = getMaterialListFromMTL(mtlFile);
-        
-        List<Geometry> geometryList = new LinkedList();
-        
-        Iterator<Object> objectListIterator = model.objectList.listIterator();
-        while(objectListIterator.hasNext()) {
-            Object currentObject = objectListIterator.next();
+    public static List<ModelPart> importFromBlender(String objFile, String mtlFile) {
+        List<Material> materialList = getMaterialListFromMTL(mtlFile);
+        List<ModelPart> modelPartList = getModelPartListFromOBJ(objFile, materialList);
 
-            System.out.println("Erzeuge geometrie Objekt...");
-            Geometry geo = new Geometry();
-    
-            int vaid = glGenVertexArrays();
-            glBindVertexArray(vaid);
+        
+/*        Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
+        while(modelPartListIterator.hasNext()) {
+            ModelPart currentModelPart = modelPartListIterator.next();
 
-            geo.setIndices(currentObject.indexBuffer, GL_TRIANGLES);
-            geo.setVertices(currentObject.vertexBuffer);
-            geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
-            geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 3, 12);
-            geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 24);
-            geometryList.add(geo);
-        }
+
+        }*/
         
 /*        List materialList = GeometryFactory.getMaterialListFromMTL();
         Iterator<Material> materialListIterator = materialList.listIterator();
@@ -48,7 +35,7 @@ public class GeometryFactory {
             
         }*/
         
-        return geometryList;
+        return modelPartList;
     }
     
     public static List<Material> getMaterialListFromMTL(String mtlPath) {
@@ -113,91 +100,15 @@ public class GeometryFactory {
         return materialList;
     }
     
-    private static void addBuffersToObject(Object object, List<Face>faceList,
-                                           List<Vector3f>vertexList,
-                                           List<Vector3f>vertexTextureList,
-                                           List<Vector3f>vertexNormalList) {
-        System.out.println("Erzeuge Buffer...");
-
-
-        //Erzeuge vertex Buffer
-        FloatBuffer vertexData = BufferUtils.createFloatBuffer(faceList.size()*3*3*3);
-        //Erzeuge index Buffer
-        IntBuffer indexData = BufferUtils.createIntBuffer(faceList.size()*3);
-        //Schreibe Indexdaten aus der Index Liste in den Index Buffer
-        Iterator<Face> faceIterator = faceList.listIterator();
-        //Durchlaufe alle Faces
-
-        System.out.println("Durchlaufe Faces und erzeuge Vertex Buffer...");
-        int counter= 0;
-        while(faceIterator.hasNext()) {
-            //Speichere aktuelles Face zwischen
-            Face currentFace = faceIterator.next();
-
-            //Hole vertexCoordinaten zum jeweiligen vertexIndizies
-            vertexList.get((int)currentFace.vertexIndizies.x).store(vertexData);            
-            //check if the model has texture coordinates
-            if(currentFace.vertexTextureIndizies.length()!=0)
-                vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).store(vertexData);
-            else
-                new Vector3f().store(vertexData);
-            //check if the model has normals
-            if(currentFace.vertexNormalIndizies.length()!=0)
-                vertexNormalList.get((int)currentFace.vertexNormalIndizies.x).store(vertexData);
-            else
-                new Vector3f().store(vertexData);
-            
-            vertexList.get((int)currentFace.vertexIndizies.y).store(vertexData);
-            //check if the model has texture coordinates
-            if(currentFace.vertexTextureIndizies.length()!=0)
-                vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).store(vertexData);
-            else
-                new Vector3f().store(vertexData);
-            //check if the model has normals
-            if(currentFace.vertexNormalIndizies.length()!=0)
-                vertexNormalList.get((int)currentFace.vertexNormalIndizies.y).store(vertexData);
-            else
-                new Vector3f().store(vertexData);
-
-            vertexList.get((int)currentFace.vertexIndizies.z).store(vertexData);
-            //check if the model has texture coordinates
-            if(currentFace.vertexTextureIndizies.length()!=0)
-                vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).store(vertexData);
-            else
-                new Vector3f().store(vertexData);
-            //check if the model has normals
-            if(currentFace.vertexNormalIndizies.length()!=0)
-                vertexNormalList.get((int)currentFace.vertexNormalIndizies.z).store(vertexData);
-            else
-                new Vector3f().store(vertexData);
-            
-/*            indexData.put((int)currentFace.vertexIndizies.x);
-            indexData.put((int)currentFace.vertexIndizies.y);
-            indexData.put((int)currentFace.vertexIndizies.z);*/
-        }
-        
-        System.out.println("Erzeuge Indexbuffer...");
-        for(int i=0; i<faceList.size()*3; i++) {
-            indexData.put(i);
-        }
-        
-        System.out.println("Setze Bufferposition auf 0...");
-        vertexData.position(0);
-        indexData.position(0);
-
-        object.vertexBuffer = vertexData;
-        object.indexBuffer = indexData;
-    }
-    
     /**
-     * Creates an object lists. Each object in the list contains vertex and
+     * Creates an modelPart lists. Each modelPart in the list contains vertex and
      * material information
      * @param objFile ath to OBJ file
-     * @return creates object list
+     * @return creates modelPart list
      */
-    public static List<Object> getObjectListFromOBJ(String objPath) {
-        //Create new Object
-        List<Object> objectList = new LinkedList<Object>();
+    public static List<ModelPart> getModelPartListFromOBJ(String objPath, List<Material> materialList) {
+        //Create new ModelPart
+        List<ModelPart> modelPartList = new LinkedList<ModelPart>();
 
         //Create lists to temporary save all vertices, texture coordinates and
         //normals from the obj file. Once filled, they sould never be changed!
@@ -211,7 +122,7 @@ public class GeometryFactory {
             //Read obj file line by line
             String line = "";
             int i=1;
-            System.out.println("Read OBJ-File line by line and parse all"
+            System.out.println("Read OBJ-File line by line and parse all "
                     + "vertices, texture coordinates and normals...");
 
             while((line = objBufferedReader.readLine()) != null) {
@@ -268,36 +179,37 @@ public class GeometryFactory {
             System.exit(0);
         }
         
-        //List to temorary save the faces of an object.
-        //The list is deleted and newly created for each object
+        //List to temorary save the faces of an modelPart.
+        //The list is deleted and newly created for each modelPart
         List<Face> faceList = null;
         
-        //Oject to add to the object lists. The object is added to the object
-        //list after parsing of an object ist done. Afer parsing of an object
-        //is done, this reference is overwritten by a new object
-        Object object = null;
+        //Oject to add to the modelPart lists. The modelPart is added to the modelPart
+        //list after parsing of an modelPart ist done. Afer parsing of an modelPart
+        //is done, this reference is overwritten by a new modelPart
+        PreStageModelPart preStageModelPart = null;
         
         //Read the obj file and parse all faces
         try (BufferedReader objBufferedReader = new BufferedReader(new FileReader(objPath))) {
             //Read obj file line by line
             String line = "";
             int i=1;
-            System.out.println("Read OBJ-File line by line and parse all"
-                    + "faces to objects...");
+            System.out.println("Read OBJ-File line by line and parse all "
+                    + "faces to modelParts...");
 
             while((line = objBufferedReader.readLine()) != null) {
-                if(line.startsWith("usemtl ")) { //New object detected. Create a new facelist and a new Object
-                    if(object!=null) {
-                        addBuffersToObject(object, faceList, vertexList, vertexTextureList, vertexNormalList);
-                        objectList.add(object);
+                if(line.startsWith("usemtl ")) { //New modelPart detected. Create a new facelist and a new ModelPart
+                    if(preStageModelPart!=null) {
+                        preStageModelPart.createBuffers(faceList, vertexList, vertexTextureList, vertexNormalList);
+                        modelPartList.add(preStageModelPart.createModelPart(materialList));
                     }
-                    object = new Object();
+                    System.out.println("Create preStageModelPart...");
+                    preStageModelPart = new PreStageModelPart();
                     faceList = new LinkedList<Face>();
                 } else if(line.startsWith("s ")) { //Parse smoothing group
                     if(line.split(" {1,}")[1].equals("off"))
-                        object.smothingGroup = 0;
+                        preStageModelPart.smoothingGroup = 0;
                     else
-                        object.smothingGroup = Integer.parseInt(line.split(" {1,}")[1]);
+                        preStageModelPart.smoothingGroup = Integer.parseInt(line.split(" {1,}")[1]);
                 }
                 
                 //Parse faces into facelist
@@ -366,17 +278,17 @@ public class GeometryFactory {
                 }
                 i++;
             } //end of while loop
-            //Add last object to object list
-            if(object!=null) {
-                addBuffersToObject(object, faceList, vertexList, vertexTextureList, vertexNormalList);
-                objectList.add(object);
+            //Add last modelPart to modelPart list
+            if(preStageModelPart!=null) {
+                preStageModelPart.createBuffers(faceList, vertexList, vertexTextureList, vertexNormalList);
+                modelPartList.add(preStageModelPart.createModelPart(materialList));
             }
         } catch (IOException e) {
             System.out.println("Problem beim Lesen der OBJ-Datei! Das Programm wird beendet.");
             System.exit(0);
         }
         
-        return objectList;
+        return modelPartList;
     }
     
     /**

@@ -11,6 +11,7 @@ import org.lwjgl.util.vector.Vector3f;
  * @author Floh1111
  */
 public class Material {
+    public String materialLibraryName;
     public String name;
     public float specularEx; //Ns, Specular exponent
     public Vector3f ambientRef; //Ka, ambient reflectance
@@ -29,30 +30,10 @@ public class Material {
                                         //During rendering, the map_d value is
                                         //multiplied by the d value.
     
-    public Material() {
-        
-    }
-    
-    public Material(String name, float specularEx, Vector3f ambientRef,
-                    Vector3f diffuseRef, Vector3f specularRef,
-                    float opticalDens, float dissolveFact,
-                    int illuminationModel, String diffuseRefColorMap,
-                    String dissolveFactColorMap) {
-        this.name = name;
-        this.specularEx = specularEx;
-        this.ambientRef = ambientRef;
-        this.diffuseRef = diffuseRef;
-        this.specularRef = specularRef;
-        this.opticalDens = opticalDens;
-        this.dissolveFact = dissolveFact;
-        this.illuminationModel = illuminationModel;
-        this.diffuseRefColorMap = diffuseRefColorMap;
-        this.dissolveFactColorMap = dissolveFactColorMap;
-    }
-    
     @Override
     public String toString() {
-        return "name: "+name+"\n"
+        return "materialLibraryName: "+materialLibraryName+"\n"
+                +"name: "+name+"\n"
                 +"specularEx: "+specularEx+"\n"
                 +"ambientRef: "+ambientRef+"\n"
                 +"diffuseRef: "+diffuseRef+"\n"
