@@ -22,10 +22,13 @@ import org.lwjgl.opengl.GL40;
 import org.lwjgl.opengl.GL41;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Matrix4f;
+
 
 public class FluidRenderer {
 	
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024 * 4);
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
+	private Geometry testCube = GeometryFactory.createCube();
 	private int textureUnit = 50;
 	private Camera cam;
 	
@@ -52,7 +55,10 @@ public class FluidRenderer {
     private FrameBuffer normalFrameBuffer = new FrameBuffer();
     private ShaderProgram normalSP = new ShaderProgram("./shader/fluid/Normal_VS.glsl", "./shader/fluid/Normal_FS.glsl");
     private Texture normalTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
-
+    private FrameBuffer normalWCFrameBuffer = new FrameBuffer();
+    private ShaderProgram normalWCSP = new ShaderProgram("./shader/fluid/NormalWC_VS.glsl", "./shader/fluid/NormalWC_FS.glsl");
+    private Texture normalWCTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+    
     // Thickness-Path
 	private FrameBuffer thicknessFrameBuffer = new FrameBuffer();
     private ShaderProgram thicknessSP = new ShaderProgram("./shader/fluid/Thickness_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
@@ -76,8 +82,8 @@ public class FluidRenderer {
     private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Complete_VS.glsl", "./shader/fluid/Complete_FS.glsl");
     private Texture finalImage = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
-    private Texture[] textures = { thicknessTexture, depthTexture };
-    private String[] textureNames = { "thickness", "depth" };
+    private Texture[] textures = { thicknessBlurTexture2, vBlurTexture, lightingTexture };
+    private String[] textureNames = { "thickness", "depth", "light" };
     
     private Texture cubemap;
     private Geometry cube = GeometryFactory.createCube();
@@ -93,6 +99,7 @@ public class FluidRenderer {
 		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
 		init(vBlurSP, vBlurFrameBuffer, "color", vBlurTexture);
     	init(normalSP, normalFrameBuffer, "color", normalTexture);
+    	init(normalWCSP, normalWCFrameBuffer, "color", normalWCTexture);
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
     	init(thicknessBlurSP2, thicknessBlurFrameBuffer2, "color", thicknessBlurTexture2);
@@ -106,6 +113,8 @@ public class FluidRenderer {
 		depthTexture();
 		// fluid normals
 		fluidNormals();
+		// fluid normals in WC
+		fluidNormalsWC();
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
@@ -119,7 +128,18 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
+
+//        drawTextureSP.setUniform("image", depthTexture);
+//        drawTextureSP.setUniform("image", hBlurTexture);
+//        drawTextureSP.setUniform("image", vBlurTexture);
+//        drawTextureSP.setUniform("image", normalTexture);
+//        drawTextureSP.setUniform("image", normalWCTexture);
+//        drawTextureSP.setUniform("image", thicknessTexture);
+//        drawTextureSP.setUniform("image", thicknessBlurTexture);
+//        drawTextureSP.setUniform("image", thicknessBlurTexture2);
         drawTextureSP.setUniform("image", lightingTexture);
+//        drawTextureSP.setUniform("image", finalImage);
+
         screenQuadGeo.draw();
         
         // resets buffers
@@ -169,9 +189,13 @@ public class FluidRenderer {
 		depthSP.use();
 		
 		depthSP.setUniform("view", cam.getView());
+
 		depthSP.setUniform("proj", cam.getProjection());
-		depthSP.setUniform("cubemapTex", cubemap);
+
+		depthSP.setUniform("viewDistance",cam.getViewDistance());
+
 		
+
         depthSP.setUniform("camPos", cam.getCamPos());
    	    depthFrameBuffer.bind();
    	    depthFrameBuffer.clearColor();
@@ -180,13 +204,9 @@ public class FluidRenderer {
         glEnable(GL_DEPTH_TEST);
       
         testWaterParticles.draw();
-//        Geometry cube = GeometryFactory.createCube();
-        
-//        cube.draw();
-        
-//        screenQuadGeo.draw();
+
         depthFrameBuffer.unbind();
-        blur(depthTexture,4);
+        blur(depthTexture, 0);
    
 	}
 	
@@ -200,6 +220,16 @@ public class FluidRenderer {
 	    glDisable(GL_DEPTH_TEST);
 		screenQuadGeo.draw();
 		endPath(normalFrameBuffer);
+	}
+
+	private void fluidNormalsWC() {
+		startPath(normalWCSP, normalWCFrameBuffer);
+		normalWCSP.setUniform("depthTex", depthTexture);
+		normalWCSP.setUniform("camPos", cam.getCamPos());
+		glDisable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+		screenQuadGeo.draw();
+		endPath(normalWCFrameBuffer);
 	}
 	
 	private void fluidThickness() {  //TODO
@@ -222,7 +252,6 @@ public class FluidRenderer {
         floatBuffer.put(0.0f);
         floatBuffer.position(0);
         GL14.glPointParameter(GL14.GL_POINT_DISTANCE_ATTENUATION, floatBuffer);
-
 
         testWaterParticles.draw();
 
@@ -304,7 +333,6 @@ public class FluidRenderer {
         	
 		}
 		glGenerateMipmap(GL13.GL_TEXTURE_CUBE_MAP);
-		GL.checkError("cubemap");
 	}
 
 	private void createFinalImage() {
@@ -325,6 +353,7 @@ public class FluidRenderer {
 		
 		hBlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
 		hBlurSP.setUniform("scene",  scene);
+		vBlurSP.setUniform("depthTex", depthTexture);
 
 //   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
 		hBlurFrameBuffer.bind();
@@ -341,7 +370,7 @@ public class FluidRenderer {
 		
 		vBlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
 		vBlurSP.setUniform("scene", hBlurTexture);
-
+		vBlurSP.setUniform("depthTex", depthTexture);
 
 		vBlurFrameBuffer.bind();
 		vBlurFrameBuffer.clearColor();
@@ -355,11 +384,13 @@ public class FluidRenderer {
 		for(int i = 0; i < counter; i++) {
 			startPath(hBlurSP, hBlurFrameBuffer);	    
 			hBlurSP.setUniform("scene", vBlurTexture);	
+			vBlurSP.setUniform("depthTex",  depthTexture);
 	    	screenQuadGeo.draw();	
 	    	hBlurFrameBuffer.unbind();	        
 	        
         	startPath(vBlurSP, vBlurFrameBuffer);
         	vBlurSP.setUniform("scene", hBlurTexture);
+        	vBlurSP.setUniform("depthTex",  depthTexture);
         	screenQuadGeo.draw();
         	vBlurFrameBuffer.unbind();
 		}
