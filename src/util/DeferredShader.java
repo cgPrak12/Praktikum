@@ -39,9 +39,9 @@ public class DeferredShader {
     	texVertexColor = new Texture(GL11.GL_TEXTURE_2D, 0);
     	texNormal = 	 new Texture(GL11.GL_TEXTURE_2D, 0);
     	    	
-    	frameBuffer.addTexture(texPosition,    GL11.GL_RGBA8, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texVertexColor, GL11.GL_RGBA8, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texNormal,      GL11.GL_RGBA8, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texPosition,    GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texVertexColor, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texNormal,      GL30.GL_RGBA16F, GL11.GL_RGBA);
     	
     	frameBuffer.drawBuffers();
     }

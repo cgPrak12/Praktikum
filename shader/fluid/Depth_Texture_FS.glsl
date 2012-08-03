@@ -4,9 +4,8 @@ uniform mat4 proj;
 uniform vec3 camPos;
 uniform float viewDistance;
 
+
 in vec4 positionWC;
-in vec4 normalWC;
-in vec4 fragColor;
 in vec2 gl_PointCoord;
 
 out vec4 depth;
