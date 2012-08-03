@@ -158,7 +158,7 @@ public class TerrainMain {
         	FrameBuffer fbo = enlightenedFBO;
         	if (tonemapping) {
             	if (bloom) {
-        		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure, screenQuad);
+            		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure, screenQuad);
             	}
             	else {
             		fbo = screenMan.getToneMapped(enlightenedFBO, exposure, screenQuad);
