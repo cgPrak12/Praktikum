@@ -12,7 +12,7 @@ public final class Camera {
     private final Vector3f viewDir = new Vector3f(0,0,1);
     private final Vector3f upDir = new Vector3f(0,1,0);
     private final Vector3f sideDir = new Vector3f(1,0,0);
-    private final Vector3f camPos = new Vector3f(0,0,0);
+    private final Vector3f camPos = new Vector3f(0,300,0);
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
     private boolean perspective = true;
@@ -77,9 +77,9 @@ public final class Camera {
      */
     public void updateProjection() {
         if(perspective) {
-            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+3f, projection);
+            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+4f, projection);
         } else {
-            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+3f, projection);
+            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+4f, projection);
         }
     }
     
