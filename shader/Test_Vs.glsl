@@ -9,8 +9,6 @@ in vec3 vertexColor;
 out vec3 positionWC;
 out vec3 color;
 
-
-
 void main(void) {
 	vec3 posWC = mat3(model) * (/*(0.5 + */vec3(positionMC.x, 0, positionMC.y)/worldSize);
 	//float height = texture(elevation, p).x;
