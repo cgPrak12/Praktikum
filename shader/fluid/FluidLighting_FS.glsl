@@ -31,7 +31,7 @@ const float es = 16.0;
 
 void main(void)
 {
-	if(texture(depthTex,texCoords).w == 1) discard;
+//	if(texture(depthTex,texCoords).w == 1) discard;
 	
 	float depth = texture(depthTex, texCoords).w;
 //	vec3 position = vec3(texCoords*2-1,depth);

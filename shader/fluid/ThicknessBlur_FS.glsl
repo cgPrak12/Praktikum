@@ -15,7 +15,6 @@ void main(void) {
 	int width = 800;
 	int height = 800;
 
-	vec4 texCoo;
 	
 	float factor = 0.5 - (clamp(texture(depth,texCoords).w,0.1,0.9)/4);
 

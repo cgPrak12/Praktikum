@@ -62,7 +62,7 @@ public class TerrainMain {
     }
     
     public static void render() throws LWJGLException {
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // background color: black
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // background color: black
         
         long last = System.currentTimeMillis();
         long now, millis;

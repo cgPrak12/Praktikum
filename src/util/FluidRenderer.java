@@ -133,7 +133,7 @@ public class FluidRenderer {
 		// fluid depth
 		depthTexture();
 		// fluid normals
-		fluidNormals(5, 2.0f);
+		fluidNormals(5, 1.5f);
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
@@ -153,7 +153,7 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", depthTexture);
+//        drawTextureSP.setUniform("image", depthTexture);
 //        drawTextureSP.setUniform("image", hBlurTexture);
 //        drawTextureSP.setUniform("image", vBlurTexture);
 //        drawTextureSP.setUniform("image", low_h_BlurTexture);
@@ -165,7 +165,7 @@ public class FluidRenderer {
 //        drawTextureSP.setUniform("image", thicknessBlurTexture2);
 //        drawTextureSP.setUniform("image", lightingTexture);
 //        drawTextureSP.setUniform("image", colorTexture);
-//        drawTextureSP.setUniform("image", cubeMapTexture);
+        drawTextureSP.setUniform("image", cubeMapTexture);
 //        drawTextureSP.setUniform("image", testPlaneTexture);
 //        drawTextureSP.setUniform("image", normalBlurTexture2);
 
@@ -310,11 +310,13 @@ public class FluidRenderer {
 
 		startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
 	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
+	    thicknessBlurSP.setUniform("depth", depthTexture);
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer.unbind();
 	        
 	    startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
 	    thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
+	    thicknessBlurSP.setUniform("depth", depthTexture);
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer2.unbind();
         
@@ -365,6 +367,7 @@ public class FluidRenderer {
         cubeMapSP.setUniform("plane", testPlaneTexture);
         cubeMapSP.setUniform("thicknessTex", thicknessTexture);
         cubeMapSP.setUniform("cubeMap", cubemap);
+		cubeMapSP.setUniform("view", cam.getView());
         screenQuadGeo.draw();
         cubeMapFrameBuffer.unbind();
         	        
