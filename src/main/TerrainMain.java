@@ -71,8 +71,9 @@ public class TerrainMain {
         
         fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
        
-        DeferredShader shader = new DeferredShader(cam);
+        DeferredShader shader = new DeferredShader();
         shader.init();
+        shader.registerShaderProgram(fboSP);
         
         FluidRenderer fluidRenderer = new FluidRenderer(cam);
         
@@ -101,19 +102,19 @@ public class TerrainMain {
             
             
             fboSP.use();
-        	Matrix4f modelMatrix = new Matrix4f();
-        	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-        	fboSP.setUniform("model", 	 modelMatrix);
-        	fboSP.setUniform("modelIT",  modelIT);
-        	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+         Matrix4f modelMatrix = new Matrix4f();
+         Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+         fboSP.setUniform("model", modelMatrix);
+         fboSP.setUniform("modelIT", modelIT);
+         fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+            fboSP.setUniform("camPos", cam.getCamPos());
             
-            shader.prepareRendering(fboSP);
+            shader.bind();
             shader.clear();
             
             testCube.draw();
         	
             shader.finish();
-            shader.reset();
 //            shader.DrawTexture(shader.getWorldTexture());
             
             
@@ -123,6 +124,7 @@ public class TerrainMain {
             
             // WATER
             fluidRenderer.render();
+            
             // TODO: combine images
             
             // present screen

@@ -8,27 +8,12 @@ import opengl.GL;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL21;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL31;
-import org.lwjgl.opengl.GL32;
-import org.lwjgl.opengl.GL33;
-import org.lwjgl.opengl.GL40;
-import org.lwjgl.opengl.GL41;
-import org.lwjgl.opengl.GL42;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Matrix4f;
-
 
 public class FluidRenderer {
 	
 	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
-	private Geometry testCube = GeometryFactory.createCube();
 	private int textureUnit = 50;
 	private Camera cam;
 	
@@ -50,18 +35,23 @@ public class FluidRenderer {
     private FrameBuffer vBlurFrameBuffer = new FrameBuffer();
     private ShaderProgram vBlurSP = new ShaderProgram("./shader/fluid/Blur_Texture_VS.glsl", "./shader/fluid/Vertical_Blur_Texture_FS.glsl");
     private Texture vBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+   
+    // Horizontal_Blur Tiefentextur
+    private FrameBuffer low_h_BlurFrameBuffer = new FrameBuffer();
+    private ShaderProgram low_h_BlurSP = new ShaderProgram("./shader/fluid/Blur_Texture_VS.glsl", "./shader/fluid/Horizontal_Blur_Texture_FS.glsl");
+    private Texture low_h_BlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
+   
+    //Vertical_Blur
+    
+    private FrameBuffer low_v_BlurFrameBuffer = new FrameBuffer();
+    private ShaderProgram low_v_BlurSP = new ShaderProgram("./shader/fluid/Blur_Texture_VS.glsl", "./shader/fluid/Vertical_Blur_Texture_FS.glsl");
+    private Texture low_v_BlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
     
     // Normal-Path
     private FrameBuffer normalFrameBuffer = new FrameBuffer();
     private ShaderProgram normalSP = new ShaderProgram("./shader/fluid/Normal_VS.glsl", "./shader/fluid/Normal_FS.glsl");
     private Texture normalTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
-    private FrameBuffer normalHBlurFrameBuffer = new FrameBuffer();
-    private ShaderProgram normalHBlurSP = new ShaderProgram("./shader/fluid/NormalBlur_VS.glsl", "./shader/fluid/NormalHBlur_FS.glsl");
-    private Texture normalHBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
-    private FrameBuffer normalVBlurFrameBuffer = new FrameBuffer();
-    private ShaderProgram normalVBlurSP = new ShaderProgram("./shader/fluid/NormalBlur_VS.glsl", "./shader/fluid/NormalVBlur_FS.glsl");
-    private Texture normalBlurTexture = new Texture(GL11.GL_TEXTURE_2D, textureUnit++);
-    
+
     // Thickness-Path
 	private FrameBuffer thicknessFrameBuffer = new FrameBuffer();
     private ShaderProgram thicknessSP = new ShaderProgram("./shader/fluid/Thickness_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
@@ -88,35 +78,32 @@ public class FluidRenderer {
     private Texture[] textures = { thicknessBlurTexture2, vBlurTexture, lightingTexture };
     private String[] textureNames = { "thickness", "depth", "light" };
     
-    private Texture cubemap;
-    private Geometry cube = GeometryFactory.createCube();
-    
 
     public FluidRenderer(Camera camTmp) {
     	cam = camTmp;
     	
     	// init shaderPrograms, frameBuffers, ...
     	GL11.glPointSize(GL11.GL_POINT_SIZE);
-
+    	
     	init(depthSP, depthFrameBuffer, "depth", depthTexture);
 		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
 		init(vBlurSP, vBlurFrameBuffer, "color", vBlurTexture);
+		lowinit(low_h_BlurSP, low_h_BlurFrameBuffer, "low_h_BlurTexture", low_h_BlurTexture);
+		lowinit(low_v_BlurSP, low_v_BlurFrameBuffer, "low_v_BlurTexture", low_v_BlurTexture);
     	init(normalSP, normalFrameBuffer, "color", normalTexture);
-    	init(normalHBlurSP, normalFrameBuffer, "color", normalHBlurTexture);
-    	init(normalVBlurSP, normalVBlurFrameBuffer, "color", normalBlurTexture);
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
     	init(thicknessBlurSP2, thicknessBlurFrameBuffer2, "color", thicknessBlurTexture2);
     	init(lightingSP, lightingFrameBuffer, "color", lightingTexture);
     	init(finalImageSP, finalImageFB, "color", finalImage);
-//    	createCubeMap();
+//    	
 	} 
 	
 	public void render() {
 		// fluid depth
 		depthTexture();
 		// fluid normals
-		fluidNormals(1);
+		fluidNormals();
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
@@ -130,36 +117,29 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-
 //        drawTextureSP.setUniform("image", depthTexture);
 //        drawTextureSP.setUniform("image", hBlurTexture);
 //        drawTextureSP.setUniform("image", vBlurTexture);
+//        drawTextureSP.setUniform("image", low_h_BlurTexture);
+//        drawTextureSP.setUniform("image", low_v_BlurTexture);
 //        drawTextureSP.setUniform("image", normalTexture);
-        drawTextureSP.setUniform("image", normalBlurTexture);
 //        drawTextureSP.setUniform("image", thicknessTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture2);
 //        drawTextureSP.setUniform("image", lightingTexture);
 //        drawTextureSP.setUniform("image", finalImage);
-
         screenQuadGeo.draw();
-        
-        // resets buffers
-        depthFrameBuffer.reset();
-        hBlurFrameBuffer.reset();
-        vBlurFrameBuffer.reset();
-		normalFrameBuffer.reset();
-		normalHBlurFrameBuffer.reset();
-		normalVBlurFrameBuffer.reset();
-        thicknessFrameBuffer.reset();
-        thicknessBlurFrameBuffer.reset();
-        thicknessBlurFrameBuffer2.reset();
-        lightingFrameBuffer.reset();
-        
-        finalImageFB.reset();
 	}
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
+		fb.init(false, GL.WIDTH, GL.HEIGHT);
+    	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
+    	fb.drawBuffers();
+	}
+	
+	private void lowinit(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
+		fb.init(false, GL.WIDTH/2, GL.HEIGHT/2);
     	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
     	fb.drawBuffers();
@@ -193,11 +173,10 @@ public class FluidRenderer {
 		depthSP.setUniform("view", cam.getView());
 
 		depthSP.setUniform("proj", cam.getProjection());
-
 		depthSP.setUniform("viewDistance",cam.getViewDistance());
-
 		
-
+		
+		
         depthSP.setUniform("camPos", cam.getCamPos());
    	    depthFrameBuffer.bind();
    	    depthFrameBuffer.clearColor();
@@ -206,41 +185,24 @@ public class FluidRenderer {
         glEnable(GL_DEPTH_TEST);
       
         testWaterParticles.draw();
-
         depthFrameBuffer.unbind();
         blur(depthTexture, 0);
+        lowBlur(depthTexture,0,4);
    
 	}
 	
 	private void fluidNormals() {
-		fluidNormals(0);
-	}
-	
-	private void fluidNormals(int count) {
 		startPath(normalSP, normalFrameBuffer);
 		normalSP.setUniform("depthTex", depthTexture);
 		normalSP.setUniform("texSize", (float)GL.WIDTH);
 		normalSP.setUniform("camPos", cam.getCamPos());
+		
 	    glDisable(GL_BLEND);
 	    glDisable(GL_DEPTH_TEST);
 		screenQuadGeo.draw();
 		endPath(normalFrameBuffer);
-		
-		for(int i = 0; i <= count-1; i++){
-			startPath(normalHBlurSP, normalHBlurFrameBuffer);
-			normalHBlurSP.setUniform("normalTex", i==1?normalTexture:normalBlurTexture);
-			normalHBlurSP.setUniform("texSize", (float)GL.WIDTH);
-			screenQuadGeo.draw();
-			endPath(normalHBlurFrameBuffer);
-			
-			startPath(normalVBlurSP, normalVBlurFrameBuffer);
-			normalVBlurSP.setUniform("normalTex", normalHBlurTexture);
-			normalVBlurSP.setUniform("texSize", (float)GL.WIDTH);
-			screenQuadGeo.draw();
-			endPath(normalVBlurFrameBuffer);
-		}
 	}
-
+	
 	private void fluidThickness() {  //TODO
 
 	    startPath(thicknessSP, thicknessFrameBuffer);
@@ -262,6 +224,7 @@ public class FluidRenderer {
         floatBuffer.position(0);
         GL14.glPointParameter(GL14.GL_POINT_DISTANCE_ATTENUATION, floatBuffer);
 
+
         testWaterParticles.draw();
 
         thicknessFrameBuffer.unbind();
@@ -272,17 +235,15 @@ public class FluidRenderer {
 
 		startPath(thicknessBlurSP, thicknessBlurFrameBuffer);
 	    thicknessBlurSP.setUniform("thickness", thicknessTexture);
-	    thicknessBlurSP.setUniform("depth", depthTexture);
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer.unbind();
 	        
 	    startPath(thicknessBlurSP2, thicknessBlurFrameBuffer2);
 	    thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
-	    thicknessBlurSP2.setUniform("depth", depthTexture);
         screenQuadGeo.draw();
         thicknessBlurFrameBuffer2.unbind();
         
-		for(int i = 0; i < 1; i++) {
+		/*for(int i = 0; i < 3; i++) {
 			startPath(thicknessBlurSP, thicknessBlurFrameBuffer);	    
 	    	thicknessBlurSP.setUniform("thickness", thicknessBlurTexture2);	
 	    	screenQuadGeo.draw();	
@@ -292,7 +253,7 @@ public class FluidRenderer {
 	    	thicknessBlurSP2.setUniform("thickness", thicknessBlurTexture);
         	screenQuadGeo.draw();
         	thicknessBlurFrameBuffer2.unbind();
-		}
+		}*/
 
     }
 	
@@ -303,45 +264,10 @@ public class FluidRenderer {
 	    lightingSP.setUniform("depthTex", depthTexture);
 	    lightingSP.setUniform("normalTex", normalTexture);
 	    lightingSP.setUniform("camPos", cam.getCamPos());
-	    lightingSP.setUniform("view", cam.getView());
 	    
         screenQuadGeo.draw();
         lightingFrameBuffer.unbind();
 	        
-	}
-	
-	private void createCubeMap() {
-
-		String[] cubeMapFileName = {"Cubemap/Cubemap_right.jpg","Cubemap/Cubemap_left.jpg","Cubemap/Cubemap_top.jpg",
-		                            "Cubemap/Cubemap_bottom.jpg","Cubemap/Cubemap_front.jpg","Cubemap/Cubemap_back.jpg"};
-		 
-		int[] cubeMapTargets = {GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL13.GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-				GL13.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL13.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z};
-       
-        cubemap = new Texture(GL13.GL_TEXTURE_CUBE_MAP, 15);
-        cubemap.bind();
-        
-		glTexParameteri(GL13.GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL13.GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-		
-		for(int i = 0; i < 6; i++) {
-//			Target := GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB+i;
-//			LoadTexture(cubeMapFileName[i],Cubemap[i], false, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, false);
-		
-        	Util.ImageContents contents = Util.loadImage(cubeMapFileName[i]);
-        	int format = 0;
-        	int internalFormat = 0;
-        	switch(contents.colorComponents) {
-            	case 1: internalFormat = GL_R8; format = GL_RED; break;
-            	case 2: internalFormat = GL_RG8; format = GL_RG; break;
-            	case 3: internalFormat = GL_RGB8; format = GL_RGB; break;
-            	case 4: internalFormat = GL_RGBA8; format = GL_RGBA; break;
-        	}
-            
-        	glTexImage2D(cubeMapTargets[i], 0, internalFormat, contents.width, contents.height, 0, format, GL_FLOAT, contents.data);
-        	
-		}
-		glGenerateMipmap(GL13.GL_TEXTURE_CUBE_MAP);
 	}
 
 	private void createFinalImage() {
@@ -362,7 +288,7 @@ public class FluidRenderer {
 		
 		hBlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
 		hBlurSP.setUniform("scene",  scene);
-		vBlurSP.setUniform("depthTex", depthTexture);
+		hBlurSP.setUniform("depthTex", depthTexture);
 
 //   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
 		hBlurFrameBuffer.bind();
@@ -403,6 +329,53 @@ public class FluidRenderer {
         	screenQuadGeo.draw();
         	vBlurFrameBuffer.unbind();
 		}
-		scene = vBlurTexture;
+	}
+	private void lowBlur(Texture scene, int counter, int low){
+		
+        low_h_BlurSP.use();
+		
+        low_h_BlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
+        low_h_BlurSP.setUniform("scene",  scene);
+        low_h_BlurSP.setUniform("depthTex", depthTexture);
+
+//   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
+        low_h_BlurFrameBuffer.bind();
+        low_h_BlurFrameBuffer.clearColor();
+    
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        
+        screenQuadGeo.draw();
+        //testWaterParticles.draw();
+        low_h_BlurFrameBuffer.unbind();
+// Vertical Blur
+		low_v_BlurSP.use();
+		
+		low_v_BlurSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
+		low_v_BlurSP.setUniform("scene", low_h_BlurTexture);
+		low_v_BlurSP.setUniform("depthTex", depthTexture);
+
+		low_v_BlurFrameBuffer.bind();
+		low_v_BlurFrameBuffer.clearColor();
+    
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        
+        screenQuadGeo.draw();
+ 
+        low_v_BlurFrameBuffer.unbind();
+		for(int i = 0; i < counter; i++) {
+			startPath(low_h_BlurSP,low_h_BlurFrameBuffer);	    
+			low_h_BlurSP.setUniform("scene", low_v_BlurTexture);	
+			low_v_BlurSP.setUniform("depthTex",  depthTexture);
+	    	screenQuadGeo.draw();	
+	    	low_h_BlurFrameBuffer.unbind();	        
+	        
+        	startPath(vBlurSP, vBlurFrameBuffer);
+        	low_v_BlurSP.setUniform("scene", low_h_BlurTexture);
+        	low_v_BlurSP.setUniform("depthTex",  depthTexture);
+        	screenQuadGeo.draw();
+        	low_v_BlurFrameBuffer.unbind();
+		}
 	}
 }
