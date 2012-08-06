@@ -43,6 +43,33 @@ public class GeometryFactory {
         return geo;
     }
     
+    public static Geometry createWhiteScreenQuad() {        
+        int vaid = glGenVertexArrays();
+        glBindVertexArray(vaid);        
+        
+        // vertexbuffer
+        FloatBuffer vertexData = BufferUtils.createFloatBuffer(24);
+        vertexData.put(new float[] {
+            -1.0f, -1.0f, 100.0f, 100.0f, 100.0f, 1.0f, 
+            +1.0f, -1.0f, 100.0f, 100.0f, 100.0f, 1.0f, 
+            -1.0f, +1.0f, 100.0f, 100.0f, 100.0f, 1.0f, 
+            +1.0f, +1.0f, 100.0f, 100.0f, 100.0f, 1.0f
+        });
+        vertexData.position(0);
+        
+        // indexbuffer
+        IntBuffer indexData = BufferUtils.createIntBuffer(4);
+        indexData.put(new int[] { 0, 1, 2, 3, });
+        indexData.position(0);
+        
+        Geometry geo = new Geometry();
+        geo.setIndices(indexData, GL_TRIANGLE_STRIP);
+        geo.setVertices(vertexData);
+        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+        geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 8);
+        return geo;
+    }
+    
     public static Geometry createCube() {
     	float[] cubeVertices  = {
          		 0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // front top right

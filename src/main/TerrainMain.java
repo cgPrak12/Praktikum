@@ -10,8 +10,6 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -92,6 +90,11 @@ public class TerrainMain {
         shadowSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
         fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
         
+        Matrix4f floorQuadMatrix = new Matrix4f();
+        //Matrix4f floorQuadITMatrix = new Matrix4f();
+        
+        Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null));        
+        
         DeferredShader shadowShader = new DeferredShader();
         shadowShader.init();
         shadowShader.registerShaderProgram(shadowSP);
@@ -102,6 +105,7 @@ public class TerrainMain {
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         Geometry testCube = GeometryFactory.createCube();
+        Geometry floorQuad = GeometryFactory.createWhiteScreenQuad();
         
         //enlighted fbo
         FrameBuffer enlightenedFBO = new FrameBuffer();
@@ -121,6 +125,7 @@ public class TerrainMain {
             
             shadowCam.setCamDir(sunDirection.negate(null));
             shadowCam.setCamPos(new Vector3f(sunDirection.x * 10f, sunDirection.y * 10f, sunDirection.z * 10f));
+            shadowCam.changeProjection();
             
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
@@ -158,7 +163,12 @@ public class TerrainMain {
             shader.clear();
         	
             testCube.draw();
-
+            
+            fboSP.setUniform("model", floorQuadMatrix);
+        	fboSP.setUniform("modelIT", floorQuadMatrix);
+            
+            floorQuad.draw();
+            
         	shader.finish();
         	
         	fboSP.use();
@@ -172,12 +182,15 @@ public class TerrainMain {
         	
         	testCube.draw();
         	
+			fboSP.setUniform("model", floorQuadMatrix);
+        	fboSP.setUniform("modelIT", floorQuadMatrix);
+        	
+        	floorQuad.draw();
+        	
         	shadowShader.finish();
         	
         	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
-        	
-        	//shadowFBO.addTexture(shadowShader.getNormalTexture(), GL30.GL_RGBA16F, GL11.GL_RGBA);
-        	
+        	        	        	
         	//shader.DrawTexture(enlightenedFBO.getTexture(0));
 
         	if (tonemapping) {
