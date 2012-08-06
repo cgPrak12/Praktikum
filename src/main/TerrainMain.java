@@ -47,6 +47,7 @@ public class TerrainMain {
     private static Texture FBTexture2;
     private static Texture FBTexture1;
     private static Texture skyCloudTexture;
+    private static Texture noiseTexture;
     
     // uniform locations
     private static int modelLoc;
@@ -74,6 +75,7 @@ public class TerrainMain {
     private static ShaderProgram LightningSP;
     private static ShaderProgram sunSP;
     private static ShaderProgram sunRaysSP;
+    private static ShaderProgram AOSP;
     
     //private static float specCoeff = 0.5f;
     
@@ -113,8 +115,8 @@ public class TerrainMain {
            
             skydomeTexture         = Texture.generateTexture("./sky_2.jpg",5 );
             sunTexture			   = Texture.generateTexture("./sun.jpg",6);
-            skyCloudTexture         = Texture.generateTexture("./sky_sw.jpg",9 );
-            
+            skyCloudTexture        = Texture.generateTexture("./sky_sw.jpg",9 );
+            noiseTexture 		   = Texture.generateTexture("./noise.png",10);
             //blurPosteffect
             BlurSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl","./shader/Blur_FS.glsl");
             
@@ -127,6 +129,9 @@ public class TerrainMain {
             //SunEffect
             sunSP = new ShaderProgram("./shader/sun_VS.glsl", "./shader/sun_FS.glsl");
             sunRaysSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/sunRays_FS.glsl");
+            
+          //SunEffect
+            AOSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/AmbientOcclusion_FS.glsl");
             
             //Framebuffer1
             fbuffer1 = new FrameBuffer();
@@ -216,6 +221,9 @@ public class TerrainMain {
             fboSP.setUniform("camPos",   cam.getCamPos());
             fboSP.setUniform("normalTexture", normalQuaderTexture);
             fboSP.setUniform("specularTexture", specularQuaderTexture);
+            fboSP.setUniform("view", cam.getView());
+            fboSP.setUniform("camFar", cam.getFar());
+            
             
             
             shader.bind();
@@ -225,15 +233,15 @@ public class TerrainMain {
             //Quader zeichen
             fboSP.setUniform("textureImage", quaderTexture);
            
-            Util.translationX(1.1f,cubeModelMatrix);
+            Util.translationX(0.9f,cubeModelMatrix);
             matrix2uniform(cubeModelMatrix, modelLoc);
             kugel1.draw();
             
-            Util.translationX(-1.1f,cubeModelMatrix);
+            Util.translationX(-0.9f,cubeModelMatrix);
             matrix2uniform(cubeModelMatrix, modelLoc);
             kugel2.draw();
             
-            Util.translationY(2.1f,cubeModelMatrix);
+            Util.translationY(1.3f,cubeModelMatrix);
             matrix2uniform(cubeModelMatrix, modelLoc);
             kugel3.draw();
             
@@ -273,13 +281,12 @@ public class TerrainMain {
       		
         	shader.finish();
 
-           // shader.DrawTexture(shader.getDiffuseTexture());
+            //shader.DrawTexture(shader.getNormalTexture());
             
 
             
             // TODO: postfx
             
-			//  geo.draw();
             
             
         	//Lightning
@@ -297,16 +304,26 @@ public class TerrainMain {
             geo.draw();
             fbuffer1.unbind();
             
+            
             fbuffer2.bind();
             fbuffer2.clearColor();
-			GodRaysSP.use();
-			GodRaysSP.setUniform("diffuseTexture", FBTexture1);
-			GodRaysSP.setUniform("model", 	 modelMatrix);
-        	GodRaysSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-			GodRaysSP.setUniform("lightPosition", lightPosition1);
-			GodRaysSP.setUniform("skyTexture", shader.getSkyTexture());
-			geo.draw();
-			fbuffer2.unbind();		
+            AOSP.use();
+            AOSP.setUniform("normalTexture",  shader.getNormalTexture());
+            AOSP.setUniform("noiseTexture", noiseTexture);
+            AOSP.setUniform("diffuseTexture", FBTexture1);
+            geo.draw();
+            fbuffer2.unbind();
+            
+//            fbuffer2.bind();
+//            fbuffer2.clearColor();
+//			GodRaysSP.use();
+//			GodRaysSP.setUniform("diffuseTexture", FBTexture1);
+//			GodRaysSP.setUniform("model", 	 modelMatrix);
+//        	GodRaysSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+//			GodRaysSP.setUniform("lightPosition", lightPosition1);
+//			GodRaysSP.setUniform("skyTexture", shader.getSkyTexture());
+//			geo.draw();
+//			fbuffer2.unbind();		
             
             
 //            fbuffer2.bind();
@@ -318,13 +335,6 @@ public class TerrainMain {
 //            geo.draw();
 //            fbuffer2.unbind();
 //            
-            
-//            sunRaysSP.use();
-//    		sunRaysSP.setUniform("sunTexture", shader.getSunTexture());
-//    		sunRaysSP.setUniform("sunPosition", sunPosition);
-//    		sunRaysSP.setUniform("sun_model", 	 sun_modelMatrix);
-//    		sunRaysSP.setUniform("sun_modelIT",  sun_modelIT);
-//    		sunRaysSP.setUniform("sun_viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
             
             // Ausgabe auf dem Bildschirm
     		shader.DrawTexture(FBTexture2);
@@ -423,7 +433,6 @@ public class TerrainMain {
             //drehen des Lichtes 
             //lightPosition1  = Util.transformCoord(sunModelMatrix, new Vector3f(1.0f,1.0f,1.0f), null);
             Util.transformCoord(Util.rotationY(10e-4f * (float)millis, null), lightPosition1, lightPosition1);
-            System.out.println(lightPosition1);
     	
     	}
     }

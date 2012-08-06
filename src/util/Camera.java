@@ -15,6 +15,7 @@ public final class Camera {
     private final Vector3f camPos = new Vector3f(0,0,-1);
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
+    private final float    far = 1e+2f;
     private boolean perspective = true;
 
     /**
@@ -67,9 +68,9 @@ public final class Camera {
      */
     public void updateProjection() {
         if(perspective) {
-            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+2f, projection);
+            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, far, projection);
         } else {
-            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+2f, projection);
+            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, far, projection);
         }
     }
     
@@ -96,6 +97,10 @@ public final class Camera {
     public Matrix4f getView() {
         this.updateView();
         return view;
+    }
+    
+    public float getFar() {
+        return far;
     }
 
     public Vector3f getCamPos() {
