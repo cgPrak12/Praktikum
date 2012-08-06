@@ -100,7 +100,7 @@ public class FluidRenderer {
     
     private Texture cubemap;
     private Geometry cube = GeometryFactory.createCube();
-    private Geometry plane = GeometryFactory.createPlane();
+  //  private Geometry plane = GeometryFactory.createPlane();
     private Texture planeTex = Texture.generateTexture("Marble.jpg", textureUnit++);
     
 
@@ -110,7 +110,7 @@ public class FluidRenderer {
     	// init shaderPrograms, frameBuffers, ...
     	GL11.glPointSize(GL11.GL_POINT_SIZE);
     	
-    	init(depthSP, depthFrameBuffer, "depth", depthTexture);
+    	initDT(depthSP, depthFrameBuffer, "depth", depthTexture);
 		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
 		init(vBlurSP, vBlurFrameBuffer, "color", vBlurTexture);
 		lowinit(low_h_BlurSP, low_h_BlurFrameBuffer, "low_h_BlurTexture", low_h_BlurTexture);
@@ -154,8 +154,8 @@ public class FluidRenderer {
         glDisable(GL_BLEND);
 		drawTextureSP.use();
 //        drawTextureSP.setUniform("image", depthTexture);
-//        drawTextureSP.setUniform("image", hBlurTexture);
-//        drawTextureSP.setUniform("image", vBlurTexture);
+        drawTextureSP.setUniform("image", hBlurTexture);
+//       drawTextureSP.setUniform("image", vBlurTexture);
 //        drawTextureSP.setUniform("image", low_h_BlurTexture);
 
 //        drawTextureSP.setUniform("image", low_v_BlurTexture);
@@ -166,12 +166,19 @@ public class FluidRenderer {
 //        drawTextureSP.setUniform("image", thicknessBlurTexture2);
 //        drawTextureSP.setUniform("image", lightingTexture);
 //        drawTextureSP.setUniform("image", colorTexture);
-        drawTextureSP.setUniform("image", cubeMapTexture);
+//        drawTextureSP.setUniform("image", cubeMapTexture);
 //        drawTextureSP.setUniform("image", testPlaneTexture);
 //        drawTextureSP.setUniform("image", normalBlurTexture2);
 
 //        drawTextureSP.setUniform("image", finalImage);
         screenQuadGeo.draw();
+	}
+	
+	private void initDT(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
+		fb.init(true, GL.WIDTH, GL.HEIGHT);
+    	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
+    	fb.drawBuffers();
 	}
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
@@ -374,7 +381,7 @@ public class FluidRenderer {
 	    testPlaneSP.setUniform("proj", cam.getProjection());
 	    testPlaneSP.setUniform("view", cam.getView());
 	    testPlaneSP.setUniform("colorTex", planeTex);
-        plane.draw();
+//        plane.draw();
         testPlaneFrameBuffer.unbind();
         	        
 	}

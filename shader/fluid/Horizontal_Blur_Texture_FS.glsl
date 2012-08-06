@@ -14,7 +14,7 @@ float size = textureSize(depthTex, 0).x;
 float depth = texture2D(depthTex, texCoords).w;
 
 for(float j=-5;j<=5;j++){
-	float sample= texture2D(scene,texCoords + j*vec2(1.0/size, 0)).w;
+	float sample= texture2D(depthTex,texCoords + j*vec2(1.0/size, 0)).w;
 	
 	//spatial domain
 	float r = j;
