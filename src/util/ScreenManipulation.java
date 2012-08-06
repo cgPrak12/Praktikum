@@ -142,7 +142,7 @@ public class ScreenManipulation {
 		spoHalf = new ShaderProgram(vertexShader, "./shader/Half_FS.glsl");
 		spoQuad = new ShaderProgram(vertexShader, "./shader/Quad_FS.glsl");
 		spoShadow = new ShaderProgram(vertexShader, "./shader/Shadow_FS.glsl");
-		spoShadowPhong = new ShaderProgram(vertexShader, "./shader/ShadowLighting.glsl");
+		spoShadowPhong = new ShaderProgram(vertexShader, "./shader/ShadowLighting_FS.glsl");
 	}
 	
 	/**
