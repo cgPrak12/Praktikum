@@ -105,7 +105,6 @@ public class TerrainMain {
         DeferredShader shader = new DeferredShader();
         shader.init();
         shader.registerShaderProgram(fboSP);
-        Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         Geometry testCube = GeometryFactory.createCube();
         Geometry floorQuad = GeometryFactory.createWhiteScreenQuad();
@@ -237,7 +236,6 @@ public class TerrainMain {
         MenuDialog.destroyInstance();
         screenMan.delete();
         shader.delete();
-        tex.delete();
     }
     
 	/**
