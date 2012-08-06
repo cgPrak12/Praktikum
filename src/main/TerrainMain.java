@@ -62,10 +62,6 @@ public class TerrainMain {
             program.use();
 
             clip = new ClipMap(14, 10, program, cam);
-
-            
-
-
             
             tex = Texture.generateTexture(".\\face2face_usa_heightmap.jpg", 1);
             tex.bind();
