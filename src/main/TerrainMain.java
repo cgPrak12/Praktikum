@@ -23,9 +23,6 @@ import window.MenuDialog;
 public class TerrainMain {
     // current configurations
     private static boolean bContinue = true;
-    public static boolean isCulling() {
-		return culling;
-	}
     private static boolean splitScreen = false;
     private static int splitScreenVal = 1234;
 
@@ -500,5 +497,9 @@ public class TerrainMain {
 
 	public static void setSplitScreenVal(int splitScreenVal) {
 		TerrainMain.splitScreenVal = splitScreenVal;
+	}
+	
+    public static boolean isCulling() {
+		return culling;
 	}
 }
