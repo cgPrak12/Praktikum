@@ -2,8 +2,6 @@
 
 in vec2 positionMC;
 
-uniform mat4 viewProj;
-
 out vec2 texCoords;
 
 void main(void) {

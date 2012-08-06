@@ -94,4 +94,31 @@ public class GeometryFactory {
     	geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
     	return geo;
     }
+    
+    public static Geometry createPlane() {        
+        int vaid = glGenVertexArrays();
+        glBindVertexArray(vaid);        
+        
+        // vertexbuffer
+        FloatBuffer vertexData = BufferUtils.createFloatBuffer(12);
+        vertexData.put(new float[] {
+            -1.0f, 0.0f, -1.0f,
+            +1.0f, 0.0f, -1.0f,
+            -1.0f, 0.0f, +1.0f,
+            +1.0f, 0.0f, +1.0f
+        });
+        vertexData.position(0);
+        
+        // indexbuffer
+        IntBuffer indexData = BufferUtils.createIntBuffer(4);
+        indexData.put(new int[] { 0, 2, 1, 3, });
+        indexData.position(0);
+        
+        Geometry geo = new Geometry();
+        geo.setIndices(indexData, GL_TRIANGLE_STRIP);
+        geo.setVertices(vertexData);
+        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+        return geo;
+    }
+
 }

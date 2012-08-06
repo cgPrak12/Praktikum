@@ -29,4 +29,4 @@ void main(void) {
 	
 	vec3 normal = -cross(ddx, ddy);
 	color = normalize(vec4(normal,0));
-}
+ }
