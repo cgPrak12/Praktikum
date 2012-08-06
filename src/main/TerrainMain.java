@@ -53,7 +53,8 @@ public class TerrainMain {
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
-    private static ShaderProgram fboSP; 
+    private static ShaderProgram fboSP;
+    private static ShaderProgram shadowSP;
     
     public static void main(String[] argv) {
         try {
@@ -86,7 +87,17 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
+        shadowSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
         fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+        
+        Matrix4f floorQuadMatrix = new Matrix4f();
+        //Matrix4f floorQuadITMatrix = new Matrix4f();
+        
+        Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null));        
+        
+        DeferredShader shadowShader = new DeferredShader();
+        shadowShader.init();
+        shadowShader.registerShaderProgram(shadowSP);
         
         DeferredShader shader = new DeferredShader();
         shader.init();
@@ -94,12 +105,15 @@ public class TerrainMain {
         Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
         Geometry testCube = GeometryFactory.createCube();
+        Geometry floorQuad = GeometryFactory.createWhiteScreenQuad();
         
         //enlighted fbo
         FrameBuffer enlightenedFBO = new FrameBuffer();
         enlightenedFBO.init(false, GL.WIDTH, GL.HEIGHT);
         FrameBuffer fbo = new FrameBuffer();
         fbo.init(false, GL.WIDTH, GL.HEIGHT);
+        FrameBuffer shadowFBO = new FrameBuffer();
+        shadowFBO.init(false, GL.WIDTH, GL.HEIGHT);
 
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -109,8 +123,9 @@ public class TerrainMain {
             frameTimeDelta += millis;
             ++frames;
             
-            shadowCam.setCamDir(sunDirection);
-            shadowCam.setCamPos(new Vector3f(-sunDirection.x * 10f, -sunDirection.y * 10f, -sunDirection.z * 10f));
+            shadowCam.setCamDir(sunDirection.negate(null));
+            shadowCam.setCamPos(new Vector3f(sunDirection.x * 10f, sunDirection.y * 10f, sunDirection.z * 10f));
+            shadowCam.changeProjection();
             
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
@@ -148,22 +163,41 @@ public class TerrainMain {
             shader.clear();
         	
             testCube.draw();
-
+            
+            fboSP.setUniform("model", floorQuadMatrix);
+        	fboSP.setUniform("modelIT", floorQuadMatrix);
+            
+            floorQuad.draw();
+            
         	shader.finish();
         	
-        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+        	fboSP.use();
+        	fboSP.setUniform("model", 	 modelMatrix);
+        	fboSP.setUniform("modelIT",  modelIT);
+        	fboSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
+            fboSP.setUniform("camPos",   shadowCam.getCamPos());
         	
+        	shadowShader.bind();
+        	shadowShader.clear();
+        	
+        	testCube.draw();
+        	
+			fboSP.setUniform("model", floorQuadMatrix);
+        	fboSP.setUniform("modelIT", floorQuadMatrix);
+        	
+        	floorQuad.draw();
+        	
+        	shadowShader.finish();
+        	
+        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+        	        	        	
         	//shader.DrawTexture(enlightenedFBO.getTexture(0));
 
         	if (tonemapping) {
             	if (bloom) {
             		FrameBuffer fbo1 = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
-            		FrameBuffer fbo2 = screenMan.getBrightness(enlightenedFBO, brightnessFactor);
-            		FrameBuffer fbo3 = screenMan.getBlur51(enlightenedFBO);
-            		FrameBuffer fbo4 = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor);
-//            		fbo = screenMan.getHalfScreenView(fbo1, fbo2);
-            		//fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
-            		fbo = screenMan.getQuadScreenView(fbo1, fbo2, fbo3, fbo4);
+            		FrameBuffer fbo2 = screenMan.getShadowMap(shadowShader.getWorldTexture());
+            		fbo = screenMan.getQuadScreenView(fbo1, fbo1, fbo2, fbo2);
             	}
             	else {
             		fbo = screenMan.getToneMapped(enlightenedFBO, exposure);
