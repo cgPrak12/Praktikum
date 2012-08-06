@@ -27,7 +27,7 @@ public class Geometry {
     private int instanceStride;
     private int instanceCount;
     private int instanceAttributeSize;
-    private final List<VertexAttribute> attributes = new LinkedList<>();
+    private final List<VertexAttribute> attributes = new LinkedList<VertexAttribute>();
 
 
     /**
