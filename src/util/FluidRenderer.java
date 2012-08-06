@@ -237,25 +237,8 @@ public class FluidRenderer {
         testWaterParticles.draw();
         depthFrameBuffer.unbind();
 
-        //blur(depthTexture, 0);
-//        lowBlur(depthTexture,0,4);
-     /*   
-		for(int i = 0; i <= blurCount-1; i++){
-			startPath(hBlurSP, hBlurFrameBuffer);
-			hBlurSP.setUniform("depthTex", i==0?depthTexture:vBlurTexture);
-			hBlurSP.setUniform("texSize", (float)GL.WIDTH);
-			hBlurSP.setUniform("offsetValue", offsetValue);
-			screenQuadGeo.draw();
-			endPath(hBlurFrameBuffer);
-			
-			startPath(vBlurSP, vBlurFrameBuffer);
-			vBlurSP.setUniform("depthTex", hBlurTexture);
-			vBlurSP.setUniform("texSize", (float)GL.WIDTH);
-			vBlurSP.setUniform("offsetValue", offsetValue);
-			screenQuadGeo.draw();
-			endPath(vBlurFrameBuffer);
-		}*/
-
+        blur(depthTexture, 0);
+        lowBlur(depthTexture,0,4);
    
 	}
 	
@@ -444,7 +427,7 @@ public class FluidRenderer {
 		endPath(finalImageFB);
 	} 
 	
-	/*private void blur(Texture scene, int counter){
+	private void blur(Texture scene, int counter){
 		
 		hBlurSP.use();
 		
@@ -539,6 +522,6 @@ public class FluidRenderer {
         	screenQuadGeo.draw();
         	low_v_BlurFrameBuffer.unbind();
 		}
-	}*/
+	}
 	
 }
