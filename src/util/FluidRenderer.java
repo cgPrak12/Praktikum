@@ -131,9 +131,9 @@ public class FluidRenderer {
 	
 	public void render() {
 		// fluid depth
-		depthTexture(1, 1.0f);
+		depthTexture();
 		// fluid normals
-//		fluidNormals(2);
+		fluidNormals(2);
 		// fluid thickness
 //		fluidThickness();
 		// fluid thicknessBlur
@@ -153,8 +153,8 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", depthTexture);
-//        drawTextureSP.setUniform("image", hBlurTexture);
+//        drawTextureSP.setUniform("image", depthTexture);
+        drawTextureSP.setUniform("image", hBlurTexture);
 //        drawTextureSP.setUniform("image", vBlurTexture);
 //        drawTextureSP.setUniform("image", low_h_BlurTexture);
 //        drawTextureSP.setUniform("image", low_v_BlurTexture);
@@ -222,7 +222,7 @@ public class FluidRenderer {
 		fb.unbind();
 	}
     
-	private void depthTexture(int blurCount, float offsetValue) {
+	private void depthTexture() {
 		depthSP.use();
 		depthSP.setUniform("view", cam.getView());
 		depthSP.setUniform("proj", cam.getProjection());
