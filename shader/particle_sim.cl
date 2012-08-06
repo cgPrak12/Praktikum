@@ -1,7 +1,7 @@
 #define LOCAL_MEM_SIZE 64
-#define RADIUS 0.007
+#define RADIUS 0.004
 #define WITH_COLLISION 1
-#define GRIDLEN 84
+#define GRIDLEN 100
 
 float xor128() {
   int x = 123456789;
@@ -26,144 +26,77 @@ float4 reflect(float4 normal, float4 einfall) {
 }
 
 
+//////////////////////////////////////////////////////////
+// Grid methods                                         //
+//////////////////////////////////////////////////////////
+typedef struct
+{
+    int num_per_dim;        // number of cells per dimension
+    int max_p;              // max particles per cell
+    global int* counter;
+    global int* cells;
 
-float3 getNormal(image2d_t, float2);
-void add2GridCounter(global int*, global int4*, float3);
-int getCellId(float3 pos, int3 dpos);
+} grid_t;
 
+typedef struct
+{
+    int cnt_id;
+    int cell_id;
+} cell_id_t;
 
+/**
+ * Returns the grid id of a given position
+ * @param grid  the grid
+ * @param pos   the position
+ * @param dpos  grid-cell shift
+ * @return int-vector (counter array id, index array id)
+ */
+cell_id_t g_get_cell_id(grid_t *grid, float3 pos, int3 dpos)
+{
+    int dl = grid->num_per_dim;
+    int3 gp = (int3)((int)(pos.s0*dl),
+                     (int)(pos.s1*dl),
+                     (int)(pos.s2*dl));
+    
+    int counter_id =    (gp.s0+dpos.s0)
+                + (gp.s1+dpos.s1)*dl
+                + (gp.s2+dpos.s2)*dl*dl;
 
-kernel void particle_sim(
-global float4* position, 
-global float4* velos,
-image2d_t heightmap,
-image2d_t normalmap,
-global int* gridCounter,
-global int4* gridCells) 
-{	
-    local float4 sharedMem[LOCAL_MEM_SIZE];
-	
-    float4 myPos = position[get_global_id(0)];
-    float4 myVelo = velos[get_global_id(0)];
+    int maxid = dl*dl*dl;
+    
+    cell_id_t cid;
 
-
-    add2GridCounter(gridCounter,gridCells,myPos.s012);
-
-	
-	myPos.s012 += myVelo.s012*4;
-	
-    float4 height = read_imagef(heightmap, sampler, myPos.s02);
-    //float4 normal = read_imagef(normalmap, sampler, myPos.s02);
-    float4 normal = (float4)(getNormal(heightmap, myPos.s02),0);
-
-    // y-axis accelaration (gravity)  
-    float4 gravity = (float4)(0,-0.00004,0,0);
-
-    int gIds[4];
-    for(int i=-1; i<=1; i++){
-        for(int j=-1; j<=1; j++){
-            for(int k=-1; k<=1; k++){
-                //if (k == 0 && j == 0 && i == 0) continue;
-                int id = getCellId(myPos.s012, (int3)(i,j,k));
-                if (id > GRIDLEN*GRIDLEN*GRIDLEN || id < 0) continue;
-                int num = gridCounter[id];
-                num = num > 4 ? 4 : num;
-                
-                int4 gids = gridCells[id];
-                switch (num) {
-                    case 4: gIds[3] = gids.s3;
-                    case 3: gIds[2] = gids.s2;
-                    case 2: gIds[1] = gids.s1;
-                    case 1: gIds[0] = gids.s0;
-                }
-                
-                for (int m = 0; m < num; m++) {
-                    ///////////////////////////////////////////////////////////
-                    float4 oPos = position[gIds[m]];
-                    float4 oVelo = velos[gIds[m]];                    
-                    float4 n = (oPos - myPos);
-                    float distance = length(n.s012);
-                    if(distance < RADIUS*2)
-                    {
-                        if(myPos.s1 > oPos.s1){
-                                myVelo-=gravity*0.1;
-                        }
-                        myVelo+=normalize(n)*-0.00008;
-                    }
-                    ///////////////////////////////////////////////////////////
-                }
-            }
-        }
- myVelo *= 0.75;
+    if (counter_id >= maxid || counter_id < 0)
+    {
+        cid.cnt_id = cid.cell_id = -1;
+        return cid;
     }
     
-   
-    barrier(CLK_GLOBAL_MEM_FENCE);
-
-
-/*
-    if (WITH_COLLISION) {	
-    float4 collideVelo;
-    for(int tile=0; tile < get_num_groups(0); ++tile)
-    {
-        int toCopy = tile * get_local_size(0) + get_local_id(0);
-        sharedMem[2 * get_local_id(0) + 0] = position[toCopy];
-        sharedMem[2 * get_local_id(0) + 1] = velos[toCopy];
-        barrier(CLK_LOCAL_MEM_FENCE);
-        
-        for(int i=0; i < get_local_size(0); ++i)
-        {
-            float4 posToCheck  = sharedMem[2 * i + 0];
-            float4 veloToCheck = sharedMem[2 * i + 1];
-            float4 n = (posToCheck - myPos);
-            float distance = length(n.s012);
-            if(distance < RADIUS*2)
-            {
-                float4 vi = (float4)(myVelo.s012, 0.0);
-                float4 vj = (float4)(veloToCheck.s012, 0.0);
-            
-            	//collideVelo = -n;
-            	if(myPos.s1 > posToCheck.s1){
-            		//myVelo += collideVelo*0.0005f + normalize(n)*0.00001 + myDVelo;//(float4)(0,0.00005,0,0);
-            		//myPos.s1 = posToCheck.s1 + RADIUS;
-            		//myVelo += reflect((float4)(n.s0,0,n.s1,0),n)*0.001;
-            		//myVelo += normalize(n)*-0.000001;
-            		myVelo-=gravity*0.1;
-            	}
-            	myVelo+=normalize(n)*-0.00001;
-            	//myVelo+=1/(distance)*normalize(n);
-            }
-        }
-        
-        barrier(CLK_LOCAL_MEM_FENCE);
-    }
-    myVelo *= 0.95;
-    }
-   */ 
-
-	myVelo+=gravity;
-        float3 dVelo = (float3)(0);  	
-	if(myPos.s1 <= height.s0+RADIUS) {
-            // ground contact, terrain<->particle
-            myPos.s1 = height.s0+RADIUS;
-            dVelo = normal.s012*0.0001;
-            myVelo += (float4)(dVelo,1);
-            myVelo *= 0.9;
-
-            //DO NOT USE, TESTING ONLY
-            //myPos.s1 = height.s0+RADIUS;
-            //myVelo = movingDir*0.1 + (float4)(0,0.0001,0,0);
-            //myVelo = movingDir*0.1 + normalize(normal)*0.0001;
-            //myVelo = normalize(normal)*0.00001;
-    }
-
-
-	float lifetime = myPos.s3-0.8333f;
-    //position[get_global_id(0)] = (float4)(myPos.s012 + myVelo.s012*4, lifetime);
-    position[get_global_id(0)] = (float4)(myPos.s012, lifetime);
-    velos[get_global_id(0)] = myVelo;
+    int mp = grid->max_p;
+    int index_id =  (gp.s0+dpos.s0)*mp
+                    + (gp.s1+dpos.s1)*dl*mp
+                    + (gp.s2+dpos.s2)*dl*dl*mp;
+    cid.cnt_id = counter_id;
+    cid.cell_id = index_id;
+    return cid;
 }
 
+
+void g_add_particle(grid_t *grid, float3 pos)
+{
+    cell_id_t cid = g_get_cell_id(grid, pos, (int3)(0));
+    if (cid.cnt_id != -1)
+    {
+        // valid id
+        int old_num = atomic_inc(grid->counter+cid.cnt_id);
+        grid->cells[cid.cell_id+old_num] = get_global_id(0);
+    }
+}
+
+
+//////////////////////////////////////////////////////////
+// Geometric methods                                    //
+//////////////////////////////////////////////////////////
 float3 getNormal(image2d_t heightmap, float2 pos)
 {
 	int2 dim = get_image_dim(heightmap);
@@ -192,40 +125,107 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 	return normalize(c1+c2+c3+c4);
 }
 
-int getCellId(float3 pos, int3 dpos)
-{
-    int3 gp = (int3)((int)(pos.s0*GRIDLEN),
-                     (int)(pos.s1*GRIDLEN),
-                     (int)(pos.s2*GRIDLEN));
-    return  (gp.s0+dpos.s0) + (gp.s1+dpos.s1)*GRIDLEN + (gp.s2+dpos.s2)*GRIDLEN*GRIDLEN;
-}
+#define GROUND_NORM_DAMPING 0.0001
+#define GROUND_VELO_DAMPING 0.9
+#define COLLISION_DAMPING -0.00001;
 
-void add2GridCounter(global int* gridCounter, global int4* gridCells, float3 pos)
+//////////////////////////////////////////////////////////
+// Particle Kernel                                      //
+//////////////////////////////////////////////////////////
+kernel void particle_sim
+(
+    global float4* position, 
+    global float4* velos,
+    image2d_t heightmap,
+    image2d_t normalmap,
+    global int* g_counter,
+    global int* g_cells,
+    int g_num_cells,
+    int g_max_particles,
+    float dt) 
 {
-//    int gx = (int)(pos.s0*GRIDLEN);
-//    int gy = (int)(pos.s1*GRIDLEN);
-//    int gz = (int)(pos.s2*GRIDLEN);
-    int id = getCellId(pos, (int3)(0));
-    //int id = gp.s0 + gp.s1*GRIDLEN + gp.s2*GRIDLEN*GRIDLEN;
-    if (id > GRIDLEN*GRIDLEN*GRIDLEN || id <0) return;
-    int mid = atomic_add(gridCounter+id,1);
-    int gid = get_global_id(0);
-    switch (mid) {
-        case 0: gridCells[id].s0 = gid;
-            break;
-        case 1: gridCells[id].s1 = gid;
-            break;
-        case 2: gridCells[id].s2 = gid;
-            break;
-        case 3: gridCells[id].s3 = gid;
-            break;
-        default: break;
+    grid_t grid = { g_num_cells,
+                    g_max_particles,
+                    g_counter,
+                    g_cells};
+
+
+    int mygid = get_global_id(0);
+    float4 mypos = position[mygid];
+    float4 myvel = velos[mygid];
+    float4 height = read_imagef(heightmap, sampler, mypos.s02);
+    float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
+
+
+    //////////////////////////////////////////////////////////
+    // gravity and ground interaction                       //
+    //////////////////////////////////////////////////////////
+    float4 gravity = (float4)(0,-0.00001,0,0);
+    myvel += gravity;
+    float3 dVelo = (float3)(0);  	
+    if(mypos.s1 <= height.s0+RADIUS)
+    {
+        mypos.s1 = height.s0+RADIUS;
+        dVelo = normal.s012*GROUND_NORM_DAMPING;
+        myvel += (float4)(dVelo,1);
+        myvel *= GROUND_VELO_DAMPING;
+    }
+
+
+    // add particle to counter and cell grid
+    g_add_particle(&grid, mypos.s012);
+
+    //////////////////////////////////////////////////////////
+    // particle-particle interaction                        //
+    //////////////////////////////////////////////////////////   
+    for(int i=-1; i<=1; i++){
+        for(int j=-1; j<=1; j++){
+            for(int k=-1; k<=1; k++){
+                cell_id_t cid = g_get_cell_id(&grid, mypos.s012, (int3)(i,j,k));
+                if (cid.cnt_id == -1) continue;
+                int num = grid.counter[cid.cnt_id];
+                num = num > grid.max_p ? grid.max_p : num;
+                
+                for (int m = 0; m < num; m++) {
+                    ///////////////////////////////////////////////////////////
+                    int other_gid = grid.cells[cid.cell_id+m];
+                    if (other_gid == mygid) continue;
+                    float4 other_pos = position[other_gid];
+                    float4 other_vel = velos[other_gid];                    
+                    float4 n = (other_pos - mypos);
+                    float distance = length(n.s012);
+                    if(distance < RADIUS*2)
+                    {
+                        if(mypos.s1 > other_pos.s1){
+                                myvel-=gravity*0.1;
+                        }
+                        myvel+=normalize(n)*COLLISION_DAMPING;
+                    }
+                    ///////////////////////////////////////////////////////////
+                }
+            }
+        }
     }
     
+    barrier(CLK_GLOBAL_MEM_FENCE);
+
+    mypos.s012 += myvel.s012*4;
+
+
+    position[mygid] = mypos;
+    velos[mygid] = myvel;
+
+
 }
 
-kernel void gridclear_sim(
-global int* gridCounter) 
+
+
+//////////////////////////////////////////////////////////
+// Countergrid cleaning Kernel                          //
+//////////////////////////////////////////////////////////
+kernel void gridclear_sim
+(
+    global int* g_counter) 
 {
-    gridCounter[get_global_id(0)] = 0;
+    g_counter[get_global_id(0)] = 0;
 }	

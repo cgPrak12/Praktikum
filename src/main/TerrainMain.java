@@ -84,7 +84,7 @@ public class TerrainMain {
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
-        particles = new Particle(2048*4, Device_Type.GPU, Display.getDrawable());
+        particles = new Particle(2048, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -122,7 +122,7 @@ public class TerrainMain {
             terrain.draw();
             
             particles.getShaderProgram().use();
-            particles.draw(cam);
+            particles.draw(cam, millis);
             // TODO: postfx
             
             // present screen

@@ -82,10 +82,22 @@ public class Particle {
     //opencl buffer
     private CLMem old_pos, new_pos, old_velos, new_velos;
     
-    private CLMem gridCounters;
-    private IntBuffer gridCounterBuf;
-    private CLMem gridCells;
+    
+    //////////////////////////////////////////////////////////////////
+    // OpenCL Particle Grid variables and constants                 //
+    //////////////////////////////////////////////////////////////////
+    
+    /** number cells per dimension spatial dimension */
     private int gridLen = 84;
+    /** max number of particles per cell */
+    private int gridMaxParticles = 20;
+    /** holds the number of particles in a specific grid cell */
+    private CLMem gridCounters;
+    /** holds the cell's particles global_ids */
+    private CLMem gridCells;
+    
+    private IntBuffer gridCounterBuf;
+    
     
     //shader
     private int diffuseTexture;
@@ -234,7 +246,7 @@ public class Particle {
      * Rendert das Partikelsystem
      * @param cam
      */
-    public void draw(Camera cam) {
+    public void draw(Camera cam, long millis) {
         
     	shaderProgram.use();
         //GL.glUseProgram(shaderProgram);
@@ -254,7 +266,7 @@ public class Particle {
         clEnqueueAcquireGLObjects(this.queue, this.heightmap, null, null);
         clEnqueueAcquireGLObjects(this.queue, this.normalmap, null, null);
         
-        //this.kernel0.setArg(5, 1e-3f);
+        this.kernel0.setArg(8, 1e-3f*millis);
         clEnqueueNDRangeKernel(this.queue, kernel1, 1, null, 
                 BufferUtils.createPointerBuffer(1).put(0,84*84*84), 
                 BufferUtils.createPointerBuffer(1).put(0,1), null, null);
@@ -282,7 +294,7 @@ public class Particle {
 //            sum += b;
 //        }
 //        System.out.println("Summe = " + sum);
-//        
+        
         /**
         GL.glActiveTexture(GL.GL_TEXTURE0 + 0);
         GL.glBindTexture(GL.GL_TEXTURE_2D, this.diffuseTexture);
@@ -305,17 +317,20 @@ public class Particle {
         //this.new_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
         this.old_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
         
-        // grid counters
+        //////////////////////////////////////////////////////////////////
+        // OpenCL Particle Grid                                         //
+        //////////////////////////////////////////////////////////////////
+        long spatialGridSize = (long)gridLen*gridLen*gridLen;
+        long integerSize = (long)4;
         this.gridCounters = clCreateBuffer(this.context, CL_MEM_READ_WRITE,
-                (long)gridLen*gridLen*gridLen*4);
-        this.gridCounterBuf = BufferUtils.createIntBuffer(gridLen*gridLen*gridLen);
-        //this.gridCounters = clCreateBuffer(this.context,
-        //        CL_MEM_READ_WRITE,
-        //        this.gridCounterBuf);
+                spatialGridSize*integerSize);
         
         this.gridCells = clCreateBuffer(this.context, CL_MEM_READ_WRITE,
-                (long)gridLen*gridLen*gridLen*4*4);
+                spatialGridSize*gridMaxParticles*integerSize);
 
+        this.gridCounterBuf = BufferUtils.createIntBuffer((int)spatialGridSize);
+
+        
         
         //this.particles = null;
         //this.veloBuffer = null;
@@ -358,6 +373,9 @@ public class Particle {
         this.kernel0.setArg(3,normalmap);
         this.kernel0.setArg(4,this.gridCounters);
         this.kernel0.setArg(5,this.gridCells);
+        this.kernel0.setArg(6,this.gridLen);
+        this.kernel0.setArg(7,this.gridMaxParticles);
+        this.kernel0.setArg(8,0f); // dt, see draw()
     
     }
     
