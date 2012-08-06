@@ -1,6 +1,7 @@
 package util;
 
 import static opengl.GL.*;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -546,12 +547,12 @@ public class Util {
 	public static void biLinIpol(float[][][] terra, float[][]noise, float freq, float amp){
 
 		int terraX = terra.length;
-		int terraY = terra[0].length;
+		int terraZ = terra[0].length;
 		int noiseX = noise.length;
-		int noiseY = noise[0].length;
-		int pX, pY;
+		int noiseZ = noise[0].length;
+		int pX, pZ;
 		float a, b;
-		float dX, dY;
+		float dX, dZ;
 
 		for(int i = 0; i < (terraX-1); i++){
 
@@ -560,23 +561,24 @@ public class Util {
 			dX = a - pX;
 			//System.out.println("pX:"+pX);
 
-			for(int j = 0; j < (terraY-1); j++){
+			for(int j = 0; j < (terraZ-1); j++){
 
-				b = (float)noiseY * freq * (float)j / (float)terraY;
-				pY = (int)(b);
-				dY = b - pY;
+				b = (float)noiseZ * freq * (float)j / (float)terraZ;
+				pZ = (int)(b);
+				dZ = b - pZ;
 				//System.out.println("pY:"+pY);
 
-				terra[i][j][0] += amp * (iPol(iPol(noise[pX % noiseX][pY % noiseY], 
-						noise[pX % noiseX][(pY+1)%noiseY], dY),
-						iPol(noise[(pX+1)%noiseX][pY % noiseY], 
-								noise[(pX+1)%noiseX][(pY+1)%noiseY], dY), dX));
+				terra[i][j][0] += amp * (iPol(iPol(noise[pX % noiseX][pZ % noiseZ], 
+						noise[pX % noiseX][(pZ+1)%noiseZ], dZ),
+						iPol(noise[(pX+1)%noiseX][pZ % noiseZ], 
+								noise[(pX+1)%noiseX][(pZ+1)%noiseZ], dZ), dX));
 
 			}
 
 		}
 
 	}
+	
 	
 	/**
 	 * smoothes terra depending on material
@@ -595,19 +597,21 @@ public class Util {
 
 		case 2:smoothGauss3(terra, x, z, 7);break; //River
 
-		case 3:smoothGauss7(terra, x, z, 50);break; //Sand
+		case 3:smoothGauss3(terra, x, z, 8);smoothGauss7(terra, x, z, 15);break; //Sand
 
-		case 4:smoothGauss7(terra, x, z, 8);break; //Earth
+		case 4:smoothGauss3(terra, x, z, 4);break; //Earth
 
-		case 5:smoothGauss7(terra, x, z, 15);break; //LightGrass
+		case 5:smoothGauss7(terra, x, z, 5);break; //LightGrass
 
-		case 6:smoothGauss7(terra, x, z, 15);break; //DarkGrass
+		case 6:smoothGauss3(terra, x, z, 5);break; //DarkGrass
 
 		case 7:smoothGauss3(terra, x, z, 1);break; //Stone
 
 		case 8:break;	//Rock
 
-		case 9:smoothGauss7(terra, x, z, 50);break;	//Snow
+		case 9:smoothGauss3(terra, x, z, 2);break;	//Snow
+		
+		case 10:smoothGauss7(terra, x, z, 50);break;	//heavy Snow
 		}
 
 
@@ -625,7 +629,7 @@ public class Util {
 		int width = terra.length, height = terra[0].length;
 		float sum = 0;
 
-
+//TODO scalation for less smoothing
 
 		// Fill GaussPattern
 		GaussMat3[0][0] =((((x-1)>=0) & ((z-1)>=0))     ? terra[x-1][z-1][0] :
@@ -739,262 +743,264 @@ public class Util {
 		int width = terra.length, height = terra[0].length;
 		float sum = 0;
 
-				// Fill GaussPattern
-				GaussMat7[0][0] = ((((x-3)>=0) & ((z-3)>=0))     ? terra[x-3][z-3][0] :
-					(z-3)>=0       ? terra[x]  [z-3][0] :
-						(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *1;
-						
-	
-				GaussMat7[0][1] =  ((((x-3)>=0) & ((z-2)>=0))     ? terra[x-3][z-2][0] :
-					(z-2)>=0       ? terra[x]  [z-2][0] :
-						(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *6;
-				GaussMat7[0][2]= (((x-3)>=0) & ((z-1>=0))     ? terra[x-3][z-1][0] :
-					(z-1)>=0       ? terra[x]  [z-1][0] :
-						(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *15;
+		// Fill GaussPattern
+		GaussMat7[0][0] = ((((x-3)>=0) & ((z-3)>=0))     ? terra[x-3][z-3][0] :
+			(z-3)>=0       ? terra[x]  [z-3][0] :
+				(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *1;
 				
-				GaussMat7[0][3] = ((x-3)>=0  			       ? terra[x-3][z]  [0] : terra[x][z][0]) *20;
-				
-				GaussMat7[0][4] = ((((x-3)>=0) & ((z+1)<height)) ? terra[x-3][z+1][0] :
-					(z+1)<height   ? terra[x]  [z+1][0] :
-						(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *15;
-						
-			
-				
-				GaussMat7[0][5] =((((x-3)>=0) & ((z+2)<height)) ? terra[x-3][z+2][0] :
-					(z+2)<height   ? terra[x]  [z+2][0] :
-						(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *6;
-						
-						
-				
-				GaussMat7[0][6] =((((x-3)>=0) & ((z+3)<height)) ? terra[x-3][z+3][0] :
-					(z+3)<height   ? terra[x]  [z+3][0] :
-						(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *1;
-			
 
+		GaussMat7[0][1] =  ((((x-3)>=0) & ((z-2)>=0))     ? terra[x-3][z-2][0] :
+			(z-2)>=0       ? terra[x]  [z-2][0] :
+				(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *6;
+		GaussMat7[0][2]= (((x-3)>=0) & ((z-1>=0))     ? terra[x-3][z-1][0] :
+			(z-1)>=0       ? terra[x]  [z-1][0] :
+				(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *15;
+		
+		GaussMat7[0][3] = ((x-3)>=0  			       ? terra[x-3][z]  [0] : terra[x][z][0]) *20;
+		
+		GaussMat7[0][4] = ((((x-3)>=0) & ((z+1)<height)) ? terra[x-3][z+1][0] :
+			(z+1)<height   ? terra[x]  [z+1][0] :
+				(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *15;
 				
-				
-				GaussMat7[1][0] = ((((x-2)>=0) & ((z-3)>=0))     ? terra[x-2][z-3][0]:
-					(z-3)>=0       ? terra[x]  [z-3][0] :
-						(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *6;
-						
 	
-				GaussMat7[1][1] =  ((((x-2)>=0) & ((z-2)>=0))     ? terra[x-2][z-2][0] :
-					(z-2)>=0       ? terra[x]  [z-2][0] :
-						(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *36;
+		
+		GaussMat7[0][5] =((((x-3)>=0) & ((z+2)<height)) ? terra[x-3][z+2][0] :
+			(z+2)<height   ? terra[x]  [z+2][0] :
+				(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *6;
 				
-				GaussMat7[1][2]= (((x-2)>=0) & ((z-1>=0))     ? terra[x-2][z-1][0] :
-					(z-1)>=0       ? terra[x]  [z-1][0] :
-						(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *90;
-				
-				GaussMat7[1][3] = ((x-2)>=0  			       ? terra[x-2][z]  [0] : terra[x][z][0]) *120;
-				
-				GaussMat7[1][4] = ((((x-2)>=0) & ((z+1)<height)) ? terra[x-2][z+1][0] :
-					(z+1)<height   ? terra[x]  [z+1][0] :
-						(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *90;
-						
-			
-				
-				GaussMat7[1][5] =((((x-2)>=0) & ((z+2)<height)) ? terra[x-2][z+2][0] :
-					(z+2)<height   ? terra[x]  [z+2][0] :
-						(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *36;
-						
-						
-				
-				GaussMat7[1][6] =((((x-2)>=0) & ((z+3)<height)) ? terra[x-2][z+3][0] :
-					(z+3)<height   ? terra[x]  [z+3][0] :
-						(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *6;
-							
-				
-				
-				GaussMat7[2][0] = ((((x-1)>=0) & ((z-3)>=0))     ? terra[x-1][z-3][0]:
-					(z-3)>=0       ? terra[x]  [z-3][0] :
-						(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *15;
-						
-	
-				GaussMat7[2][1] =  ((((x-1)>=0) & ((z-2)>=0))     ? terra[x-1][z-2][0] :
-					(z-2)>=0       ? terra[x]  [z-2][0] :
-						(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *90;
-				
-				GaussMat7[2][2]= (((x-1)>=0) & ((z-1>=0))     ? terra[x-1][z-1][0] :
-					(z-1)>=0       ? terra[x]  [z-1][0] :
-						(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *225;
-				
-				GaussMat7[2][3] = ((x-1)>=0  			       ? terra[x-1][z]  [0] : terra[x][z][0]) *300;
-				
-				GaussMat7[2][4] = ((((x-1)>=0) & ((z+1)<height)) ? terra[x-1][z+1][0] :
-					(z+1)<height   ? terra[x]  [z+1][0] :
-						(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *225;
-						
-			
-				
-				GaussMat7[2][5] =((((x-1)>=0) & ((z+2)<height)) ? terra[x-1][z+2][0] :
-					(z+2)<height   ? terra[x]  [z+2][0] :
-						(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *90;
-						
-						
-				
-				GaussMat7[2][6] =((((x-1)>=0) & ((z+3)<height)) ? terra[x-1][z+3][0] :
-					(z+3)<height   ? terra[x]  [z+3][0] :
-						(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *15;
 				
 		
-				GaussMat7[3][0] = ((z-3)>=0 		? terra[x][z-3][0] : terra[x][z][0] ) * 20;
-				
-				GaussMat7[3][1] = ((z-2)>=0 		? terra[x][z-2][0] : terra[x][z][0] ) * 120;
-				
-				GaussMat7[3][2] = ((z-1)>=0 		? terra[x][z-1][0] : terra[x][z][0] ) * 300;
-				
-
-				
-				GaussMat7[3][4] = ((z+1)<height		? terra[x][z+1][0] : terra[x][z][0] ) * 300;
-				
-				GaussMat7[3][5] = ((z+2)<height			? terra[x][z+2][0] : terra[x][z][0] ) * 120;
-				
-				GaussMat7[3][6] = ((z+3)<height	 		? terra[x][z+3][0] : terra[x][z][0] ) * 20;	
-				
-				
-				GaussMat7[4][0] = ((((x+1)<width) & ((z-3)>=0))    ? terra[x+1][z-3][0] :
-					(z-3)>=0       ? terra[x]  [z-3][0] :
-						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *15;
-						
-					
-				
-				GaussMat7[4][1] = ((((x+1)<width) & ((z-2)>=0))    ? terra[x+1][z-2][0] :
-					(z-2)>=0       ? terra[x]  [z-2][0] :
-						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *90;
-						 
-						
-						
-				
-				GaussMat7[4][2] = ((((x+1)<width) & ((z-1)>=0))    ? terra[x+1][z-1][0] :
-					(z-1)>=0       ? terra[x]  [z-1][0] :
-						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *225; 
-						
-						
-				GaussMat7[4][3] = ((x+1)<width    ? terra[x+1][z][0] : terra[x][z][0]) *300;
-				
-				
-
-				
-				GaussMat7[4][4] = ((((x+1)<width) & ((z+1)<height))    ? terra[x+1][z+1][0] :
-					(z+1)<height       ? terra[x]  [z+1][0] :
-						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *225; 		
+		GaussMat7[0][6] =((((x-3)>=0) & ((z+3)<height)) ? terra[x-3][z+3][0] :
+			(z+3)<height   ? terra[x]  [z+3][0] :
+				(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *1;
 	
+
+		
+		
+		GaussMat7[1][0] = ((((x-2)>=0) & ((z-3)>=0))     ? terra[x-2][z-3][0]:
+			(z-3)>=0       ? terra[x]  [z-3][0] :
+				(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *6;
 				
-				GaussMat7[4][5] = ((((x+1)<width) & ((z+2)<height))    ? terra[x+1][z+2][0] :
-					(z+2)<height       ? terra[x]  [z+2][0] :
-						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) * 90;
+
+		GaussMat7[1][1] =  ((((x-2)>=0) & ((z-2)>=0))     ? terra[x-2][z-2][0] :
+			(z-2)>=0       ? terra[x]  [z-2][0] :
+				(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *36;
+		
+		GaussMat7[1][2]= (((x-2)>=0) & ((z-1>=0))     ? terra[x-2][z-1][0] :
+			(z-1)>=0       ? terra[x]  [z-1][0] :
+				(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *90;
+		
+		GaussMat7[1][3] = ((x-2)>=0  			       ? terra[x-2][z]  [0] : terra[x][z][0]) *120;
+		
+		GaussMat7[1][4] = ((((x-2)>=0) & ((z+1)<height)) ? terra[x-2][z+1][0] :
+			(z+1)<height   ? terra[x]  [z+1][0] :
+				(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *90;
 				
-				GaussMat7[4][6] = ((((x+1)<width) & ((z+3)<height))    ? terra[x+1][z+3][0] :
-					(z+3)<height       ? terra[x]  [z+3][0] :
-						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) * 15;
+	
+		
+		GaussMat7[1][5] =((((x-2)>=0) & ((z+2)<height)) ? terra[x-2][z+2][0] :
+			(z+2)<height   ? terra[x]  [z+2][0] :
+				(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *36;
+				
+				
+		
+		GaussMat7[1][6] =((((x-2)>=0) & ((z+3)<height)) ? terra[x-2][z+3][0] :
+			(z+3)<height   ? terra[x]  [z+3][0] :
+				(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *6;
+					
+		
+		
+		GaussMat7[2][0] = ((((x-1)>=0) & ((z-3)>=0))     ? terra[x-1][z-3][0]:
+			(z-3)>=0       ? terra[x]  [z-3][0] :
+				(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *15;
+				
+
+		GaussMat7[2][1] =  ((((x-1)>=0) & ((z-2)>=0))     ? terra[x-1][z-2][0] :
+			(z-2)>=0       ? terra[x]  [z-2][0] :
+				(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *90;
+		
+		GaussMat7[2][2]= (((x-1)>=0) & ((z-1>=0))     ? terra[x-1][z-1][0] :
+			(z-1)>=0       ? terra[x]  [z-1][0] :
+				(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *225;
+		
+		GaussMat7[2][3] = ((x-1)>=0  			       ? terra[x-1][z]  [0] : terra[x][z][0]) *300;
+		
+		GaussMat7[2][4] = ((((x-1)>=0) & ((z+1)<height)) ? terra[x-1][z+1][0] :
+			(z+1)<height   ? terra[x]  [z+1][0] :
+				(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *225;
+				
+	
+		
+		GaussMat7[2][5] =((((x-1)>=0) & ((z+2)<height)) ? terra[x-1][z+2][0] :
+			(z+2)<height   ? terra[x]  [z+2][0] :
+				(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *90;
+				
+				
+		
+		GaussMat7[2][6] =((((x-1)>=0) & ((z+3)<height)) ? terra[x-1][z+3][0] :
+			(z+3)<height   ? terra[x]  [z+3][0] :
+				(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *15;
+		
+
+		GaussMat7[3][0] = ((z-3)>=0 		? terra[x][z-3][0] : terra[x][z][0] ) * 20;
+		
+		GaussMat7[3][1] = ((z-2)>=0 		? terra[x][z-2][0] : terra[x][z][0] ) * 120;
+		
+		GaussMat7[3][2] = ((z-1)>=0 		? terra[x][z-1][0] : terra[x][z][0] ) * 300;
+		
+
+		
+		GaussMat7[3][4] = ((z+1)<height		? terra[x][z+1][0] : terra[x][z][0] ) * 300;
+		
+		GaussMat7[3][5] = ((z+2)<height			? terra[x][z+2][0] : terra[x][z][0] ) * 120;
+		
+		GaussMat7[3][6] = ((z+3)<height	 		? terra[x][z+3][0] : terra[x][z][0] ) * 20;	
+		
+		
+		GaussMat7[4][0] = ((((x+1)<width) & ((z-3)>=0))    ? terra[x+1][z-3][0] :
+			(z-3)>=0       ? terra[x]  [z-3][0] :
+				(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *15;
+				
 			
-				
-				GaussMat7[5][0] = ((((x+2)<width) & ((z-3)>=0))    ? terra[x+2][z-3][0] :
-					(z-3)>=0       ? terra[x]  [z-3][0] :
-						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *6;
-						
-					
-				
-				GaussMat7[5][1] = ((((x+2)<width) & ((z-2)>=0))    ? terra[x+2][z-2][0] :
-					(z-2)>=0       ? terra[x]  [z-2][0] :
-						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *36;
-						 
-						
-						
-				
-				GaussMat7[5][2] = ((((x+2)<width) & ((z-1)>=0))    ? terra[x+2][z-1][0] :
-					(z-1)>=0       ? terra[x]  [z-1][0] :
-						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *90;
-						
-						
-				GaussMat7[5][3] = ((x+2)<width    ? terra[x+2][z][0] : terra[x][z][0]) *120;
+		
+		GaussMat7[4][1] = ((((x+1)<width) & ((z-2)>=0))    ? terra[x+1][z-2][0] :
+			(z-2)>=0       ? terra[x]  [z-2][0] :
+				(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *90;
+				 
 				
 				
+		
+		GaussMat7[4][2] = ((((x+1)<width) & ((z-1)>=0))    ? terra[x+1][z-1][0] :
+			(z-1)>=0       ? terra[x]  [z-1][0] :
+				(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *225; 
+				
+				
+		GaussMat7[4][3] = ((x+1)<width    ? terra[x+1][z][0] : terra[x][z][0]) *300;
+		
+		
 
-				
-				GaussMat7[5][4] = ((((x+2)<width) & ((z+1)<height))    ? terra[x+2][z+1][0] :
-					(z+1)<height       ? terra[x]  [z+1][0] :
-						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *90; 
-				
-				
+		
+		GaussMat7[4][4] = ((((x+1)<width) & ((z+1)<height))    ? terra[x+1][z+1][0] :
+			(z+1)<height       ? terra[x]  [z+1][0] :
+				(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *225; 		
+
+		
+		GaussMat7[4][5] = ((((x+1)<width) & ((z+2)<height))    ? terra[x+1][z+2][0] :
+			(z+2)<height       ? terra[x]  [z+2][0] :
+				(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) * 90;
+		
+		GaussMat7[4][6] = ((((x+1)<width) & ((z+3)<height))    ? terra[x+1][z+3][0] :
+			(z+3)<height       ? terra[x]  [z+3][0] :
+				(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) * 15;
 	
+		
+		GaussMat7[5][0] = ((((x+2)<width) & ((z-3)>=0))    ? terra[x+2][z-3][0] :
+			(z-3)>=0       ? terra[x]  [z-3][0] :
+				(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *6;
 				
-				GaussMat7[5][5] = ((((x+2)<width) & ((z+2)<height))    ? terra[x+2][z+2][0] :
-					(z+2)<height       ? terra[x]  [z+2][0] :
-						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) * 36;
+			
+		
+		GaussMat7[5][1] = ((((x+2)<width) & ((z-2)>=0))    ? terra[x+2][z-2][0] :
+			(z-2)>=0       ? terra[x]  [z-2][0] :
+				(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *36;
+				 
 				
-				GaussMat7[5][6] = ((((x+2)<width) & ((z+3)<height))    ? terra[x+2][z+3][0] :
-					(z+3)<height       ? terra[x]  [z+3][0] :
-						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) * 6;
+				
+		
+		GaussMat7[5][2] = ((((x+2)<width) & ((z-1)>=0))    ? terra[x+2][z-1][0] :
+			(z-1)>=0       ? terra[x]  [z-1][0] :
+				(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *90;
+				
+				
+		GaussMat7[5][3] = ((x+2)<width    ? terra[x+2][z][0] : terra[x][z][0]) *120;
+		
+		
 
-				
-				
+		
+		GaussMat7[5][4] = ((((x+2)<width) & ((z+1)<height))    ? terra[x+2][z+1][0] :
+			(z+1)<height       ? terra[x]  [z+1][0] :
+				(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *90; 
+		
+		
+
+		
+		GaussMat7[5][5] = ((((x+2)<width) & ((z+2)<height))    ? terra[x+2][z+2][0] :
+			(z+2)<height       ? terra[x]  [z+2][0] :
+				(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) * 36;
+		
+		GaussMat7[5][6] = ((((x+2)<width) & ((z+3)<height))    ? terra[x+2][z+3][0] :
+			(z+3)<height       ? terra[x]  [z+3][0] :
+				(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) * 6;
+
+		
+		
 
 
+		
+		
+		
+		GaussMat7[6][0] = ((((x+3)<width) & ((z-3)>=0))    ? terra[x+3][z-3][0] :
+			(z-3)>=0       ? terra[x]  [z-3][0] :
+				(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *1;
+				
+			
+		
+		GaussMat7[6][1] = ((((x+3)<width) & ((z-2)>=0))    ? terra[x+3][z-2][0] :
+			(z-2)>=0       ? terra[x]  [z-2][0] :
+				(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *6;
+				 
 				
 				
-				
-				GaussMat7[6][0] = ((((x+3)<width) & ((z-3)>=0))    ? terra[x+3][z-3][0] :
-					(z-3)>=0       ? terra[x]  [z-3][0] :
-						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *1;
-						
-					
-				
-				GaussMat7[6][1] = ((((x+3)<width) & ((z-2)>=0))    ? terra[x+3][z-2][0] :
-					(z-2)>=0       ? terra[x]  [z-2][0] :
-						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *6;
-						 
-						
-						
-				
-				GaussMat7[6][2] = ((((x+3)<width) & ((z-1)>=0))    ? terra[x+3][z-1][0] :
-					(z-1)>=0       ? terra[x]  [z-1][0] :
-						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *15;
-						
-						
-				GaussMat7[6][3] = ((x+3)<width    ? terra[x+3][z][0] : terra[x][z][0]) *20;
+		
+		GaussMat7[6][2] = ((((x+3)<width) & ((z-1)>=0))    ? terra[x+3][z-1][0] :
+			(z-1)>=0       ? terra[x]  [z-1][0] :
+				(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *15;
 				
 				
+		GaussMat7[6][3] = ((x+3)<width    ? terra[x+3][z][0] : terra[x][z][0]) *20;
+		
+		
 
-				
-				GaussMat7[6][4] = ((((x+3)<width) & ((z+1)<height))    ? terra[x+3][z+1][0] :
-					(z+1)<height       ? terra[x]  [z+1][0] :
-						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *15; 
-				
-				
-	
-				
-				GaussMat7[6][5] = ((((x+3)<width) & ((z+2)<height))    ? terra[x+3][z+2][0] :
-					(z+2)<height       ? terra[x]  [z+2][0] :
-						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) * 6;
-				
-				GaussMat7[6][6] = ((((x+3)<width) & ((z+3)<height))    ? terra[x+3][z+3][0] :
-					(z+3)<height       ? terra[x]  [z+3][0] :
-						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) * 1;
-				
+		
+		GaussMat7[6][4] = ((((x+3)<width) & ((z+1)<height))    ? terra[x+3][z+1][0] :
+			(z+1)<height       ? terra[x]  [z+1][0] :
+				(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *15; 
+		
+		
 
-				
-				for(int k=0; k<7; k++){
-					GaussMat7[3][3] = 	terra[x][z][0]  * 400;
-					for(int l=0; l<7; l++){
-						sum += GaussMat7[k][l];
-					}
+		
+		GaussMat7[6][5] = ((((x+3)<width) & ((z+2)<height))    ? terra[x+3][z+2][0] :
+			(z+2)<height       ? terra[x]  [z+2][0] :
+				(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) * 6;
+		
+		GaussMat7[6][6] = ((((x+3)<width) & ((z+3)<height))    ? terra[x+3][z+3][0] :
+			(z+3)<height       ? terra[x]  [z+3][0] :
+				(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) * 1;
+		
+
+		for(int i=0; i<count; i++){
+			GaussMat7[3][3] = terra[x][z][0] *400;
+			for(int k=0; k<7; k++){	
+				for(int l=0; l<7; l++){
+					sum += GaussMat7[k][l];
 				}
-				terra[x][z][0] = sum/4096f;
-				sum = 0;
-
+			}
+			terra[x][z][0] = sum/4096f;
+			sum = 0;
+		}
 	}
 	
 
 	/**
 	 * @author ARECKNAG, FMAESCHIG
+	 * 
 	 * @param valA First value which is to be interpolated
 	 * @param valB Second value which is to be interpolated
 	 * @param rel The relation between the position of the values
-	 * @return the interpolated value
+	 * 
+	 * @return If rel == 0, valA is returned; If rel ==1, valB is returned.
 	 */
-	private static float iPol(float valA, float valB, float rel) {
+	static float iPol(float valA, float valB, float rel) {
 
 		return valA +((valB - valA) * rel);
 
@@ -1053,6 +1059,7 @@ public class Util {
 		glBindAttribLocation(programID, ATTR_POS, "positionMC");
 		glBindAttribLocation(programID, ATTR_NORMAL, "normalMC");        
 		glBindAttribLocation(programID, ATTR_COLOR, "vertexColor");
+		glBindAttribLocation(programID, ATTR_MATERIAL, "material");
 
 		glLinkProgram(programID);        
 
