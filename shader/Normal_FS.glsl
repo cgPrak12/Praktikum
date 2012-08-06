@@ -3,11 +3,12 @@
 uniform sampler2D normalTexture;
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
+uniform sampler2D skyTexture;
 uniform sampler2D bumpTexture;
 uniform vec3 lightPosition1;
 uniform vec3 eyePosition;
 
-const float k_d = 5;
+const float k_d = 50;
 const vec3 maxIntensity  = vec3(1.0, 1.0, 0.9);
 const float k_a = 0.2;
 const float k_s = 0.001;
@@ -44,11 +45,16 @@ void main(void)
 	vec3 c_a =  c_d;
 	vec3 c_s =  texture(specularTexture, texCoord).rgb;
 	
-	vec3 position = eyePosition + 0.9 * texture(bumpTexture, texCoord).r * normal;
+	vec3 position = positionWC + 0.9 * texture(bumpTexture, texCoord).r * normal;
 	
 	vec3 color  = c_a*k_a; 
-		 color += getDiffuse (positionWC, normal, c_d, maxIntensity, lightPosition1);
-		 color += getSpecular(positionWC, normal, c_s, maxIntensity, lightPosition1, eyePosition, es);
+		 color += getDiffuse (position, normal, c_d, maxIntensity, lightPosition1);
+		 color += getSpecular(position, normal, c_s, maxIntensity, lightPosition1, eyePosition, es);
 		 
-	finalColor = vec4(color, 1);
+	float skyDraw = sign(texture(skyTexture, texCoord).x);
+
+	
+	finalColor =  vec4(skyDraw*color,0.0);
+	finalColor +=  vec4(( (1-skyDraw) * c_d) ,0.0 ) ;
+	
 }

@@ -51,9 +51,9 @@ public class GeometryFactory {
         vertexData.put(new float[] {
             // position          // normal          // tangent         // tex coords
             0.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1f, 0f, 0f,
-            0.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 1f, 0f, 0f,
+            0.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 1f, 0f, 0f,
             0.0f, +1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 1f, 0f, 0f,
-            0.0f, +1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 1f, 0f, 0f
+            0.0f, +1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 1f, 0f, 0f
         });
     	
         vertexData.position(0);

@@ -18,7 +18,17 @@ out vec3 skyColor;
 
 
 void main(void) {
-   vec3 normalAbs = normalize(vec3(normalWC));
+   float laenge = length (normalWC.xyz);
+   vec3 normalAbs;
+   if (laenge !=0)
+   {
+   		normalAbs = normalize(vec3(normalWC));
+   }
+   else
+   {
+   		normalAbs = vec3(0);
+   }
+   
    vec3 tangent   = normalize(vec3(tangentWC));
    vec3 binormal  = cross(tangent,normalAbs);
    vec3 mapNormal = 2 * texture(normalTexture, fragmentTexCoords).rgb - vec3(1);
@@ -31,5 +41,5 @@ void main(void) {
    color = texture(textureImage, fragmentTexCoords);
    position = positionWC;
    spec = texture(specularTexture, fragmentTexCoords).rgb ;
-   skyColor = length(normal) * vec3(1);
+   skyColor = length(normalAbs) * vec3(1);
 }
