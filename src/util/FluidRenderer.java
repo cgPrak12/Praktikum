@@ -102,7 +102,7 @@ public class FluidRenderer {
 		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
 		init(vBlurSP, vBlurFrameBuffer, "color", vBlurTexture);
     	init(normalSP, normalFrameBuffer, "color", normalTexture);
-    	init(normalHBlurSP, normalFrameBuffer, "color", normalHBlurTexture);
+    	init(normalHBlurSP, normalHBlurFrameBuffer, "color", normalHBlurTexture);
     	init(normalVBlurSP, normalVBlurFrameBuffer, "color", normalBlurTexture);
     	init(thicknessSP, thicknessFrameBuffer, "color", thicknessTexture);
     	init(thicknessBlurSP, thicknessBlurFrameBuffer, "color", thicknessBlurTexture);
@@ -120,9 +120,9 @@ public class FluidRenderer {
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
-		fluidThicknessBlur();
+//		fluidThicknessBlur();
 		// fluid lighting
-		fluidLighting();
+//		fluidLighting();
 		
 		// combine images to final image
 		createFinalImage();
@@ -216,7 +216,11 @@ public class FluidRenderer {
 		fluidNormals(0);
 	}
 	
-	private void fluidNormals(int count) {
+	private void fluidNormals(int blurCount) {
+		fluidNormals(blurCount, 1.0f);
+	}
+	
+	private void fluidNormals(int blurCount, float offsetValue) {
 		startPath(normalSP, normalFrameBuffer);
 		normalSP.setUniform("depthTex", depthTexture);
 		normalSP.setUniform("texSize", (float)GL.WIDTH);
@@ -226,16 +230,18 @@ public class FluidRenderer {
 		screenQuadGeo.draw();
 		endPath(normalFrameBuffer);
 		
-		for(int i = 0; i <= count-1; i++){
+		for(int i = 0; i <= blurCount-1; i++){
 			startPath(normalHBlurSP, normalHBlurFrameBuffer);
-			normalHBlurSP.setUniform("normalTex", i==1?normalTexture:normalBlurTexture);
+			normalHBlurSP.setUniform("normalTex", i==0?normalTexture:normalBlurTexture);
 			normalHBlurSP.setUniform("texSize", (float)GL.WIDTH);
+			normalHBlurSP.setUniform("offsetValue", offsetValue);
 			screenQuadGeo.draw();
 			endPath(normalHBlurFrameBuffer);
 			
 			startPath(normalVBlurSP, normalVBlurFrameBuffer);
 			normalVBlurSP.setUniform("normalTex", normalHBlurTexture);
 			normalVBlurSP.setUniform("texSize", (float)GL.WIDTH);
+			normalHBlurSP.setUniform("offsetValue", offsetValue);
 			screenQuadGeo.draw();
 			endPath(normalVBlurFrameBuffer);
 		}
