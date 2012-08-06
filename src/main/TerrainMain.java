@@ -37,7 +37,7 @@ public class TerrainMain {
     // animation params
     private static float ingameTimePerSecond = 1.0f;
     private static float moveSpeed;
-    
+             
     //Shader Programs
     private static ShaderProgram program; 
     
