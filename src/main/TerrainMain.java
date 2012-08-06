@@ -53,6 +53,8 @@ public class TerrainMain {
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
+    private static float orthoScaleValue = 1f;
+    
     private static ShaderProgram fboSP;
     private static ShaderProgram shadowSP;
     
@@ -93,8 +95,8 @@ public class TerrainMain {
         Matrix4f floorQuadMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
-        Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
         shadowCam.changeProjection();
+        Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
 
         
         DeferredShader shadowShader = new DeferredShader();
@@ -328,6 +330,16 @@ public class TerrainMain {
                     	bloomBlend = !bloomBlend; break;
                     case Keyboard.KEY_F8:
                     	bloom = !bloom; break;
+                    case Keyboard.KEY_ADD:
+                    	shadowCam.setOrthoScaleValue(orthoScaleValue += 0.5f); break;
+                    case Keyboard.KEY_SUBTRACT:
+                    	if(orthoScaleValue >= 0.5f) {
+                    		shadowCam.setOrthoScaleValue(orthoScaleValue -= 0.5f);
+                    	}
+                    	else {
+                    		orthoScaleValue = 0f; 
+                    	}
+                    	break;
                 }
             }
         }
