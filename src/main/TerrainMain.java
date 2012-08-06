@@ -232,9 +232,7 @@ public class TerrainMain {
 	        	}
         	}
         	shader.DrawTexture(fbo.getTexture(0));
-        	
-            // TODO: postfx
-            
+        	            
             // present screen
             Display.update();
             Display.sync(60);

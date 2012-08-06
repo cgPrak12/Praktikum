@@ -353,6 +353,12 @@ public class ScreenManipulation {
        	return fboTone;
 	}
 	
+	/**
+	 * Splits screen in two halfs
+	 * @param image1 left half image
+	 * @param image2 right half image
+	 * @return FrameBuffer with half image on each side
+	 */
 	public FrameBuffer getHalfScreenView(FrameBuffer image1, FrameBuffer image2) {
 		fboHalf.bind();
 		
@@ -367,7 +373,15 @@ public class ScreenManipulation {
 		return fboHalf;
 		
 	}
-		
+	
+	/**
+	 * Generates FrameBuffer with Quad Image View
+	 * @param image1 First image
+	 * @param image2 Second image
+	 * @param image3 Third image
+	 * @param image4 Forth image
+	 * @return FrameBuffer with all four images
+	 */
 	public FrameBuffer getQuadScreenView(FrameBuffer image1, FrameBuffer image2, FrameBuffer image3, FrameBuffer image4) {
 		fboQuad.bind();
 		
@@ -384,6 +398,11 @@ public class ScreenManipulation {
 		return fboQuad;
 	}
 	
+	/**
+	 * Generates ShadowMap
+	 * @param shadowImage Texture with depth-informations(GlobalTexture)
+	 * @return FrameBuffer FrameBuffer with depth-informations
+	 */
 	public FrameBuffer getShadowMap(Texture shadowImage) {
 		fboShadow.bind();
 		
@@ -397,23 +416,23 @@ public class ScreenManipulation {
 		return fboShadow;
 	}
 	
-	public FrameBuffer getShadowLighting(DeferredShader shader, Vector3f camPos, Vector3f sunDirection, FrameBuffer shadowTex) {
-		fboShadowPhong.bind();
-		
-		spoShadowPhong.use();
-		spoShadowPhong.setUniform("normalTex",  shader.getNormalTexture());
-		spoShadowPhong.setUniform("worldTex",   shader.getWorldTexture());
-		spoShadowPhong.setUniform("diffuseTex", shader.getDiffuseTexture());
-		spoShadowPhong.setUniform("shadowTex", shadowTex.getTexture(0));
-		spoShadowPhong.setUniform("camPos",     camPos);
-		spoShadowPhong.setUniform("sunDir",	 sunDirection);
-		
-		this.screenQuad.draw();
-		
-		fboShadowPhong.unbind();
-		
-		return fboShadowPhong;
-	}
+//	public FrameBuffer getShadowLighting(DeferredShader shader, Vector3f camPos, Vector3f sunDirection, FrameBuffer shadowTex) {
+//		fboShadowPhong.bind();
+//		
+//		spoShadowPhong.use();
+//		spoShadowPhong.setUniform("normalTex",  shader.getNormalTexture());
+//		spoShadowPhong.setUniform("worldTex",   shader.getWorldTexture());
+//		spoShadowPhong.setUniform("diffuseTex", shader.getDiffuseTexture());
+//		spoShadowPhong.setUniform("shadowTex", shadowTex.getTexture(0));
+//		spoShadowPhong.setUniform("camPos",     camPos);
+//		spoShadowPhong.setUniform("sunDir",	 sunDirection);
+//		
+//		this.screenQuad.draw();
+//		
+//		fboShadowPhong.unbind();
+//		
+//		return fboShadowPhong;
+//	}
 	
 	
 	/**
@@ -428,6 +447,7 @@ public class ScreenManipulation {
 		spoHalf.delete();
 		spoQuad.delete();
 		spoShadow.delete();
+//		spoShadowPhong.delete();
 	}
 
 	/**

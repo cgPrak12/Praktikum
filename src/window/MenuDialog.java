@@ -70,6 +70,7 @@ public class MenuDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
+	@SuppressWarnings("unchecked")
 	private MenuDialog() {
 		setResizable(false);
 		
@@ -510,6 +511,7 @@ public class MenuDialog extends JDialog {
 		
 		// combo boxes	
 		{
+			@SuppressWarnings("rawtypes")
 			JComboBox cbxTopLeft = new JComboBox(cbxStrings);
 			GridBagConstraints gbc_cbxStrings = new GridBagConstraints();
 			gbc_cbxStrings.anchor = GridBagConstraints.NORTH;
@@ -540,6 +542,7 @@ public class MenuDialog extends JDialog {
 		}
         
 		{
+			@SuppressWarnings("rawtypes")
 			JComboBox cbxTopRight = new JComboBox(cbxStrings);
 			GridBagConstraints gbc_cbxStrings = new GridBagConstraints();
 			gbc_cbxStrings.anchor = GridBagConstraints.NORTH;
@@ -570,6 +573,7 @@ public class MenuDialog extends JDialog {
 		}
         
 		{
+			@SuppressWarnings("rawtypes")
 			JComboBox cbxBottomLeft = new JComboBox(cbxStrings);
 			GridBagConstraints gbc_cbxStrings = new GridBagConstraints();
 			gbc_cbxStrings.anchor = GridBagConstraints.NORTH;
@@ -600,6 +604,7 @@ public class MenuDialog extends JDialog {
 		}
         
 		{
+			@SuppressWarnings("rawtypes")
 			JComboBox cbxBottomRight = new JComboBox(cbxStrings);
 			GridBagConstraints gbc_cbxStrings = new GridBagConstraints();
 			gbc_cbxStrings.anchor = GridBagConstraints.NORTH;
