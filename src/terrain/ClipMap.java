@@ -307,20 +307,15 @@ public class ClipMap {
 	 */
 	private void setLGrid(int i){
 				
-		System.out.println("Alignment: 0:" + alignment[0][0] + " 1: " + alignment[0][1] + " 2: " +alignment[0][2]+ " 3: "+ alignment[0][3]);
 		int side=0;
 		if(alignment[i-1][0]&&alignment[i-1][1]){
 			side=2;}
-		// System.out.println("0 und 1 ist true --->TopLeft");}
 		else if(alignment[i-1][1]&&alignment[i-1][2]){
 			side =1;}
-		 //System.out.println("1 und 2 ist true ---> TopLEft");}
 		else if(alignment[i-1][2]&&alignment[i-1][3]){
 			side =4;}
-		 //System.out.println("2 und 3 ist true ---> BottomRight");}
 		else if(alignment[i-1][3]&&alignment[i-1][0]){
 			side =3;}
-		 //System.out.println("3 und 4 ist true ---> BottomLEft");}
 		else throw new IllegalStateException("L Grid kann nicht gesetzt werden");
 		
 		//1 = TopRight
