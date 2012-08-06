@@ -70,11 +70,21 @@ public class GeometryFactory {
                 } else if (line.startsWith("illum ")) {
                     material.illuminationModel = Integer.parseInt(line.split(" {1,}")[1]);
                 } else if (line.startsWith("map_Kd ")) {
-                    String[] filePath = line.split("\\\\");
-                    material.diffuseRefColorMap = filePath[filePath.length-1];
+                    String[] filePath = line.split(" {1,}");
+                    if(filePath.length>=2 && filePath[1].contains("\\\\")) {
+                        filePath = line.split("\\\\");
+                        material.diffuseRefColorMap = filePath[filePath.length-1];
+                    } else if(filePath.length>=2) {
+                        material.diffuseRefColorMap = filePath[1];
+                    }
                 } else if (line.startsWith("map_d ")) {
-                    String[] filePath = line.split("\\\\");
-                    material.dissolveFactColorMap = filePath[filePath.length-1];
+                    String[] filePath = line.split(" {1,}");
+                    if(filePath.length>=2 && filePath[1].contains("\\\\")) {
+                        filePath = line.split("\\\\");
+                        material.dissolveFactColorMap = filePath[filePath.length-1];
+                    } else if(filePath.length>=2) {
+                        material.dissolveFactColorMap = filePath[1];
+                    }
                 }
             } //end of while loop
             //add the last material object to the list (its not being added in the while loop!)

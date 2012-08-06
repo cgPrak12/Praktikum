@@ -71,7 +71,7 @@ public class TerrainMain {
         ShaderProgram shaderProgram = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
         
 //        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.mtl");
-        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl");
+        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60.mtl");
 
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -102,7 +102,8 @@ public class TerrainMain {
 //                shaderProgram.setUniform("scale", new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
                 shaderProgram.setUniform("model", new Matrix4f());
                 shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));   
-                shaderProgram.setUniform("image", modelPart.material.textureDiffuseRefColorMap);
+                if(modelPart.material.textureDiffuseRefColorMap!=null)
+                    shaderProgram.setUniform("image", modelPart.material.textureDiffuseRefColorMap);
 
                 modelPart.geometry.draw();
             }
