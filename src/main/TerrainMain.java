@@ -26,6 +26,8 @@ public class TerrainMain {
     public static boolean isCulling() {
 		return culling;
 	}
+    private static boolean splitScreen = false;
+    private static int splitScreenVal = 1234;
 
 	private static boolean culling   = true;
     private static boolean wireframe = true;
@@ -193,20 +195,23 @@ public class TerrainMain {
         	        	        	
         	//shader.DrawTexture(enlightenedFBO.getTexture(0));
 
-        	if (tonemapping) {
-            	if (bloom) {
-            		FrameBuffer fbo1 = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
-            		FrameBuffer fbo2 = screenMan.getShadowMap(shadowShader.getWorldTexture());
-            		fbo = screenMan.getQuadScreenView(fbo1, fbo1, fbo2, fbo2);
-            	}
-            	else {
-            		fbo = screenMan.getToneMapped(enlightenedFBO, exposure);
-            	}
+        	if (splitScreen) {
+        		fbo = getQuadScreen(splitScreenVal, shader, shadowShader);
         	}
         	else {
-            	if (bloom) {
-            		fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor);
-            	}
+	        	if (tonemapping) {
+	            	if (bloom) {
+	            		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
+	            	}
+	            	else {
+	            		fbo = screenMan.getToneMapped(enlightenedFBO, exposure);
+	            	}
+	        	}
+	        	else {
+	            	if (bloom) {
+	            		fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor);
+	            	}
+	        	}
         	}
         	shader.DrawTexture(fbo.getTexture(0));
         	
@@ -222,6 +227,57 @@ public class TerrainMain {
         tex.delete();
     }
     
+	/**
+	 * creates a screen with 4 frame buffers
+	 * @param splitScreenValue what shall be shown on the screen parts
+	 * @param shader deferred shader
+	 * @return frame buffer containing the screen 
+	 */
+	private static FrameBuffer getQuadScreen(int splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
+	
+		FrameBuffer fbo1 = new FrameBuffer();
+		FrameBuffer fbo2 = new FrameBuffer();
+		FrameBuffer fbo3 = new FrameBuffer();
+		FrameBuffer fbo4 = new FrameBuffer();
+		
+		fbo1 = getScreen(splitScreenValue        / 1000, shader, shadowShader);
+		fbo2 = getScreen(splitScreenValue % 1000 /  100, shader, shadowShader);
+		fbo3 = getScreen(splitScreenValue %  100 /   10, shader, shadowShader);
+		fbo4 = getScreen(splitScreenValue %   10 /    1, shader, shadowShader);
+		return screenMan.getQuadScreenView(fbo1, fbo2, fbo3, fbo4);	
+	}
+	
+	/**
+	 * Returns a specific frame buffer according to a input variable.
+	 * @param splitScreenValue defining what to render
+	 * @param shader deferred shader
+	 * @return frame buffer with the screen
+	 */
+	private static FrameBuffer getScreen(int splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
+		
+		FrameBuffer fbo = new FrameBuffer();
+		FrameBuffer enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+		
+		switch (splitScreenValue) {   		
+			case 0: 
+				fbo = enlightenedFBO; break;
+			case 1:
+				fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure); break;
+			case 2:
+				fbo = screenMan.getToneMapped(enlightenedFBO, exposure); break;
+			case 3:
+				fbo = screenMan.getBlur54(enlightenedFBO); break;
+			case 4:
+				fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor); break;
+			case 5:
+				fbo = screenMan.getBrightness(enlightenedFBO, brightnessFactor); break;
+			case 6:
+				fbo = screenMan.getShadowMap(shadowShader.getWorldTexture()); break;
+
+		}		
+		return fbo;
+	}
+	
     /**
      * Behandelt Input und setzt die Kamera entsprechend.
      * @param millis Millisekunden seit dem letzten Aufruf
@@ -402,5 +458,21 @@ public class TerrainMain {
 
 	public static void setBrightnessFactor(Vector4f brightnessFactor) {
 		TerrainMain.brightnessFactor.set(brightnessFactor);
+	}
+	
+	public static boolean isSplitScreen() {
+		return splitScreen;
+	}
+
+	public static void setSplitScreen(boolean splitScreen) {
+		TerrainMain.splitScreen = splitScreen;
+	}
+
+	public static int getSplitScreenVal() {
+		return splitScreenVal;
+	}
+
+	public static void setSplitScreenVal(int splitScreenVal) {
+		TerrainMain.splitScreenVal = splitScreenVal;
 	}
 }

@@ -33,9 +33,19 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Dimension;
+import java.awt.ItemSelectable;
+
 
 public class MenuDialog extends JDialog {
 
+	private static final String ENLIGHTENED = "Enlightened";
+	private static final String TONEMAPPEDBLOOMED = "Tone Mapped Bloomed";
+	private static final String TONEMAPPED = "Tone Mapped";
+	private static final String BLURED = "Blured";
+	private static final String BLOOMED = "Bloomed";
+	private static final String BRIGHTMAP = "Brightmap";
+	private static final String SHADOWMAP = "Shadowmap";
+	
 	private static MenuDialog mDial;
 	private static final long serialVersionUID = 1L;
     private final JTabbedPane tabs = new JTabbedPane();
@@ -79,8 +89,7 @@ public class MenuDialog extends JDialog {
         // Graphic Settings
         //***********************
         
-	    graphSettingsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "closeAction");
+	    graphSettingsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "closeAction");
 	    graphSettingsPanel.getActionMap().put("closeAction", closeAction);	    
 	    
 		setTitle("Graphic Settings");
@@ -95,9 +104,9 @@ public class MenuDialog extends JDialog {
 		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		
+		graphSettingsPanel.setLayout(gbl_contentPanel);
 		
 		// Slider and label
-		graphSettingsPanel.setLayout(gbl_contentPanel);
 		{
 			JLabel lblExposure = new JLabel("Exposure");
 			GridBagConstraints gbc_lblExposure = new GridBagConstraints();
@@ -255,7 +264,7 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxLightRotation.anchor = GridBagConstraints.NORTH;
 			gbc_chckbxLightRotation.fill = GridBagConstraints.HORIZONTAL;
 			gbc_chckbxLightRotation.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxLightRotation.gridx = 2;
+			gbc_chckbxLightRotation.gridx = 1;
 			gbc_chckbxLightRotation.gridy = 5;
 			graphSettingsPanel.add(chckbxLightRotation, gbc_chckbxLightRotation);
 			chckbxLightRotation.addItemListener(new ItemListener() {
@@ -276,7 +285,7 @@ public class MenuDialog extends JDialog {
 			gbc_separator.anchor = GridBagConstraints.NORTH;
 			gbc_separator.fill = GridBagConstraints.HORIZONTAL;
 			gbc_separator.insets = new Insets(0, 0, 5, 5);
-			gbc_separator.gridx = 2;
+			gbc_separator.gridx = 1;
 			gbc_separator.gridy = 6;
 			graphSettingsPanel.add(separator, gbc_separator);
 		}
@@ -288,7 +297,7 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxToneMapping.anchor = GridBagConstraints.NORTH;
 			gbc_chckbxToneMapping.fill = GridBagConstraints.HORIZONTAL;
 			gbc_chckbxToneMapping.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxToneMapping.gridx = 2;
+			gbc_chckbxToneMapping.gridx = 1;
 			gbc_chckbxToneMapping.gridy = 7;
 			graphSettingsPanel.add(chckbxToneMapping, gbc_chckbxToneMapping);
 			chckbxToneMapping.addItemListener(new ItemListener() {
@@ -311,7 +320,7 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxBloom.anchor = GridBagConstraints.NORTH;
 			gbc_chckbxBloom.fill = GridBagConstraints.HORIZONTAL;
 			gbc_chckbxBloom.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxBloom.gridx = 2;
+			gbc_chckbxBloom.gridx = 1;
 			gbc_chckbxBloom.gridy = 8;
 			graphSettingsPanel.add(chckbxBloom, gbc_chckbxBloom);
 			chckbxBloom.addItemListener(new ItemListener() {
@@ -332,7 +341,7 @@ public class MenuDialog extends JDialog {
 			GridBagConstraints gbc_chckbxGlareFading = new GridBagConstraints();
 			gbc_chckbxGlareFading.anchor = GridBagConstraints.WEST;
 			gbc_chckbxGlareFading.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxGlareFading.gridx = 2;
+			gbc_chckbxGlareFading.gridx = 1;
 			gbc_chckbxGlareFading.gridy = 9;
 			graphSettingsPanel.add(chckbxGlareFading, gbc_chckbxGlareFading);
 		}
@@ -342,7 +351,7 @@ public class MenuDialog extends JDialog {
 			GridBagConstraints gbc_chckbxNormalMapping = new GridBagConstraints();
 			gbc_chckbxNormalMapping.anchor = GridBagConstraints.WEST;
 			gbc_chckbxNormalMapping.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxNormalMapping.gridx = 2;
+			gbc_chckbxNormalMapping.gridx = 1;
 			gbc_chckbxNormalMapping.gridy = 10;
 			graphSettingsPanel.add(chckbxNormalMapping, gbc_chckbxNormalMapping);
 		}
@@ -352,7 +361,7 @@ public class MenuDialog extends JDialog {
 			GridBagConstraints gbc_chckbxGodRays = new GridBagConstraints();
 			gbc_chckbxGodRays.anchor = GridBagConstraints.WEST;
 			gbc_chckbxGodRays.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxGodRays.gridx = 2;
+			gbc_chckbxGodRays.gridx = 1;
 			gbc_chckbxGodRays.gridy = 11;
 			graphSettingsPanel.add(chckbxGodRays, gbc_chckbxGodRays);
 		}
@@ -362,7 +371,7 @@ public class MenuDialog extends JDialog {
 			gbc_separator.anchor = GridBagConstraints.NORTH;
 			gbc_separator.fill = GridBagConstraints.HORIZONTAL;
 			gbc_separator.insets = new Insets(0, 0, 5, 5);
-			gbc_separator.gridx = 2;
+			gbc_separator.gridx = 1;
 			gbc_separator.gridy = 12;
 			graphSettingsPanel.add(separator, gbc_separator);
 		}
@@ -374,7 +383,7 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxCulling.anchor = GridBagConstraints.NORTH;
 			gbc_chckbxCulling.fill = GridBagConstraints.HORIZONTAL;
 			gbc_chckbxCulling.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxCulling.gridx = 2;
+			gbc_chckbxCulling.gridx = 1;
 			gbc_chckbxCulling.gridy = 13;
 			graphSettingsPanel.add(chckbxCulling, gbc_chckbxCulling);
 			chckbxCulling.addItemListener(new ItemListener() {
@@ -397,7 +406,7 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxWireFrame.anchor = GridBagConstraints.NORTH;
 			gbc_chckbxWireFrame.fill = GridBagConstraints.HORIZONTAL;
 			gbc_chckbxWireFrame.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxWireFrame.gridx = 2;
+			gbc_chckbxWireFrame.gridx = 1;
 			gbc_chckbxWireFrame.gridy = 14;
 			graphSettingsPanel.add(chckbxWireFrame, gbc_chckbxWireFrame);
 			chckbxWireFrame.addItemListener(new ItemListener() {
@@ -418,7 +427,7 @@ public class MenuDialog extends JDialog {
 			GridBagConstraints gbc_chckbxShadows = new GridBagConstraints();
 			gbc_chckbxShadows.anchor = GridBagConstraints.WEST;
 			gbc_chckbxShadows.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxShadows.gridx = 2;
+			gbc_chckbxShadows.gridx = 1;
 			gbc_chckbxShadows.gridy = 15;
 			graphSettingsPanel.add(chckbxShadows, gbc_chckbxShadows);
 		}
@@ -451,6 +460,9 @@ public class MenuDialog extends JDialog {
 		// Split Screen Tab
 		// *****************
 		
+        splitScreenPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "closeAction");
+        splitScreenPanel.getActionMap().put("closeAction", closeAction);
+        
         tabs.addTab("SplitScreen", splitScreenPanel);
         
 		GridBagLayout gbl_splitScreen = new GridBagLayout();
@@ -459,6 +471,8 @@ public class MenuDialog extends JDialog {
 		gbl_splitScreen.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		gbl_splitScreen.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		
+		splitScreenPanel.setLayout(gbl_splitScreen);
+		
 		{
 			JCheckBox chckbxEnableSplitScreen = new JCheckBox("Enable Split Screen");
 			chckbxEnableSplitScreen.setIconTextGap(10);
@@ -466,8 +480,8 @@ public class MenuDialog extends JDialog {
 			gbc_splitScreen.anchor = GridBagConstraints.NORTH;
 			gbc_splitScreen.fill = GridBagConstraints.HORIZONTAL;
 			gbc_splitScreen.insets = new Insets(0, 0, 5, 5);
-			gbc_splitScreen.gridx = 2;
-			gbc_splitScreen.gridy = 5;
+			gbc_splitScreen.gridx = 1;
+			gbc_splitScreen.gridy = 1;
 			splitScreenPanel.add(chckbxEnableSplitScreen, gbc_splitScreen);
 			chckbxEnableSplitScreen.addItemListener(new ItemListener() {
 			    public void itemStateChanged(ItemEvent e) {
@@ -481,30 +495,161 @@ public class MenuDialog extends JDialog {
 			});
 			chckbxEnableSplitScreen.setSelected(main.TerrainMain.isSplitScreen());
 		}
-        
+		
+		String[] cbxStrings = { ENLIGHTENED, TONEMAPPEDBLOOMED, TONEMAPPED, BLURED, BLOOMED, BRIGHTMAP, SHADOWMAP };
+		
 		{
-			String[] cbxStrings = { "Enlightened", "Tone Mapped", "Blured", "Bloomed", "Brightmap", "Shadowmap" };
+			JLabel lblTopLeft = new JLabel("Top Left:");
+			GridBagConstraints gbc_lblTopLeft = new GridBagConstraints();
+			gbc_lblTopLeft.fill = GridBagConstraints.HORIZONTAL;
+			gbc_lblTopLeft.insets = new Insets(0, 0, 5, 5);
+			gbc_lblTopLeft.gridx = 1;
+			gbc_lblTopLeft.gridy = 5;
+			splitScreenPanel.add(lblTopLeft, gbc_lblTopLeft);
+		}
+		
+		// combo boxes	
+		{
 			JComboBox cbxTopLeft = new JComboBox(cbxStrings);
 			GridBagConstraints gbc_cbxStrings = new GridBagConstraints();
 			gbc_cbxStrings.anchor = GridBagConstraints.NORTH;
 			gbc_cbxStrings.fill = GridBagConstraints.HORIZONTAL;
 			gbc_cbxStrings.insets = new Insets(0, 0, 5, 5);
 			gbc_cbxStrings.gridx = 2;
-			gbc_cbxStrings.gridy = 6;
+			gbc_cbxStrings.gridy = 5;
+			cbxTopLeft.setSelectedIndex(main.TerrainMain.getSplitScreenVal() / 1000);
 			splitScreenPanel.add(cbxTopLeft, gbc_cbxStrings);
-			
+			ActionListener actionListener = new ActionListener() {
+			      public void actionPerformed(ActionEvent actionEvent) {
+			        ItemSelectable is = (ItemSelectable)actionEvent.getSource();
+			        int val = string2Value(selectedString(is));
+			        main.TerrainMain.setSplitScreenVal((main.TerrainMain.getSplitScreenVal() % 1000) + (val*1000));
+			      }
+			};
+			cbxTopLeft.addActionListener(actionListener);
+		}
+
+		{
+			JLabel lblTopRight = new JLabel("Top Right:");
+			GridBagConstraints gbc_lblTopRight = new GridBagConstraints();
+			gbc_lblTopRight.fill = GridBagConstraints.HORIZONTAL;
+			gbc_lblTopRight.insets = new Insets(0, 0, 5, 5);
+			gbc_lblTopRight.gridx = 1;
+			gbc_lblTopRight.gridy = 6;
+			splitScreenPanel.add(lblTopRight, gbc_lblTopRight);
+		}
+        
+		{
+			JComboBox cbxTopRight = new JComboBox(cbxStrings);
+			GridBagConstraints gbc_cbxStrings = new GridBagConstraints();
+			gbc_cbxStrings.anchor = GridBagConstraints.NORTH;
+			gbc_cbxStrings.fill = GridBagConstraints.HORIZONTAL;
+			gbc_cbxStrings.insets = new Insets(0, 0, 5, 5);
+			gbc_cbxStrings.gridx = 2;
+			gbc_cbxStrings.gridy = 6;
+			cbxTopRight.setSelectedIndex(main.TerrainMain.getSplitScreenVal() % 1000 / 100);
+			splitScreenPanel.add(cbxTopRight, gbc_cbxStrings);
+			ActionListener actionListener = new ActionListener() {
+			      public void actionPerformed(ActionEvent actionEvent) {
+			        ItemSelectable is = (ItemSelectable)actionEvent.getSource();
+			        int val = string2Value(selectedString(is));
+			        main.TerrainMain.setSplitScreenVal((main.TerrainMain.getSplitScreenVal() / 1000)*1000 + (main.TerrainMain.getSplitScreenVal() % 100) + (val*100));
+			      }
+			};
+			cbxTopRight.addActionListener(actionListener);
 		}
 		
+		{
+			JLabel lblBottomLeft = new JLabel("Bottom Left:");
+			GridBagConstraints gbc_lblBottomLeft = new GridBagConstraints();
+			gbc_lblBottomLeft.fill = GridBagConstraints.HORIZONTAL;
+			gbc_lblBottomLeft.insets = new Insets(0, 0, 5, 5);
+			gbc_lblBottomLeft.gridx = 1;
+			gbc_lblBottomLeft.gridy = 8;
+			splitScreenPanel.add(lblBottomLeft, gbc_lblBottomLeft);
+		}
         
+		{
+			JComboBox cbxBottomLeft = new JComboBox(cbxStrings);
+			GridBagConstraints gbc_cbxStrings = new GridBagConstraints();
+			gbc_cbxStrings.anchor = GridBagConstraints.NORTH;
+			gbc_cbxStrings.fill = GridBagConstraints.HORIZONTAL;
+			gbc_cbxStrings.insets = new Insets(0, 0, 5, 5);
+			gbc_cbxStrings.gridx = 2;
+			gbc_cbxStrings.gridy = 8;
+			cbxBottomLeft.setSelectedIndex(main.TerrainMain.getSplitScreenVal() % 100 / 10);
+			splitScreenPanel.add(cbxBottomLeft, gbc_cbxStrings);
+			ActionListener actionListener = new ActionListener() {
+			      public void actionPerformed(ActionEvent actionEvent) {
+			        ItemSelectable is = (ItemSelectable)actionEvent.getSource();
+			        int val = string2Value(selectedString(is));
+			        main.TerrainMain.setSplitScreenVal((main.TerrainMain.getSplitScreenVal() / 100)*100 + (main.TerrainMain.getSplitScreenVal() % 10) + (val*10));
+			      }
+			};
+			cbxBottomLeft.addActionListener(actionListener);
+		}
+		
+		{
+			JLabel lblBottomRight = new JLabel("Bottom Right:");
+			GridBagConstraints gbc_lblBottomRight = new GridBagConstraints();
+			gbc_lblBottomRight.fill = GridBagConstraints.HORIZONTAL;
+			gbc_lblBottomRight.insets = new Insets(0, 0, 5, 5);
+			gbc_lblBottomRight.gridx = 1;
+			gbc_lblBottomRight.gridy = 9;
+			splitScreenPanel.add(lblBottomRight, gbc_lblBottomRight);
+		}
+        
+		{
+			JComboBox cbxBottomRight = new JComboBox(cbxStrings);
+			GridBagConstraints gbc_cbxStrings = new GridBagConstraints();
+			gbc_cbxStrings.anchor = GridBagConstraints.NORTH;
+			gbc_cbxStrings.fill = GridBagConstraints.HORIZONTAL;
+			gbc_cbxStrings.insets = new Insets(0, 0, 5, 5);
+			gbc_cbxStrings.gridx = 2;
+			gbc_cbxStrings.gridy = 9;
+			cbxBottomRight.setSelectedIndex(main.TerrainMain.getSplitScreenVal() % 10);
+			splitScreenPanel.add(cbxBottomRight, gbc_cbxStrings);
+			ActionListener actionListener = new ActionListener() {
+			      public void actionPerformed(ActionEvent actionEvent) {
+			        ItemSelectable is = (ItemSelectable)actionEvent.getSource();
+			        int val = string2Value(selectedString(is));
+			        main.TerrainMain.setSplitScreenVal((main.TerrainMain.getSplitScreenVal() / 10)*10 + (val));
+			      }
+			};
+			cbxBottomRight.addActionListener(actionListener);
+		}
+		
         this.add(tabs);
 		
 		this.run();
+	}
+	
+	static private String selectedString(ItemSelectable is) {
+		    Object selected[] = is.getSelectedObjects();
+		    return ((selected.length == 0) ? "null" : (String)selected[0]);
+	}
+	
+	static private int string2Value(String s) {
+		
+		switch (s) {
+			case ENLIGHTENED: 		return 0; 
+			case TONEMAPPEDBLOOMED: return 1; 
+			case TONEMAPPED: 		return 2; 
+			case BLURED: 			return 3;  
+			case BLOOMED: 			return 4; 
+			case BRIGHTMAP: 		return 5; 
+			case SHADOWMAP: 		return 6; 
+		}
+		return 0;
 	}
 	
 	public void close() {
 		this.dispose();
 	}
 	
+	/**
+	 * @brief returns instance of the object if not already existing (singleton) 
+	 */
 	public static MenuDialog getInstance() {
 		if(mDial != null) {
 			return mDial;

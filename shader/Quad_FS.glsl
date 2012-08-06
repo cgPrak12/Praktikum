@@ -14,7 +14,7 @@ void main(void)
     vec2 tc;
     if(texCoord.x < 0.5)
     {
-        if(texCoord.y < 0.5)
+        if(texCoord.y > 0.5)
         {   
             tc = vec2(texCoord.x * 2, texCoord.y * 2);
             color = ((textureOffset(leftTopImage, tc, ivec2(1, 0)) +
@@ -31,7 +31,7 @@ void main(void)
     }
     else
     {
-        if(texCoord.y < 0.5)
+        if(texCoord.y > 0.5)
         {   
             tc = vec2((texCoord.x - 0.5) * 2, texCoord.y * 2);
             color = ((textureOffset(rightTopImage, tc, ivec2(1, 0)) +
