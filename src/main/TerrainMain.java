@@ -226,6 +226,9 @@ public class TerrainMain {
 	            	if (bloom) {
 	            		fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor);
 	            	}
+	            	else {
+	            		fbo = enlightenedFBO;
+	            	}
 	        	}
         	}
         	shader.DrawTexture(fbo.getTexture(0));
