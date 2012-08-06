@@ -29,7 +29,6 @@ public class ClipMap {
 
 	// Animation Params
 	private int[][] movement;
-	private float[][] temp;
 	float tempX;
 	float tempZ;
 	private boolean[][] alignment;
@@ -73,7 +72,6 @@ public class ClipMap {
 		this.size = size;
 		this.cam = cam;
 		movement = new int[stage][2];
-		temp = new float[stage][2];
 		tempX = 0;
 		tempZ = 0;
 		alignment = new boolean[stage][4];
@@ -129,12 +127,8 @@ public class ClipMap {
 	public void createClip(int i) {
 
 		// 1
-		Util.mul(
-				translation,
-				Util.translationX(size / 2 - gridsize - middlesize / 2
-						+ movement[i][0], null),
-				Util.translationZ(size / 2 - gridsize + middlesize / 2
-						+ movement[i][1], null));
+		Util.mul(translation, Util.translationX(size / 2 - gridsize - middlesize / 2 + movement[i][0], null),
+				Util.translationZ(size / 2 - gridsize + middlesize / 2 + movement[i][1], null));
 		setProgram();
 		mxm.draw();
 
