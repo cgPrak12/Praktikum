@@ -15,6 +15,7 @@ public class MipMap // extends Terrain?
 	private float terY;		// Hoehe des Mittelpunkts
 	private int density;
 	private int step;
+	private int lvl;
 	
 	/**
 	 * @brief 	Ctor, berechnet die MipMap von einem angegebenen Terrain t bei
@@ -28,6 +29,8 @@ public class MipMap // extends Terrain?
 		// schneide level zurecht
 		if(level < 1)    level = 1;
 		if(level > 10)   level = 10;
+		
+		lvl = level;
 	
 		if(t == null) t = new Terrain();
 		if(cam == null) cam = new Camera();
@@ -36,41 +39,49 @@ public class MipMap // extends Terrain?
 		// je hoeher die Kamera, desto niedriger die Aufloesung
 		camY = cam.getCamPos().y;		
 		maxY = cam.getMaxCamHeight();
-		terY = t.getInfo((int)cam.getCamPos().x, (int)cam.getCamPos().z)[0];
+		terY = t.getInfo(Math.round(cam.getCamPos().x), Math.round(cam.getCamPos().z))[0];
 		density = (int) Util.scale(camY - terY, maxY - terY, 0, 1.0f, 50.0f);
 		
 		// berechne die Grenzen der MipMap
 		step = (int) Math.pow(2, level - 1);
-		camX = (int) cam.getCamPos().x;
-		camZ = (int) cam.getCamPos().z;
+		camX = Math.round(cam.getCamPos().x);
+		camZ = Math.round(cam.getCamPos().z);
 		
-		map = new float[2 * density + 1][2 * density + 1][5];
+		int dimX = 2 * density + 1;
+		int dimZ = 2 * density + 1;
 		
+		map = new float[dimX][dimZ][5];
+		
+//		System.out.println("level: " + level + ", density: " + density + ", step: " + step);
+//		System.out.println("   x starts at: " + (camX - (level) * density) + "\n   x ends at:  " + (camX - level * density + step * (dimX-1)));
+//		System.out.println("   z starts at: " + (camZ - (level) * density) + "\n   z ends at:  " + (camZ - level * density + step * (dimZ-1)));
+//		System.out.println("   so x size should be:  " + (1 + ((camX - (level)*density + step*(dimX-1)) - (camX - level) * density)/step) + "(" + (dimX) + ")");
+//		System.out.println("   and z size should be: " + (1 + ((camZ - (level)*density + step*(dimZ-1)) - (camZ - level) * density)/step) + "(" + (dimZ) + ")");
 			
-		for(int i = 0; i < 2 * density + 1; i ++)
+		
+		System.out.println("level: " + level + ", step: " + step + ", startX: " + (camX - step * density) + ", stopX: " + (camX + step * density) + ", startZ: " + (camZ - step * density) + ", stopZ: " + (camZ + step * density));
+		for(int i = 0; i < dimX; i++)
 		{
-			for(int j = 0; j < 2 * density + 1; j ++)
+			for(int j = 0; j < dimZ; j++)
 			{
-				int dx = camX + (2 * i - (2 * density + 1));
-				int dz = camZ + (2 * j - (2 * density + 1));
+				
+				int dx = Math.round(Util.scale(i, 0, dimX-1, camX - step * density, camX + step * density));
+				int dz = Math.round(Util.scale(j, 0, dimZ-1, camZ - step * density, camZ + step * density));
+				
+//				System.out.println("level: " + level + " density: " + density + " step: " + step);
+				System.out.println("0 | " + i + " | " + (dimX-1) + "; " + (camX - step * density) + "| " + dx + " | " + (camX + step * density));
+				System.out.println("0 | " + j + " | " + (dimZ-1) + "; " + (camZ - step * density) + "| " + dz + " | " + (camZ + step * density));
+				
+				
 				if(dx >= 0 && dx < t.getXDim() && dz >= 0 && dz < t.getZDim())
 				{
-					map[i][j] = t.getInfo(camX + (2 * i - (2 * density + 1)), camZ + (2 * j - (2 * density + 1)));
+					map[i][j] = t.getInfo(dx, dz);
 				}
 				else
 				{
 					float[] dummy = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 					map[i][j] = dummy;
 				}
-				
-//				float[] help = t.getInfo(startX + i * step, startZ + j * step);
-//				map[i][j][0] = (float) startX + i * step;
-//				map[i][j][0] = help[0];
-//				map[i][j][2] = (float) startZ + j * step;
-//				map[i][j][1] = help[1];
-//				map[i][j][2] = help[2];
-//				map[i][j][3] = help[3];
-//				map[i][j][4] = help[4];
 			}
 		}
 	}
@@ -94,16 +105,16 @@ public class MipMap // extends Terrain?
 	{
 		if(cam == null) cam = new Camera();
 		
-		int newX = (int) cam.getCamPos().x;
-		int newZ = (int) cam.getCamPos().z;
+		int newX = Math.round(cam.getCamPos().x);
+		int newZ = Math.round(cam.getCamPos().z);
 		
 		if(Math.abs(newX - camX) > step|| Math.abs(newZ - camZ) > step)
 			return true;			
 		else
 		{
 			float newY = cam.getCamPos().y;
-			int newDens = (int) Util.scale(newY - terY, maxY - terY, 0, 1.0f, 50.0f);
-			int oldDens = (int) Util.scale(camY - terY, maxY - terY, 0, 1.0f, 50.0f);
+			int newDens = Math.round(Util.scale(newY - terY, maxY - terY, 0, 1.0f, 50.0f));
+			int oldDens = Math.round(Util.scale(camY - terY, maxY - terY, 0, 1.0f, 50.0f));
 			
 			if(Math.abs(newDens - oldDens) > 1)			
 				return true;
@@ -139,8 +150,9 @@ public class MipMap // extends Terrain?
 	 */
 	public float[] getAbs(int x, int z)
 	{
-		int newX = (int) Util.scale(x, camX - density * step, camX + density * step, 0, map.length - 1);
-		int newZ = (int) Util.scale(z, camZ - density * step, camZ + density * step, 0, map[0].length - 1);
+		int newX = Math.round(Util.scale(x, camX - lvl * density, camX + lvl * density, 0, map.length-1));
+		int newZ = Math.round(Util.scale(z, camZ - lvl * density, camZ + lvl * density, 0, map[0].length-1));
+		
 		if(newX >= 0 && newZ >= 0 && newX < map.length && newZ < map[0].length)
 		{
 			return map[newX][newZ];
@@ -197,6 +209,10 @@ public class MipMap // extends Terrain?
 	 * @return x-Koordinate des Mittelpunkts
 	 */
 	public int getCenterZ() { return camZ; }
+	
+	public int getDensity() { return density; }
+	
+	public int getStep() { return step; }
 }
 		
 		
