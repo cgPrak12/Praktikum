@@ -325,7 +325,7 @@ public class ClipMap {
 			temp[0][0] = 0;
 		}
 
-		System.out.println("XPos: "+ spaceXPos + "  XNeg: "  +spaceXNeg);
+
 		Util.mul(translation, Util.translationX(2 * (-gridsize - middlesize)
 				+ middlesize + movement[0][0] + correctionX, null), Util
 				.translationZ(-2 * gridsize + movement[0][1] + correctionZ,
@@ -362,7 +362,6 @@ public class ClipMap {
 				} else {
 					if (alignment[i][dir]) {
 						movement[i][dir - 2] -= 2;
-						System.out.println(dir);
 						alignment[i][dir] ^= true;
 						alignment[i][dir-2] ^= true;
 					} else {
@@ -385,16 +384,16 @@ public class ClipMap {
 		int side=0;
 		if(alignment[i][0]&&alignment[i][1]){
 			side=2;
-		 System.out.println("0 und 1 ist true");}
+		 System.out.println("0 und 1 ist true --->TopLeft");}
 		else if(alignment[i][1]&&alignment[i][2]){
 			side =1;
-		 System.out.println("1 und 2 ist true");}
+		 System.out.println("1 und 2 ist true ---> TopLEft");}
 		else if(alignment[i][2]&&alignment[i][3]){
 			side =4;
-		 System.out.println("2 und 3 ist true");}
+		 System.out.println("2 und 3 ist true ---> BottomRight");}
 		else if(alignment[i][3]&&alignment[i][4]){
 			side =3;
-		 System.out.println("3 und 4 ist true");}
+		 System.out.println("3 und 4 ist true ---> BottomLEft");}
 		else throw new IllegalStateException("L Grid kann nicht gesetzt werden");
 		
 		switch(side){
@@ -402,6 +401,7 @@ public class ClipMap {
 		//2 = TopLeft
 		//3 = BottomLeft
 		//4 = BottomRight
+		case 0: break;
 		case 1: 
 			//TopRight
 			Util.mul(
@@ -410,16 +410,16 @@ public class ClipMap {
 					+ movement[i][0] + correctionX , null),
 					Util.translationZ(movement[i][1] + correctionZ-gridsize, null));
 			setProgram();
-		    topRight.draw();
+		    topRight.draw(); break;
 		    //TopLeft
-		case 2:    
+		case 2:   
 			Util.mul(
 					translation,
 					Util.translationX(size / 2 -(gridsize+1) 
 					+ movement[i][0] + correctionX , null),
 					Util.translationZ(movement[i][1] + correctionZ-gridsize, null));
 			setProgram();
-		    topLeft.draw();
+		    topLeft.draw();break;
 		    //BottomLeft
 		case 3:		    
 			Util.mul(
@@ -428,7 +428,7 @@ public class ClipMap {
 					+ movement[i][0] + correctionX , null),
 					Util.translationZ(movement[i][1] + correctionZ-gridsize-1, null));
 			setProgram();
-		    bottomLeft.draw();
+		    bottomLeft.draw();break;
  		    //BottomRight
 		case 4:		    
 			Util.mul(
@@ -437,7 +437,7 @@ public class ClipMap {
 					+ movement[i][0] + correctionX , null),
 					Util.translationZ(movement[i][1] + correctionZ-gridsize-1, null));
 			setProgram();
-		    bottomRight.draw();
+		    bottomRight.draw();break;
 
    
 		}
