@@ -12,6 +12,147 @@ public class GridFactory {
         private final static int maxCamHeight = 100;
         private final static int detailsteps = 20;
 
+//     // Festgesetzte Variablen fuer Ausgabe
+//    	private final static int maxCamHeight = 100;
+//    	private final static int detailsteps = 20;
+//    	private final static int standardBlock = 5;
+//    	private final static float[] dummy = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+//    	
+//    	// bisherige float-Array an den darunter beschriebenen Kamerapositionen
+//    	private static float[][][][] result;
+//    	private static int camPosX;
+//    	private static int camPosHeight;
+//    	private static int camPosZ;
+//    	
+//    	/**
+//    	 * minimized Grid and use a default value
+//    	 * @param src
+//    	 * @param cam
+//    	 * @return
+//    	 */
+//    	public static FloatBuffer[] minGrid(float[][][] src, Camera cam)
+//    	{
+//    		return minGrid(src,cam,standardBlock);
+//    	}
+//    	
+//    	/**
+//    	 * minimized Grid 
+//    	 * @param src
+//    	 * @param cam
+//    	 * @param size number of Blocks (1-10) 
+//    	 * @return
+//    	 */
+//    	public static FloatBuffer[] minGrid(float[][][] src, Camera cam, int size)
+//    	{
+//    		// false-values
+//    		if(src == null){
+//    			return new FloatBuffer[0];
+//    		}
+//    		if(cam == null){
+//    			return new FloatBuffer[0];
+//    		}
+//    		if(size < 0 || size >10){
+//    			size = standardBlock;
+//    		}
+//    		
+//    		// die KameraPostion haengt mit dem uebergebenden float[][][] zusammen, heiﬂt:
+//    		// hier muss definitv eine ueberarbeitung stattfinden
+//          // die Kamera Position ist naemlich nicht an den Stellen wie in der src
+//    		camPosX = (int)cam.getCamPos().x;
+//    		camPosHeight = (int)cam.getCamPos().y;
+//    		camPosZ = (int)cam.getCamPos().z;
+//    		
+//    		// set result[][][][]
+//    		int density = updateHeight(src);
+//    		result = new float[size][2*density+1][2*density+1][5];
+//    		
+//    		for(int i = 0; i < size; i++){
+//    			result[i] = getBlock(src,i+1,density);
+//    		}
+//    		
+//    		return getFloatBufferGrid(result);
+//    	}
+//
+//    	/**
+//    	 * write a float[][][][] to a FloatBuffer[]
+//    	 * @param minGrid
+//    	 * @return
+//    	 */
+//    	private static FloatBuffer[] getFloatBufferGrid(float[][][][] minGrid){
+//    		
+//    		int length0 = minGrid.length;
+//    		int length1 = minGrid[0].length;
+//    		int length2 = minGrid[0][0].length;
+//    		int length3 = minGrid[0][0][0].length;
+//    		
+//    		FloatBuffer[] end = new FloatBuffer[length0];
+//    		for(int size = 0; size < length0; size++)
+//    		{
+//    			end[size] = BufferUtils.createFloatBuffer(length1 * length2 * length3);
+//    			for(int x = 0; x < length1; x++){
+//    				for(int z = 0; z < length2; z++){
+//    					end[size].put(minGrid[size][x][z]);
+//    				}
+//    			}
+//    		}
+//    		return end;
+//    	}
+//    	
+//    	/**
+//    	 * get the needed Values of a block 
+//    	 * @param src
+//    	 * @param size
+//    	 * @param density
+//    	 * @return
+//    	 */
+//    	private static float[][][] getBlock(float[][][] src, int size, int density){
+//    		
+//    		float[][][] area = new float[2*density+1][2*density+1][5];
+//
+//    		//values for run through area
+//    		int i = 0; //for the x-coordinates
+//    		int j = 0; //for the z-coordinates
+//    		
+//    		// (2^(size-1)) is the number of steps to the next vertex
+//    		//ist noch nicht ganz richtig
+//    		for(int x = camPosX-density * size-1; x < camPosX + density * size; x += (int) Math.pow(2, size-1)){
+//    			j=0;
+//    			for(int z = camPosZ-density * size-1; z < camPosZ + density* size; z += (int) Math.pow(2, size-1)){
+//    				
+//    				// dummy
+//    				if(x < 0 || z < 0 || x >= src.length || z >= src[0].length){
+//    					area[i][j] = dummy;
+//    				}
+//    				else{
+//    					area[i][j] = src[x][z];
+//    				}
+//    				j++;
+//    			}
+//    			i++;
+//    		}
+//    		return area;
+//    	}
+//    	
+//    	/**
+//    	 * calculate the density; use final values and the camera-position
+//    	 * @param src
+//    	 * @return
+//    	 */
+//        private static int updateHeight(float[][][] src) 
+//        {  	
+//        	// Hoehendifferenz
+//        	float heightDiff = camPosHeight - src[camPosX][camPosZ][0];
+//        	
+//        	if(heightDiff < 0 || camPosHeight > maxCamHeight)
+//        	{
+//        		System.err.println("ATTENTION: Camera out of area!");
+//        		return 0;
+//        	}
+//    	
+//        	return ((int)heightDiff - (int)heightDiff % detailsteps) * (-4) / detailsteps + maxCamHeight / detailsteps * 4 + 4;	
+//        }
+//        
+//        
         /**
          * minimizeGrid mit Standardwerten
          * @param src
