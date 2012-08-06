@@ -100,7 +100,7 @@ public class FluidRenderer {
     
     private Texture cubemap;
     private Geometry cube = GeometryFactory.createCube();
-    private Geometry plane = GeometryFactory.createPlane();
+  //  private Geometry plane = GeometryFactory.createPlane();
     private Texture planeTex = Texture.generateTexture("Marble.jpg", textureUnit++);
     
 
@@ -109,8 +109,10 @@ public class FluidRenderer {
     	
     	// init shaderPrograms, frameBuffers, ...
     	GL11.glPointSize(GL11.GL_POINT_SIZE);
-    	
+
+
     	init(depthSP, depthFrameBuffer, "depth", depthTexture, true);
+
 		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
 		init(vBlurSP, vBlurFrameBuffer, "color", vBlurTexture);
 		lowinit(low_h_BlurSP, low_h_BlurFrameBuffer, "low_h_BlurTexture", low_h_BlurTexture);
@@ -133,17 +135,17 @@ public class FluidRenderer {
 		// fluid depth
 		depthTexture();
 		// fluid normals
-		fluidNormals(2);
+		fluidNormals(2, 1.0f);
 		// fluid thickness
-//		fluidThickness();
+		fluidThickness();
 		// fluid thicknessBlur
-//		fluidThicknessBlur();
+		fluidThicknessBlur();
 		// fluid lighting
-//		fluidLighting();
+		fluidLighting();
 		// fluid cubeMap
-//		fluidCubeMap();
+		fluidCubeMap();
 		// test underground
-//		fluidTestPlane();
+		fluidTestPlane();
 		// fluid normalBlur
 
 		
@@ -154,12 +156,12 @@ public class FluidRenderer {
         glDisable(GL_BLEND);
 		drawTextureSP.use();
 //        drawTextureSP.setUniform("image", depthTexture);
-        drawTextureSP.setUniform("image", hBlurTexture);
+//        drawTextureSP.setUniform("image", hBlurTexture);
 //        drawTextureSP.setUniform("image", vBlurTexture);
 //        drawTextureSP.setUniform("image", low_h_BlurTexture);
 //        drawTextureSP.setUniform("image", low_v_BlurTexture);
 //        drawTextureSP.setUniform("image", normalTexture);
-//        drawTextureSP.setUniform("image", normalBlurTexture);
+        drawTextureSP.setUniform("image", normalBlurTexture);
 //        drawTextureSP.setUniform("image", thicknessTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture2);
@@ -180,6 +182,8 @@ public class FluidRenderer {
 	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex, boolean depthTest) {
 		fb.init(depthTest, GL.WIDTH, GL.HEIGHT);
     	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
     	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
     	fb.drawBuffers();
 	}
@@ -187,6 +191,8 @@ public class FluidRenderer {
 	private void lowinit(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
 		fb.init(true, GL.WIDTH/2, GL.HEIGHT/2);
     	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
     	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
     	fb.drawBuffers();
 	}
@@ -252,7 +258,7 @@ public class FluidRenderer {
 	
 	private void fluidNormals(int blurCount, float offsetValue) {
 		startPath(normalSP, normalFrameBuffer);
-		normalSP.setUniform("depthTex", vBlurTexture);
+		normalSP.setUniform("depthTex", depthTexture);
 		normalSP.setUniform("texSize", (float)GL.WIDTH);
 		normalSP.setUniform("camPos", cam.getCamPos());
 		
@@ -376,7 +382,7 @@ public class FluidRenderer {
 	    testPlaneSP.setUniform("proj", cam.getProjection());
 	    testPlaneSP.setUniform("view", cam.getView());
 	    testPlaneSP.setUniform("colorTex", planeTex);
-        plane.draw();
+//        plane.draw();
         testPlaneFrameBuffer.unbind();
         	        
 	}
@@ -475,6 +481,7 @@ public class FluidRenderer {
         	vBlurFrameBuffer.unbind();
 		}
 	}
+	
 	private void lowBlur(Texture scene, int counter, int low){
 		
         low_h_BlurSP.use();
