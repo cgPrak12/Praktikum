@@ -34,6 +34,7 @@ public class ClipMap {
 	private int[][] movement;
 	private float[][] temp;
 	private int[] pq;
+	private boolean[][] alignment;
 	private Camera cam;
 	private float correctionX;
 	private float correctionZ;
@@ -80,12 +81,16 @@ public class ClipMap {
 		this.cam = cam;
 		movement = new int[stage][2];
 		temp = new float[stage][2];
-		pq = new int[stage];
-		for (int i=0; i<pq.length;i++) pq[i] = 2;
-		correctionX = 0;
-		correctionZ = 0;
-	
 
+		alignment = new boolean[stage][4];
+
+
+		for (int i = 0; i < alignment.length; i++) {
+			alignment[i][0] = false;
+			alignment[i][1] = true;
+			alignment[i][2] = true;
+			alignment[i][3] = false;
+		}
 		// Initialisierung der vorgeladenen Geometrien
 		mxm = GeometryFactory.createGridTex(gridsize + 1, gridsize + 1);
 
@@ -130,160 +135,160 @@ public class ClipMap {
 	 */
 	public void createClip(int i) {
 
-		// 1
-		Util.mul(
-				translation,
-				Util.translationX(size / 2 - gridsize - middlesize / 2
-						+ movement[i][0] + correctionX, null),
-				Util.translationZ(size / 2 - gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 2
-		Util.mul(
-				translation,
-				Util.translationX(size / 2 - 2 * gridsize - middlesize / 2
-						+ movement[i][0] + correctionX, null),
-				Util.translationZ(size / 2 - gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 3
-		Util.mul(
-				translation,
-				Util.translationX(-size / 2 + gridsize - middlesize / 2
-						+ movement[i][0] + correctionX, null),
-				Util.translationZ(size / 2 - gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 4
-		Util.mul(
-				translation,
-				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-						+ correctionX, null),
-				Util.translationZ(size / 2 - gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 5
-		Util.mul(
-				translation,
-				Util.translationX(size / 2 - gridsize - middlesize / 2
-						+ movement[i][0] + correctionX, null),
-				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 6
-		Util.mul(
-				translation,
-				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-						+ correctionX, null),
-				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 7
-		Util.mul(
-				translation,
-				Util.translationX(size / 2 - gridsize - middlesize / 2
-						+ movement[i][0] + correctionX, null),
-				Util.translationZ(-size / 2 + gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 8
-		Util.mul(
-				translation,
-				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-						+ correctionX, null),
-				Util.translationZ(-size / 2 + gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 9
-		Util.mul(
-				translation,
-				Util.translationX(size / 2 - gridsize - middlesize / 2
-						+ movement[i][0] + correctionX, null),
-				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
-						+ correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 10
-		Util.mul(
-				translation,
-				Util.translationX(size / 2 - gridsize - gridsize - middlesize
-						/ 2 + movement[i][0] + correctionX, null),
-				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
-						+ correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 11
-		Util.mul(
-				translation,
-				Util.translationX(-size / 2 + gridsize - middlesize / 2
-						+ movement[i][0] + correctionX, null),
-				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
-						+ correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// 12
-		Util.mul(
-				translation,
-				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-						+ correctionX, null),
-				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
-						+ correctionZ, null));
-		setProgram();
-		mxm.draw();
-
-		// Oben
-		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
-				+ correctionX, null), Util.translationZ(size / 2 - gridsize
-				+ middlesize / 2 + movement[i][1] + correctionZ, null));
-		setProgram();
-		nxm.draw();
-
-		// Unten
-		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
-				+ correctionX, null), Util.translationZ(-size / 2 + middlesize
-				/ 2 + movement[i][1] + correctionZ, null));
-		setProgram();
-		nxm.draw();
-
-		// Links
-		Util.mul(
-				translation,
-				Util.translationX(size / 2 - gridsize - middlesize / 2
-						+ movement[i][0] + correctionX, null),
-				Util.translationZ(movement[i][1] + correctionZ, null));
-		setProgram();
-		mxn.draw();
-
-		// Rechts
-		Util.mul(
-				translation,
-				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-						+ correctionX, null),
-				Util.translationZ(movement[i][1] + correctionZ, null));
-		setProgram();
-		mxn.draw();
+//		// 1
+//		Util.mul(
+//				translation,
+//				Util.translationX(size / 2 - gridsize - middlesize / 2
+//						+ movement[i][0] + correctionX, null),
+//				Util.translationZ(size / 2 - gridsize + middlesize / 2
+//						+ movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 2
+//		Util.mul(
+//				translation,
+//				Util.translationX(size / 2 - 2 * gridsize - middlesize / 2
+//						+ movement[i][0] + correctionX, null),
+//				Util.translationZ(size / 2 - gridsize + middlesize / 2
+//						+ movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 3
+//		Util.mul(
+//				translation,
+//				Util.translationX(-size / 2 + gridsize - middlesize / 2
+//						+ movement[i][0] + correctionX, null),
+//				Util.translationZ(size / 2 - gridsize + middlesize / 2
+//						+ movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 4
+//		Util.mul(
+//				translation,
+//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+//						+ correctionX, null),
+//				Util.translationZ(size / 2 - gridsize + middlesize / 2
+//						+ movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 5
+//		Util.mul(
+//				translation,
+//				Util.translationX(size / 2 - gridsize - middlesize / 2
+//						+ movement[i][0] + correctionX, null),
+//				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
+//						+ movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 6
+//		Util.mul(
+//				translation,
+//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+//						+ correctionX, null),
+//				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
+//						+ movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 7
+//		Util.mul(
+//				translation,
+//				Util.translationX(size / 2 - gridsize - middlesize / 2
+//						+ movement[i][0] + correctionX, null),
+//				Util.translationZ(-size / 2 + gridsize + middlesize / 2
+//						+ movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 8
+//		Util.mul(
+//				translation,
+//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+//						+ correctionX, null),
+//				Util.translationZ(-size / 2 + gridsize + middlesize / 2
+//						+ movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 9
+//		Util.mul(
+//				translation,
+//				Util.translationX(size / 2 - gridsize - middlesize / 2
+//						+ movement[i][0] + correctionX, null),
+//				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+//						+ correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 10
+//		Util.mul(
+//				translation,
+//				Util.translationX(size / 2 - gridsize - gridsize - middlesize
+//						/ 2 + movement[i][0] + correctionX, null),
+//				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+//						+ correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 11
+//		Util.mul(
+//				translation,
+//				Util.translationX(-size / 2 + gridsize - middlesize / 2
+//						+ movement[i][0] + correctionX, null),
+//				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+//						+ correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// 12
+//		Util.mul(
+//				translation,
+//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+//						+ correctionX, null),
+//				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+//						+ correctionZ, null));
+//		setProgram();
+//		mxm.draw();
+//
+//		// Oben
+//		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
+//				+ correctionX, null), Util.translationZ(size / 2 - gridsize
+//				+ middlesize / 2 + movement[i][1] + correctionZ, null));
+//		setProgram();
+//		nxm.draw();
+//
+//		// Unten
+//		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
+//				+ correctionX, null), Util.translationZ(-size / 2 + middlesize
+//				/ 2 + movement[i][1] + correctionZ, null));
+//		setProgram();
+//		nxm.draw();
+//
+//		// Links
+//		Util.mul(
+//				translation,
+//				Util.translationX(size / 2 - gridsize - middlesize / 2
+//						+ movement[i][0] + correctionX, null),
+//				Util.translationZ(movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxn.draw();
+//
+//		// Rechts
+//		Util.mul(
+//				translation,
+//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+//						+ correctionX, null),
+//				Util.translationZ(movement[i][1] + correctionZ, null));
+//		setProgram();
+//		mxn.draw();
 	
 	// L Test
-        setLGrid(i, 1);
+        setLGrid(i);
 
 	}
 	
@@ -297,101 +302,26 @@ public class ClipMap {
 		temp[0][1] += cam.getAlt().z;
 		temp[0][0] += cam.getAlt().x;
 
-		
-		
-		if (temp[0][1]  > 2) {
-			movement[0][1] += 2;
-			switch(pq[0]){
-			case 1: pq[0] = 2; update = true; break;
-			case 2: pq[0] = 1; break;
-			case 3: pq[0] = 4; break;
-			case 4: pq[0] = 3; update = true; break;
-			default: update=true; break;
-			}
+		if (temp[0][1] > 2) {
+			moveClip(0, 1);
+
 			temp[0][1] = 0;
 		}
-		//Positiv X --- Nach Links
+		// Positiv X --- Nach Links
 		if (temp[0][0] > 2) {
-			movement[0][0] += 2;
-			switch(pq[0]){
-			case 1: pq[0] = 4; 
-			if(spaceXPos ==0 && spaceXNeg==0){
-				for(int j=1; j<movement.length; j++) movement[j][0] += 2;
-				for(int k=1; k<temp.length; k++){
-					temp[k][0] = 0;
-				}
-				spaceXPos++;
-			//	System.out.println(spaceX);
-			}
-			else if(spaceXNeg > 0 ){
-				update = true;spaceXNeg--; break;}
-			else{
-				update = true;spaceXPos++; break;
-			}			
 
-			
-			case 2: pq[0] = 3;
-			if(spaceXPos ==0 && spaceXNeg==0){
-				for(int j=1; j<movement.length; j++) movement[j][0] += 2;
-				for(int k=1; k<temp.length; k++){
-					temp[k][0] = 0;
-				}
-				spaceXPos++;
-			//	System.out.println(spaceX);
-			}
-			else if(spaceXNeg > 0 ){
-				update = true;spaceXNeg--; break;}
-			else{
-				update = true;spaceXPos++; break;
-			}	
-			case 3: pq[0] = 2; break;
-			case 4: pq[0] = 1; break;
-			default: update = true; pq[0] = 3; break;
-			}
+			moveClip(0, 0);
+
 			temp[0][0] = 0;
 		}
 		if (temp[0][1] < -2) {
-			movement[0][1] -= 2;
-			switch(pq[0]){
-			case 1: pq[0] = 2; break;
-			case 2: pq[0] = 1; update = true; break;
-			case 3: pq[0] = 4; update = true; break;
-			case 4: pq[0] = 3; break;
-			default: update = true; break;
-			}
+			moveClip(0, 3);
 			temp[0][1] = 0;
 		}
 		if (temp[0][0] < -2) {
-			movement[0][0] -= 2;
-			switch(pq[0]){
-			case 1: pq[0] = 4; break;
-			case 2: pq[0] = 3; break;
-			case 3: pq[0] = 2; 
-			if(spaceXPos ==0 && spaceXNeg==0){
-				update = true; spaceXNeg++ ;break;}
-			else{
-				for(int j=1; j<movement.length; j++) movement[j][0] -= 2;
-				for(int k=1; k<temp.length; k++){
-					temp[k][0] = 0;
-				}
-				spaceXPos--;
-			//	System.out.println(spaceX);
-			}
-			break;
-			case 4: pq[0] = 1; 
-			if(spaceXPos ==0 && spaceXNeg==0){
-				update = true; spaceXNeg++ ;break;}
-			else{
-				for(int j=1; j<movement.length; j++) movement[j][0] -= 2;
-				for(int k=1; k<temp.length; k++){
-					temp[k][0] = 0;
-				}
-				spaceXPos--;
-			//	System.out.println(spaceX);
-			}
-			break;
-			default: update = true; break;
-			}
+
+			moveClip(0, 2);
+
 			temp[0][0] = 0;
 		}
 
@@ -405,86 +335,68 @@ public class ClipMap {
 
 		for (int i = 1; i < stage; i++) {
 			setScale((float) Math.pow(2, i));
-			getMovement(i);
 			createClip(i);
 		}
 	}
 
-	/**
-	 * Errechnet die Geschwindigkeit des aktuellen ClipMapRings anhand der Ebene
-	 * 
-	 * @param i
-	 *            aktuelle Auflösungsebene
-	 */
-	public void getMovement(int i) {
-		temp[i][1] += cam.getAlt().z * Math.pow(2, -i);
-		temp[i][0] += cam.getAlt().x * Math.pow(2, -i);
-		// Positiv Z
-		if (temp[i][1] > 2) {
-			movement[i][1] += 2;
-			switch(pq[i]){
-			case 1: pq[i] = 2; break;
-			case 2: pq[i] = 1; break;
-			case 3: pq[i] = 4; break;
-			case 4: pq[i] = 3; break;
-			default: update=true; break;
+	public void moveClip(int i, int dir) {
+		if (dir == 0 || dir == 1) {
+			if (i == stage - 1) {
+				movement[i][dir] += 2;
+			} else {
+				if (alignment[i][dir]) {
+					movement[i][dir] += 2;
+					alignment[i][dir] ^= true;
+					alignment[i][dir+2] ^= true;
+				} else {
+					alignment[i][dir] ^= true;
+					alignment[i][dir+2] ^= true;
+					movement[i][dir] += 2;
+					moveClip(i + 1, dir);
+				}
 			}
-			temp[i][1] = 0;
-		}
-		// Positiv X
-		if (temp[i][0] > 2) {
-			movement[i][0] += 2;
-			switch(pq[i]){
-			case 1: pq[i] = 4; break;
-			case 2: pq[i] = 3; break;
-			case 3: pq[i] = 2; break;
-			case 4: pq[i] = 1; break;
-			default: update = true; break;
+		} else {
+			if (dir == 2 || dir == 3) {
+				if (i == stage - 1) {
+					movement[i][dir - 2] -= 2;
+				} else {
+					if (alignment[i][dir]) {
+						movement[i][dir - 2] -= 2;
+						System.out.println(dir);
+						alignment[i][dir] ^= true;
+						alignment[i][dir-2] ^= true;
+					} else {
+						alignment[i][dir] ^= true;
+						alignment[i][dir-2] ^= true;
+						movement[i][dir - 2] -= 2;
+						moveClip(i + 1, dir);
+					}
+				}
 			}
-			temp[i][0] = 0;
-		}
-		// Negativ Z
-		if (temp[i][1] < -2) {
-			movement[i][1] -= 2;
-			switch(pq[i]){
-			case 1: pq[i] = 2; break;
-			case 2: pq[i] = 1; update = true; break;
-			case 3: pq[i] = 4; update = true; break;
-			case 4: pq[i] = 3; break;
-			default: update = true; break;
-			}
-			temp[i][1] = 0;
-		}
-		// Negativ X
-		if (temp[i][0] < -2) {
-			movement[i][0] -= 2;
-			switch(pq[i]){
-			case 1: pq[i] = 4; break;
-			case 2: pq[i] = 3; break;
-			case 3: pq[i] = 2; update = true; break;
-			case 4: pq[i] = 1; update = true; break;
-			default: update = true; break;
-			}
-			temp[i][0] = 0;
 		}
 	}
-	
-	private float getUpdate(int stage){
-		if(update){
-			update = false;
-			return 1f;
-		}
-		else{
-			update = false;
-			return (float)Math.pow(2, -stage);
-		}
-	}
+
 	
 	
 	
 	
-	public void setLGrid(int i, int side){
-								
+	public void setLGrid(int i){
+				
+		int side=0;
+		if(alignment[i][0]&&alignment[i][1]){
+			side=2;
+		 System.out.println("0 und 1 ist true");}
+		else if(alignment[i][1]&&alignment[i][2]){
+			side =1;
+		 System.out.println("1 und 2 ist true");}
+		else if(alignment[i][2]&&alignment[i][3]){
+			side =4;
+		 System.out.println("2 und 3 ist true");}
+		else if(alignment[i][3]&&alignment[i][4]){
+			side =3;
+		 System.out.println("3 und 4 ist true");}
+		else throw new IllegalStateException("L Grid kann nicht gesetzt werden");
+		
 		switch(side){
 		//1 = TopRight
 		//2 = TopLeft
@@ -532,4 +444,7 @@ public class ClipMap {
 		
 		
 	}
+
+
+
 }
