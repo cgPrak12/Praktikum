@@ -18,10 +18,10 @@ public class GeometryFactory {
         List<Material> materialList = getMaterialListFromMTL(mtlFile);
         List<ModelPart> modelPartList = getModelPartListFromOBJ(objFile, materialList);
 
-        Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
+/*        Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
         while(modelPartListIterator.hasNext()) {
             System.out.println(modelPartListIterator.next());
-        }
+        }*/
         
         return modelPartList;
     }
@@ -84,6 +84,14 @@ public class GeometryFactory {
                         material.dissolveFactColorMap = filePath[filePath.length-1];
                     } else if(filePath.length>=2) {
                         material.dissolveFactColorMap = filePath[1];
+                    }
+                } else if (line.startsWith("map_Ks ")) {
+                    String[] filePath = line.split(" {1,}");
+                    if(filePath.length>=2 && filePath[1].contains("\\")) {
+                        filePath = line.split("\\\\");
+                        material.specularRefColorMap = filePath[filePath.length-1];
+                    } else if(filePath.length>=2) {
+                        material.specularRefColorMap = filePath[1];
                     }
                 }
             } //end of while loop

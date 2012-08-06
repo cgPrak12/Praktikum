@@ -68,7 +68,8 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        ShaderProgram shaderProgram = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
+        ShaderProgram shaderProgram = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/FragmentLighting_FS.glsl");
+//        ShaderProgram shaderProgram = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
         
 //        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.mtl");
 //        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60.mtl");
@@ -91,20 +92,38 @@ public class TerrainMain {
             handleInput(millis);
             animate(millis);
             
-            // clear screen
+            //clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
             while(modelPartListIterator.hasNext()) {
                 ModelPart modelPart = modelPartListIterator.next();
+
+                try{
+                    shaderProgram.use();
+                } catch(RuntimeException e) {
+                    System.out.println(e);
+                }
                 
-                shaderProgram.use();
 //                shaderProgram.setUniform("scale", new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
                 shaderProgram.setUniform("model", new Matrix4f());
+                shaderProgram.setUniform("modelIT", new Matrix4f());
                 shaderProgram.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));   
+ 
+                shaderProgram.setUniform("k_a", modelPart.material.ambientRef);
+                shaderProgram.setUniform("k_dif", modelPart.material.diffuseRef);
+                shaderProgram.setUniform("k_spec", modelPart.material.specularRef);
+                shaderProgram.setUniform("k_diss", modelPart.material.dissolveFact);
+                
                 if(modelPart.material.textureDiffuseRefColorMap!=null)
-                    shaderProgram.setUniform("image", modelPart.material.textureDiffuseRefColorMap);
-
+                    shaderProgram.setUniform("diffuseTex", modelPart.material.textureDiffuseRefColorMap);
+                if(modelPart.material.textureDissolveFactColorMap!=null)
+                    shaderProgram.setUniform("dissolveTex", modelPart.material.textureDissolveFactColorMap);
+                if(modelPart.material.textureSpecularRefColorMap!=null)
+                    shaderProgram.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);                
+                
+//                System.out.println(modelPart.material);
+                
                 modelPart.geometry.draw();
             }
             

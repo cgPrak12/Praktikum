@@ -33,6 +33,12 @@ public class Material {
                                         //During rendering, the map_d value is
                                         //multiplied by the d value.
     public Texture textureDissolveFactColorMap;
+    public String specularRefColorMap; //map_d, File name of the file
+                                        //containing  a color map (i.e. an image
+                                        //file
+                                        //During rendering, the map_d value is
+                                        //multiplied by the d value.
+    public Texture textureSpecularRefColorMap;    
     
     public void loadTextures() {
         String texturePath = "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\";
@@ -48,6 +54,13 @@ public class Material {
                 this.textureDissolveFactColorMap = Texture.generateTexture(texturePath+dissolveFactColorMap, textureUnitCounter++);
             } catch(IllegalArgumentException e) {
                 System.out.println("Failed to load Texture "+texturePath+dissolveFactColorMap);
+            }
+        }
+        if(this.specularRefColorMap != null && !this.specularRefColorMap.isEmpty()) {
+            try {
+                this.textureSpecularRefColorMap = Texture.generateTexture(texturePath+specularRefColorMap, textureUnitCounter++);
+            } catch(IllegalArgumentException e) {
+                System.out.println("Failed to load Texture "+texturePath+specularRefColorMap);
             }
         }
     }
@@ -66,6 +79,8 @@ public class Material {
                 +"diffuseRefColorMap: "+diffuseRefColorMap+"\n"
                 +"textureDiffuseRefColorMap: "+textureDiffuseRefColorMap+"\n"
                 +"dissolveFactColorMap: "+dissolveFactColorMap+"\n"
-                +"textureDissolveFactColorMap: "+textureDissolveFactColorMap+"\n\n";
+                +"textureDissolveFactColorMap: "+textureDissolveFactColorMap+"\n"
+                +"specularRefColorMap: "+specularRefColorMap+"\n"
+                +"textureSpecularRefColorMap: "+textureSpecularRefColorMap+"\n\n";
     }
 }

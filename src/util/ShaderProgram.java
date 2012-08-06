@@ -4,6 +4,7 @@ import opengl.GL;
 import static opengl.GL.*;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 /**
  *
@@ -50,6 +51,36 @@ public class ShaderProgram {
         if(loc != -1) {
             texture.bind();
             glUniform1i(loc, texture.getUnit());
+        } else {
+            System.err.println("location of " + varName + " is -1");
+        }            
+    }
+
+    /**
+     * Hilfsmethode, um einen Float Wert in eine Uniform zu schreiben. Das
+     * zugehoerige Programmobjekt muss aktiv sein.
+     * @param value Wert
+     * @param varName Zielvariable im Shader
+     */
+    public void setUniform(String varName, float value) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+            glUniform1f(loc, value);
+        } else {
+            System.err.println("location of " + varName + " is -1");
+        }            
+    }
+    
+    /**
+     * Hilfsmethode, um einen Float Vektor in eine Uniform zu schreiben. Das
+     * zugehoerige Programmobjekt muss aktiv sein.
+     * @param vector Vektor
+     * @param varName Zielvariable im Shader
+     */
+    public void setUniform(String varName, Vector3f vector) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+            glUniform3f(loc, vector.x, vector.y, vector.z);
         } else {
             System.err.println("location of " + varName + " is -1");
         }            
