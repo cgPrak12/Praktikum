@@ -346,7 +346,6 @@ public class ClipMap {
 				} else {
 					if (alignment[i][dir]) {
 						movement[i][dir - 2] -= 2;
-						System.out.println(dir);
 						alignment[i][dir] ^= true;
 						alignment[i][dir-2] ^= true;
 					} else {
