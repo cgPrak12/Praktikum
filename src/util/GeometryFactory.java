@@ -453,9 +453,6 @@ public class GeometryFactory {
 				vertices[count++] = x;
 			}
 		}
-		for (float i : vertices) {
-			System.out.println("vert: " + i);
-		}
 
 		int icount = 0;
 		for (int i = 0; i < 2 * length; i += 2) {
@@ -478,9 +475,6 @@ public class GeometryFactory {
 				indices[icount++] = 3 * length + i + j - 2;
 			}
 			indices[icount++] = -1;
-		}
-		for (int i : indices) {
-			System.out.println(i);
 		}
 
 		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
