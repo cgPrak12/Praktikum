@@ -17,7 +17,6 @@ vec2 newTC;
 void main(void) {
 	for(int i = 0; i < count; i++) {
 		newTC = texCoord+vec2(newRelVecCoord, 0.0f);
-		if(newTC.x < 0 || newTC.x > 1) newTC.x = texCoord.x; 
 		sumNewNormal += texture(normalTex, newTC).xyz * factors[i];
 		newRelVecCoord += offset;
 	}

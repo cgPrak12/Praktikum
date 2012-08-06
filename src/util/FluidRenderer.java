@@ -252,7 +252,7 @@ public class FluidRenderer {
 	
 	private void fluidNormals(int blurCount, float offsetValue) {
 		startPath(normalSP, normalFrameBuffer);
-		normalSP.setUniform("depthTex", vBlurTexture);
+		normalSP.setUniform("depthTex", depthTexture);
 		normalSP.setUniform("texSize", (float)GL.WIDTH);
 		normalSP.setUniform("camPos", cam.getCamPos());
 		

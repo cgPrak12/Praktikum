@@ -18,7 +18,7 @@ void main(void) {
 	float r2 = dot(n.xy, n.xy);
 	if (r2 > 1.0) discard; 			// kill pixels outside circle
 
-	n.z = 0.0715 * sqrt(1.0-r2);
+	n.z = 0.07 * sqrt(1.0-r2);
 	vec4 pos = (view * positionWC);
 	pos = pos/pos.w;
 	vec4 pixelPos = vec4(pos.xyz+n*0.5, 1.0);
@@ -28,5 +28,7 @@ void main(void) {
 	depth = vec4(positionWC.xyz,pixelPos.z);//vec4(-pixelPos.x, pixelPos.y, pixelPos.z, pixelPos.z);
 
 //	depth = vec4(pixelPos.xyz, distance(-pixelPos.xyz, camPos) /viewDistance); 
+
 //	depth = vec4(distance(-pixelPos.xyz, camPos) /viewDistance);
+
 }
