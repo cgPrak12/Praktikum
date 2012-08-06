@@ -133,7 +133,7 @@ public class FluidRenderer {
 		// fluid depth
 		depthTexture();
 		// fluid normals
-		fluidNormals(12);
+		fluidNormals(5, 2.0f);
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
@@ -153,11 +153,10 @@ public class FluidRenderer {
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
 		drawTextureSP.use();
-//        drawTextureSP.setUniform("image", depthTexture);
+        drawTextureSP.setUniform("image", depthTexture);
 //        drawTextureSP.setUniform("image", hBlurTexture);
 //        drawTextureSP.setUniform("image", vBlurTexture);
 //        drawTextureSP.setUniform("image", low_h_BlurTexture);
-
 //        drawTextureSP.setUniform("image", low_v_BlurTexture);
 //        drawTextureSP.setUniform("image", normalTexture);
 //        drawTextureSP.setUniform("image", normalBlurTexture);
@@ -166,7 +165,7 @@ public class FluidRenderer {
 //        drawTextureSP.setUniform("image", thicknessBlurTexture2);
 //        drawTextureSP.setUniform("image", lightingTexture);
 //        drawTextureSP.setUniform("image", colorTexture);
-        drawTextureSP.setUniform("image", cubeMapTexture);
+//        drawTextureSP.setUniform("image", cubeMapTexture);
 //        drawTextureSP.setUniform("image", testPlaneTexture);
 //        drawTextureSP.setUniform("image", normalBlurTexture2);
 
@@ -270,7 +269,7 @@ public class FluidRenderer {
 			startPath(normalVBlurSP, normalVBlurFrameBuffer);
 			normalVBlurSP.setUniform("normalTex", normalHBlurTexture);
 			normalVBlurSP.setUniform("texSize", (float)GL.WIDTH);
-			normalHBlurSP.setUniform("offsetValue", offsetValue);
+			normalVBlurSP.setUniform("offsetValue", offsetValue);
 			screenQuadGeo.draw();
 			endPath(normalVBlurFrameBuffer);
 		}
