@@ -229,7 +229,7 @@ public class TerrainMain {
                         break;
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
-                    case Keyboard.KEY_M:  MenuDialog.getInstance();; break;
+                    case Keyboard.KEY_M:  MenuDialog.getInstance(); break;
                     
                     // exposure adjustment
                     case Keyboard.KEY_NUMPAD8:

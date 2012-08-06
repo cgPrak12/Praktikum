@@ -67,7 +67,7 @@ public class MenuDialog extends JDialog {
         Action closeAction = new AbstractAction(){
 			private static final long serialVersionUID = 2L;
 			public void actionPerformed(ActionEvent e) {
-                close();
+                destroyInstance();
             }
         };
 	    contentPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -427,7 +427,7 @@ public class MenuDialog extends JDialog {
 				okButton.addActionListener(new ActionListener() {		        	 
 		            public void actionPerformed(ActionEvent e)
 		            {
-		                close();
+		                destroyInstance();
 		            }
 		        });
 				buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -455,6 +455,7 @@ public class MenuDialog extends JDialog {
 	public static void destroyInstance() {
 		if(mDial != null) {
 			mDial.close();
+			mDial = null;
 		}
 	}
 
