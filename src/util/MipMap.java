@@ -44,35 +44,50 @@ public class MipMap // extends Terrain?
 		camX = (int) cam.getCamPos().x;
 		camZ = (int) cam.getCamPos().z;
 		
-		startX = stopX = camX;
-		startZ = stopZ = camZ;
+		startX = camX - step * density;
+		stopX  = camX + step * density;
+		startZ = camZ - step * density;
+		stopZ  = camZ + step * density;
 		
-		for(int i = 1; i <= density; i++)
-		{
-			if(camX - step * i > 0) startX = camX - step * i;
-			if(camZ - step * i > 0) startZ = camZ - step * i;
-			if(camX + step * i < t.getXDim()) stopX = camX + step * i;
-			if(camZ + step * i < t.getZDim()) stopZ = camZ + step * i;
-		}
+//		for(int i = 1; i <= density; i++)
+//		{
+//			if(camX - step * i > 0) startX = camX - step * i;
+//			if(camZ - step * i > 0) startZ = camZ - step * i;
+//			if(camX + step * i < t.getXDim()) stopX = camX + step * i;
+//			if(camZ + step * i < t.getZDim()) stopZ = camZ + step * i;
+//		}
 		
 		// berechne daraus die Dimension der MipMap
-		int dimX = 1 + (stopX - startX) / step;
-		int dimZ = 1 + (stopZ - startZ) / step;
-		map = new float[dimX][dimZ][5];
+//		int dimX = 1 + (stopX - startX) / step;
+//		int dimZ = 1 + (stopZ - startZ) / step;
+		
+		map = new float[2 * density + 1][2 * density + 1][5];
 		
 			
-		for(int i = 0; i < dimX; i ++)
+		for(int i = 0; i < 2 * density + 1; i ++)
 		{
-			for(int j = 0; j < dimZ; j ++)
+			for(int j = 0; j < 2 * density + 1; j ++)
 			{
-				float[] help = t.getInfo(startX + i * step, startZ + j * step);
+				int dx = camX + (2 * i - (2 * density + 1));
+				int dz = camZ + (2 * j - (2 * density + 1));
+				if(dx >= 0 && dx < t.getXDim() && dz >= 0 && dz < t.getZDim())
+				{
+					map[i][j] = t.getInfo(camX + (2 * i - (2 * density + 1)), camZ + (2 * j - (2 * density + 1)));
+				}
+				else
+				{
+					float[] dummy = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+					map[i][j] = dummy;
+				}
+				
+//				float[] help = t.getInfo(startX + i * step, startZ + j * step);
 //				map[i][j][0] = (float) startX + i * step;
-				map[i][j][0] = help[0];
+//				map[i][j][0] = help[0];
 //				map[i][j][2] = (float) startZ + j * step;
-				map[i][j][1] = help[1];
-				map[i][j][2] = help[2];
-				map[i][j][3] = help[3];
-				map[i][j][4] = help[4];
+//				map[i][j][1] = help[1];
+//				map[i][j][2] = help[2];
+//				map[i][j][3] = help[3];
+//				map[i][j][4] = help[4];
 			}
 		}
 	}
@@ -115,12 +130,12 @@ public class MipMap // extends Terrain?
 	}		
 	
 	/**
-	 * @brief liefert die Informationen eines Vertex'
+	 * @brief liefert die Informationen eines Vertex' in MipMap-Position
 	 * @param x x-Koordinate
 	 * @param z z-Koordinate
 	 * @return Vertexinformation
 	 */
-	public float[] get(int x, int z)
+	public float[] getRel(int x, int z)
 	{
 		if(x >= 0 && z >= 0 && x < map.length && z < map[0].length)
 		{
@@ -128,10 +143,31 @@ public class MipMap // extends Terrain?
 		}
 		else
 		{
-			float[] dummy = {0.0f, -6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+			float[] dummy = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 			return dummy;
 		}
 	}
+	
+	/**
+	 * @brief liefert die Informationen eines Vertex' in Terrain-Position
+	 * @param x x-Koordinate
+	 * @param z z-Koordinate
+	 * @return Vertexinformation
+	 */
+	public float[] getAbs(int x, int z)
+	{
+		if(x >= 0 && z >= 0 && x < map.length && z < map[0].length)
+		{
+			return map[x][z];
+		}
+		else
+		{
+			float[] dummy = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+			return dummy;
+		}
+	}
+	
+	
 	/**
 	 * @brief liefert die x-Dimension der MipMap (bzw. maxX)
 	 * @return x-Dimension der MipMap
