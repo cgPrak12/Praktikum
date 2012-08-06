@@ -1,61 +1,58 @@
 package util;
 
-import java.io.*;
-import java.nio.FloatBuffer;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
-public class Test {
-	
+public class Test
+{
 	public static void main(String[] argv)
-	{
-		int maxX, maxZ;
-		maxX = maxZ = 512;
-		int size = 10;
+	{	
+		Terrain t = new Terrain(2048, 2048, 1);
+		int maxX = t.getXDim();
+		int maxZ = t.getZDim();
 		
-		Map myAS = new Map(maxX, maxZ);
-		
+		int[][] myArray = new int[maxX][maxZ];
 		for(int i = 0; i < maxX; i++)
 		{
 			for(int j = 0; j < maxZ; j++)
 			{
-				VertexInfo vi = new VertexInfo((float)i, 1.0f, (float)j, 0.0f, 0.0f, 0.0f, 0.0f);
-				myAS.setInfo(i, j, vi);
+				myArray[i][j] = 0;
 			}
 		}
 		
-		FloatBuffer[] myFBArray = GridFactory.minimizeGrid(myAS, new Camera(), size, 5);
+		Camera cam = new Camera();		
+		View view = new View(t, cam, 10);
+		
+		for(int i = 1; i <= view.getSize(); i++)
+		{
+			MipMap myMipMap = view.getLevel(i);
+			for(int x = 0; x < myMipMap.getXDim(); x++)
+			{
+				for(int z = 0; z < myMipMap.getZDim(); z++)
+				{
+					float[] help = myMipMap.get(x, z);
+//					System.out.println(help[0] + " " + help[2]);
+					myArray[(int)help[0]][(int)help[2]] = i;					
+				}
+			}
+		}
 		
 		try
 		{
-			FileWriter fstream = new FileWriter("test6.txt");
+			FileWriter fstream = new FileWriter("test7.txt");
 			BufferedWriter out = new BufferedWriter(fstream);
 			
-			int[][] temp = new int[maxX][maxZ];
 			for(int i = 0; i < maxX; i++)
 			{
 				for(int j = 0; j < maxZ; j++)
 				{
-					temp[i][j] = 0;
-				}
-			}
-			
-			for(int s = 0; s < size; s++)
-			{
-				for(int pos = 0; (pos * 7) < myFBArray[s].limit(); pos++)
-				{
-					temp[(int)myFBArray[s].get(7 * pos)][(int)myFBArray[s].get(7 * pos + 2)] = s+1;
-				}
-			}
-			
-			for(int i = 0; i < maxX; i++)
-			{
-				for(int j = 0; j < maxZ; j++)
-				{
-					if(temp[i][j] == 0)
+					if(myArray[i][j] == 0)
 					{
 						out.write("  ");
 					}
 					else
-							out.write(temp[i][j] + " ");
+							out.write(myArray[i][j] + " ");
 						
 					
 				}
@@ -69,8 +66,6 @@ public class Test {
 		{
 			System.err.println("Error: " + e.getMessage());
 		}
-		
-		
 	}
-
 }
+			

@@ -535,36 +535,36 @@ public class Util {
 
 	/**
 	 * 
-	 * @param terra The terrain which is to be modified
-	 * @param noise Some noisemap (pref 32²)
+	 * @param heightmap The heightmapin which is to be modified
+	 * @param noise Some noisemap (pref 32\B2)
 	 * @param freq The frequency by which the noisemap is taken
 	 * @param amp The amplitude with which the noise is applied
 	 */
-	public static void biLinIpol(float[][] terra, float[][]noise, float freq, float amp){
+	public static void biLinIpol(float[][][] heightmap, float[][]noise, float freq, float amp){
 
-		int terraX = terra.length;
-		int terraY = terra[0].length;
+		int heightmapX = heightmap.length;
+		int heightmapY = heightmap[0].length;
 		int noiseX = noise.length;
 		int noiseY = noise[0].length;
 		int pX, pY;
 		float a, b;
 		float dX, dY;
 
-		for(int i = 0; i < (terraX-1); i++){
+		for(int i = 0; i < (heightmapX-1); i++){
 
-			a = (float)noiseX * freq * (float)i / (float)terraX;
+			a = (float)noiseX * freq * (float)i / (float)heightmapX;
 			pX = (int)(a);
 			dX = a - pX;
 			//System.out.println("pX:"+pX);
 
-			for(int j = 0; j < (terraY-1); j++){
+			for(int j = 0; j < (heightmapY-1); j++){
 
-				b = (float)noiseY * freq * (float)j / (float)terraY;
+				b = (float)noiseY * freq * (float)j / (float)heightmapY;
 				pY = (int)(b);
 				dY = b - pY;
 				//System.out.println("pY:"+pY);
 
-				terra[i][j] += amp * (iPol(iPol(noise[pX % noiseX][pY % noiseY], 
+				heightmap[i][j][0] += amp * (iPol(iPol(noise[pX % noiseX][pY % noiseY], 
 						noise[pX % noiseX][(pY+1)%noiseY], dY),
 						iPol(noise[(pX+1)%noiseX][pY % noiseY], 
 								noise[(pX+1)%noiseX][(pY+1)%noiseY], dY), dX));
@@ -576,10 +576,12 @@ public class Util {
 	}
 	/**
 	 * 
+	 * Old smoothing with Interpolation (aka Bad Smoothing)
+	 * 
 	 * @param heightmap to smooth
 	 * @param amp smoothing scalation, restricted to [0,1]
 	 */
-	public static void smooth(float [][] heightmap, float amp){
+	public static void smooth(float[][][] heightmap, float amp){
 
 
 		float left, right, up, down, val;
@@ -591,7 +593,7 @@ public class Util {
 
 			for(int j=0;j<mapWidth;j++){
 
-				if(heightmap[i][j]<0.5){
+				if(heightmap[i][j][0]<0.5){
 
 					indexLeft = (i-1)>=0  ? i : mapHeight-1; 
 					indexRight = (i+1)<mapHeight  ? i : 0; 
@@ -599,21 +601,21 @@ public class Util {
 					indexUp = (j+1)<mapWidth  ? i : 0; 
 
 
-					val = heightmap[i][j];
-					if(heightmap[indexLeft][j]<0.5){
-						left = iPol(val, heightmap[indexLeft][j], 0.5f*amp);
+					val = heightmap[i][j][0];
+					if(heightmap[indexLeft][j][0]<0.5){
+						left = iPol(val, heightmap[indexLeft][j][0], 0.5f*amp);
 					}else left = val;
-					if(heightmap[i][indexDown]<0.5){
-						down = iPol(val, heightmap[i][indexDown], 0.5f*amp);
+					if(heightmap[i][indexDown][0]<0.5){
+						down = iPol(val, heightmap[i][indexDown][0], 0.5f*amp);
 					}else down = val;
-					if(heightmap[indexRight][j]<0.5){
-						right = iPol(val, heightmap[indexRight][j], 0.5f*amp);
+					if(heightmap[indexRight][j][0]<0.5){
+						right = iPol(val, heightmap[indexRight][j][0], 0.5f*amp);
 					}else right = val;
-					if(heightmap[i][indexUp]<0.5){
-						up = iPol(val, heightmap[i][indexUp], 0.5f*amp);
+					if(heightmap[i][indexUp][0]<0.5){
+						up = iPol(val, heightmap[i][indexUp][0], 0.5f*amp);
 					}else up = val;
 
-					heightmap[i][j] = iPol(iPol(left, right, 0.5f), iPol(up, down, 0.5f), 0.5f);
+					heightmap[i][j][0] = iPol(iPol(left, right, 0.5f), iPol(up, down, 0.5f), 0.5f);
 
 				}
 
@@ -629,20 +631,21 @@ public class Util {
 	}
 	
 	/**
+	 * smoothing with 3x3 Gausskernel 
 	 * 
 	 * @param heightmap to smooth
 	 */
-	public static void smoothGauss3(float [][] heightMap){
+	public static void smoothGauss3(float [][][] heightmap){
 		
 		float[][] mat = new float[3][3];
-		int width = heightMap.length, height = heightMap[0].length;
+		int width = heightmap.length, height = heightmap[0].length;
 		float[][] helpMap = new float[width+2][height+2];
 		float sum = 0;
 		
 		// Fill helpMat
 		for(int i=1; i<width+1; i++){
 			for(int j=1; j<height+1; j++){
-				helpMap[i][j] = heightMap[i-1][j-1];
+				helpMap[i][j] = heightmap[i-1][j-1][0];
 			}
 		}
 		
@@ -669,7 +672,7 @@ public class Util {
 						sum += mat[k][l];
 					}
 				}
-				heightMap[i-1][j-1] = sum/16f;
+				heightmap[i-1][j-1][0] = sum/16f;
 				sum = 0;
 			}
 			
@@ -677,20 +680,21 @@ public class Util {
 	}
 	
 /**
+ * smoothing with 5x5 Gausskernel
  * 
- * @param heightMap
+ * @param heightmap
  */
-	public static void smoothGauss5(float [][] heightMap){
+	public static void smoothGauss5(float [][][] heightmap){
 		
 		float[][] mat = new float[5][5];
-		int width = heightMap.length, height = heightMap[0].length;
+		int width = heightmap.length, height = heightmap[0].length;
 		float[][] helpMap = new float[width+4][height+4];
 		float sum = 0;
 		
 		// Fill helpMat
 		for(int i=2; i<width+2; i++){
 			for(int j=2; j<height+2; j++){
-				helpMap[i][j] = heightMap[i-2][j-2];
+				helpMap[i][j] = heightmap[i-2][j-2][0];
 			}
 		}
 		
@@ -735,7 +739,7 @@ public class Util {
 						sum += mat[k][l];
 					}
 				}
-				heightMap[i-2][j-2] = sum/256f;
+				heightmap[i-2][j-2][0] = sum/256f;
 				sum = 0;
 			}
 			
@@ -743,20 +747,21 @@ public class Util {
 	}
 	
 	/**
+	 * smoothing with 7x7 Gausskernel
 	 * 
-	 * @param heightMap
+	 * @param heightmap
 	 */
-public static void smoothGauss7(float [][] heightMap){
+public static void smoothGauss7(float [][][] heightmap){
 		
 		float[][] mat = new float[7][7];
-		int width = heightMap.length, height = heightMap[0].length;
+		int width = heightmap.length, height = heightmap[0].length;
 		float[][] helpMap = new float[width+6][height+6];
 		float sum = 0;
 		
 		// Fill helpMat
 		for(int i=3; i<width+3; i++){
 			for(int j=3; j<height+3; j++){
-				helpMap[i][j] = heightMap[i-3][j-3];
+				helpMap[i][j] = heightmap[i-3][j-3][0];
 			}
 		}
 		
@@ -827,7 +832,7 @@ public static void smoothGauss7(float [][] heightMap){
 						sum += mat[k][l];
 					}
 				}
-				heightMap[i-3][j-3] = sum/4096f;
+				heightmap[i-3][j-3][0] = sum/4096f;
 				sum = 0;
 			}
 			
@@ -912,38 +917,38 @@ public static void smoothGauss7(float [][] heightMap){
 		return programID;
 	}  
 
-    /**
-     * Laedt ein Bild und speichert die einzelnen Bildpunke in einem
-     * 2-dimensionalen float-Array. Die erste Koordinate ist die y-Position und
-     * liegt zwischen 0 und der Hoehe des Bildes - 1. Die zweite Koordinate ist
-     * die x-Position und liegt zwischen 0 und der Breite des Bildes. Die dritte
-     * Koordinate ist die Farbkomponente des Bildpunktes und ist 0 (rot), 1
-     * (gruen) oder 2 (blau).
-     * @param imageFile Pfad zur Bilddatei
-     * @return Bild enthaltendes float-Array
-     */
-    public static float[][][] getImageContents(String imageFile) {
-        File file = new File(imageFile);
-        if(!file.exists()) {
-            throw new IllegalArgumentException(imageFile + " does not exist");
-        }
-        try {
-            BufferedImage image = ImageIO.read(file);
-            float[][][] result = new float[image.getHeight()][image.getWidth()][3];
-            for(int y=0; y < image.getHeight(); ++y) {
-                for(int x=0; x < image.getWidth(); ++x) {
-                    Color c = new Color(image.getRGB(image.getWidth() - 1 - x, y));
-                    result[y][x][0] = (float)c.getRed() / 255.0f;
-                    result[y][x][1] = (float)c.getGreen() / 255.0f;
-                    result[y][x][2] = (float)c.getBlue() / 255.0f;
-                }
-            }
-            return result;
-        } catch (IOException ex) {
-            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
+	/**
+	 * Laedt ein Bild und speichert die einzelnen Bildpunke in einem
+	 * 2-dimensionalen float-Array. Die erste Koordinate ist die y-Position und
+	 * liegt zwischen 0 und der Hoehe des Bildes - 1. Die zweite Koordinate ist
+	 * die x-Position und liegt zwischen 0 und der Breite des Bildes. Die dritte
+	 * Koordinate ist die Farbkomponente des Bildpunktes und ist 0 (rot), 1
+	 * (gruen) oder 2 (blau).
+	 * @param imageFile Pfad zur Bilddatei
+	 * @return Bild enthaltendes float-Array
+	 */
+	public static float[][][] getImageContents(String imageFile) {
+		File file = new File(imageFile);
+		if(!file.exists()) {
+			throw new IllegalArgumentException(imageFile + " does not exist");
+		}
+		try {
+			BufferedImage image = ImageIO.read(file);
+			float[][][] result = new float[image.getHeight()][image.getWidth()][3];
+			for(int y=0; y < image.getHeight(); ++y) {
+				for(int x=0; x < image.getWidth(); ++x) {
+					Color c = new Color(image.getRGB(image.getWidth() - 1 - x, y));
+					result[y][x][0] = (float)c.getRed() / 255.0f;
+					result[y][x][1] = (float)c.getGreen() / 255.0f;
+					result[y][x][2] = (float)c.getBlue() / 255.0f;
+				}
+			}
+			return result;
+		} catch (IOException ex) {
+			Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
+			return null;
+		}
+	}
     
     public static Util.ImageContents loadImage(String imageFile) {
         File file = new File(imageFile);
@@ -1004,4 +1009,20 @@ public static void smoothGauss7(float [][] heightMap){
             }
         }
     }
+	
+	/**
+	 * @brief	Skaliert einen Wert auf einer Skala zu einem Wert auf einer anderen Skala
+	 * @param	x		Wert, der geaendert werden soll
+	 * @param	oldLow	Untergrenze der alten Skala
+	 * @param	oldHigh	Obergrenze der alten Skala
+	 * @param	newLow	Untergrenze der neuen Skala
+	 * @param	newHigh	Obergrenze der neuen Skala
+	 * @return	Wert auf der neuen Skala
+	 */
+	public static float scale(float x, float oldLow, float oldHigh, float newLow, float newHigh)
+	{
+		x = (x - oldLow) / (oldHigh - oldLow);
+		x = newLow + (newHigh - newLow) * x;
+		return x;
+	}
 }
