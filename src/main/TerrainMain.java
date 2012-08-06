@@ -157,10 +157,13 @@ public class TerrainMain {
 
         	if (tonemapping) {
             	if (bloom) {
-//            		FrameBuffer fbo1 = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
-//            		FrameBuffer fbo2 = screenMan.getBrightness(enlightenedFBO, brightnessFactor);
+            		FrameBuffer fbo1 = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
+            		FrameBuffer fbo2 = screenMan.getBrightness(enlightenedFBO, brightnessFactor);
+            		FrameBuffer fbo3 = screenMan.getBlur51(enlightenedFBO);
+            		FrameBuffer fbo4 = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor);
 //            		fbo = screenMan.getHalfScreenView(fbo1, fbo2);
-            		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
+            		//fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
+            		fbo = screenMan.getQuadScreenView(fbo1, fbo2, fbo3, fbo4);
             	}
             	else {
             		fbo = screenMan.getToneMapped(enlightenedFBO, exposure);

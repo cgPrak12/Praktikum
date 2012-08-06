@@ -20,6 +20,7 @@ public class ScreenManipulation {
 	private static FrameBuffer fboTone;
 	private static FrameBuffer fboPhong;
 	private static FrameBuffer fboHalf;
+	private static FrameBuffer fboQuad;
 	private static FrameBuffer brightness; 
 	private static FrameBuffer blured1;
 	private static FrameBuffer blured2;
@@ -33,6 +34,7 @@ public class ScreenManipulation {
 	private static ShaderProgram spoTone;
 	private static ShaderProgram spoPhong;
 	private static ShaderProgram spoHalf;
+	private static ShaderProgram spoQuad;
 	
     private static Vector2f[] tc_offset_5;
     
@@ -95,6 +97,10 @@ public class ScreenManipulation {
         fboHalf.init(false, width, height);
         fboHalf.addTexture(new Texture(GL_TEXTURE_2D, 8), GL30.GL_RGBA16F, GL_RGBA);
         
+        fboQuad = new FrameBuffer();
+        fboQuad.init(false, width, height);
+        fboQuad.addTexture(new Texture(GL_TEXTURE_2D, 8), GL30.GL_RGBA16F, GL_RGBA);
+        
         brightness = new FrameBuffer();
         brightness.init(false, width, height);
         brightness.addTexture(new Texture(GL_TEXTURE_2D, 9), GL30.GL_RGBA16F, GL_RGBA);
@@ -122,6 +128,7 @@ public class ScreenManipulation {
 		spoTone = new ShaderProgram(vertexShader, fragmentShaderTone);
 		spoPhong = new ShaderProgram(vertexShader, fragmentShaderPhong);
 		spoHalf = new ShaderProgram(vertexShader, "./shader/Half_FS.glsl");
+		spoQuad = new ShaderProgram(vertexShader, "./shader/Quad_FS.glsl");
 	}
 	
 	/**
@@ -345,6 +352,22 @@ public class ScreenManipulation {
 		
 		return fboHalf;
 		
+	}
+		
+	public FrameBuffer getQuadScreenView(FrameBuffer image1, FrameBuffer image2, FrameBuffer image3, FrameBuffer image4) {
+		fboQuad.bind();
+		
+		spoQuad.use();
+		spoQuad.setUniform("leftTopImage", image1.getTexture(0));
+		spoQuad.setUniform("rightTopImage", image2.getTexture(0));
+		spoQuad.setUniform("leftDownImage", image3.getTexture(0));
+		spoQuad.setUniform("rightDownImage", image4.getTexture(0));
+		
+		this.screenQuad.draw();
+		
+		fboQuad.unbind();
+		
+		return fboQuad;
 	}
 	
 	/**
