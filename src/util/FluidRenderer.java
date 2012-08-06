@@ -109,8 +109,10 @@ public class FluidRenderer {
     	
     	// init shaderPrograms, frameBuffers, ...
     	GL11.glPointSize(GL11.GL_POINT_SIZE);
-    	
-    	initDT(depthSP, depthFrameBuffer, "depth", depthTexture);
+
+
+    	init(depthSP, depthFrameBuffer, "depth", depthTexture, true);
+
 		init(hBlurSP, hBlurFrameBuffer, "color", hBlurTexture);
 		init(vBlurSP, vBlurFrameBuffer, "color", vBlurTexture);
 		lowinit(low_h_BlurSP, low_h_BlurFrameBuffer, "low_h_BlurTexture", low_h_BlurTexture);
@@ -133,7 +135,7 @@ public class FluidRenderer {
 		// fluid depth
 		depthTexture();
 		// fluid normals
-		fluidNormals(12);
+		fluidNormals(5, 2.0f);
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
@@ -148,7 +150,7 @@ public class FluidRenderer {
 
 		
 		// combine images to final image
-		createFinalImage();
+//		createFinalImage();
 		
 		// Draws image (will be removed later)
         glDisable(GL_BLEND);
@@ -156,8 +158,8 @@ public class FluidRenderer {
 //        drawTextureSP.setUniform("image", depthTexture);
         drawTextureSP.setUniform("image", hBlurTexture);
 //       drawTextureSP.setUniform("image", vBlurTexture);
-//        drawTextureSP.setUniform("image", low_h_BlurTexture);
 
+//        drawTextureSP.setUniform("image", low_h_BlurTexture);
 //        drawTextureSP.setUniform("image", low_v_BlurTexture);
 //        drawTextureSP.setUniform("image", normalTexture);
 //        drawTextureSP.setUniform("image", normalBlurTexture);
@@ -174,22 +176,19 @@ public class FluidRenderer {
         screenQuadGeo.draw();
 	}
 	
-	private void initDT(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
-		fb.init(true, GL.WIDTH, GL.HEIGHT);
-    	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
-    	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
-    	fb.drawBuffers();
+	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
+		init(sp, fb, attachmentName, tex, false);
 	}
 	
-	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
-		fb.init(false, GL.WIDTH, GL.HEIGHT);
+	private void init(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex, boolean depthTest) {
+		fb.init(depthTest, GL.WIDTH, GL.HEIGHT);
     	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
     	fb.drawBuffers();
 	}
 	
 	private void lowinit(ShaderProgram sp, FrameBuffer fb, String attachmentName, Texture tex) {
-		fb.init(false, GL.WIDTH/2, GL.HEIGHT/2);
+		fb.init(true, GL.WIDTH/2, GL.HEIGHT/2);
     	fb.addTexture(tex, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	GL30.glBindFragDataLocation(sp.getId(), 0, attachmentName);
     	fb.drawBuffers();
@@ -243,7 +242,6 @@ public class FluidRenderer {
 
         blur(depthTexture, 0);
         lowBlur(depthTexture,0,4);
-
    
 	}
 	
@@ -257,7 +255,7 @@ public class FluidRenderer {
 	
 	private void fluidNormals(int blurCount, float offsetValue) {
 		startPath(normalSP, normalFrameBuffer);
-		normalSP.setUniform("depthTex", depthTexture);
+		normalSP.setUniform("depthTex", vBlurTexture);
 		normalSP.setUniform("texSize", (float)GL.WIDTH);
 		normalSP.setUniform("camPos", cam.getCamPos());
 		
@@ -277,7 +275,7 @@ public class FluidRenderer {
 			startPath(normalVBlurSP, normalVBlurFrameBuffer);
 			normalVBlurSP.setUniform("normalTex", normalHBlurTexture);
 			normalVBlurSP.setUniform("texSize", (float)GL.WIDTH);
-			normalHBlurSP.setUniform("offsetValue", offsetValue);
+			normalVBlurSP.setUniform("offsetValue", offsetValue);
 			screenQuadGeo.draw();
 			endPath(normalVBlurFrameBuffer);
 		}
@@ -431,6 +429,7 @@ public class FluidRenderer {
 		screenQuadGeo.draw();
 		endPath(finalImageFB);
 	} 
+	
 	private void blur(Texture scene, int counter){
 		
 		hBlurSP.use();
@@ -527,4 +526,5 @@ public class FluidRenderer {
         	low_v_BlurFrameBuffer.unbind();
 		}
 	}
+	
 }
