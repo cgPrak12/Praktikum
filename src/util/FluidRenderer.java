@@ -111,7 +111,7 @@ public class FluidRenderer {
 		// fluid depth
 		depthTexture();
 		// fluid normals
-		fluidNormals();
+		fluidNormals(2);
 		// fluid thickness
 		fluidThickness();
 		// fluid thicknessBlur
@@ -130,8 +130,9 @@ public class FluidRenderer {
 //        drawTextureSP.setUniform("image", vBlurTexture);
 //        drawTextureSP.setUniform("image", low_h_BlurTexture);
 
-        drawTextureSP.setUniform("image", low_v_BlurTexture);
+//        drawTextureSP.setUniform("image", low_v_BlurTexture);
 //        drawTextureSP.setUniform("image", normalTexture);
+        drawTextureSP.setUniform("image", normalBlurTexture);
 //        drawTextureSP.setUniform("image", thicknessTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture2);
@@ -186,16 +187,10 @@ public class FluidRenderer {
 	}
     
 	private void depthTexture() {
-		
 		depthSP.use();
-		
 		depthSP.setUniform("view", cam.getView());
-
 		depthSP.setUniform("proj", cam.getProjection());
 		depthSP.setUniform("viewDistance",cam.getViewDistance());
-		
-		
-		
         depthSP.setUniform("camPos", cam.getCamPos());
    	    depthFrameBuffer.bind();
    	    depthFrameBuffer.clearColor();
