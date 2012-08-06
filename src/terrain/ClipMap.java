@@ -135,157 +135,157 @@ public class ClipMap {
 	 */
 	public void createClip(int i) {
 
-//		// 1
-//		Util.mul(
-//				translation,
-//				Util.translationX(size / 2 - gridsize - middlesize / 2
-//						+ movement[i][0] + correctionX, null),
-//				Util.translationZ(size / 2 - gridsize + middlesize / 2
-//						+ movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 2
-//		Util.mul(
-//				translation,
-//				Util.translationX(size / 2 - 2 * gridsize - middlesize / 2
-//						+ movement[i][0] + correctionX, null),
-//				Util.translationZ(size / 2 - gridsize + middlesize / 2
-//						+ movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 3
-//		Util.mul(
-//				translation,
-//				Util.translationX(-size / 2 + gridsize - middlesize / 2
-//						+ movement[i][0] + correctionX, null),
-//				Util.translationZ(size / 2 - gridsize + middlesize / 2
-//						+ movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 4
-//		Util.mul(
-//				translation,
-//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-//						+ correctionX, null),
-//				Util.translationZ(size / 2 - gridsize + middlesize / 2
-//						+ movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 5
-//		Util.mul(
-//				translation,
-//				Util.translationX(size / 2 - gridsize - middlesize / 2
-//						+ movement[i][0] + correctionX, null),
-//				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
-//						+ movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 6
-//		Util.mul(
-//				translation,
-//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-//						+ correctionX, null),
-//				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
-//						+ movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 7
-//		Util.mul(
-//				translation,
-//				Util.translationX(size / 2 - gridsize - middlesize / 2
-//						+ movement[i][0] + correctionX, null),
-//				Util.translationZ(-size / 2 + gridsize + middlesize / 2
-//						+ movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 8
-//		Util.mul(
-//				translation,
-//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-//						+ correctionX, null),
-//				Util.translationZ(-size / 2 + gridsize + middlesize / 2
-//						+ movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 9
-//		Util.mul(
-//				translation,
-//				Util.translationX(size / 2 - gridsize - middlesize / 2
-//						+ movement[i][0] + correctionX, null),
-//				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
-//						+ correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 10
-//		Util.mul(
-//				translation,
-//				Util.translationX(size / 2 - gridsize - gridsize - middlesize
-//						/ 2 + movement[i][0] + correctionX, null),
-//				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
-//						+ correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 11
-//		Util.mul(
-//				translation,
-//				Util.translationX(-size / 2 + gridsize - middlesize / 2
-//						+ movement[i][0] + correctionX, null),
-//				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
-//						+ correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// 12
-//		Util.mul(
-//				translation,
-//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-//						+ correctionX, null),
-//				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
-//						+ correctionZ, null));
-//		setProgram();
-//		mxm.draw();
-//
-//		// Oben
-//		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
-//				+ correctionX, null), Util.translationZ(size / 2 - gridsize
-//				+ middlesize / 2 + movement[i][1] + correctionZ, null));
-//		setProgram();
-//		nxm.draw();
-//
-//		// Unten
-//		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
-//				+ correctionX, null), Util.translationZ(-size / 2 + middlesize
-//				/ 2 + movement[i][1] + correctionZ, null));
-//		setProgram();
-//		nxm.draw();
-//
-//		// Links
-//		Util.mul(
-//				translation,
-//				Util.translationX(size / 2 - gridsize - middlesize / 2
-//						+ movement[i][0] + correctionX, null),
-//				Util.translationZ(movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxn.draw();
-//
-//		// Rechts
-//		Util.mul(
-//				translation,
-//				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
-//						+ correctionX, null),
-//				Util.translationZ(movement[i][1] + correctionZ, null));
-//		setProgram();
-//		mxn.draw();
+		// 1
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(size / 2 - gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 2
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - 2 * gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(size / 2 - gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 3
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 + gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(size / 2 - gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 4
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(size / 2 - gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 5
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 6
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(size / 2 - 2 * gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 7
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(-size / 2 + gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 8
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(-size / 2 + gridsize + middlesize / 2
+						+ movement[i][1] + correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 9
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+						+ correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 10
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - gridsize - gridsize - middlesize
+						/ 2 + movement[i][0] + correctionX, null),
+				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+						+ correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 11
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 + gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+						+ correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// 12
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1]
+						+ correctionZ, null));
+		setProgram();
+		mxm.draw();
+
+		// Oben
+		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
+				+ correctionX, null), Util.translationZ(size / 2 - gridsize
+				+ middlesize / 2 + movement[i][1] + correctionZ, null));
+		setProgram();
+		nxm.draw();
+
+		// Unten
+		Util.mul(translation, Util.translationX(-middlesize + movement[i][0]
+				+ correctionX, null), Util.translationZ(-size / 2 + middlesize
+				/ 2 + movement[i][1] + correctionZ, null));
+		setProgram();
+		nxm.draw();
+
+		// Links
+		Util.mul(
+				translation,
+				Util.translationX(size / 2 - gridsize - middlesize / 2
+						+ movement[i][0] + correctionX, null),
+				Util.translationZ(movement[i][1] + correctionZ, null));
+		setProgram();
+		mxn.draw();
+
+		// Rechts
+		Util.mul(
+				translation,
+				Util.translationX(-size / 2 - middlesize / 2 + movement[i][0]
+						+ correctionX, null),
+				Util.translationZ(movement[i][1] + correctionZ, null));
+		setProgram();
+		mxn.draw();
 	
 
 	}
@@ -438,9 +438,9 @@ public class ClipMap {
 			bottomRight.delete();
 			Util.mul(
 					translation,
-					Util.translationX(size / 2 -(gridsize+1) 
+					Util.translationX(size / 2 -(gridsize+1)-1 
 					+ movement[i][0] + correctionX , null),
-					Util.translationZ(movement[i][1] + correctionZ-gridsize-1, null));
+					Util.translationZ(movement[i][1] + correctionZ-gridsize, null));
 			setProgram();
 		    bottomLeft.draw();break;
  		    //BottomRight
