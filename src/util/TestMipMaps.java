@@ -13,27 +13,23 @@ public class TestMipMaps
 		int maxZ = t.getZDim();
 		
 		int[][] myArray = new int[maxX][maxZ];
-		for(int i = 0; i < maxX; i++)
-		{
-			for(int j = 0; j < maxZ; j++)
-			{
-				myArray[i][j] = 0;
-			}
-		}
 		
 		Camera cam = new Camera();		
-		View view = new View(t, cam, 10);
-		
-		for(int i = 1; i <= view.getSize(); i++)
+		View view = new View(t, cam);
+		for(int size = view.getSize(); size > 0; size--)
 		{
-			MipMap myMipMap = view.getLevel(i);
-			for(int x = 0; x < myMipMap.getXDim(); x++)
+			System.out.println(size);
+			for(int i = 0; i < maxX; i++)
 			{
-				for(int z = 0; z < myMipMap.getZDim(); z++)
+				for(int j = 0; j < maxZ; j++)
 				{
-					float[] help = myMipMap.get(x, z);
-//					System.out.println(help[0] + " " + help[2]);
-					myArray[(int)help[0]][(int)help[2]] = i;					
+					float[] help = view.getLevel(size).getAbs(i, j);
+					if(!(help[0] == -6.0f && help[1] == 0.0f && help[2] == 0.0f&& help[3] == 0.0f && help[4] == 0.0f))
+					{
+						myArray[i][j] = size;
+					}
+					if(myArray[i][j] == 0)
+						myArray[i][j] = 0;
 				}
 			}
 		}

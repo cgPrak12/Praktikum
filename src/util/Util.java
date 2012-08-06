@@ -1021,8 +1021,7 @@ public static void smoothGauss7(float [][][] heightmap){
 	 */
 	public static float scale(float x, float oldLow, float oldHigh, float newLow, float newHigh)
 	{
-		x = (x - oldLow) / (oldHigh - oldLow);
-		x = newLow + (newHigh - newLow) * x;
-		return x;
+		float result = (x - oldLow) / (oldHigh - oldLow);
+		return (newLow + (newHigh - newLow) * result);
 	}
 }

@@ -13,7 +13,7 @@ public class MipMap // extends Terrain?
 	private float camY;		// aktuelle Kamerahoehe
 	private float maxY;		// maximale Kamerahoehe
 	private float terY;		// Hoehe des Mittelpunkts
-	private int startX, stopX, startZ, stopZ;
+	private int density;
 	private int step;
 	
 	/**
@@ -37,29 +37,12 @@ public class MipMap // extends Terrain?
 		camY = cam.getCamPos().y;		
 		maxY = cam.getMaxCamHeight();
 		terY = t.getInfo((int)cam.getCamPos().x, (int)cam.getCamPos().z)[0];
-		int density = (int) Util.scale(camY - terY, maxY - terY, 0, 1.0f, 50.0f);
+		density = (int) Util.scale(camY - terY, maxY - terY, 0, 1.0f, 50.0f);
 		
 		// berechne die Grenzen der MipMap
 		step = (int) Math.pow(2, level - 1);
 		camX = (int) cam.getCamPos().x;
 		camZ = (int) cam.getCamPos().z;
-		
-		startX = camX - step * density;
-		stopX  = camX + step * density;
-		startZ = camZ - step * density;
-		stopZ  = camZ + step * density;
-		
-//		for(int i = 1; i <= density; i++)
-//		{
-//			if(camX - step * i > 0) startX = camX - step * i;
-//			if(camZ - step * i > 0) startZ = camZ - step * i;
-//			if(camX + step * i < t.getXDim()) stopX = camX + step * i;
-//			if(camZ + step * i < t.getZDim()) stopZ = camZ + step * i;
-//		}
-		
-		// berechne daraus die Dimension der MipMap
-//		int dimX = 1 + (stopX - startX) / step;
-//		int dimZ = 1 + (stopZ - startZ) / step;
 		
 		map = new float[2 * density + 1][2 * density + 1][5];
 		
@@ -150,19 +133,21 @@ public class MipMap // extends Terrain?
 	
 	/**
 	 * @brief liefert die Informationen eines Vertex' in Terrain-Position
-	 * @param x x-Koordinate
-	 * @param z z-Koordinate
+	 * @param newX x-Koordinate
+	 * @param newZ z-Koordinate
 	 * @return Vertexinformation
 	 */
 	public float[] getAbs(int x, int z)
 	{
-		if(x >= 0 && z >= 0 && x < map.length && z < map[0].length)
+		int newX = (int) Util.scale(x, camX - density * step, camX + density * step, 0, map.length - 1);
+		int newZ = (int) Util.scale(z, camZ - density * step, camZ + density * step, 0, map[0].length - 1);
+		if(newX >= 0 && newZ >= 0 && newX < map.length && newZ < map[0].length)
 		{
-			return map[x][z];
+			return map[newX][newZ];
 		}
 		else
 		{
-			float[] dummy = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+			float[] dummy = {-6.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 			return dummy;
 		}
 	}
