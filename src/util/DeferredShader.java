@@ -1,4 +1,3 @@
-
 package util; 
 
 import opengl.GL;
@@ -74,4 +73,5 @@ public class DeferredShader {
 		texNormal.delete();        
 		texVertexColor.delete();    
 		}
+
 }

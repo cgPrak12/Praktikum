@@ -80,6 +80,7 @@ public void drawBuffers() {
     	
     	GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBufferObjectId);
         GL11.glViewport(0, 0, this.width, this.height);
+
         if(renderBufferObjectId == -1) {
             GL11.glDisable(GL11.GL_DEPTH_TEST);
         } else {
