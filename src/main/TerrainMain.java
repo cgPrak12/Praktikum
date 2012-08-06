@@ -93,7 +93,9 @@ public class TerrainMain {
         Matrix4f floorQuadMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
-        Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null));        
+        Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
+        shadowCam.changeProjection();
+
         
         DeferredShader shadowShader = new DeferredShader();
         shadowShader.init();
@@ -106,6 +108,9 @@ public class TerrainMain {
         
         Geometry testCube = GeometryFactory.createCube();
         Geometry floorQuad = GeometryFactory.createWhiteScreenQuad();
+        Geometry sunCube = GeometryFactory.createCube();
+        
+        Matrix4f sunMatrix = new Matrix4f();
         
         //enlighted fbo
         FrameBuffer enlightenedFBO = new FrameBuffer();
@@ -125,7 +130,8 @@ public class TerrainMain {
             
             shadowCam.setCamDir(sunDirection.negate(null));
             shadowCam.setCamPos(new Vector3f(sunDirection.x * 10f, sunDirection.y * 10f, sunDirection.z * 10f));
-            shadowCam.changeProjection();
+            
+            Util.mul(sunMatrix, Util.translation(new Vector3f(sunDirection.x*10, sunDirection.y*10, sunDirection.z*10), null));
             
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
@@ -169,6 +175,11 @@ public class TerrainMain {
             
             floorQuad.draw();
             
+            fboSP.setUniform("model", sunMatrix);
+            fboSP.setUniform("modelIT", sunMatrix);
+            
+            sunCube.draw();
+            
         	shader.finish();
         	
         	fboSP.use();
@@ -184,6 +195,8 @@ public class TerrainMain {
         	
 			fboSP.setUniform("model", floorQuadMatrix);
         	fboSP.setUniform("modelIT", floorQuadMatrix);
+        	fboSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
+            fboSP.setUniform("camPos",   shadowCam.getCamPos());
         	
         	floorQuad.draw();
         	
