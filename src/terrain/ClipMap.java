@@ -97,6 +97,8 @@ public class ClipMap {
 		bottomRight = GeometryFactory.createBottomRight(lsize);
 		center = GeometryFactory.createGrid(4 * gridsize + middlesize
 				+ middlesize / 2, 4 * gridsize + middlesize + middlesize / 2);
+		
+		updateSize();
 	}
 
 	/**
@@ -347,5 +349,10 @@ public class ClipMap {
 			setProgram();
 		    bottomRight.draw();break;
 		}
+	}
+	
+	private void updateSize(){
+		System.out.println((float)Math.pow(2, stage-1)*size);
+		program.setFloat("worldSize", (float)Math.pow(2, stage-1)*size);
 	}
 }

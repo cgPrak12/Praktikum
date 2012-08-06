@@ -2,21 +2,28 @@
 
 uniform mat4 model, viewProj, translation, scale, viewTrans;
 uniform sampler2D elevation;
+uniform float worldSize;
 
 in vec2 positionMC, vertexTexCoords;
 in vec3 vertexColor;
 
-//out vec2 positionMC;
+out vec3 positionWC;
 out vec3 color;
+out vec2 tex;
+
+
+
 
 void main(void) {
-
-
- 
-
-
-
-	vec4 pos = scale * translation *   vec4(positionMC.x, 0 , positionMC.y,1);
-    gl_Position = viewProj * model  * vec4(pos.x ,0,pos.z ,1);
+    
+    vec3 posiWC = mat3(model) * vec3(positionMC.x,0, positionMC.y);
+	
+	
+	//float height = texture(elevation, p).x;
+	vec4 pos = scale * translation *   vec4(positionMC.x, 0, positionMC.y,1);
+	tex = pos.xz / worldSize + 0.5f;
+    gl_Position = viewProj * model  * pos;
 	color = vertexColor;
+	//positionWC = texPos;
+	
 }    

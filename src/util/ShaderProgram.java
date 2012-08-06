@@ -50,6 +50,13 @@ public class ShaderProgram {
         }
     }
     
+    public void setFloat(String varName, float value){
+    	int loc = glGetUniformLocation(this.id, varName);
+    	if(loc != -1){
+    		glUniform1f(loc, value);
+    	}
+    }
+    
     /**
      * Attribut Index von positionMC
      */
