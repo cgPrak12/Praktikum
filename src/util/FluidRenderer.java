@@ -121,7 +121,9 @@ public class FluidRenderer {
 //        drawTextureSP.setUniform("image", hBlurTexture);
 //        drawTextureSP.setUniform("image", vBlurTexture);
 //        drawTextureSP.setUniform("image", low_h_BlurTexture);
-//        drawTextureSP.setUniform("image", low_v_BlurTexture);
+
+        drawTextureSP.setUniform("image", low_v_BlurTexture);
+
 //        drawTextureSP.setUniform("image", normalTexture);
 //        drawTextureSP.setUniform("image", thicknessTexture);
 //        drawTextureSP.setUniform("image", thicknessBlurTexture);

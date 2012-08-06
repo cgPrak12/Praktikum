@@ -1,4 +1,6 @@
+
 package util; 
+
 import opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -72,7 +74,4 @@ public class DeferredShader {
 		texNormal.delete();        
 		texVertexColor.delete();    
 		}
-
-	}
-	
-
+}

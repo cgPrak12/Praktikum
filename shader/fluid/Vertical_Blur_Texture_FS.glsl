@@ -34,4 +34,5 @@ if(i>0.0){
 sum/=i;
 }
 color =vec4(texture2D(depthTex, texCoords).xyz,sum);
+color=vec4(sum);
 } 
