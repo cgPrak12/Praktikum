@@ -194,8 +194,7 @@ public class GridFactory {
 //                density *= 5;
 //                density -= density % 4;
 
-                return minimizeGrid(src, (int) cam.getCamPos().x, (int) cam.getCamPos().z, size,
-density);
+                return minimizeGrid(src, (int) cam.getCamPos().x, (int) cam.getCamPos().z, size, density);
         }
                 
         /**
@@ -206,8 +205,7 @@ density);
          * @param size Unterteilung (auf einer Skala von 1 bis 10)
          * @return result
          */
-        private static FloatBuffer[] minimizeGrid(Terrain src, int p, int q, int size, int
-density)
+        private static FloatBuffer[] minimizeGrid(Terrain src, int p, int q, int size, int density)
         {
                 FloatBuffer[] result = new FloatBuffer[size];
                 
@@ -274,8 +272,7 @@ density)
          * @param size
          * @return
          */
-        private static FloatBuffer[] getOuterGrids(Terrain src, int p, int q, int size, int
-density)
+        private static FloatBuffer[] getOuterGrids(Terrain src, int p, int q, int size, int density)
         {
                 FloatBuffer[] result = new FloatBuffer[size];
                 
@@ -289,15 +286,13 @@ density)
 
                 int step = 2;
                 int count = 0;
-                while(count < size && ((p - density)/2 >= 0 || (p + density)/2 < src.getXDim() ||
-(q - density)/2 >= 0 || (q + density)/2 < src.getZDim()))
+                while(count < size && ((p - density)/2 >= 0 || (p + density)/2 < src.getXDim() || (q - density)/2 >= 0 || (q + density)/2 < src.getZDim()))
                 {        
                         for(int i = -density; i <= density; i += step)
                         {
                                 for(int j = -density; j <= density; j += step)
                                 {
-                                        if(p + i >= 0 && p + i < src.getXDim() && q + j >= 0 && q + j <
-src.getZDim())// && 
+                                        if(p + i >= 0 && p + i < src.getXDim() && q + j >= 0 && q + j < src.getZDim())// && 
                                                         //!(i < density / 2 && i > -density / 2 && j < density / 2 && j > -density / 2))
                                         {
                                                 // Test ist nur fuer Test.java!
@@ -362,8 +357,7 @@ src.getZDim())// &&
      */
     private static int updateHeight(Terrain src, Camera cam) 
     {          
-            float heightDiff = cam.getCamPos().y - src.getInfo((int)cam.getCamPos().x,
-(int)cam.getCamPos().z)[0];
+            float heightDiff = cam.getCamPos().y - src.getInfo((int)cam.getCamPos().x, (int)cam.getCamPos().z)[0];
             
             if(heightDiff < 0 || cam.getCamPos().y > maxCamHeight)
             {
@@ -371,7 +365,6 @@ src.getZDim())// &&
                     return 0;
             }
         
-            return ((int)heightDiff - (int)heightDiff % detailsteps) * (-4) / detailsteps +
-maxCamHeight / detailsteps * 4 + 4;        
+            return ((int)heightDiff - (int)heightDiff % detailsteps) * (-4) / detailsteps + maxCamHeight / detailsteps * 4 + 4;        
     }
 }

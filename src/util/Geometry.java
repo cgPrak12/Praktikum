@@ -116,16 +116,14 @@ public class Geometry {
             glEnableVertexAttribArray(attr.index);
         }
         for(VertexAttribute attr : attributes) {
-            glVertexAttribPointer(attr.index, attr.size, GL_FLOAT, false, stride,
-attr.offset);
+            glVertexAttribPointer(attr.index, attr.size, GL_FLOAT, false, stride, attr.offset);
         }
         if(this.instanceData != null) {
             this.instancebid = glGenBuffers();
             glBindBuffer(GL_ARRAY_BUFFER, this.instancebid);
             glBufferData(GL_ARRAY_BUFFER, this.instanceData, GL_STATIC_DRAW);
             glEnableVertexAttribArray(ShaderProgram.ATTR_INSTANCE);
-            glVertexAttribPointer(ShaderProgram.ATTR_INSTANCE,
-this.instanceAttributeSize, GL_FLOAT, false, this.instanceStride, 0);
+            glVertexAttribPointer(ShaderProgram.ATTR_INSTANCE, this.instanceAttributeSize, GL_FLOAT, false, this.instanceStride, 0);
             GL33.glVertexAttribDivisor(ShaderProgram.ATTR_INSTANCE, 1);
             this.instanceData = null;
         }
@@ -159,8 +157,7 @@ this.instanceAttributeSize, GL_FLOAT, false, this.instanceStride, 0);
         }
         glBindVertexArray(vaid);
         if(this.instancebid != -1) {
-            GL31.glDrawElementsInstanced(this.topology, this.indexCount,
-GL11.GL_UNSIGNED_INT, 0, this.instanceCount);
+            GL31.glDrawElementsInstanced(this.topology, this.indexCount, GL11.GL_UNSIGNED_INT, 0, this.instanceCount);
         } else {
             glDrawElements(topology, indexCount, GL_UNSIGNED_INT, 0); 
         }
