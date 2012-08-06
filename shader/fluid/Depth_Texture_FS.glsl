@@ -25,6 +25,6 @@ void main(void) {
 	vec4 pixelPos = vec4(g.xyz + 0.5*n,1.0);
 	
 	// position in xyz, depth in w !
-	depth = vec4(pixelPos.xyz, distance(-pixelPos.xyz, camPos) /viewDistance);
+	depth = vec4(pixelPos.xyz, distance(-pixelPos.xyz, camPos) /viewDistance); 
 	
 }
