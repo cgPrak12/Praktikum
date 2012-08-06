@@ -24,6 +24,7 @@ import util.*;
  *
  * @author nico3000
  */
+@SuppressWarnings("unused")
 public class TerrainMain {
     // current configurations
     private static boolean bContinue = true;
