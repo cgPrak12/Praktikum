@@ -5,7 +5,8 @@ package util;
  * @author nico3000
  */
 public class DeferredShader {
-    private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
+    private ShaderProgram drawTextureSP = new
+ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
     private Geometry screenQuadGeo = GeometryFactory.createScreenQuad();
     
     public void init() {

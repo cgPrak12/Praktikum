@@ -48,7 +48,8 @@ public class Texture {
         }
         Texture tex = new Texture(GL_TEXTURE_2D, unit);
         tex.bind();
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, contents.width, contents.height, 0, format, GL_FLOAT, contents.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, contents.width,
+contents.height, 0, format, GL_FLOAT, contents.data);
         glGenerateMipmap(GL_TEXTURE_2D);
         return tex;
     }
