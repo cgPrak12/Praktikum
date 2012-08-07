@@ -62,7 +62,7 @@ public class TerrainMain {
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(510, 7, program, cam);
+            clip = new ClipMap(126, 8, program, cam);
             
             tex = Texture.generateTexture(".\\Eire_big.png", 1);
             tex.bind();

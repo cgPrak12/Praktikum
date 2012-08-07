@@ -112,6 +112,8 @@ public class ClipMap {
 				+ middlesize / 2, 4 * gridsize + middlesize + middlesize / 2);
 		
 		updateSize();
+		updateHeightScale();
+		
 	}
 
 	/**
@@ -367,7 +369,12 @@ public class ClipMap {
 	}
 	
 	private void updateSize(){
-		System.out.println((float)Math.pow(2, stage-1)*size);
-		program.setFloat("worldSize", (float)Math.pow(2, stage-1)*size);
+		System.out.println((float)Math.pow(2,stage));
+		program.setFloat("worldSize", (float)(Math.pow(2, stage)*((size+2)/16)));
+	}
+	
+	private void updateHeightScale(){
+		program.setFloat("heightScale", (float)(stage*(size+2)/16)+12f);
 	}
 }
+
