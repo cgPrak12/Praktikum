@@ -528,5 +528,34 @@ public class GeometryFactory {
 
 		return geo;
 	}
+	
+	public static Geometry outerTriangle(int length){
+
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		int[] indices = new int[(length - 2) * 5 + 2 * length + 1];
+		int count = 0;
+
+
+		
+		
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		Geometry geo = new Geometry();
+
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
+		return geo;
+	}
 
 }
