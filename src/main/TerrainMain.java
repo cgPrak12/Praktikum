@@ -53,26 +53,27 @@ public class TerrainMain {
         try {
             init();
             OpenCL.init();
-            glDisable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_PRIMITIVE_RESTART);
             glPrimitiveRestartIndex(-1);
+            glCullFace(GL_BACK);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(254, 10, program, cam);
+            clip = new ClipMap(6, 10, program, cam);
             
             tex = Texture.generateTexture(".\\Eire_big.png", 1);
             tex.bind();
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
             program.setUniform("elevation", tex);
 
           
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
            
             
             render();
