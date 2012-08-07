@@ -27,6 +27,8 @@ void main(void) {
 	// position in xyz, depth in w !
 	depth = vec4(positionWC.xyz,pixelPos.z);//vec4(-pixelPos.x, pixelPos.y, pixelPos.z, pixelPos.z);
 
-	depth = vec4(pixelPos.xyz, distance(-pixelPos.xyz, camPos) /viewDistance); 
+	depth = vec4(pixelPos.xyz, distance(-pixelPos.xyz, camPos) /viewDistance); //in Camera Coordinaten
+ depth = vec4(positionWC.xyz, distance(-pixelPos.xyz, camPos) /viewDistance); //in Welt Coordinaten
+ //depth= vec4(distance(-pixelPos.xyz, camPos))/viewDistance;
 	
 }

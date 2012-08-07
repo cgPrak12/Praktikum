@@ -1,20 +1,16 @@
 #version 150
 
-uniform sampler2D vBlurTexture;
-uniform sampler2D low_v_BlurTexture;
+uniform sampler2D highTex;
+uniform sampler2D lowTex;
 
 in vec2 texCoords;
-
-
 
 out vec4 color;
 
 void main(void) {
 
-float h_depth = texture2D(vBlurTexture, texCoords).w;
-float l_depth = (texture2D(low_v_BlurTexture, texCoords).w)/2.0;
+float depth = texture2D(highTex, texCoords).w;
 
-}
-
+color = mix(texture2D(lowTex, texCoords), texture2D(highTex, texCoords), depth);
 
 }
