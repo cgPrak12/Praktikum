@@ -49,7 +49,7 @@ public class ClipMap {
 	private Geometry bottomRight;
 	private Geometry center;
 	
-	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um Faktor
+	private final float generalScale = 0.25f; // Skaliert die gesamte ClipMap um Faktor
 
 	/**
 	 * Erstellt eine ClipMap aus den gegebenen Parametern
@@ -65,6 +65,19 @@ public class ClipMap {
 	 */
 	public ClipMap(int size, int stage, ShaderProgram program, Camera cam) {
 		if ((size + 2) % 2 != 0) throw new IllegalArgumentException("(size+2) muss Zweierpotenz sein!");
+		
+		/*
+		 * float camX = cam.getCamPos().x;
+		 * float camZ = cam.getCamPos().z;
+		 * float vertexHeight = terrain[(int) camX][(int) camZ][0];
+		 * 
+		 * float camHeight = cam.getCamPos().z;
+		 * float minHeight = vertexHeight;
+		 * float maxHeight = cam.getMaxHeight();
+		 * 
+		 * size = Util.scale(camHeight, minHeight, maxHeight, minSize, maxSize);
+		 * 
+		 */
 		
 		// Größen der ClipMap
 		this.gridsize = size / 4;
@@ -233,17 +246,17 @@ public class ClipMap {
 	public void generateMaps() {
 		setScale(1);
 		
-		tempX += cam.getAlt().x;
-		tempZ += cam.getAlt().z;
+		tempX += cam.getAlt().x / generalScale;
+		tempZ += cam.getAlt().z / generalScale;
 
 		// Positiv Z --- Nach Vorn
-		if (tempZ > 2) {moveClip(0, 1);	tempZ = 0;}
+		if (tempZ > 2) {moveClip(0, 1);	tempZ %= 2;}
 		// Positiv X --- Nach Links
-		if (tempX > 2) {moveClip(0, 0); tempX = 0;}
+		if (tempX > 2) {moveClip(0, 0); tempX %= 2;}
 		// Negativ Z --- Nach Hinten
-		if (tempZ < -2) {moveClip(0, 3); tempZ = 0;}
+		if (tempZ < -2) {moveClip(0, 3); tempZ %= 2;}
 		// Negativ X --- Nach Rechts
-		if (tempX < -2) {moveClip(0, 2); tempX = 0;}
+		if (tempX < -2) {moveClip(0, 2); tempX %= 2;}
 
 
 		Util.mul(translation, Util.translationX(2 * (-gridsize - middlesize)

@@ -14,13 +14,14 @@ out vec2 tex;
 
 void main(void) {
     
-    vec3 posiWC = mat3(model) * vec3(positionMC.x,0, positionMC.y);
+    
 	
 	
-	//float height = texture(elevation, p).x;
+	
 	vec4 pos = scale * translation *   vec4(positionMC.x, 0, positionMC.y,1);
 	tex = pos.xz / worldSize + 0.5f;
-    gl_Position = viewProj * model  * pos;
+	float height = 50*texture(elevation, tex).x;
+    gl_Position = viewProj * model  * vec4(pos.x,height,pos.z,1);
 	color = vertexColor;
 	//positionWC = texPos;
 	
