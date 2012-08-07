@@ -26,13 +26,19 @@ import util.*;
  */
 public class TerrainMain {
 	//Test2 Commit
+	private static boolean disableShader=false;
+	
+	private static boolean disableShader2=false;
+	
+	
     // current configurations
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
 
     //Lights
-    private static Vector3f lightPosition1 = new Vector3f(0.0f, 0.0f, 20.0f);
+    private static Vector3f lightPositionStart = new Vector3f(0.0f, 0.0f, 0.0f);
+    private static Vector3f lightPosition1 = new Vector3f(0.0f, 0.0f, 0.0f);
     
     private static boolean holdLight =false;
     
@@ -48,6 +54,9 @@ public class TerrainMain {
     private static Texture FBTexture1;
     private static Texture skyCloudTexture;
     private static Texture noiseTexture;
+    private static Texture groundTexture;
+    private static Texture blackTexture;
+    private static Texture whiteTexture;
     
     // uniform locations
     private static int modelLoc;
@@ -60,6 +69,7 @@ public class TerrainMain {
     private static final Matrix4f sunModelMatrix = new Matrix4f();
     private static final Matrix4f cloudModelMatrix = new Matrix4f();
     private static final Matrix4f cubeModelMatrix = new Matrix4f();
+    private static final Matrix4f groundModelMatrix = new Matrix4f();
     
     // temp data
     private static final Matrix4f sunRotation = new Matrix4f();
@@ -117,6 +127,10 @@ public class TerrainMain {
             sunTexture			   = Texture.generateTexture("./sun.jpg",6);
             skyCloudTexture        = Texture.generateTexture("./sky_sw.jpg",9 );
             noiseTexture 		   = Texture.generateTexture("./noise.png",10);
+            groundTexture 		   = Texture.generateTexture("./ground.jpg",11);
+            blackTexture		   = Texture.generateTexture("./blackTex.jpg",12);
+            whiteTexture		   = Texture.generateTexture("./blackTex.jpg",13);
+            
             //blurPosteffect
             BlurSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl","./shader/Blur_FS.glsl");
             
@@ -148,10 +162,11 @@ public class TerrainMain {
             fbuffer1.BindFragDataLocations(LightningSP, "finalColor");
             fbuffer2.BindFragDataLocations(BlurSP, "finalColor");
             
+            Util.translationX(48.0f, sunTranslation);
+            Util.rotationX((float)Math.toRadians(-30.0), sunTilt);
             
-            Util.translationX(5.0f, sunTranslation);
-            Util.rotationX((float)Math.toRadians(-45.0), sunTilt);
             
+            Util.mul(groundModelMatrix,Util.translationY(-5.0f, null),Util.rotationZ((float)Math.toRadians(-90.0), null),Util.scale(50.0f, null));
             
             render();
             OpenCL.destroy();
@@ -163,7 +178,7 @@ public class TerrainMain {
     
     public static void render() throws LWJGLException {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // background color: dark red
-        
+        System.out.println(groundModelMatrix);
         long last = System.currentTimeMillis();
         long now, millis;
         long frameTimeDelta = 0;
@@ -181,13 +196,17 @@ public class TerrainMain {
         //Geometry testCube = GeometryFactory.createCube();
         //Skydome
         Geometry skyDome  = GeometryFactory.createSkyDome(50, 50, 50);
-        Geometry skyCloud  = GeometryFactory.createSkyDome(47, 50, 50);
+        Geometry skyCloud  = GeometryFactory.createSkyDome(45, 50, 50);
         //Sonne
         Geometry sun = GeometryFactory.createQuad();
         Geometry kugel1 =GeometryFactory.createSphere(1,20,20);
         Geometry kugel2 =GeometryFactory.createSphere(1,20,20);
         Geometry kugel3 =GeometryFactory.createSphere(1,20,20);
         Geometry kugel4 =GeometryFactory.createSphere(1,20,20);
+        
+        
+        Geometry ground =GeometryFactory.createQuad();
+        
         
         Geometry geo = GeometryFactory.createScreenQuad();
         while(bContinue && !Display.isCloseRequested()) {
@@ -223,16 +242,37 @@ public class TerrainMain {
             fboSP.setUniform("specularTexture", specularQuaderTexture);
             fboSP.setUniform("view", cam.getView());
             fboSP.setUniform("camFar", cam.getFar());
-            
+            fboSP.setUniform("lightPosition", lightPosition1);
             
             
             shader.bind();
             shader.clear();
             
             
-            //Quader zeichen
+            fboSP.setUniform("normalTexture",blackTexture );
+            fboSP.setUniform("specularTexture", blackTexture);
+            //Himmel
+            glEnable(GL_BLEND);
+            fboSP.setUniform("textureImage", skydomeTexture);
+            skyDome.draw();
+//         
+//            //Sonne
+            fboSP.setUniform("textureImage", sunTexture);
+            matrix2uniform(sunModelMatrix, modelLoc);
+            sun.draw();
+//            
+//          //Wolken
+            fboSP.setUniform("textureImage", skyCloudTexture);
+            matrix2uniform(cloudModelMatrix, modelLoc);
+            skyCloud.draw();
+            glDisable(GL_BLEND);
+            fboSP.setUniform("textureImage",groundTexture );
+            matrix2uniform(groundModelMatrix, modelLoc);
+            ground.draw();
+
+            fboSP.setUniform("normalTexture", normalQuaderTexture);
+            fboSP.setUniform("specularTexture", specularQuaderTexture);
             fboSP.setUniform("textureImage", quaderTexture);
-           
             Util.translationX(0.9f,cubeModelMatrix);
             matrix2uniform(cubeModelMatrix, modelLoc);
             kugel1.draw();
@@ -248,41 +288,14 @@ public class TerrainMain {
             Util.translation(new Vector3f(2.1f,1.1f,1.5f),cubeModelMatrix);
             matrix2uniform(cubeModelMatrix, modelLoc);
             
-            kugel4.draw();
-            glEnable(GL_BLEND);
-            
-            //Himmel
-            fboSP.setUniform("textureImage", skydomeTexture);
-            skyDome.draw();
-            
-            
-            
-            //Sonne
-//            fboSP.setUniform("textureImage", sunTexture);
-//            matrix2uniform(sunModelMatrix, modelLoc);
-//            sun.draw();
-            
-            //Wolken
-            fboSP.setUniform("textureImage", skyCloudTexture);
-            matrix2uniform(cloudModelMatrix, modelLoc);
-            skyCloud.draw();
-            glDisable(GL_BLEND);
-            
-            
-//            sunSP.use();
-//            Matrix4f sun_modelMatrix = new Matrix4f();
-//        	Matrix4f sun_modelIT = Util.transposeInverse(sun_modelMatrix, null);
-//            sunSP.setUniform("sunPosition", lightPosition1);
-//      		sunSP.setUniform("sun_model", 	 sun_modelMatrix);
-//      		sunSP.setUniform("sun_modelIT",  sun_modelIT);
-//      		sunSP.setUniform("sun_viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-//      		sunSP.setUniform("sunTexture", sunTexture);
-//      		           
+            kugel4.draw();		           
       		
         	shader.finish();
-
-            //shader.DrawTexture(shader.getNormalTexture());
-            
+        	if (disableShader2)
+            {
+        		shader.DrawTexture(shader.getDiffuseTexture());
+            }
+            //shader.DrawTexture(shader.getDiffuseTexture());
 
             
             // TODO: postfx
@@ -293,16 +306,16 @@ public class TerrainMain {
             fbuffer1.bind();
             fbuffer1.clearColor();
             
-			LightningSP.use();
-            LightningSP.setUniform("normalTexture",  shader.getNormalTexture());
-            LightningSP.setUniform("diffuseTexture",  shader.getDiffuseTexture());
-            LightningSP.setUniform("specularTexture", shader.getSpecTexture());
-            LightningSP.setUniform("eyePosition", cam.getCamPos());
-            LightningSP.setUniform("bumpTexture", bumpQuaderTexture);
-            LightningSP.setUniform("skyTexture", shader.getSkyTexture());
-            LightningSP.setUniform("lightPosition1", lightPosition1);
-            geo.draw();
-            fbuffer1.unbind();
+//			LightningSP.use();
+//            LightningSP.setUniform("normalTexture",  shader.getNormalTexture());
+//            LightningSP.setUniform("diffuseTexture",  shader.getDiffuseTexture());
+//            LightningSP.setUniform("specularTexture", shader.getSpecTexture());
+//            LightningSP.setUniform("eyePosition", cam.getCamPos());
+//            LightningSP.setUniform("bumpTexture", bumpQuaderTexture);
+//            LightningSP.setUniform("skyTexture", shader.getSkyTexture());
+//            LightningSP.setUniform("lightPosition1", lightPosition1);
+//            geo.draw();
+//            fbuffer1.unbind();
             
             
             fbuffer2.bind();
@@ -310,20 +323,29 @@ public class TerrainMain {
             AOSP.use();
             AOSP.setUniform("normalTexture",  shader.getNormalTexture());
             AOSP.setUniform("noiseTexture", noiseTexture);
-            AOSP.setUniform("diffuseTexture", FBTexture1);
+            AOSP.setUniform("diffuseTexture", shader.getDiffuseTexture());
+            if (disableShader)
+              {
+            	AOSP.setUniform("printNormal", 0.0f);
+              }
+            else
+            {
+            	AOSP.setUniform("printNormal",1.0f);
+            }
             geo.draw();
             fbuffer2.unbind();
             
-//            fbuffer2.bind();
-//            fbuffer2.clearColor();
+//            fbuffer1.bind();
+//            fbuffer1.clearColor();
 //			GodRaysSP.use();
-//			GodRaysSP.setUniform("diffuseTexture", FBTexture1);
+//			GodRaysSP.setUniform("diffuseTexture", FBTexture2);
 //			GodRaysSP.setUniform("model", 	 modelMatrix);
 //        	GodRaysSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
 //			GodRaysSP.setUniform("lightPosition", lightPosition1);
 //			GodRaysSP.setUniform("skyTexture", shader.getSkyTexture());
+//			GodRaysSP.setUniform("camFar", cam.getFar());
 //			geo.draw();
-//			fbuffer2.unbind();		
+//			fbuffer1.unbind();		
             
             
 //            fbuffer2.bind();
@@ -337,8 +359,15 @@ public class TerrainMain {
 //            
             
             // Ausgabe auf dem Bildschirm
-    		shader.DrawTexture(FBTexture2);
-            
+//            if (disableShader)
+//            {
+//            	shader.DrawTexture(FBTexture1);
+//            }
+//            else
+//            {
+//        		shader.DrawTexture(FBTexture2);
+//            }
+            shader.DrawTexture(FBTexture2);
             // present screen
             Display.update();
             Display.sync(60);
@@ -363,6 +392,8 @@ public class TerrainMain {
                     case Keyboard.KEY_D: moveDir.x -= 1.0f; break;
                     case Keyboard.KEY_SPACE: moveDir.y += 1.0f; break;
                     case Keyboard.KEY_C: moveDir.y -= 1.0f; break;
+                    case Keyboard.KEY_O: disableShader=true; break;
+                    case Keyboard.KEY_I: disableShader2=true; break;
                     case Keyboard.KEY_ESCAPE: bContinue = false; break;
                     case Keyboard.KEY_P: 
                     	if (holdLight==false)
@@ -380,6 +411,8 @@ public class TerrainMain {
                     case Keyboard.KEY_D: moveDir.x += 1.0f; break;
                     case Keyboard.KEY_SPACE: moveDir.y -= 1.0f; break;
                     case Keyboard.KEY_C: moveDir.y += 1.0f; break;
+                    case Keyboard.KEY_O: disableShader=false; break;
+                    case Keyboard.KEY_I: disableShader2=false; break;
                     case Keyboard.KEY_F1: cam.changeProjection(); break;
                     case Keyboard.KEY_LEFT:
                         if(Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
@@ -432,7 +465,7 @@ public class TerrainMain {
             
             //drehen des Lichtes 
             //lightPosition1  = Util.transformCoord(sunModelMatrix, new Vector3f(1.0f,1.0f,1.0f), null);
-            Util.transformCoord(Util.rotationY(10e-4f * (float)millis, null), lightPosition1, lightPosition1);
+            Util.transformCoord(sunModelMatrix, lightPositionStart, lightPosition1);
     	
     	}
     }

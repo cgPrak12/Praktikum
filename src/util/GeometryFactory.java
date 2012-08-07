@@ -5,6 +5,7 @@ import static opengl.GL.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.util.vector.Vector3f;
 
 /**
  * Stellt Methoden zur Erzeugung von Geometrie bereit.
@@ -50,10 +51,11 @@ public class GeometryFactory {
         FloatBuffer vertexData = BufferUtils.createFloatBuffer((3+3+3+2)*4);
         vertexData.put(new float[] {
             // position          // normal          // tangent         // tex coords
-            0.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1f, 0f, 0f,
-            0.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 1f, 0f, 0f,
-            0.0f, +1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 1f, 0f, 0f,
-            0.0f, +1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 1f, 0f, 0f
+            0.0f, -1.0f, -1.0f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1f, 0f, 0f,
+            0.0f, -1.0f, 1.0f,   0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 1f, 0f, 0f,
+            0.0f, +1.0f, -1.0f,  0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1f, 0f, 0f,
+            0.0f, +1.0f, 1.0f,   0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1f, 0f, 0f
+            
         });
     	
         vertexData.position(0);
@@ -244,5 +246,85 @@ public class GeometryFactory {
        geo.addVertexAttribute(ShaderProgram.ATTR_TANGENT, 3, 40);
        geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 52);
        return geo;
+    }
+    
+    public static Geometry getGrid(String heightmap) {
+        float heightfield[][][] = Util.getImageContents(heightmap);
+        int maxX = heightfield[0].length/2;
+        int maxZ = heightfield.length/2;
+        
+        int vertexSize = 3+3+3+2;
+        FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize * maxX/2 * (maxZ/2));
+        for(int z=0; z < maxZ; ++z) {
+            for(int x=0; x < maxX; ++x) {
+                vertices.put(1e-2f * (float)x); // 1e-2 = 1 * 10 ^ -2 = 0.01
+                vertices.put(heightfield[z][x][0]);
+                vertices.put(1e-2f * (float)z);
+                //normale
+                vertices.put(0);
+                vertices.put(1);
+                vertices.put(0);
+                //tangente
+                vertices.put(1);
+                vertices.put(0);
+                vertices.put(0);
+                //tex
+                vertices.put(x/maxX);
+                vertices.put(z/maxZ);
+                
+            }
+        }
+        vertices.position(0);
+        
+        IntBuffer indices = BufferUtils.createIntBuffer(3 * 2 * (maxX - 1) * (maxZ - 1));
+        for(int z=0; z < maxZ - 1; ++z) {
+            for(int x=0; x < maxX - 1; ++x) {
+                indices.put(z * maxX + x);
+                indices.put((z + 1) * maxX + x + 1);
+                indices.put(z * maxX + x + 1);
+                
+                indices.put(z * maxX + x);
+                indices.put((z + 1) * maxX + x);
+                indices.put((z + 1) * maxX + x + 1);
+            }
+        }
+        
+        indices.position(0);
+        for(int i=0; i < indices.capacity();) {
+            int index0 = indices.get(i++);
+            int index1 = indices.get(i++);
+            int index2 = indices.get(i++);
+            
+            vertices.position(vertexSize * index0);
+            Vector3f p0 = new Vector3f();
+            p0.load(vertices);
+            vertices.position(vertexSize * index1);
+            Vector3f p1 = new Vector3f();
+            p1.load(vertices);
+            vertices.position(vertexSize * index2);
+            Vector3f p2 = new Vector3f();
+            p2.load(vertices);
+            
+            //System.out.println(p0 + " " + p1 + " " + p2);
+            
+            Vector3f a = Vector3f.sub(p1, p0, null);
+            Vector3f b = Vector3f.sub(p2, p0, null);
+            Vector3f normal = Vector3f.cross(a, b, null);
+            normal.normalise();
+            
+            vertices.position(vertexSize * index0 + 3);
+            normal.store(vertices);
+        }
+        
+        vertices.position(0);
+        indices.position(0);
+        Geometry geo = new Geometry();
+        geo.setIndices(indices, GL_TRIANGLES);
+        geo.setVertices(vertices);
+        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+        geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
+        geo.addVertexAttribute(ShaderProgram.ATTR_TANGENT, 3, 24);
+        geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 36);
+        return geo;
     }
 }

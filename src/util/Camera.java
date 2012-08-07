@@ -12,7 +12,7 @@ public final class Camera {
     private final Vector3f viewDir = new Vector3f(0,0,1);
     private final Vector3f upDir = new Vector3f(0,1,0);
     private final Vector3f sideDir = new Vector3f(1,0,0);
-    private final Vector3f camPos = new Vector3f(0,0,-1);
+    private final Vector3f camPos = new Vector3f(0,5,-10);
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
     private final float    far = 1e+2f;
@@ -102,7 +102,10 @@ public final class Camera {
     public float getFar() {
         return far;
     }
-
+    
+    public Vector3f getViewDir() {
+        return viewDir;
+    }
     public Vector3f getCamPos() {
         return camPos;
     }

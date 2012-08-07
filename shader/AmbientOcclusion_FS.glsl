@@ -4,8 +4,12 @@ uniform sampler2D normalTexture;
 uniform sampler2D noiseTexture;
 uniform sampler2D diffuseTexture;
 
+//nur zu testzwecken !!!!
+	uniform float printNormal;
+//
+
 const float totStrength = 1;
-const float strength = 0.07;
+const float strength = 0.3;
 const float offset = 18.0;
 const float falloff = 0.000002;
 const float rad = 0.006;
@@ -38,7 +42,7 @@ void main(void)
 	//don't compare to background
 	if (currentPixelDepth > 0.7)
 		{
-			finalColor = texture(diffuseTexture,texCoord);
+			finalColor = texture(diffuseTexture, texCoord);
 			return;
 		}
     vec3 ep = vec3(texCoord, currentPixelDepth);
@@ -79,5 +83,10 @@ void main(void)
  
     // output the result
 	float ao = totStrength*bl*invSamples;
-	finalColor = ao * texture(diffuseTexture,texCoord);
+	finalColor = vec4(ao);
+	if (printNormal ==1.0)
+	{
+		finalColor = ao * texture(diffuseTexture,texCoord);
+	}
+
 }

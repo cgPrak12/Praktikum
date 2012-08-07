@@ -8,10 +8,10 @@ uniform sampler2D bumpTexture;
 uniform vec3 lightPosition1;
 uniform vec3 eyePosition;
 
-const float k_d = 100;
+const float k_d = 500;
 const vec3 maxIntensity  = vec3(1.0, 1.0, 0.9);
-const float k_a = 0.2;
-const float k_s = 0.001;
+const float k_a = 0.3;
+const float k_s = 0.1;
 const float es = 10.0;
 
 in vec2 texCoord;
