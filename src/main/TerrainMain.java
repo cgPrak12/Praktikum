@@ -33,6 +33,7 @@ public class TerrainMain {
     private static boolean rotatelight = false;
     private static boolean bloomBlend = false;
     private static boolean bloom = true;
+    private static boolean shadows = true;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -208,16 +209,18 @@ public class TerrainMain {
         	shader.finish();
         	
         	//test cube (shadow map)
+        	glCullFace(GL_FRONT);
         	shadowSP.use();
         	shadowSP.setUniform("model", 	modelMatrix);
         	shadowSP.setUniform("modelIT",  modelIT);
         	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
         	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
-        	
+       	
         	shadowShader.bind();
         	shadowShader.clear();
-        	
+   	
         	testCube.draw();
+        	glCullFace(GL_BACK);
         	
         	shadowSP.setUniform("model",    floorQuadMatrix);
         	shadowSP.setUniform("modelIT",  floorQuadMatrix);
@@ -228,9 +231,12 @@ public class TerrainMain {
         	
         	shadowShader.finish();
         	
-        	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
-        	
-//        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+        	if (shadows) {
+            	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
+        	}
+        	else {
+        		enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+        	}
         	        	        	
 //        	shader.DrawTexture(shader.getShadowTexture());
 
@@ -527,5 +533,13 @@ public class TerrainMain {
 	
     public static boolean isCulling() {
 		return culling;
+	}
+
+	public static boolean isShadows() {
+		return shadows;
+	}
+
+	public static void setShadows(boolean shadows) {
+		TerrainMain.shadows = shadows;
 	}
 }

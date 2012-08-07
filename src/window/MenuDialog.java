@@ -431,6 +431,17 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxShadows.gridx = 1;
 			gbc_chckbxShadows.gridy = 15;
 			graphSettingsPanel.add(chckbxShadows, gbc_chckbxShadows);
+			chckbxShadows.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			    	boolean temp;
+			    	if (e.getStateChange() == 1)
+			    		temp = true;
+			    	else
+			    		temp = false;
+			        main.TerrainMain.setShadows(temp);
+			    }
+			});
+			chckbxShadows.setSelected(main.TerrainMain.isShadows());
 		}
 		
 		{

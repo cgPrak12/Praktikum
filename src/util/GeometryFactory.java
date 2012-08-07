@@ -50,10 +50,10 @@ public class GeometryFactory {
         // vertexbuffer
         FloatBuffer vertexData = BufferUtils.createFloatBuffer(24);
         vertexData.put(new float[] {
-            -1.0f, -1.0f, 100.0f, 100.0f, 100.0f, 1.0f, 
-            +1.0f, -1.0f, 100.0f, 100.0f, 100.0f, 1.0f, 
-            -1.0f, +1.0f, 100.0f, 100.0f, 100.0f, 1.0f, 
-            +1.0f, +1.0f, 100.0f, 100.0f, 100.0f, 1.0f
+            -1.0f, -1.0f, 10.0f, 10.0f, 10.0f, 1.0f, 
+            +1.0f, -1.0f, 10.0f, 10.0f, 10.0f, 1.0f, 
+            -1.0f, +1.0f, 10.0f, 10.0f, 10.0f, 1.0f, 
+            +1.0f, +1.0f, 10.0f, 10.0f, 10.0f, 1.0f
         });
         vertexData.position(0);
         
