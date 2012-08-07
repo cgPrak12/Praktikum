@@ -23,9 +23,9 @@ public class TerrainView {
 		
 		//hier fehlt noch die Fehlerbehandlung am Rand
 		//dummy-Block wenn man am/über dem Rand ist 
-		for(int i=0; i<3; i++)
+		for(int i=0; i<9; i++)
 		{
-			for(int j=0; j<3; j++)
+			for(int j=0; j<9; j++)
 			{
 				myBl[i][j] = BlockParser.readBlockData("block_"+(idI+i)+"_"+(idJ+j)+".bf");
 			}
@@ -43,9 +43,9 @@ public class TerrainView {
 		}
 		else
 		{
-			for(int i=0; i<3; i++)
+			for(int i=0; i<9; i++)
 			{
-				for(int j=0; j<3; j++)
+				for(int j=0; j<9; j++)
 				{
 
 					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
@@ -65,7 +65,7 @@ public class TerrainView {
 	
 	public float[][][] getArray(){
 		
-		float[][][] area = new float[3*256][3*256][5];
+		float[][][] area = new float[9*256][9*256][5];
 		
 		for(int x=0; x<area.length; x++){
 			for(int z=0; z<area.length; z++){
