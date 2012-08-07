@@ -1,5 +1,5 @@
 #define LOCAL_MEM_SIZE 64
-#define RADIUS 0.004
+#define RADIUS 0.005
 #define WITH_COLLISION 1
 #define GRIDLEN 100
 
@@ -125,10 +125,89 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 	return normalize(c1+c2+c3+c4);
 }
 
-#define GROUND_NORM_DAMPING 0.0001
-#define GROUND_VELO_DAMPING 0.9
-#define COLLISION_DAMPING -0.00001;
+#define PI 3.14159265
+/**
+ * http://image.diku.dk/projects/media/kelager.06.pdf p:21
+ */
+float W(float3 r, float h)
+{
+    float norm_r = length(r);
+    if (norm_r > h)
+        return 0.0;
+    else
+    {
+        float w = (h*h - norm_r*norm_r);
+        return (315.0/(64*PI*pow(h,9))) * pow(w,3);
+    }
+}
 
+float3 nW(float3 r, float h)
+{
+    float norm_r = length(r);
+    float w = (pow(h,2) - pow(norm_r,2));
+
+    return -945.0/(32*PI*pow(h,9))*r*pow(w,2);
+}
+
+float lW(float3 r, float h)
+{
+    float norm_r = length(r);
+    float w = (pow(h,2) - pow(norm_r,2));
+
+    return -945.0/(32*PI*pow(h,9))*w*(3*pow(h,2) - 7*pow(norm_r,3));
+}
+
+//// pressure W-methods ////
+float W_pres(float3 r, float h)
+{
+    float norm_r = length(r);
+    if (norm_r > h)
+        return 0.0;
+    else
+    {
+        float w = (h - norm_r);
+        return (15.0/(PI*pow(h,6))) * pow(w,3);
+    }
+}
+
+float3 nW_pres(float3 r, float h)
+{
+    float norm_r = length(r);
+
+    if (norm_r < 0.01)
+        return (45.0/(PI*pow(h,6)));
+
+    return -45.0/(PI*pow(h,6)) * (r/norm_r) * (h-norm_r)*(h-norm_r);
+}
+
+float lW_pres(float3 r, float h)
+{
+    float norm_r = length(r);
+    float w = (pow(h,2) - pow(norm_r,2));
+
+    return -90.0/(PI*pow(h,6)) * (1.0/norm_r)
+        * (h-norm_r)*(h-2*norm_r);
+}
+
+float lW_visc(float3 r, float h)
+{
+    float norm_r = length(r);
+    return 45.0/(PI*pow(h,6))*(h-norm_r);
+}
+
+
+
+
+
+#define GROUND_NORM_DAMPING 0.0001
+#define GROUND_VELO_DAMPING 0.9995
+#define COLLISION_DAMPING -0.000009
+#define MASS 1
+#define MASS_FACTOR 1
+#define K_CONSTANT 3.0
+#define H_CONSTANT 2.0*RADIUS
+#define MU_CONSTANT 3.5*1.003*10e-3
+#define GRAVITY -9.81
 //////////////////////////////////////////////////////////
 // Particle Kernel                                      //
 //////////////////////////////////////////////////////////
@@ -142,7 +221,8 @@ kernel void particle_sim
     global int* g_cells,
     int g_num_cells,
     int g_max_particles,
-    float dt) 
+    float dt,
+    global float2* valuebuf) 
 {
     grid_t grid = { g_num_cells,
                     g_max_particles,
@@ -153,64 +233,65 @@ kernel void particle_sim
     int mygid = get_global_id(0);
     float4 mypos = position[mygid];
     float4 myvel = velos[mygid];
-    float4 height = read_imagef(heightmap, sampler, mypos.s02);
-    float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
+//    float4 height = read_imagef(heightmap, sampler, mypos.s02);
+//    float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
 
 
     //////////////////////////////////////////////////////////
-    // gravity and ground interaction                       //
+    // Computing internal forces                            //
     //////////////////////////////////////////////////////////
-    float4 gravity = (float4)(0,-0.00001,0,0);
-    myvel += gravity;
-    float3 dVelo = (float3)(0);  	
-    if(mypos.s1 <= height.s0+RADIUS)
-    {
-        mypos.s1 = height.s0+RADIUS;
-        dVelo = normal.s012*GROUND_NORM_DAMPING;
-        myvel += (float4)(dVelo,1);
-        myvel *= GROUND_VELO_DAMPING;
-    }
 
+    float my_pressure = valuebuf[mygid].s1;
+    float my_massdens = valuebuf[mygid].s0;
 
-    // add particle to counter and cell grid
-    g_add_particle(&grid, mypos.s012);
+    float3 f_pressure = (float3)(0);
+    float3 f_viscos = (float3)(0);
 
-    //////////////////////////////////////////////////////////
-    // particle-particle interaction                        //
-    //////////////////////////////////////////////////////////   
     for(int i=-1; i<=1; i++){
         for(int j=-1; j<=1; j++){
             for(int k=-1; k<=1; k++){
                 cell_id_t cid = g_get_cell_id(&grid, mypos.s012, (int3)(i,j,k));
                 if (cid.cnt_id == -1) continue;
                 int num = grid.counter[cid.cnt_id];
-                num = num > grid.max_p ? grid.max_p : num;
-                
                 for (int m = 0; m < num; m++) {
-                    ///////////////////////////////////////////////////////////
                     int other_gid = grid.cells[cid.cell_id+m];
                     if (other_gid == mygid) continue;
+
                     float4 other_pos = position[other_gid];
-                    float4 other_vel = velos[other_gid];                    
-                    float4 n = (other_pos - mypos);
-                    float distance = length(n.s012);
-                    if(distance < RADIUS*2)
-                    {
-                        if(mypos.s1 > other_pos.s1){
-                                myvel-=gravity*0.1;
-                        }
-                        myvel+=normalize(n)*COLLISION_DAMPING;
-                    }
-                    ///////////////////////////////////////////////////////////
+                    float4 other_vel = velos[other_gid];
+                    float other_massdens = valuebuf[other_gid].s0;
+                    float other_pressure = valuebuf[other_gid].s1;
+
+
+                    f_pressure += ((other_pressure + my_pressure)/2.0)
+                        * (MASS/other_massdens)
+                        * nW_pres(mypos.s012-other_pos.s012,H_CONSTANT);
+
+                    f_viscos += (other_vel.s012-myvel.s012)
+                        * (MASS/other_massdens)
+                        * lW_visc(mypos.s012-other_pos.s012,H_CONSTANT);
                 }
             }
         }
     }
-    
-    barrier(CLK_GLOBAL_MEM_FENCE);
+    f_pressure *= (-1);
+    f_viscos *= MU_CONSTANT;
 
-    mypos.s012 += myvel.s012*4;
+    float3 f_internal = f_pressure + f_viscos;
 
+    //// gravity 
+    float3 gravity = (float3)(0,GRAVITY,0);
+    float3 f_gravity = my_massdens * gravity;
+
+    //mypos.s012 += myvel.s012*4;
+
+    float3 f_sum = f_internal + f_gravity;
+
+    float3 f_acc = f_sum / my_massdens;
+
+   myvel *= 0.00000001;
+    mypos = mypos + myvel*dt;
+    myvel = myvel + f_acc*dt;
 
     position[mygid] = mypos;
     velos[mygid] = myvel;
@@ -228,4 +309,69 @@ kernel void gridclear_sim
     global int* g_counter) 
 {
     g_counter[get_global_id(0)] = 0;
-}	
+
+
+}
+
+
+//////////////////////////////////////////////////////////
+// Add particles to grid Kernel                         //
+//////////////////////////////////////////////////////////
+kernel void gridadd_sim
+(
+    global float4* position,
+    global int* g_counter,
+    global int* g_cells,
+    int g_num_cells,
+    int g_max_particles)
+{
+    grid_t grid = { g_num_cells,
+                    g_max_particles,
+                    g_counter,
+                    g_cells};
+
+    g_add_particle(&grid, position[get_global_id(0)].s012);
+}
+
+
+//////////////////////////////////////////////////////////
+// Calculate particle mass density                      //
+//////////////////////////////////////////////////////////
+kernel void massdensity_sim
+(
+    global float4* position,
+    global int* g_counter,
+    global int* g_cells,
+    int g_num_cells,
+    int g_max_particles,
+    global float2* valuebuf)
+{
+    int mygid = get_global_id(0);
+    grid_t grid = { g_num_cells,
+                    g_max_particles,
+                    g_counter,
+                    g_cells};
+
+    float4 mypos = position[mygid];
+    int sum_neighbours = -1;
+    for(int i=-1; i<=1; i++){
+        for(int j=-1; j<=1; j++){
+            for(int k=-1; k<=1; k++){
+                cell_id_t cid = g_get_cell_id(&grid, mypos.s012, (int3)(i,j,k));
+                if (cid.cnt_id == -1) continue;
+                int num = grid.counter[cid.cnt_id];
+                for (int m = 0; m < num; m++) {
+                    int other_gid = grid.cells[cid.cell_id+m];
+                    float4 other_pos = position[other_gid];
+                    sum_neighbours += MASS*W(mypos.s012-other_pos.s012,H_CONSTANT);
+
+
+                }
+            }
+        }
+    }
+    float mass_density = MASS_FACTOR * sum_neighbours;
+    float pressure = K_CONSTANT *( mass_density - 998.29);
+
+    valuebuf[mygid] = (float2)(mass_density, pressure);
+}

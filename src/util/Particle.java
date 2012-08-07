@@ -72,8 +72,10 @@ public class Particle {
     private CLProgram program;
     private CLDevice device;
     private CLCommandQueue queue;
-    private CLKernel kernel0;
-    private CLKernel kernel1;
+    private CLKernel kernel0;   // particle kernel
+    private CLKernel kernel1;   // clean counter grid
+    private CLKernel kernel2;   // add particle to grid
+    private CLKernel kernel3;   // mass-density
 	
 	private int MAX_PARTICLES;
     
@@ -90,11 +92,14 @@ public class Particle {
     /** number cells per dimension spatial dimension */
     private int gridLen = 84;
     /** max number of particles per cell */
-    private int gridMaxParticles = 20;
+    private int gridMaxParticles = 10;
     /** holds the number of particles in a specific grid cell */
     private CLMem gridCounters;
     /** holds the cell's particles global_ids */
     private CLMem gridCells;
+    
+    /* */
+    private CLMem massDensityBuf;
     
     private IntBuffer gridCounterBuf;
     
@@ -268,8 +273,13 @@ public class Particle {
         
         this.kernel0.setArg(8, 1e-3f*millis);
         clEnqueueNDRangeKernel(this.queue, kernel1, 1, null, 
-                BufferUtils.createPointerBuffer(1).put(0,84*84*84), 
+                BufferUtils.createPointerBuffer(1).put(0,gridLen*gridLen*gridLen), 
                 BufferUtils.createPointerBuffer(1).put(0,1), null, null);
+        // add particles to grid
+        clEnqueueNDRangeKernel(this.queue, kernel2, 1, null, gwz, lwz, null, null);
+        // calculate mass density
+        clEnqueueNDRangeKernel(this.queue, kernel3, 1, null, gwz, lwz, null, null);
+        
         clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
 
         clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
@@ -330,6 +340,9 @@ public class Particle {
 
         this.gridCounterBuf = BufferUtils.createIntBuffer((int)spatialGridSize);
 
+        // mass density buffer
+        this.massDensityBuf = clCreateBuffer(this.context, CL_MEM_READ_WRITE,
+                this.MAX_PARTICLES*8);
         
         
         //this.particles = null;
@@ -350,6 +363,10 @@ public class Particle {
         this.kernel1 = clCreateKernel(this.program, "gridclear_sim");
         this.kernel1.setArg(0, this.gridCounters);
 
+        this.kernel2 = clCreateKernel(this.program, "gridadd_sim");
+        
+        this.kernel3 = clCreateKernel(this.program, "massdensity_sim");
+        
     	IntBuffer errorCheck = BufferUtils.createIntBuffer(1);
     	
         heightmap = CL10GL.clCreateFromGLTexture2D(this.context, 
@@ -376,6 +393,21 @@ public class Particle {
         this.kernel0.setArg(6,this.gridLen);
         this.kernel0.setArg(7,this.gridMaxParticles);
         this.kernel0.setArg(8,0f); // dt, see draw()
+        this.kernel0.setArg(9,this.massDensityBuf);
+
+        
+  	this.kernel2.setArg(0, this.old_pos);
+        this.kernel2.setArg(1,this.gridCounters);
+        this.kernel2.setArg(2,this.gridCells);
+        this.kernel2.setArg(3,this.gridLen);
+        this.kernel2.setArg(4,this.gridMaxParticles);
+
+      	this.kernel3.setArg(0, this.old_pos);
+        this.kernel3.setArg(1,this.gridCounters);
+        this.kernel3.setArg(2,this.gridCells);
+        this.kernel3.setArg(3,this.gridLen);
+        this.kernel3.setArg(4,this.gridMaxParticles);
+        this.kernel3.setArg(5,this.massDensityBuf);
     
     }
     
