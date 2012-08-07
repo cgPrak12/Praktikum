@@ -16,7 +16,6 @@ public class FluidRenderer {
 	private int 	 textureUnit = 0;
 	private Camera   cam;
 	private Matrix4f viewProj;
-	private boolean  skipLow = false;	// if true, all LQ Textures and functions based on them are skipped
 	
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
     private Geometry screenQuad = GeometryFactory.createScreenQuad();    
@@ -128,7 +127,7 @@ public class FluidRenderer {
     	init(thicknessVBlurSP, thicknessVBlurFB, thicknessVBlurTex);
     	
     	// init lighting TODO: finish
-    	init(lightingSP,  lightingFB,  lightingTex);
+    	init(lightingSP,  lightingFB,  lightingTex, "finalColor");
     	init(colorSP, 	  colorFB,     colorTex);
     	init(cubeMapSP,   cubeMapFB,   cubeMapTex);
     	init(testPlaneSP, testPlaneFB, testPlaneTex);
@@ -139,8 +138,6 @@ public class FluidRenderer {
     	
     	createCubeMap();
     	
-    	// TODO this is DEBUG
-    	skipLow = false;
 	} 
 	
     /**
@@ -399,10 +396,8 @@ public class FluidRenderer {
         bindFB(depthFB);
 	    testWaterParticles.draw();
 	    
-	    if(!skipLow) {
-	    	bindFB(depthFBLQ);
-	    	testWaterParticles.draw();
-	    }
+    	bindFB(depthFBLQ);
+    	testWaterParticles.draw();
 	    
         for(int i = 0; i <= blurCount-1; i++) {
         	depthHBlurSP.use();
@@ -410,26 +405,21 @@ public class FluidRenderer {
 
 			bindFB(depthHBlurFB);	    
 	    	screenQuad.draw();	
-	    	if(!skipLow) {
-	    		depthHBlurSP.setUniform("scene", i==0?depthTexLQ:depthVBlurTexLQ);
-		    	bindFB(depthHBlurFBLQ);	    
-		    	screenQuad.draw();	
-	    	}
+    		depthHBlurSP.setUniform("scene", i==0?depthTexLQ:depthVBlurTexLQ);
+	    	bindFB(depthHBlurFBLQ);	    
+	    	screenQuad.draw();	
 	    	
         	depthVBlurSP.use();
         	depthVBlurSP.setUniform("scene", depthHBlurTex);
         	
         	bindFB(depthVBlurFB);
         	screenQuad.draw();
-        	if(!skipLow) {
-        		depthVBlurSP.setUniform("scene", depthHBlurTexLQ);
-		    	bindFB(depthVBlurFBLQ);
-		    	screenQuad.draw();
-        	}
+    		depthVBlurSP.setUniform("scene", depthHBlurTexLQ);
+	    	bindFB(depthVBlurFBLQ);
+	    	screenQuad.draw();
 		}        
         
-        if(!skipLow)
-        	interpolate(depthVBlurTex, depthVBlurTexLQ, depthIntFB);
+    	interpolate(depthVBlurTex, depthVBlurTexLQ, depthIntFB);
         
         endPath();
 	}
@@ -462,10 +452,8 @@ public class FluidRenderer {
 
 		bindFB(normalFB);
 		screenQuad.draw();
-		if(!skipLow) {
-			bindFB(normalFBLQ);
-			screenQuad.draw();
-		}
+		bindFB(normalFBLQ);
+		screenQuad.draw();
 		
 		for(int i = 0; i <= blurCount-1; i++){
 			normalHBlurSP.use();
@@ -475,11 +463,9 @@ public class FluidRenderer {
 
 			bindFB(normalHBlurFB);
 			screenQuad.draw();
-			if(!skipLow) {
-				normalHBlurSP.setUniform("normalTex", i==0?normalTexLQ:normalVBlurTexLQ);
-				bindFB(normalHBlurFBLQ);
-				screenQuad.draw();
-			}
+			normalHBlurSP.setUniform("normalTex", i==0?normalTexLQ:normalVBlurTexLQ);
+			bindFB(normalHBlurFBLQ);
+			screenQuad.draw();
 			
 			normalVBlurSP.use(); 
 			normalVBlurSP.setUniform("normalTex", normalHBlurTex);
@@ -488,14 +474,11 @@ public class FluidRenderer {
 			
 			bindFB(normalVBlurFB);
 			screenQuad.draw();
-			if(!skipLow) {
-				normalVBlurSP.setUniform("normalTex", normalHBlurTexLQ);
-				bindFB(normalVBlurFBLQ);
-				screenQuad.draw();
-			}
+			normalVBlurSP.setUniform("normalTex", normalHBlurTexLQ);
+			bindFB(normalVBlurFBLQ);
+			screenQuad.draw();
 		}
-		if(!skipLow)
-			interpolate(normalVBlurTex, normalVBlurTexLQ, normalIntFB);
+		interpolate(normalVBlurTex, normalVBlurTexLQ, normalIntFB);
 	        
 		endPath();
 	}
