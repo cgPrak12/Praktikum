@@ -12,7 +12,7 @@ import org.lwjgl.util.vector.Matrix4f;
  * @author S. Hoeffner, K. Schmidt, A. Werne
  */
 public class FluidRenderer {
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles((int)Math.pow(2, 13));
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
 	private int 	 textureUnit = 0;
 	private Camera   cam;
 	private Matrix4f viewProj;
@@ -112,10 +112,6 @@ public class FluidRenderer {
         floatBuffer.position(0);
         glPointParameter(GL_POINT_DISTANCE_ATTENUATION, floatBuffer);
         
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
-
         // init depth
     	init(depthSP,       depthFB, 	  depthFBLQ, 	  depthTex, 	 depthTexLQ, "depth", true);
 		init(depthHBlurSP,  depthHBlurFB, depthHBlurFBLQ, depthHBlurTex, depthHBlurTexLQ);
@@ -144,18 +140,19 @@ public class FluidRenderer {
     	createCubeMap();
     	
     	// TODO this is DEBUG
-    	skipLow = true;
+    	skipLow = false;
 	} 
 	
     /**
      * Renders the current frame's water texture (and draws it for now). 
      */
 	public void render() {
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 		// TODO: select pathes
 		createDepth(2);
 		createNormals(5, 1.5f);
-		createThickness();
+		thickness();
 		createLighting();
 		cubeMap();
 		createTestPlane();
@@ -167,7 +164,7 @@ public class FluidRenderer {
 
 		// TODO this is DEBUG DRAW
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", cubeMapTex);
+        drawTextureSP.setUniform("image", depthHBlurTexLQ);
         screenQuad.draw();
 	}
 	
@@ -220,7 +217,7 @@ public class FluidRenderer {
 	 * @param low HQ/LQ-Textures
 	 */
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex, String attachmentName, boolean depthTest, boolean low) {
-		init(sp, fb, tex, attachmentName, depthTest, false, GL_RGBA16F);
+		init(sp, fb, tex, attachmentName, depthTest, low, GL_RGBA16F);
 	}
 
 	/**
@@ -372,6 +369,7 @@ public class FluidRenderer {
 		depthSP.setUniform("viewDistance",cam.getViewDistance());
         depthSP.setUniform("camPos", cam.getCamPos());
    	    
+        glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
         
         bindFB(depthFB);
@@ -381,11 +379,9 @@ public class FluidRenderer {
 	    	testWaterParticles.draw();
 	    }
 	    
-	    glDisable(GL_DEPTH_TEST);
-
         for(int i = 0; i <= blurCount-1; i++) {
         	depthHBlurSP.use();
-        	depthVBlurSP.setUniform("depthTex", i==0?depthTex:depthVBlurTex);
+        	depthHBlurSP.setUniform("depthTex", i==0?depthTex:depthVBlurTex);
 
 			bindFB(depthHBlurFB);	    
 	    	screenQuad.draw();	
@@ -471,7 +467,7 @@ public class FluidRenderer {
 	/** 
 	 * Creates a clean thickness textures.
 	 */
-	private void createThickness() {
+	private void thickness() {
 		thickness(0);
 	}
 	
@@ -487,8 +483,9 @@ public class FluidRenderer {
 
         glBlendFunc(GL_ONE, GL_ONE);
         glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+
         testWaterParticles.draw();
-        glDisable(GL_BLEND);
         
         for(int i = 0; i <= blurCount-1; i++){
 	        startPath(thicknessHBlurSP, thicknessHBlurFB);
