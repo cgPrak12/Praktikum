@@ -558,7 +558,7 @@ public class GeometryFactory {
 		int mul=1;
 		int k =0;
 		for(int j=0; j<4;j++){
-			for(int i=k; i<mul*length;i++){
+			for(int i=mul*length-1; i>=k;i--){
 				indices[icount++]=i;
 			}
 			indices[icount++]=-1;

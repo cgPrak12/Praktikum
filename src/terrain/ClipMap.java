@@ -347,7 +347,6 @@ public class ClipMap {
 		else if(alignment[i-1][3]&&alignment[i-1][0]){
 			side =3;}
 		else throw new IllegalStateException("L Grid kann nicht gesetzt werden");
-		
 		//1 = TopRight
 		//2 = TopLeft
 		//3 = BottomLeft
