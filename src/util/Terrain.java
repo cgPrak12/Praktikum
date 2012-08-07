@@ -515,7 +515,7 @@ public class Terrain {
 		float a, b;
 		float dX, dZ;
 		
-		this.flatten(x, z, range, 0.4f, 2);
+		//TODO Planieren
 		
 		for(int i=0; i < 2*range-1; i++){
 
@@ -547,7 +547,7 @@ public class Terrain {
 
 		}
 		//TODO Materials from Biome
-//		this.setMaterialsFromHeight(0,this.maxX,0,this.maxZ);
+		
 		//TODO Noise for sand
 //		makeNoise(range, x, z, 2, 0.05f, 5);
 	}
@@ -571,10 +571,25 @@ public class Terrain {
 	 * @param amp the grade of flattening to the lvl value [0,1]
 	 * @param type the type of flattening process used [1 for mountain1, 2 for mountain2]
 	 */
-	private void flatten(int x, int z, int range, float lvl,  int type){
-
+	private void flatten(int x, int z, int range, float amp, int type){
+		
+		float lvl = 1;
+//		switch(Math.round(terra[x][z][4])){
+//		case 1: lvl = -3;break;
+//		case 2: lvl = -1;break;
+//		case 3: lvl = 1;break;
+//		case 4: lvl = 2;break;
+//		case 5: lvl = 2.5f;break;
+//		case 6: lvl = 3;break;
+//		case 7: lvl = 5;break;
+//		case 8: lvl = 5.5f;break;
+//		case 9: lvl = 6;break;
+//		case 10: lvl = 7;break;
+//		
+//		}
 		float xf, zf, dX, dZ, flatVal;
 		int xi, zi;
+		amp *= 0.9;
 		float[][] flatVals;
 		if(type == 1){
 			flatVals = this.mountainMap1;
@@ -594,7 +609,7 @@ public class Terrain {
 				zi = (int) zf;
 				dZ = zf-zi;
 				
-				flatVal = 0.9f * (Util.iPol
+				flatVal = amp * (Util.iPol
 									(Util.iPol(
 											flatVals[xi % 32][zi % 32], 
 											flatVals[xi % 32][(zi+1) % 32],
@@ -604,6 +619,7 @@ public class Terrain {
 											 flatVals[(xi+1) % 32][(zi+1) % 32],
 											 dZ),
 									 dX));
+//				System.out.println(flatVal);
 				this.terra.set(x-range+i, z-range+j, 0, Util.iPol(this.terra.get(x-range+i, z-range+j, 0), lvl, flatVal));
 			}
 	
@@ -802,19 +818,19 @@ public class Terrain {
 	 */
 	public void genTerrain(int form){
 		this.terraform(8, 1);
-		this.testForm(desertMap);
+		this.testForm(mountainMap1);
 //		this.terraform(10, 3);	
 //		this.setBiomesFromMaterial();
 //		this.testForm(desertMap);
 //		this.flatten(1024, 1024, 1024, 1, 2);
-//		this.flattenAllBiomes(25);
+		this.flattenAllBiomes(25);
 		this.smooth();
 //		this.checkNormals();
 	}
 	private void testForm(float[][]map){
 
-//		putMountain(map, 2f, 512, 512, 256);
-		putDesert(map, 1, 512, 512, 512);
+		putMountain(map, 2f, 512, 512, 256);
+//		putDesert(map, 1, 512,512,512);
 //		this.setMaterialsFromHeight(0,this.maxX,0,this.maxZ);
 		
 	}

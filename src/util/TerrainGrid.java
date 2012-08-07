@@ -3,6 +3,9 @@ package util;
 public class TerrainGrid {
 	private float values[][][];
 	
+	// myGrid.get(10000, 10000, 5);
+	// myGrid.get(10000, 10000)[5];
+	
 	public TerrainGrid(int sizeX, int sizeZ, int vertexInfo) {
 		this.values = new float[sizeX][sizeZ][vertexInfo];
 	}
