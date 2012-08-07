@@ -78,7 +78,9 @@ public class PreStageModelPart {
             vertexList.get((int)currentFace.vertexIndizies.x).store(vertexBuffer);            
             //check if the model has texture coordinates
             if(currentFace.vertexTextureIndizies.length()!=0)
-                vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).store(vertexBuffer);
+                new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).x,
+                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).y*-1.0f,
+                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).z).store(vertexBuffer);
             else
                 new Vector3f().store(vertexBuffer);
             //check if the model has normals
@@ -90,7 +92,9 @@ public class PreStageModelPart {
             vertexList.get((int)currentFace.vertexIndizies.y).store(vertexBuffer);
             //check if the model has texture coordinates
             if(currentFace.vertexTextureIndizies.length()!=0)
-                vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).store(vertexBuffer);
+                new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).x,
+                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).y*-1.0f,
+                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).z).store(vertexBuffer);
             else
                 new Vector3f().store(vertexBuffer);
             //check if the model has normals
@@ -102,7 +106,9 @@ public class PreStageModelPart {
             vertexList.get((int)currentFace.vertexIndizies.z).store(vertexBuffer);
             //check if the model has texture coordinates
             if(currentFace.vertexTextureIndizies.length()!=0)
-                vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).store(vertexBuffer);
+                new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).x,
+                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).y*-1.0f,
+                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).z).store(vertexBuffer);
             else
                 new Vector3f().store(vertexBuffer);
             //check if the model has normals

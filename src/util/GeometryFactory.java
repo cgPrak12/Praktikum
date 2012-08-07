@@ -14,8 +14,8 @@ import opengl.GL;
  * @author Sascha Kolodzey, Nico Marniok
  */
 public class GeometryFactory {
-    public static List<ModelPart> importFromBlender(String objFile, String mtlFile) {
-        List<Material> materialList = getMaterialListFromMTL(mtlFile);
+    public static List<ModelPart> importFromBlender(String objFile, String mtlFile, String texturePath) {
+        List<Material> materialList = getMaterialListFromMTL(mtlFile, texturePath);
         List<ModelPart> modelPartList = getModelPartListFromOBJ(objFile, materialList);
 
 /*        Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
@@ -26,7 +26,7 @@ public class GeometryFactory {
         return modelPartList;
     }
     
-    public static List<Material> getMaterialListFromMTL(String mtlPath) {
+    public static List<Material> getMaterialListFromMTL(String mtlPath, String texturePath) {
         System.out.println("Reading MTL-file and creating material objects...");
         List<Material> materialList = new LinkedList<Material>();
         
@@ -44,7 +44,7 @@ public class GeometryFactory {
                 //parse material name
                 if(line.startsWith("newmtl ")) {
                     if(material!=null) {
-                        material.loadTextures();
+                        material.loadTextures(texturePath);
                         materialList.add(material);
                     }
                     material = new Material();
@@ -97,7 +97,7 @@ public class GeometryFactory {
             } //end of while loop
             //add the last material object to the list (its not being added in the while loop!)
             if(material!=null) {
-                material.loadTextures();
+                material.loadTextures(texturePath);
                 materialList.add(material);
             }
         } catch (IOException e) {
@@ -310,12 +310,12 @@ public class GeometryFactory {
         glBindVertexArray(vaid);
         
         // vertexbuffer
-        FloatBuffer vertexData = BufferUtils.createFloatBuffer(8);
+        FloatBuffer vertexData = BufferUtils.createFloatBuffer(16);
         vertexData.put(new float[] {
-            -1.0f, -1.0f,
-            +1.0f, -1.0f,
-            -1.0f, +1.0f,
-            +1.0f, +1.0f,
+            -1.0f, -1.0f, -1.0f*0.0f, 1.0f,
+            +1.0f, -1.0f, -1.0f*1.0f, 1.0f,
+            -1.0f, +1.0f, -1.0f*0.0f, 0.0f,
+            +1.0f, +1.0f, -1.0f*1.0f, 0.0f,
         });
         vertexData.position(0);
         
@@ -328,6 +328,7 @@ public class GeometryFactory {
         geo.setIndices(indexData, GL_TRIANGLE_STRIP);
         geo.setVertices(vertexData);
         geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+        geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 8);
         return geo;
     }
     

@@ -2,7 +2,8 @@
 uniform mat4 viewProj;
 uniform mat4 model;
 uniform mat4 modelIT;
-//uniform mat4 scale;
+uniform mat4 scale;
+uniform mat4 translate;
 
 in vec3 positionMC;
 in vec3 normalMC;
@@ -18,5 +19,5 @@ void main(void)
     positionWC = world.xyz / world.w;
     normalWC = (modelIT * vec4(normalMC, 0.0)).xyz;
     fragmentTexCoords = vertexTexCoords;
-    gl_Position = viewProj * world;
+    gl_Position = viewProj * translate * scale * world;
 }

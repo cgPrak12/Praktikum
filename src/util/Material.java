@@ -40,8 +40,7 @@ public class Material {
                                         //multiplied by the d value.
     public Texture textureSpecularRefColorMap;    
     
-    public void loadTextures() {
-        String texturePath = "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\";
+    public void loadTextures(String texturePath) {
         if(this.diffuseRefColorMap != null && !this.diffuseRefColorMap.isEmpty()) {
             try {
                 this.textureDiffuseRefColorMap = Texture.generateTexture(texturePath+diffuseRefColorMap, textureUnitCounter++);
