@@ -29,6 +29,7 @@ public class Geometry {
     private int instanceAttributeSize;
     private final List<VertexAttribute> attributes = new LinkedList<VertexAttribute>();
 
+
     /**
      * Setzt den IntBuffer, der die Indexdaten dieser Geometrie beinhaltet und
      * die zugehoerige Topologie.
@@ -91,14 +92,13 @@ public class Geometry {
     
     /**
      * Erzeugt aus den gesetzten Vertex- und Indexdaten ein Vertexarray Object,
-     * das die Geometrie beinhaltet, die mittels <code>setVertices</code> und
-     * <code>setIndices</code> gesetzt wurde.
+     * das die zugoerige Topologie beinhaltet.
      */
     public void construct() {
         if(vertexValueBuffer == null || indexValueBuffer == null) {
             throw new UnsupportedOperationException("Vertex- und Indexbuffer wurden noch nicht gesetzt!");
         }
-
+        
         this.vaid = glGenVertexArrays();
         glBindVertexArray(this.vaid);
         
@@ -110,17 +110,24 @@ public class Geometry {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.ibid);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, this.indexValueBuffer, GL_STATIC_DRAW);
         
-        glEnableVertexAttribArray(Util.ATTR_POS);
-        glVertexAttribPointer(Util.ATTR_POS, 3, GL_FLOAT, false, 28, 0);
-        
-        glEnableVertexAttribArray(Util.ATTR_NORMAL);
-        glVertexAttribPointer(Util.ATTR_NORMAL, 3, GL_FLOAT, false, 28, 12);    
-        
-        glEnableVertexAttribArray(Util.ATTR_MATERIAL);
-        glVertexAttribPointer(Util.ATTR_MATERIAL, 1, GL_FLOAT, false, 28, 24);    
-
-
-     
+        int stride = 0;
+        for(VertexAttribute attr : attributes) {
+            stride += 4 * attr.size;
+            glEnableVertexAttribArray(attr.index);
+        }
+        for(VertexAttribute attr : attributes) {
+            glVertexAttribPointer(attr.index, attr.size, GL_FLOAT, false, stride, attr.offset);
+        }
+        if(this.instanceData != null) {
+            this.instancebid = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, this.instancebid);
+            glBufferData(GL_ARRAY_BUFFER, this.instanceData, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(ShaderProgram.ATTR_INSTANCE);
+            glVertexAttribPointer(ShaderProgram.ATTR_INSTANCE, this.instanceAttributeSize, GL_FLOAT, false, this.instanceStride, 0);
+            GL33.glVertexAttribDivisor(ShaderProgram.ATTR_INSTANCE, 1);
+            this.instanceData = null;
+        }
+        glBindVertexArray(0);
     }
     
     /**
@@ -133,20 +140,27 @@ public class Geometry {
         vbid = -1;
         glDeleteBuffers(ibid);
         ibid = -1;
+        if(instancebid != -1) {
+            glDeleteBuffers(this.instancebid);
+        }
         glDeleteVertexArrays(vaid);
         vaid = -1;
     }
     
     /**
      * Erzeugt die Geometrie, falls noch nicht geschehen und zeichnet sie
-     * anschließend.
+     * anschlie??end.
      */
     public void draw() {
         if(vaid == -1) {
             construct();
         }
         glBindVertexArray(vaid);
-        glDrawElements(topology, indexCount, GL_UNSIGNED_INT, 0);
+        if(this.instancebid != -1) {
+            GL31.glDrawElementsInstanced(this.topology, this.indexCount, GL11.GL_UNSIGNED_INT, 0, this.instanceCount);
+        } else {
+            glDrawElements(topology, indexCount, GL_UNSIGNED_INT, 0); 
+        }
     }
     
     private class VertexAttribute {

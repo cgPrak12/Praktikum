@@ -18,7 +18,7 @@ import util.Util;
  *
  * @author NMARNIOK
  */
-public class Terrain {
+public class MainTest {
     // shader programs
     private static int terrainProgram;
     
@@ -60,10 +60,9 @@ public class Terrain {
             terrainModelLoc = glGetUniformLocation(terrainProgram, "model");
             terrainModelITLoc = glGetUniformLocation(terrainProgram, "modelIT");
             terrainParamLoc = glGetUniformLocation(terrainProgram, "param");
-            
-            terra = new util.Terrain(0.5f,2048,2048,2,1,null);
-            terra.bitchPLEASE();
-            
+                   
+            terra = new util.Terrain(-0.8f, 1024, 1024, 4);
+            terra.genTerrain(10);
             terrainGeometry = GeometryFactory.genTerrain(terra.getTerra());
             
             glEnable(GL_DEPTH_TEST);
@@ -72,7 +71,7 @@ public class Terrain {
             render();
             destroy();
         } catch (LWJGLException ex) {
-            Logger.getLogger(Terrain.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

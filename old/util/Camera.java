@@ -12,15 +12,21 @@ public final class Camera {
     private final Vector3f viewDir = new Vector3f(0,0,1);
     private final Vector3f upDir = new Vector3f(0,1,0);
     private final Vector3f sideDir = new Vector3f(1,0,0);
-    private final Vector3f camPos = new Vector3f(15,8,-1);
+    private final Vector3f camPos = new Vector3f(128,20,256);
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
     private boolean perspective = true;
+    
+    // Begrenzungvariablen 
+    private float maxCamHeight;
+    private float maxCamX;
+    private float maxCamZ;
 
     /**
      * Default Constructor.
      */
     public Camera() {
+    	maxCamHeight = 300;
         this.updateView();
         this.updateProjection();
     }
@@ -52,6 +58,17 @@ public final class Camera {
         camPos.x += fb * viewDir.x + lr * sideDir.x;
         camPos.y += fb * viewDir.y + lr * sideDir.y + ud;
         camPos.z += fb * viewDir.z + lr * sideDir.z;
+		
+		if(camPos.x < 0.0f) 			camPos.x = 0.0f;
+		if(camPos.x > maxCamX) 			camPos.x = maxCamX;
+		if(camPos.z < 0.0f) 			camPos.z = 0.0f;
+		if(camPos.z > maxCamZ) 			camPos.z = maxCamZ;
+		if(camPos.y < -5.0f) 			camPos.y = -5.0f;
+		if(camPos.y > maxCamHeight) 	camPos.y = maxCamHeight;
+				
+		// Util.clamp(camPos.x, 0.0f, maxCamX);
+		// Util.clamp(camPos.z, 0.0f, maxCamZ);
+		// Util.clamp(camPos.y, 0.0f, maxCamHeight);
     }
     
     /**
@@ -97,9 +114,31 @@ public final class Camera {
         this.updateView();
         return view;
     }
+
+    public Vector3f getCamPos() {
+        return camPos;
+    }
     
-    public Vector3f getCamPos(){
-    	return camPos;
+    public void setMaxCamValues(float h, float x, float z)
+    {
+    	maxCamHeight = h;
+        maxCamX = x-1;
+        maxCamZ = z-1;
+    }
+    
+    public float getMaxCamHeight()
+    {
+    	return maxCamHeight;
+    }
+    
+    public float getMaxCamX()
+    {
+    	return maxCamX;
+    }
+    
+    public float getMaxCamZ()
+    {
+    	return maxCamZ;
     }
     
 }

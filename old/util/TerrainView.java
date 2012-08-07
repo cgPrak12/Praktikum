@@ -62,6 +62,58 @@ public class TerrainView {
 			}
 		}
 	}
+
+	private Block[][] myBl;
+	private Camera cam;
+	private int[] middle;
+	
+	public TerrainView(Camera c){
+		
+		myBl = new Block[9][9];
+		cam =  c;
+		init();
+	}
+	
+	private void init(){
+		
+		myBl[4][4] = getBlock(cam);
+		middle = myBl[4][4].getID();
+		
+		int idI = middle[0]-1;
+		int idJ = middle[1]-1;
+		
+		//hier fehlt noch die Fehlerbehandlung am Rand
+		//dummy-Block wenn man am/über dem Rand ist 
+		for(int i=0; i<3; i++){
+			for(int j=0; j<3; j++){
+				myBl[i][j] = readBlockData((idI+i)+"_"+(idJ+j)+"_.bf");
+			}
+		}
+	}
+	
+	public void updateTerrainView(){
+		
+		int diffX = getBlock(cam)[0]-middle[0];
+		int diffY = getBlock(cam)[1]-middle[1];
+		
+		if(Math.abs(diffX) > 2 || Math.abs(diffX) > 2){
+			init();
+		}
+		else{
+			for(int i=0; i<3; i++){
+				for(int j=0; j<3; j++){
+
+					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2){
+						myBl[i][j] = readBlockData((myBl[i][j].getID()[0]+diffX)
+								+"_"+(myBl[i][j].getID()[0]+diffX)+"_.bf");
+					}
+					else{
+						myBl[i][j] = myBl[i+diffX][j+diffY];
+					}
+				}
+			}
+		}
+	}
 	
 	public float[][][] getArray(){
 		

@@ -3,7 +3,6 @@ package util;
 import static opengl.GL.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -11,8 +10,9 @@ import org.lwjgl.util.vector.Vector3f;
  * Stellt Methoden zur Erzeugung von Geometrie bereit.
  * @author Sascha Kolodzey, Nico Marniok
  */
-public class GeometryFactory {
-    public static Geometry getGrid(String heightmap) {
+public class GeometryFactory { 
+	
+	public static Geometry getGrid(String heightmap) {
         float heightfield[][][] = Util.getImageContents(heightmap);
         int maxX = heightfield[0].length;
         int maxZ = heightfield.length;
@@ -82,7 +82,7 @@ public class GeometryFactory {
     
     
     
-        public static Geometry genTerrain(float[][][] terra) {
+        public static Geometry genTerrain(float[][] terra) {
         	
         	int vertexSize = 7;
         	int maxX = terra.length;
@@ -96,14 +96,13 @@ public class GeometryFactory {
            	for(int z=0; z < maxZ; ++z) {
                 for(int x=0; x < maxX; ++x) {
                 	vertices.put(1e-2f * (float)x);
-                	vertices.put(terra[x][z][0]);
+                	vertices.put(terra[x][z]);
                 	vertices.put(1e-2f * (float)z);
                 	
                 	vertices.put(0);	// norm.x
                 	vertices.put(0);	// norm.y
                 	vertices.put(0);	// norm.z
-                	vertices.put(terra[x][z][4]);
-
+                	vertices.put(0);	// material (0=Earth)
                 }                	    
            	}
            	
@@ -114,7 +113,6 @@ public class GeometryFactory {
                 for(int x=0; x < maxX - 1; ++x) {
                     indices.put(z * maxX + x);
                     indices.put((z + 1) * maxX + x + 1);
-                    
                     indices.put(z * maxX + x + 1);
                     
                     indices.put(z * maxX + x);
@@ -159,38 +157,33 @@ public class GeometryFactory {
             geo.setVertices(vertices);
             return geo;	
         }
- 
-        /**
-         * Erzeugt ein Vierexk in der xy-Ebene. (4 Indizes)
-         * @return VertexArrayObject ID
-         */
-        public static Geometry createScreenQuad() {        
-            int vaid = glGenVertexArrays();
-            glBindVertexArray(vaid);        
-            
-            // vertexbuffer
-            FloatBuffer vertexData = BufferUtils.createFloatBuffer(8);
-            vertexData.put(new float[] {
-                -1.0f, -1.0f,
-                +1.0f, -1.0f,
-                -1.0f, +1.0f,
-                +1.0f, +1.0f,
-            });
-            vertexData.position(0);
-            
-            // indexbuffer
-            IntBuffer indexData = BufferUtils.createIntBuffer(4);
-            indexData.put(new int[] { 0, 1, 2, 3, });
-            indexData.position(0);
-            
-            Geometry geo = new Geometry();
-            geo.setIndices(indexData, GL_TRIANGLE_STRIP);
-            geo.setVertices(vertexData);
-            geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-            return geo;
-        }
-        	
-        	
+    /**
+     * Erzeugt ein Vierexk in der xy-Ebene. (4 Indizes)
+     * @return VertexArrayObject ID
+     */
+    public static Geometry createScreenQuad() {        
+        int vaid = glGenVertexArrays();
+        glBindVertexArray(vaid);        
         
-   
+        // vertexbuffer
+        FloatBuffer vertexData = BufferUtils.createFloatBuffer(8);
+        vertexData.put(new float[] {
+            -1.0f, -1.0f,
+            +1.0f, -1.0f,
+            -1.0f, +1.0f,
+            +1.0f, +1.0f,
+        });
+        vertexData.position(0);
+        
+        // indexbuffer
+        IntBuffer indexData = BufferUtils.createIntBuffer(4);
+        indexData.put(new int[] { 0, 1, 2, 3, });
+        indexData.position(0);
+        
+        Geometry geo = new Geometry();
+        geo.setIndices(indexData, GL_TRIANGLE_STRIP);
+        geo.setVertices(vertexData);
+        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+        return geo;
+    }
 }
