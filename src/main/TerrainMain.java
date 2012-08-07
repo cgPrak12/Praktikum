@@ -62,7 +62,7 @@ public class TerrainMain {
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(126, 8, program, cam);
+            clip = new ClipMap(254, 10, program, cam);
             
             tex = Texture.generateTexture(".\\Eire_big.png", 1);
             tex.bind();
@@ -71,7 +71,8 @@ public class TerrainMain {
             program.setUniform("elevation", tex);
 
           
-            
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
            
             
             render();
@@ -97,7 +98,7 @@ public class TerrainMain {
             frameTimeDelta += millis;
             ++frames;
             if(frameTimeDelta > 1000) {
-//                System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
+                System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
                 frameTimeDelta -= 1000;
                 frames = 0;
             }
