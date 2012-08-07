@@ -246,8 +246,10 @@ public class ClipMap {
 	public void generateMaps() {
 		setScale(1);
 		
+
 		tempX += cam.getAlt().x / generalScale;
 		tempZ += cam.getAlt().z / generalScale;
+
 
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2) {moveClip(0, 1);	tempZ %= 2;}

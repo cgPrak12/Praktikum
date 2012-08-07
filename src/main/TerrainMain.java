@@ -47,6 +47,7 @@ public class TerrainMain {
     
     //Textures
     private static Texture tex;
+	private static Texture high;
 
     public static void main(String[] argv) {
         try {
@@ -69,6 +70,10 @@ public class TerrainMain {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
             program.setUniform("elevation", tex);
 
+          
+            
+           
+            
             render();
             OpenCL.destroy();
             destroy();
