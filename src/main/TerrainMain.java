@@ -53,7 +53,7 @@ public class TerrainMain {
         try {
             init();
             OpenCL.init();
-            glDisable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_PRIMITIVE_RESTART);
@@ -62,7 +62,7 @@ public class TerrainMain {
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(254, 10, program, cam);
+            clip = new ClipMap(254, 6, program, cam);
             
             tex = Texture.generateTexture(".\\Eire_big.png", 1);
             tex.bind();
