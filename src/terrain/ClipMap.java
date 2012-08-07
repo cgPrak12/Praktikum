@@ -48,6 +48,7 @@ public class ClipMap {
 	private Geometry bottomLeft;
 	private Geometry bottomRight;
 	private Geometry center;
+	private Geometry outer;
 	
 	private final float generalScale = 0.1f; // Skaliert die gesamte ClipMap um Faktor
 
@@ -110,6 +111,7 @@ public class ClipMap {
 		bottomRight = GeometryFactory.createBottomRight(lsize);
 		center = GeometryFactory.createGrid(4 * gridsize + middlesize
 				+ middlesize / 2, 4 * gridsize + middlesize + middlesize / 2);
+		outer = GeometryFactory.outerTriangle(size+1);
 		
 		updateSize();
 		updateHeightScale();
@@ -239,6 +241,13 @@ public class ClipMap {
 				Util.translationZ(movement[i][1], null));
 		setProgram();
 		mxn.draw();
+		
+		//Outer Triangles
+		Util.mul(translation, Util.translationX(-size / 2 - middlesize / 2 + movement[i][0], null), 
+				Util.translationZ(movement[i][1]-2*gridsize, null));
+		setProgram();
+		outer.draw();
+		
 	}
 	
 
@@ -269,6 +278,8 @@ public class ClipMap {
 						null));
 		setProgram();
 		center.draw();
+		
+		outer.draw();
 		
 
 		for (int i = 1; i < stage; i++) {
@@ -372,9 +383,9 @@ public class ClipMap {
 		System.out.println((float)Math.pow(2,stage));
 		program.setFloat("worldSize", (float)(Math.pow(2, stage)*((size+2)/16)));
 	}
-	
 	private void updateHeightScale(){
 		program.setFloat("heightScale", (float)(stage*(size+2)/16)+12f);
+	
 	}
 }
 
