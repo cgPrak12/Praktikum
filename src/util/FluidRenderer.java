@@ -151,20 +151,40 @@ public class FluidRenderer {
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 		// TODO: select pathes
 		createDepth(2);
-//		createNormals(5, 1.5f);
-//		thickness();
-//		createLighting();
-//		cubeMap();
-//		createTestPlane();
+		createNormals(5, 1.5f);
+		thickness();
+		createLighting();
+		cubeMap();
+		createTestPlane();
 
 		// TODO this is DEBUG DRAW
 		drawTextureSP.use();
-		drawTextureSP.setUniform("image", depthIntTex);
-        screenQuad.draw();
+		
+//		drawTextureSP.setUniform("image", depthTex);
+//		drawTextureSP.setUniform("image", depthHBlurTex);
+//		drawTextureSP.setUniform("image", depthVBlurTex);
+//		drawTextureSP.setUniform("image", normalTex);
+//		drawTextureSP.setUniform("image", normalHBlurTex);
+//		drawTextureSP.setUniform("image", normalVBlurTex);
+//		drawTextureSP.setUniform("image", depthTexLQ);
+//		drawTextureSP.setUniform("image", depthHBlurTexLQ);
+//		drawTextureSP.setUniform("image", depthVBlurTexLQ);
+//		drawTextureSP.setUniform("image", normalTexLQ);
+//		drawTextureSP.setUniform("image", normalHBlurTexLQ);
+//		drawTextureSP.setUniform("image", normalVBlurTexLQ);
+//		drawTextureSP.setUniform("image", thicknessTex);
+//		drawTextureSP.setUniform("image", thicknessHBlurTex);
+//		drawTextureSP.setUniform("image", thicknessVBlurTex);
+//		drawTextureSP.setUniform("image", lightingTex);
+//		drawTextureSP.setUniform("image", colorTex);
+//		drawTextureSP.setUniform("image", cubeMapTex);
+//		drawTextureSP.setUniform("image", testPlaneTex);
+		
+		screenQuad.draw();
 	}
 	
 	/**
-	 * Inits a ShaderProgram with a FrameBuffer, and a Texture, and
+	 * Inits a ShaderProgram with a FrameBuffer and a Texture and
 	 * binds it to "color".
 	 * @param sp ShaderProgram
 	 * @param fb FrameBuffer
@@ -175,7 +195,7 @@ public class FluidRenderer {
 	}
 	
 	/**
-	 * Inits a ShaderProgram with a FrameBuffer, a Texture, and an
+	 * Inits a ShaderProgram with a FrameBuffer, a Texture and an
 	 * Attachment Name for the fragment shader.
 	 * @param sp ShaderProgram
 	 * @param fb FrameBuffer
@@ -188,7 +208,7 @@ public class FluidRenderer {
 
 	/**
 	 * Inits a ShaderProgram with a FrameBuffer, a Texture, an
-	 * Attachment Name for the fragment shader, and a given 
+	 * Attachment Name for the fragment shader and a given 
 	 * DepthTest State.
 	 * @param sp ShaderProgram
 	 * @param fb FrameBuffer
@@ -203,7 +223,7 @@ public class FluidRenderer {
 	/**
 	 * Inits a ShaderProgram with a FrameBuffer, a Texture, an
 	 * Attachment Name for the fragment shader, a given DepthTest 
-	 * State, and a switch for HQ/LQ-Textures.
+	 * State and a switch for HQ/LQ-Textures.
 	 * @param sp ShaderProgram
 	 * @param fb FrameBuffer
 	 * @param tex Texture
@@ -218,7 +238,7 @@ public class FluidRenderer {
 	/**
 	 * Inits a ShaderProgram with a FrameBuffer, a Texture, an
 	 * Attachment Name for the fragment shader, a given DepthTest 
-	 * State, a switch for HQ/LQ-Textures, and a switch for
+	 * State, a switch for HQ/LQ-Textures and a switch for
 	 * OpenGL's internal format used in the texture.
 	 * @param sp ShaderProgram
 	 * @param fb FrameBuffer
@@ -265,7 +285,7 @@ public class FluidRenderer {
 	
 	/**
 	 * Inits a ShaderProgram for each, a HQ and LQ Texture, applies
-	 * the textures to a specific attachment name, and adds a DepthTest switch.
+	 * the textures to a specific attachment name and adds a DepthTest switch.
 	 * @param sp ShaderProgram
 	 * @param fbHQ FrameBuffer HQ Texture
 	 * @param fbLQ FrameBuffer LQ Texture
@@ -280,7 +300,7 @@ public class FluidRenderer {
 	
 	/**
 	 * Inits a ShaderProgram for each, a HQ and LQ Texture, applies
-	 * the textures to a specific attachment name, adds a DepthTest switch, and
+	 * the textures to a specific attachment name, adds a DepthTest switch and
 	 * specifies an OpenGL internal format.
 	 * @param sp ShaderProgram
 	 * @param fbHQ FrameBuffer HQ Texture
@@ -308,7 +328,7 @@ public class FluidRenderer {
     }
 	
 	/**
-	 * Starts a path by using a ShaderProgram, binding a FrameBuffer, and
+	 * Starts a path by using a ShaderProgram, binding a FrameBuffer and
 	 * setting the clearColor.
 	 * @param sp ShaderProgram
 	 * @param fb FrameBuffer
