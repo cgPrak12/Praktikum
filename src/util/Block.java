@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
-public abstract class Block implements Serializable {
+public class Block implements Serializable {
 	
 	/**
 	 * 
@@ -18,26 +18,23 @@ public abstract class Block implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private float[][][] vertexInfo;
-	
-	
-	
-	/**
-	 *  
-	 * @param x
-	 * @param z
-	 * @param vertexSize
-	 */
-	public Block(int x, int z, int vertexSize)
-	{
-		vertexInfo = new float[x][z][vertexSize];
-	}
+	private int posX;
+	private int posZ;
 	
 	/**
 	 * Ctor mit Standardwerten (Blockgroesse 256, vertexSize 5)
 	 */
-	public Block()
+	public Block(int posX, int posZ)
 	{
-		this(256, 256, 5);		
+		this.posX = posX;
+		this.posZ = posZ;
+		vertexInfo = new float[256][256][5];		
+	}
+	
+	public int[] getID()
+	{
+		int[] result = {posX, posZ};
+		return result;
 	}
 	
 	public float getInfo(int x, int z, int pos)
@@ -49,8 +46,7 @@ public abstract class Block implements Serializable {
 		else
 		{
 			return 0.0f;
-		}
-			
+		}			
 	}
 	
 	/**
@@ -65,6 +61,12 @@ public abstract class Block implements Serializable {
 		{
 				vertexInfo[x][z][pos] = info;
 		}
+		
+//		if(x == 255 && z == 255)
+//		{
+//			String filename = "block" + posX + "_" + posZ + ".bf";
+//			this.save(filename);
+//		}
 	}
 	
 	/**
@@ -120,6 +122,7 @@ public abstract class Block implements Serializable {
 		}
 		return result;
 	}
+
 	
 	/**
 	 * Lade Vertex-Informationen aus einer Datei ins Array
