@@ -52,6 +52,11 @@ public class Util {
 	 */
 	private static final Matrix4f TEMP = new Matrix4f();
 
+
+	private static float[][] GaussMat3 = new float[3][3];
+	private static float[][] GaussMat5 = new float[5][5];
+	private static float[][] GaussMat7 = new float[7][7];
+
 	/**
 	 * Erzeugt eine Viewmatrix aus Augenposition und Fokuspunkt.
 	 * @param eye Die Position des Auges
@@ -511,7 +516,9 @@ public class Util {
 	 * @param filename Pfad der Datei
 	 * @return Inhalt der Datei
 	 */
-	public static String getFileContents(String filename) {
+
+	static String getFileContents(String filename) {
+
 		BufferedReader reader = null;
 		String source = null;
 		try {
@@ -534,37 +541,40 @@ public class Util {
 	}
 
 	/**
-	 * 
-	 * @param heightmap The heightmapin which is to be modified
-	 * @param noise Some noisemap (pref 32\B2)
+
+	 * @author ARECKNAG, FMAESCHIG
+	 * @param terra The terrain which is to be modified
+	 * @param noise Some noisemap (pref 32²)
 	 * @param freq The frequency by which the noisemap is taken
 	 * @param amp The amplitude with which the noise is applied
 	 */
-	public static void biLinIpol(float[][][] heightmap, float[][]noise, float freq, float amp){
+	public static void biLinIpol(float[][][] terra, float[][]noise, float freq, float amp){
 
-		int heightmapX = heightmap.length;
-		int heightmapY = heightmap[0].length;
+		int terraX = terra.length;
+		int terraY = terra[0].length;
+
 		int noiseX = noise.length;
 		int noiseY = noise[0].length;
 		int pX, pY;
 		float a, b;
 		float dX, dY;
 
-		for(int i = 0; i < (heightmapX-1); i++){
 
-			a = (float)noiseX * freq * (float)i / (float)heightmapX;
+		for(int i = 0; i < (terraX-1); i++){
+
+			a = (float)noiseX * freq * (float)i / (float)terraX;
 			pX = (int)(a);
 			dX = a - pX;
 			//System.out.println("pX:"+pX);
 
-			for(int j = 0; j < (heightmapY-1); j++){
+			for(int j = 0; j < (terraY-1); j++){
 
-				b = (float)noiseY * freq * (float)j / (float)heightmapY;
+				b = (float)noiseY * freq * (float)j / (float)terraY;
 				pY = (int)(b);
 				dY = b - pY;
 				//System.out.println("pY:"+pY);
 
-				heightmap[i][j][0] += amp * (iPol(iPol(noise[pX % noiseX][pY % noiseY], 
+				terra[i][j][0] += amp * (iPol(iPol(noise[pX % noiseX][pY % noiseY], 
 						noise[pX % noiseX][(pY+1)%noiseY], dY),
 						iPol(noise[(pX+1)%noiseX][pY % noiseY], 
 								noise[(pX+1)%noiseX][(pY+1)%noiseY], dY), dX));
@@ -574,276 +584,418 @@ public class Util {
 		}
 
 	}
+	
 	/**
-	 * 
-	 * Old smoothing with Interpolation (aka Bad Smoothing)
-	 * 
-	 * @param heightmap to smooth
-	 * @param amp smoothing scalation, restricted to [0,1]
+	 * smoothes terra depending on material
+	 * @author ARECKNAG, FMAESCHIG
+	 * @param terra
+	 * @param x
+	 * @param z
 	 */
-	public static void smooth(float[][][] heightmap, float amp){
+	public static void smooth(float[][][] terra, int x, int z){
 
+		switch(Math.round(terra[x][z][4])){
 
-		float left, right, up, down, val;
-		int indexLeft, indexRight, indexUp, indexDown, mapHeight, mapWidth; 
-		mapHeight = heightmap.length;
-		mapWidth = heightmap[0].length;
+		case 0:break;
 
-		for (int i=0;i<mapHeight;i++){
+		case 1:smoothGauss3(terra, x, z, 3);break; //Sea
 
-			for(int j=0;j<mapWidth;j++){
+		case 2:smoothGauss3(terra, x, z, 7);break; //River
 
-				if(heightmap[i][j][0]<0.5){
+		case 3:smoothGauss7(terra, x, z, 50);break; //Sand
 
-					indexLeft = (i-1)>=0  ? i : mapHeight-1; 
-					indexRight = (i+1)<mapHeight  ? i : 0; 
-					indexDown = (j-1)>=0  ? i : mapWidth-1; 
-					indexUp = (j+1)<mapWidth  ? i : 0; 
+		case 4:smoothGauss7(terra, x, z, 8);break; //Earth
 
+		case 5:smoothGauss7(terra, x, z, 15);break; //LightGrass
 
-					val = heightmap[i][j][0];
-					if(heightmap[indexLeft][j][0]<0.5){
-						left = iPol(val, heightmap[indexLeft][j][0], 0.5f*amp);
-					}else left = val;
-					if(heightmap[i][indexDown][0]<0.5){
-						down = iPol(val, heightmap[i][indexDown][0], 0.5f*amp);
-					}else down = val;
-					if(heightmap[indexRight][j][0]<0.5){
-						right = iPol(val, heightmap[indexRight][j][0], 0.5f*amp);
-					}else right = val;
-					if(heightmap[i][indexUp][0]<0.5){
-						up = iPol(val, heightmap[i][indexUp][0], 0.5f*amp);
-					}else up = val;
+		case 6:smoothGauss7(terra, x, z, 15);break; //DarkGrass
 
-					heightmap[i][j][0] = iPol(iPol(left, right, 0.5f), iPol(up, down, 0.5f), 0.5f);
+		case 7:smoothGauss3(terra, x, z, 1);break; //Stone
 
-				}
+		case 8:break;	//Rock
 
-			}
+		case 9:smoothGauss7(terra, x, z, 50);break;	//Snow
 		}
 
+
+
 	}
-	
-	
-	public static float sqrt(double x){
-		if(x<0) return (float) -Math.sqrt(x);
-		else return (float) Math.sqrt(x);
-	}
-	
+
 	/**
+	 * @author ARECKNAG, FMAESCHIG
 	 * smoothing with 3x3 Gausskernel 
 	 * 
 	 * @param heightmap to smooth
 	 */
-	public static void smoothGauss3(float [][][] heightmap){
-		
-		float[][] mat = new float[3][3];
-		int width = heightmap.length, height = heightmap[0].length;
-		float[][] helpMap = new float[width+2][height+2];
-		float sum = 0;
-		
-		// Fill helpMat
-		for(int i=1; i<width+1; i++){
-			for(int j=1; j<height+1; j++){
-				helpMap[i][j] = heightmap[i-1][j-1][0];
-			}
-		}
-		
-		
-		for(int i=1; i<width-1; i++){
-			for(int j=1; j<height-1; j++){
-				
-				// Fill GaussPattern
-				mat[0][0] = helpMap[i-1][j-1];
-				mat[0][1] = helpMap[i-1][j] * 2;
-				mat[0][2] = helpMap[i-1][j+1];
-				
-				mat[1][0] = helpMap[i][j-1] * 2;
-				mat[1][1] = helpMap[i][j] * 4;
-				mat[1][2] = helpMap[i][j+1] * 2;
-				
-				mat[2][0] = helpMap[i+1][j-1];
-				mat[2][1] = helpMap[i+1][j] * 2;
-				mat[2][2] = helpMap[i+1][j+1];
+	private static void smoothGauss3(float [][][] terra, int x, int z, int count){
 
-				// 
-				for(int k=0; k<3; k++){
-					for(int l=0; l<3; l++){
-						sum += mat[k][l];
-					}
-				}
-				heightmap[i-1][j-1][0] = sum/16f;
-				sum = 0;
-			}
-			
-		}
-	}
-	
-/**
- * smoothing with 5x5 Gausskernel
- * 
- * @param heightmap
- */
-	public static void smoothGauss5(float [][][] heightmap){
-		
-		float[][] mat = new float[5][5];
-		int width = heightmap.length, height = heightmap[0].length;
-		float[][] helpMap = new float[width+4][height+4];
+		int width = terra.length, height = terra[0].length;
 		float sum = 0;
-		
-		// Fill helpMat
-		for(int i=2; i<width+2; i++){
-			for(int j=2; j<height+2; j++){
-				helpMap[i][j] = heightmap[i-2][j-2][0];
-			}
-		}
-		
-		
-		for(int i=2; i<width+2; i++){
-			for(int j=2; j<height+2; j++){
-				
-				// Fill GaussPattern
-				mat[0][0] = helpMap[i-2][j-2];
-				mat[0][1] = helpMap[i-2][j-1] * 4;
-				mat[0][2] = helpMap[i-2][j] * 6;
-				mat[0][3] = helpMap[i-2][j+1] * 4;
-				mat[0][4] = helpMap[i-2][j+2];
-				
-				mat[1][0] = helpMap[i-1][j-2] * 4;
-				mat[1][1] = helpMap[i-1][j-1] * 16;
-				mat[1][2] = helpMap[i-1][j] * 24;
-				mat[1][3] = helpMap[i-1][j+1] * 16;
-				mat[1][4] = helpMap[i-1][j+2] * 4;
-				
-				mat[2][0] = helpMap[i][j-2] * 6;
-				mat[2][1] = helpMap[i][j-1] * 24;
-				mat[2][2] = helpMap[i][j] * 36;
-				mat[2][3] = helpMap[i][j+1] * 24;
-				mat[2][4] = helpMap[i][j+2] * 6;
-				
-				mat[3][0] = helpMap[i+1][j-2] * 4;
-				mat[3][1] = helpMap[i+1][j-1] * 16;
-				mat[3][2] = helpMap[i+1][j] * 24;
-				mat[3][3] = helpMap[i+1][j+1] * 16;
-				mat[3][4] = helpMap[i+1][j+2] * 4;
-				
-				mat[4][0] = helpMap[i+2][j-2];
-				mat[4][1] = helpMap[i+2][j-1] * 4;
-				mat[4][2] = helpMap[i+2][j] * 6;
-				mat[4][3] = helpMap[i+2][j+1] * 4;
-				mat[4][4] = helpMap[i+2][j+2];
 
-				// 
-				for(int k=0; k<5; k++){
-					for(int l=0; l<5; l++){
-						sum += mat[k][l];
-					}
+
+
+		// Fill GaussPattern
+		GaussMat3[0][0] =((((x-1)>=0) & ((z-1)>=0))     ? terra[x-1][z-1][0] :
+										(z-1)>=0       ? terra[x]  [z-1][0] :
+						(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *1;
+		GaussMat3[0][1] =  ((x-1)>=0  			       ? terra[x-1][z]  [0] : terra[x][z][0]) *2;
+		GaussMat3[0][2] =((((x-1)>=0) & ((z+1)<height)) ? terra[x-1][z+1][0] :
+										(z+1)<height   ? terra[x]  [z+1][0] :
+						(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *1;
+
+
+		GaussMat3[1][0] = 				((z-1)>=0 		? terra[x][z-1][0] : terra[x][z][0] )*2;
+		GaussMat3[1][2] = 				 ((z+1)<height  ? terra[x][z+1][0]    : terra[x][z][0] )*2;
+
+
+		GaussMat3[2][0] =((((x+1)<width) & ((z-1)>=0))    ? terra[x+1][z-1][0] :
+											(z-1)>=0       ? terra[x]  [z-1][0] :
+							(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *1;
+		GaussMat3[2][1] =  ((x+1)<width  			      ? terra[x+1][z]  [0] : terra[x][z][0]) *2;
+		GaussMat3[2][2] =((((x+1)<width) & ((z+1)<height))? terra[x+1][z+1][0] :
+											(z+1)<height   ? terra[x]  [z+1][0] :
+							(x+1)<width			          ? terra[x+1][z]  [0] : terra[x][z][0]) *1;
+
+
+		for(int i=0; i<count; i++){
+			GaussMat3[1][1] = terra[x][z][0]*4;
+			for(int k=0; k<3; k++){
+				for(int l=0; l<3; l++){
+					sum += GaussMat3[k][l];
 				}
-				heightmap[i-2][j-2][0] = sum/256f;
-				sum = 0;
 			}
-			
-		}
+			terra[x][z][0] = sum/16f;
+			sum = 0;
+		}		
 	}
-	
+
+
 	/**
-	 * smoothing with 7x7 Gausskernel
+	 * @author ARECKNAG, FMAESCHIG
+	 * smoothing with 5x5 Gausskernel (old)
 	 * 
-	 * @param heightmap
+	 * @param terra
 	 */
-public static void smoothGauss7(float [][][] heightmap){
-		
-		float[][] mat = new float[7][7];
-		int width = heightmap.length, height = heightmap[0].length;
-		float[][] helpMap = new float[width+6][height+6];
-		float sum = 0;
-		
-		// Fill helpMat
-		for(int i=3; i<width+3; i++){
-			for(int j=3; j<height+3; j++){
-				helpMap[i][j] = heightmap[i-3][j-3][0];
-			}
-		}
-		
-		
-		for(int i=3; i<width+3; i++){
-			for(int j=3; j<height+3; j++){
-				
-				// Fill GaussPattern
-				mat[0][0] = helpMap[i-3][j-3];
-				mat[0][1] = helpMap[i-3][j-2] * 6;
-				mat[0][2] = helpMap[i-3][j-1] * 15;
-				mat[0][3] = helpMap[i-3][j] * 20;
-				mat[0][4] = helpMap[i-3][j+1] * 15;
-				mat[0][5] = helpMap[i-3][j+2] * 6;
-				mat[0][6] = helpMap[i-3][j+3]; 
-				
-				mat[1][0] = helpMap[i-2][j-3] * 6;
-				mat[1][1] = helpMap[i-2][j-2] * 36;
-				mat[1][2] = helpMap[i-2][j-1] * 90;
-				mat[1][3] = helpMap[i-2][j] * 120;
-				mat[1][4] = helpMap[i-2][j+1] * 90;
-				mat[1][5] = helpMap[i-2][j+2] * 36;
-				mat[1][6] = helpMap[i-2][j+3] * 6;
-				
-				mat[2][0] = helpMap[i-1][j-3] * 15;
-				mat[2][1] = helpMap[i-1][j-2] * 90;
-				mat[2][2] = helpMap[i-1][j-1] * 225;
-				mat[2][3] = helpMap[i-1][j] * 300;
-				mat[2][4] = helpMap[i-1][j+1] * 225;
-				mat[2][5] = helpMap[i-1][j+2] * 90;
-				mat[2][6] = helpMap[i-1][j+3] * 15;
-				
-				mat[3][0] = helpMap[i][j-3] * 20;
-				mat[3][1] = helpMap[i][j-2] * 120;
-				mat[3][2] = helpMap[i][j-1] * 300;
-				mat[3][3] = helpMap[i][j] * 400;
-				mat[3][4] = helpMap[i][j+1] * 300;
-				mat[3][5] = helpMap[i][j+2] * 120;
-				mat[3][6] = helpMap[i][j+3] * 20;
-				
-				mat[4][0] = helpMap[i+1][j-3] * 15;
-				mat[4][1] = helpMap[i+1][j-2] * 90;
-				mat[4][2] = helpMap[i+1][j-1] * 225;
-				mat[4][3] = helpMap[i+1][j] * 300;
-				mat[4][4] = helpMap[i+1][j+1] * 225;
-				mat[4][5] = helpMap[i+1][j+2] * 90;
-				mat[4][6] = helpMap[i+1][j+3] * 15;
-				
-				mat[5][0] = helpMap[i+2][j-3] * 6;
-				mat[5][1] = helpMap[i+2][j-2] * 36;
-				mat[5][2] = helpMap[i+2][j-1] * 90;
-				mat[5][3] = helpMap[i+2][j] * 120;
-				mat[5][4] = helpMap[i+2][j+1] * 90;
-				mat[5][5] = helpMap[i+2][j+2] * 36;
-				mat[5][6] = helpMap[i+2][j+3] * 6;
-				
-				mat[6][0] = helpMap[i+3][j-3];
-				mat[6][1] = helpMap[i+3][j-2] * 6;
-				mat[6][2] = helpMap[i+3][j-1] * 15;
-				mat[6][3] = helpMap[i+3][j] * 20;
-				mat[6][4] = helpMap[i+3][j+1] * 15;
-				mat[6][5] = helpMap[i+3][j+2] * 6;
-				mat[6][6] = helpMap[i+3][j+3];
+//	private static void smoothGauss5(float [][][] terra){
+//
+//		int width = terra.length, height = terra[0].length;
+//		float[][] helpMap = new float[width+4][height+4];
+//		float sum = 0;
+//
+//		// Fill helpMat
+//		for(int i=2; i<width+2; i++){
+//			for(int j=2; j<height+2; j++){
+//				helpMap[i][j] = terra[i-2][j-2][0];
+//			}
+//		}
+//
+//
+//		for(int i=2; i<width+2; i++){
+//			for(int j=2; j<height+2; j++){
+//
+//				// Fill GaussPattern
+//				GaussMat5[0][0] = helpMap[i-2][j-2];
+//				GaussMat5[0][1] = helpMap[i-2][j-1] * 4;
+//				GaussMat5[0][2] = helpMap[i-2][j] * 6;
+//				GaussMat5[0][3] = helpMap[i-2][j+1] * 4;
+//				GaussMat5[0][4] = helpMap[i-2][j+2];
+//
+//				GaussMat5[1][0] = helpMap[i-1][j-2] * 4;
+//				GaussMat5[1][1] = helpMap[i-1][j-1] * 16;
+//				GaussMat5[1][2] = helpMap[i-1][j] * 24;
+//				GaussMat5[1][3] = helpMap[i-1][j+1] * 16;
+//				GaussMat5[1][4] = helpMap[i-1][j+2] * 4;
+//
+//				GaussMat5[2][0] = helpMap[i][j-2] * 6;
+//				GaussMat5[2][1] = helpMap[i][j-1] * 24;
+//				GaussMat5[2][2] = helpMap[i][j] * 36;
+//				GaussMat5[2][3] = helpMap[i][j+1] * 24;
+//				GaussMat5[2][4] = helpMap[i][j+2] * 6;
+//
+//				GaussMat5[3][0] = helpMap[i+1][j-2] * 4;
+//				GaussMat5[3][1] = helpMap[i+1][j-1] * 16;
+//				GaussMat5[3][2] = helpMap[i+1][j] * 24;
+//				GaussMat5[3][3] = helpMap[i+1][j+1] * 16;
+//				GaussMat5[3][4] = helpMap[i+1][j+2] * 4;
+//
+//				GaussMat5[4][0] = helpMap[i+2][j-2];
+//				GaussMat5[4][1] = helpMap[i+2][j-1] * 4;
+//				GaussMat5[4][2] = helpMap[i+2][j] * 6;
+//				GaussMat5[4][3] = helpMap[i+2][j+1] * 4;
+//				GaussMat5[4][4] = helpMap[i+2][j+2];
+//
+//				for(int k=0; k<5; k++){
+//					for(int l=0; l<5; l++){
+//						sum += GaussMat5[k][l];
+//					}
+//				}
+//				terra[i-2][j-2][0] = sum/256f;
+//				sum = 0;
+//			}
+//
+//		}
+//	}
 
-				// 
+	/**
+	 * @author ARECKNAG, FMAESCHIG
+	 * smoothing with 7x7 Gausskernel
+	 * @param terra
+	 */
+	private static void smoothGauss7(float [][][] terra, int x, int z, int count){
+
+		int width = terra.length, height = terra[0].length;
+		float sum = 0;
+
+				// Fill GaussPattern
+				GaussMat7[0][0] = ((((x-3)>=0) & ((z-3)>=0))     ? terra[x-3][z-3][0] :
+					(z-3)>=0       ? terra[x]  [z-3][0] :
+						(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *1;
+						
+	
+				GaussMat7[0][1] =  ((((x-3)>=0) & ((z-2)>=0))     ? terra[x-3][z-2][0] :
+					(z-2)>=0       ? terra[x]  [z-2][0] :
+						(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *6;
+				GaussMat7[0][2]= (((x-3)>=0) & ((z-1>=0))     ? terra[x-3][z-1][0] :
+					(z-1)>=0       ? terra[x]  [z-1][0] :
+						(x-3)>=0			       	   ? terra[x-3][z]  [0] : terra[x][z][0]) *15;
+				
+				GaussMat7[0][3] = ((x-3)>=0  			       ? terra[x-3][z]  [0] : terra[x][z][0]) *20;
+				
+				GaussMat7[0][4] = ((((x-3)>=0) & ((z+1)<height)) ? terra[x-3][z+1][0] :
+					(z+1)<height   ? terra[x]  [z+1][0] :
+						(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *15;
+						
+			
+				
+				GaussMat7[0][5] =((((x-3)>=0) & ((z+2)<height)) ? terra[x-3][z+2][0] :
+					(z+2)<height   ? terra[x]  [z+2][0] :
+						(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *6;
+						
+						
+				
+				GaussMat7[0][6] =((((x-3)>=0) & ((z+3)<height)) ? terra[x-3][z+3][0] :
+					(z+3)<height   ? terra[x]  [z+3][0] :
+						(x-3)>=0			            ? terra[x-3][z]  [0] : terra[x][z][0]) *1;
+			
+
+				
+				
+				GaussMat7[1][0] = ((((x-2)>=0) & ((z-3)>=0))     ? terra[x-2][z-3][0]:
+					(z-3)>=0       ? terra[x]  [z-3][0] :
+						(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *6;
+						
+	
+				GaussMat7[1][1] =  ((((x-2)>=0) & ((z-2)>=0))     ? terra[x-2][z-2][0] :
+					(z-2)>=0       ? terra[x]  [z-2][0] :
+						(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *36;
+				
+				GaussMat7[1][2]= (((x-2)>=0) & ((z-1>=0))     ? terra[x-2][z-1][0] :
+					(z-1)>=0       ? terra[x]  [z-1][0] :
+						(x-2)>=0			       	   ? terra[x-2][z]  [0] : terra[x][z][0]) *90;
+				
+				GaussMat7[1][3] = ((x-2)>=0  			       ? terra[x-2][z]  [0] : terra[x][z][0]) *120;
+				
+				GaussMat7[1][4] = ((((x-2)>=0) & ((z+1)<height)) ? terra[x-2][z+1][0] :
+					(z+1)<height   ? terra[x]  [z+1][0] :
+						(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *90;
+						
+			
+				
+				GaussMat7[1][5] =((((x-2)>=0) & ((z+2)<height)) ? terra[x-2][z+2][0] :
+					(z+2)<height   ? terra[x]  [z+2][0] :
+						(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *36;
+						
+						
+				
+				GaussMat7[1][6] =((((x-2)>=0) & ((z+3)<height)) ? terra[x-2][z+3][0] :
+					(z+3)<height   ? terra[x]  [z+3][0] :
+						(x-2)>=0			            ? terra[x-2][z]  [0] : terra[x][z][0]) *6;
+							
+				
+				
+				GaussMat7[2][0] = ((((x-1)>=0) & ((z-3)>=0))     ? terra[x-1][z-3][0]:
+					(z-3)>=0       ? terra[x]  [z-3][0] :
+						(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *15;
+						
+	
+				GaussMat7[2][1] =  ((((x-1)>=0) & ((z-2)>=0))     ? terra[x-1][z-2][0] :
+					(z-2)>=0       ? terra[x]  [z-2][0] :
+						(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *90;
+				
+				GaussMat7[2][2]= (((x-1)>=0) & ((z-1>=0))     ? terra[x-1][z-1][0] :
+					(z-1)>=0       ? terra[x]  [z-1][0] :
+						(x-1)>=0			       	   ? terra[x-1][z]  [0] : terra[x][z][0]) *225;
+				
+				GaussMat7[2][3] = ((x-1)>=0  			       ? terra[x-1][z]  [0] : terra[x][z][0]) *300;
+				
+				GaussMat7[2][4] = ((((x-1)>=0) & ((z+1)<height)) ? terra[x-1][z+1][0] :
+					(z+1)<height   ? terra[x]  [z+1][0] :
+						(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *225;
+						
+			
+				
+				GaussMat7[2][5] =((((x-1)>=0) & ((z+2)<height)) ? terra[x-1][z+2][0] :
+					(z+2)<height   ? terra[x]  [z+2][0] :
+						(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *90;
+						
+						
+				
+				GaussMat7[2][6] =((((x-1)>=0) & ((z+3)<height)) ? terra[x-1][z+3][0] :
+					(z+3)<height   ? terra[x]  [z+3][0] :
+						(x-1)>=0			            ? terra[x-1][z]  [0] : terra[x][z][0]) *15;
+				
+		
+				GaussMat7[3][0] = ((z-3)>=0 		? terra[x][z-3][0] : terra[x][z][0] ) * 20;
+				
+				GaussMat7[3][1] = ((z-2)>=0 		? terra[x][z-2][0] : terra[x][z][0] ) * 120;
+				
+				GaussMat7[3][2] = ((z-1)>=0 		? terra[x][z-1][0] : terra[x][z][0] ) * 300;
+				
+
+				
+				GaussMat7[3][4] = ((z+1)<height		? terra[x][z+1][0] : terra[x][z][0] ) * 300;
+				
+				GaussMat7[3][5] = ((z+2)<height			? terra[x][z+2][0] : terra[x][z][0] ) * 120;
+				
+				GaussMat7[3][6] = ((z+3)<height	 		? terra[x][z+3][0] : terra[x][z][0] ) * 20;	
+				
+				
+				GaussMat7[4][0] = ((((x+1)<width) & ((z-3)>=0))    ? terra[x+1][z-3][0] :
+					(z-3)>=0       ? terra[x]  [z-3][0] :
+						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *15;
+						
+					
+				
+				GaussMat7[4][1] = ((((x+1)<width) & ((z-2)>=0))    ? terra[x+1][z-2][0] :
+					(z-2)>=0       ? terra[x]  [z-2][0] :
+						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *90;
+						 
+						
+						
+				
+				GaussMat7[4][2] = ((((x+1)<width) & ((z-1)>=0))    ? terra[x+1][z-1][0] :
+					(z-1)>=0       ? terra[x]  [z-1][0] :
+						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *225; 
+						
+						
+				GaussMat7[4][3] = ((x+1)<width    ? terra[x+1][z][0] : terra[x][z][0]) *300;
+				
+				
+
+				
+				GaussMat7[4][4] = ((((x+1)<width) & ((z+1)<height))    ? terra[x+1][z+1][0] :
+					(z+1)<height       ? terra[x]  [z+1][0] :
+						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) *225; 		
+	
+				
+				GaussMat7[4][5] = ((((x+1)<width) & ((z+2)<height))    ? terra[x+1][z+2][0] :
+					(z+2)<height       ? terra[x]  [z+2][0] :
+						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) * 90;
+				
+				GaussMat7[4][6] = ((((x+1)<width) & ((z+3)<height))    ? terra[x+1][z+3][0] :
+					(z+3)<height       ? terra[x]  [z+3][0] :
+						(x+1)<width			       	  ? terra[x+1][z]  [0] : terra[x][z][0]) * 15;
+			
+				
+				GaussMat7[5][0] = ((((x+2)<width) & ((z-3)>=0))    ? terra[x+2][z-3][0] :
+					(z-3)>=0       ? terra[x]  [z-3][0] :
+						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *6;
+						
+					
+				
+				GaussMat7[5][1] = ((((x+2)<width) & ((z-2)>=0))    ? terra[x+2][z-2][0] :
+					(z-2)>=0       ? terra[x]  [z-2][0] :
+						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *36;
+						 
+						
+						
+				
+				GaussMat7[5][2] = ((((x+2)<width) & ((z-1)>=0))    ? terra[x+2][z-1][0] :
+					(z-1)>=0       ? terra[x]  [z-1][0] :
+						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *90;
+						
+						
+				GaussMat7[5][3] = ((x+2)<width    ? terra[x+2][z][0] : terra[x][z][0]) *120;
+				
+				
+
+				
+				GaussMat7[5][4] = ((((x+2)<width) & ((z+1)<height))    ? terra[x+2][z+1][0] :
+					(z+1)<height       ? terra[x]  [z+1][0] :
+						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) *90; 
+				
+				
+	
+				
+				GaussMat7[5][5] = ((((x+2)<width) & ((z+2)<height))    ? terra[x+2][z+2][0] :
+					(z+2)<height       ? terra[x]  [z+2][0] :
+						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) * 36;
+				
+				GaussMat7[5][6] = ((((x+2)<width) & ((z+3)<height))    ? terra[x+2][z+3][0] :
+					(z+3)<height       ? terra[x]  [z+3][0] :
+						(x+2)<width			       	  ? terra[x+2][z]  [0] : terra[x][z][0]) * 6;
+
+				
+				
+
+
+				
+				
+				
+				GaussMat7[6][0] = ((((x+3)<width) & ((z-3)>=0))    ? terra[x+3][z-3][0] :
+					(z-3)>=0       ? terra[x]  [z-3][0] :
+						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *1;
+						
+					
+				
+				GaussMat7[6][1] = ((((x+3)<width) & ((z-2)>=0))    ? terra[x+3][z-2][0] :
+					(z-2)>=0       ? terra[x]  [z-2][0] :
+						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *6;
+						 
+						
+						
+				
+				GaussMat7[6][2] = ((((x+3)<width) & ((z-1)>=0))    ? terra[x+3][z-1][0] :
+					(z-1)>=0       ? terra[x]  [z-1][0] :
+						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *15;
+						
+						
+				GaussMat7[6][3] = ((x+3)<width    ? terra[x+3][z][0] : terra[x][z][0]) *20;
+				
+				
+
+				
+				GaussMat7[6][4] = ((((x+3)<width) & ((z+1)<height))    ? terra[x+3][z+1][0] :
+					(z+1)<height       ? terra[x]  [z+1][0] :
+						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) *15; 
+				
+				
+	
+				
+				GaussMat7[6][5] = ((((x+3)<width) & ((z+2)<height))    ? terra[x+3][z+2][0] :
+					(z+2)<height       ? terra[x]  [z+2][0] :
+						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) * 6;
+				
+				GaussMat7[6][6] = ((((x+3)<width) & ((z+3)<height))    ? terra[x+3][z+3][0] :
+					(z+3)<height       ? terra[x]  [z+3][0] :
+						(x+3)<width			       	  ? terra[x+3][z]  [0] : terra[x][z][0]) * 1;
+				
+
+				
 				for(int k=0; k<7; k++){
+					GaussMat7[3][3] = 	terra[x][z][0]  * 400;
 					for(int l=0; l<7; l++){
-						sum += mat[k][l];
+						sum += GaussMat7[k][l];
 					}
 				}
-				heightmap[i-3][j-3][0] = sum/4096f;
+				terra[x][z][0] = sum/4096f;
 				sum = 0;
-			}
-			
-		}
+
 	}
-
-
 	
-	
+
 	/**
-	 * 
+	 * @author ARECKNAG, FMAESCHIG
 	 * @param valA First value which is to be interpolated
 	 * @param valB Second value which is to be interpolated
 	 * @param rel The relation between the position of the values
@@ -948,80 +1100,5 @@ public static void smoothGauss7(float [][][] heightmap){
 			Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
 			return null;
 		}
-	}
-    
-    public static Util.ImageContents loadImage(String imageFile) {
-        File file = new File(imageFile);
-        if(!file.exists()) {
-            throw new IllegalArgumentException(imageFile + " does not exist");
-        }
-        try {
-            BufferedImage image = ImageIO.read(file);
-            Util.ImageContents contents = new Util.ImageContents(image.getWidth(), image.getHeight(), image.getColorModel().getNumComponents());
-            for(int y=0; y < image.getHeight(); ++y) {
-                for(int x=0; x < image.getWidth(); ++x) {
-                    image.getRaster().getPixel(x, y, contents.pixel);
-                    contents.putPixel();
-                }
-            }
-            contents.data.position(0);
-            return contents;
-        } catch (IOException ex) {
-            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }        
-    }
-    
-    public static class ImageContents {
-        /**
-         * Breite des Bildes in Pixel
-         */
-        public final int width;
-        
-        /**
-         * Hoehe des Bildes in Pixel
-         */
-        public final int height;
-        
-        /**
-         * Anzahl der Farbkomponenten
-         */
-        public final int colorComponents;
-        
-        /**
-         * Rohe Pixeldaten, row-major
-         */
-        public final FloatBuffer data;
-        
-        private float pixel[];
-
-        private ImageContents(int width, int height, int colorComponents) {
-            this.width = width;
-            this.height = height;
-            this.colorComponents = colorComponents;
-            this.data = BufferUtils.createFloatBuffer(this.width * this.height * this.colorComponents);
-            this.pixel = new float[this.colorComponents];
-        }
-        
-        private void putPixel() {
-            for(float component : this.pixel) {
-                this.data.put(component / 255.0f);
-            }
-        }
-    }
-	
-	/**
-	 * @brief	Skaliert einen Wert auf einer Skala zu einem Wert auf einer anderen Skala
-	 * @param	x		Wert, der geaendert werden soll
-	 * @param	oldLow	Untergrenze der alten Skala
-	 * @param	oldHigh	Obergrenze der alten Skala
-	 * @param	newLow	Untergrenze der neuen Skala
-	 * @param	newHigh	Obergrenze der neuen Skala
-	 * @return	Wert auf der neuen Skala
-	 */
-	public static float scale(float x, float oldLow, float oldHigh, float newLow, float newHigh)
-	{
-		float result = (x - oldLow) / (oldHigh - oldLow);
-		return (newLow + (newHigh - newLow) * result);
 	}
 }
