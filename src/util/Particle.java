@@ -69,7 +69,7 @@ public class Particle {
     
     //opencl pointer
     private CLContext context;
-    private CLProgram program;
+    private CLProgram program, program2;
     private CLDevice device;
     private CLCommandQueue queue;
     private CLKernel kernel0;   // particle kernel
@@ -92,7 +92,7 @@ public class Particle {
     /** number cells per dimension spatial dimension */
     private int gridLen = 84;
     /** max number of particles per cell */
-    private int gridMaxParticles = 10;
+    private int gridMaxParticles = 20;
     /** holds the number of particles in a specific grid cell */
     private CLMem gridCounters;
     /** holds the cell's particles global_ids */
@@ -183,8 +183,10 @@ public class Particle {
         this.queue = clCreateCommandQueue(this.context, this.device, 0);
         
         this.program = clCreateProgramWithSource(this.context, source);
+        this.program2 = clCreateProgramWithSource(this.context, Util.getFileContents("./shader/particle_sim_2.cl"));
 
         clBuildProgram(this.program, this.device, "", null);
+        clBuildProgram(this.program2, this.device, "", null);
     }
     
     public ShaderProgram getShaderProgram() {
@@ -363,9 +365,9 @@ public class Particle {
         this.kernel1 = clCreateKernel(this.program, "gridclear_sim");
         this.kernel1.setArg(0, this.gridCounters);
 
-        this.kernel2 = clCreateKernel(this.program, "gridadd_sim");
+        this.kernel2 = clCreateKernel(this.program2, "gridadd_sim");
         
-        this.kernel3 = clCreateKernel(this.program, "massdensity_sim");
+        this.kernel3 = clCreateKernel(this.program2, "massdensity_sim");
         
     	IntBuffer errorCheck = BufferUtils.createIntBuffer(1);
     	
@@ -392,11 +394,11 @@ public class Particle {
         this.kernel0.setArg(5,this.gridCells);
         this.kernel0.setArg(6,this.gridLen);
         this.kernel0.setArg(7,this.gridMaxParticles);
-        this.kernel0.setArg(8,0f); // dt, see draw()
+        this.kernel0.setArg(8, 0f); // dt, see draw()
         this.kernel0.setArg(9,this.massDensityBuf);
 
         
-  	this.kernel2.setArg(0, this.old_pos);
+        this.kernel2.setArg(0, this.old_pos);
         this.kernel2.setArg(1,this.gridCounters);
         this.kernel2.setArg(2,this.gridCells);
         this.kernel2.setArg(3,this.gridLen);
@@ -423,6 +425,7 @@ public class Particle {
         clReleaseKernel(this.kernel1);
         clReleaseCommandQueue(this.queue);
         clReleaseProgram(this.program);
+        clReleaseProgram(this.program2);
         clReleaseContext(this.context);
         particles.clear();
     }

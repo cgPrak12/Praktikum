@@ -3,23 +3,12 @@
 #define WITH_COLLISION 1
 #define GRIDLEN 100
 
-float xor128() {
-  int x = 123456789;
-  int y = 362436069;
-  int z = 521288629;
-  int w = 88675123;
-  int t;
- 
-  t = x ^ (x << 11);
-  x = y; y = z; z = w;
-  return w = w ^ (w >> 19) ^ (t ^ (t >> 8));
-}
 constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE| CLK_FILTER_LINEAR| CLK_ADDRESS_REPEAT;
 
 // epsilon environment to find the minimum height
 constant float minEpsilon = 0.004f;
 
-// OpenGl reflect method (may contain errors)
+// GLSL reflect method (may contain errors)
 float4 reflect(float4 normal, float4 einfall) {
 	float4 norm = normalize(normal);
 	return (float4)(-2*dot(norm.s012,einfall.s012)*norm.s012 + einfall.s012, 0.0f);
@@ -125,7 +114,9 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 	return normalize(c1+c2+c3+c4);
 }
 
+
 #define PI 3.14159265
+
 /**
  * http://image.diku.dk/projects/media/kelager.06.pdf p:21
  */
@@ -172,12 +163,14 @@ float W_pres(float3 r, float h)
 
 float3 nW_pres(float3 r, float h)
 {
+	
     float norm_r = length(r);
 
-    if (norm_r < 0.01)
-        return (45.0/(PI*pow(h,6)));
+    if (norm_r < 0.0001)
+        return (float3)(45.0/(PI*pow(h,6)));
 
-    return -45.0/(PI*pow(h,6)) * (r/norm_r) * (h-norm_r)*(h-norm_r);
+    return (-45.0/(PI*pow(h,6)) * (r/norm_r) * (h-norm_r)*(h-norm_r));
+
 }
 
 float lW_pres(float3 r, float h)
@@ -189,6 +182,7 @@ float lW_pres(float3 r, float h)
         * (h-norm_r)*(h-2*norm_r);
 }
 
+//// viscosity W-methods ////
 float lW_visc(float3 r, float h)
 {
     float norm_r = length(r);
@@ -202,12 +196,15 @@ float lW_visc(float3 r, float h)
 #define GROUND_NORM_DAMPING 0.0001
 #define GROUND_VELO_DAMPING 0.9995
 #define COLLISION_DAMPING -0.000009
-#define MASS 1
-#define MASS_FACTOR 1
+#define MASS 0.02
+#define MASS_FACTOR 0.02
 #define K_CONSTANT 3.0
-#define H_CONSTANT 2.0*RADIUS
+//#define H_CONSTANT 2.0*RADIUS
+//#define H_CONSTANT 0.0457
+#define H_CONSTANT 0.0457
 #define MU_CONSTANT 3.5*1.003*10e-3
 #define GRAVITY -9.81
+#define REST_DENS 998.29
 //////////////////////////////////////////////////////////
 // Particle Kernel                                      //
 //////////////////////////////////////////////////////////
@@ -233,7 +230,7 @@ kernel void particle_sim
     int mygid = get_global_id(0);
     float4 mypos = position[mygid];
     float4 myvel = velos[mygid];
-//    float4 height = read_imagef(heightmap, sampler, mypos.s02);
+    float4 height = read_imagef(heightmap, sampler, mypos.s02);
 //    float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
 
 
@@ -263,9 +260,11 @@ kernel void particle_sim
                     float other_pressure = valuebuf[other_gid].s1;
 
 
-                    f_pressure += ((other_pressure + my_pressure)/2.0)
-                        * (MASS/other_massdens)
+                    f_pressure += (other_pressure/(other_massdens*other_massdens) 
+                        + my_pressure/(my_massdens*my_massdens))
+                        * MASS
                         * nW_pres(mypos.s012-other_pos.s012,H_CONSTANT);
+
 
                     f_viscos += (other_vel.s012-myvel.s012)
                         * (MASS/other_massdens)
@@ -274,7 +273,9 @@ kernel void particle_sim
             }
         }
     }
-    f_pressure *= (-1);
+
+    
+    f_pressure *= (-my_massdens);
     f_viscos *= MU_CONSTANT;
 
     float3 f_internal = f_pressure + f_viscos;
@@ -285,13 +286,17 @@ kernel void particle_sim
 
     //mypos.s012 += myvel.s012*4;
 
-    float3 f_sum = f_internal + f_gravity;
+    float3 f_sum = f_internal*0.0001 + f_gravity*0.01;
 
     float3 f_acc = f_sum / my_massdens;
 
-   myvel *= 0.00000001;
+    //myvel *= 0.001;
     mypos = mypos + myvel*dt;
     myvel = myvel + f_acc*dt;
+    
+    if(mypos.s1<height.s0){
+    	mypos.s1=height.s0;
+    }
 
     position[mygid] = mypos;
     velos[mygid] = myvel;
@@ -313,7 +318,7 @@ kernel void gridclear_sim
 
 }
 
-
+/**
 //////////////////////////////////////////////////////////
 // Add particles to grid Kernel                         //
 //////////////////////////////////////////////////////////
@@ -370,8 +375,9 @@ kernel void massdensity_sim
             }
         }
     }
-    float mass_density = MASS_FACTOR * sum_neighbours;
-    float pressure = K_CONSTANT *( mass_density - 998.29);
+    float mass_density = sum_neighbours;
+    //float pressure = K_CONSTANT *( mass_density - REST_DENS);
+    float pressure = K_CONSTANT *mass_density ;
 
     valuebuf[mygid] = (float2)(mass_density, pressure);
-}
+}*/
