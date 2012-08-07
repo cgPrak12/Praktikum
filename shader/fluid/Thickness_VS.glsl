@@ -6,9 +6,6 @@ uniform mat4 viewProj;
 uniform vec3 camera;
 
 void main(void) {
-	vec4 positionWC;
-	positionWC = viewProj * vec4(positionMC, 1.0f);
-	gl_Position = positionWC;
-	positionWC.w = length(positionMC.xyz - camera);
-	gl_PointSize = 100 / (1 + pow(positionWC.w, 1.2));
+	gl_Position = viewProj * vec4(positionMC, 1.0f);
+	gl_PointSize = 100 / (1 + pow(length(positionMC.xyz - camera), 1.2));
 }

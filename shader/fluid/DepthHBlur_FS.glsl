@@ -1,7 +1,6 @@
 #version 150
 
 uniform sampler2D depthTex;
-uniform sampler2D scene;
 
 in vec2 texCoords;
 

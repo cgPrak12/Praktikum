@@ -9,15 +9,15 @@ in vec2 texCoord;
 out vec4 color;
 
 int count = factors.length;
-float offset = offsetValue/texSize;
-float newRelVecCoord = - (float(count) / 2.0f - 0.5f) * offset;
+float offset = offsetValue / texSize;
+float newRelVecCoord = -(float(count) / 2.0f - 0.5f) * offset;
 vec3 sumNewNormal = vec3(0.0f);
 vec2 newTC;
 
 void main(void) {
 	for(int i = 0; i < count; i++) {
-		newTC = texCoord+vec2(0.0f, newRelVecCoord);
-		sumNewNormal += texture(normalTex, newTC).xyz * factors[i];
+		newTC = texCoord + vec2(0.0f, newRelVecCoord);
+		sumNewNormal   += texture(normalTex, newTC).xyz * factors[i];
 		newRelVecCoord += offset;
 	}
 	color = vec4(sumNewNormal, 0.0f);
