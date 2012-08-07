@@ -1,8 +1,6 @@
 package util; 
 
-import opengl.GL;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
+import static opengl.GL.*;
 /**  Usage: 
  *  - Initial einmal:
  *   - ShaderProgram erzeugen mit folgenden FS out Variablen: 
@@ -15,7 +13,7 @@ import org.lwjgl.opengl.GL30;
  *  - setUniform*(...);         (alle Unidforms setzen) 
  *  - DeferredShader.bind();    (Deferred Shading aktivieren) 
  *  - optional: DeferredShader.clear(); (Bild loeschen) 
- *  - Alle Geometrien zeichnen * - Jeden Fram ganz zum Schluss: 
+ *  - Alle Geometrien zeichnen * - Jeden Frame ganz zum Schluss: 
  *  - DeferredShader.finish(); *  - DeferredShader.drawTexture(Texture ...);  (Textur direkt zeichnen) 
  *   - oder 
  *    - DeferredShader.get*Texture();             (Textur weiter benutzen) 
@@ -29,14 +27,14 @@ public class DeferredShader {
 	public DeferredShader() {   
 		}       
 	public void init() {    	
-		frameBuffer.init(true, GL.WIDTH, GL.HEIGHT);            	
+		frameBuffer.init(true, WIDTH, HEIGHT);            	
 		// generate textures    	
-		texPosition = 	 new Texture(GL11.GL_TEXTURE_2D, 0);    	
-		texVertexColor = new Texture(GL11.GL_TEXTURE_2D, 1);    	
-		texNormal = 	 new Texture(GL11.GL_TEXTURE_2D, 2);    	    	    	
-		frameBuffer.addTexture(texPosition, GL30.GL_RGBA16F, GL11.GL_RGBA);    	
-		frameBuffer.addTexture(texVertexColor, GL11.GL_RGBA8, GL11.GL_RGBA);    	
-		frameBuffer.addTexture(texNormal, GL30.GL_RGBA16F, GL11.GL_RGBA);    	    	
+		texPosition = 	 new Texture(GL_TEXTURE_2D, 0);    	
+		texVertexColor = new Texture(GL_TEXTURE_2D, 1);    	
+		texNormal = 	 new Texture(GL_TEXTURE_2D, 2);    	    	    	
+		frameBuffer.addTexture(texPosition, GL_RGBA16F, GL_RGBA);    	
+		frameBuffer.addTexture(texVertexColor, GL_RGBA8, GL_RGBA);    	
+		frameBuffer.addTexture(texNormal, GL_RGBA16F, GL_RGBA);    	    	
 		frameBuffer.drawBuffers();    }        
 	public void bind() {   		
 		frameBuffer.bind();    

@@ -1,20 +1,13 @@
 package util;
 
-import static opengl.GL.GL_COLOR_BUFFER_BIT;
-import static opengl.GL.GL_DEPTH_BUFFER_BIT;
-import static opengl.GL.glClear;
-
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
-import opengl.GL;
+import static opengl.GL.*;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 
 public class FrameBuffer {
 
@@ -29,15 +22,15 @@ public class FrameBuffer {
 	        this.width = width;
 	        this.height = height;
 	        count = 0;
-	        frameBufferObjectId = GL30.glGenFramebuffers();
+	        frameBufferObjectId = glGenFramebuffers();
 	        
 	        if(depthTest) {
 	            this.bind();
-	            renderBufferObjectId = GL30.glGenRenderbuffers();
-	            GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, renderBufferObjectId);
-	            GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL30.GL_DEPTH_COMPONENT32F, GL.WIDTH, GL.HEIGHT);
-	            GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, 0);
-	            GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, renderBufferObjectId);
+	            renderBufferObjectId = glGenRenderbuffers();
+	            glBindRenderbuffer(GL_RENDERBUFFER, renderBufferObjectId);
+	            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, WIDTH, HEIGHT);
+	            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferObjectId);
 	            this.unbind();
 	            this.checkForErrors();
 	        }
@@ -45,7 +38,7 @@ public class FrameBuffer {
 
 	public void addTexture(Texture tex, int internalFormat, int format) {
 		this.bind();
-		bindTexture(tex, GL30.GL_COLOR_ATTACHMENT0 + count, internalFormat, format);
+		bindTexture(tex, GL_COLOR_ATTACHMENT0 + count, internalFormat, format);
 		textureList.add(tex);
 		count++;
 		this.unbind();
@@ -55,14 +48,14 @@ public class FrameBuffer {
 	     // draw buffers
 	     int[] buffersArray = new int[count];
 	     for(int i = 0; i < buffersArray.length; i++) {
-	     buffersArray[i] = GL30.GL_COLOR_ATTACHMENT0 + i;
+	     buffersArray[i] = GL_COLOR_ATTACHMENT0 + i;
 	     }
 	     IntBuffer buffers = BufferUtils.createIntBuffer(buffersArray.length);
 	     buffers.put(buffersArray);
 	     buffers.position(0);
 	    
 	     this.bind();
-	     GL20.glDrawBuffers(buffers);
+	     glDrawBuffers(buffers);
 	     this.unbind();
 	}
 
@@ -76,25 +69,25 @@ public class FrameBuffer {
     }
     
     public void bind() {
-    	GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBufferObjectId);
-        GL11.glViewport(0, 0, this.width, this.height);
+    	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectId);
+        glViewport(0, 0, this.width, this.height);
 
         if(renderBufferObjectId == -1) {
-            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            glDisable(GL_DEPTH_TEST);
         } else {
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            glEnable(GL_DEPTH_TEST);
         }
         
     }
     
     
     public void unbind() {
-    	GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+    	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     
     public void BindFragDataLocations(ShaderProgram program, String ...fsOutVarNames) {
         for(int i=0; i < fsOutVarNames.length; ++i) {
-            GL30.glBindFragDataLocation(program.getId(), i, fsOutVarNames[i]);
+            glBindFragDataLocation(program.getId(), i, fsOutVarNames[i]);
         }
     }
     
@@ -110,27 +103,27 @@ public class FrameBuffer {
 	     texture.bind();
 	    
 	     // add filters
-	     GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-	     GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+	     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	    
 	     // set texture information
-	     GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internalFormat, this.width, this.height, 0, format, GL11.GL_FLOAT, (FloatBuffer) null);
+	     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, this.width, this.height, 0, format, GL_FLOAT, (FloatBuffer) null);
 	    
 	     // attach texture to framebuffer
-	     GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, texture.getId(), 0);
+	     glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture.getId(), 0);
 	    
 	     this.checkForErrors();
     }
     
     public void checkForErrors() {
-        int error = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
+        int error = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         switch(error) {
-            case GL30.GL_FRAMEBUFFER_COMPLETE: break;
-            case GL30.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"); break;
-            case GL30.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
-            case GL30.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); break;
-            case GL30.GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"); break;
-            case GL30.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
+            case GL_FRAMEBUFFER_COMPLETE: break;
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"); break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"); break;
+            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: System.err.println("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
         }
     }
     

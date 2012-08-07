@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package main;
 
 import static opengl.GL.*;
@@ -12,9 +8,6 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL32;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
@@ -49,9 +42,9 @@ public class TerrainMain {
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 
-            GL11.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
-            //glEnable(GL20.GL_POINT_SPRITE);
-            glEnable(GL32.GL_PROGRAM_POINT_SIZE);
+            glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+            //glEnable(GL_POINT_SPRITE);
+            glEnable(GL_PROGRAM_POINT_SIZE);
 
             render();
             OpenCL.destroy();
@@ -102,11 +95,11 @@ public class TerrainMain {
             
             
             fboSP.use();
-         Matrix4f modelMatrix = new Matrix4f();
-         Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-         fboSP.setUniform("model", modelMatrix);
-         fboSP.setUniform("modelIT", modelIT);
-         fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+            Matrix4f modelMatrix = new Matrix4f();
+            Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+            fboSP.setUniform("model", modelMatrix);
+            fboSP.setUniform("modelIT", modelIT);
+            fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
             fboSP.setUniform("camPos", cam.getCamPos());
             
             shader.bind();
@@ -140,7 +133,7 @@ public class TerrainMain {
      */
     public static void handleInput(long millis) {
         float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
-        float camSpeed = 5e-3f;
+        float camSpeed  = 5e-3f;
         
         while(Keyboard.next()) {
             if(Keyboard.getEventKeyState()) {
@@ -197,7 +190,7 @@ public class TerrainMain {
     }
     
     /**
-     * Aktualisiert Model Matrizen der Erde und des Mondes.
+     * Aktualisiert Model Matrizen
      * @param millis Millisekunden, die seit dem letzten Aufruf vergangen sind.
      */
     private static void animate(long millis) {

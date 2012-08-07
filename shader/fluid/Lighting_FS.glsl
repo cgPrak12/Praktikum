@@ -9,11 +9,7 @@ uniform sampler2D colorTex;
 uniform vec3 camPos;
 uniform mat4 view; 
 
-	// szenenspezifische eigenschaften
-	uniform vec3 eyePosition;   // position der kamera
-
 out vec4 finalColor;
-
 
 //const vec3 c_d = vec3(0.0, 0.5, 0.8);  // diffuse Farbe
 const vec3 c_s = vec3(1.0, 1.0, 1.0);  // spekulare Farbe
@@ -23,15 +19,15 @@ const vec3 c_a = vec3(1.0, 1.0, 1.0);  // ambiente Farbe
 const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
 // material eigenschaften
-const float k_a = 0.05;
-const float k_diff = 0.6;
-const float k_spec = 0.3;
-const float es = 16.0;
+const float k_a    =  0.05;
+const float k_diff =  0.6;
+const float k_spec =  0.3;
+const float es     = 16.0;
 
 
 void main(void)
 {
-	if(texture(depthTex,texCoords).w == 1) discard;
+//	if(texture(depthTex,texCoords).w == 1) discard;
 	
 	float depth = texture(depthTex, texCoords).w;
 //	vec3 position = vec3(texCoords*2-1,depth);
@@ -50,8 +46,8 @@ void main(void)
 //    vec3 newCamPos = vec3(view * vec4(camPos,1));
     vec3 pos2eye = normalize(-position);
 
-    vec3 intensity = vec3(1,1,1);//plIntensity(position, lightPos);
-    vec3 light2pos = normalize(position-lightPos);
+    vec3 intensity = vec3(1, 1, 1);//plIntensity(position, lightPos);
+    vec3 light2pos = normalize(position - lightPos);
     vec3 reflected = reflect(light2pos, normal);
         
     color += c_d * k_diff * intensity * max(0, dot(-light2pos, normal));             // diffuse
