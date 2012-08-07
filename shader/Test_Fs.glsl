@@ -9,6 +9,6 @@ out vec4 finalColor;
 
 
 void main(void) {
-    finalColor = vec4(texture(elevation,tex).rgb,1);
-  // finalColor = vec4(color, 1);
+   // finalColor = vec4(texture(elevation,tex).rgb,1);
+   finalColor = vec4(color, 1);
 }

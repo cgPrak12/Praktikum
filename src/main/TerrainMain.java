@@ -47,6 +47,7 @@ public class TerrainMain {
     
     //Textures
     private static Texture tex;
+	private static Texture high;
 
     public static void main(String[] argv) {
         try {
@@ -61,7 +62,13 @@ public class TerrainMain {
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(14, 4, program, cam);
+            clip = new ClipMap(62, 4, program, cam);
+            
+            high = Texture.generateTexture(".\\earth_height.jpg", 1);
+            high.bind();
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+            program.setUniform("high", high);
             
             tex = Texture.generateTexture(".\\earth.jpg", 1);
             tex.bind();
@@ -69,6 +76,10 @@ public class TerrainMain {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
             program.setUniform("elevation", tex);
 
+          
+            
+           
+            
             render();
             OpenCL.destroy();
             destroy();

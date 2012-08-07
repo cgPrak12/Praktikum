@@ -49,7 +49,7 @@ public class ClipMap {
 	private Geometry bottomRight;
 	private Geometry center;
 	
-	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um Faktor
+	private final float generalScale = 0.25f; // Skaliert die gesamte ClipMap um Faktor
 
 	/**
 	 * Erstellt eine ClipMap aus den gegebenen Parametern
@@ -233,8 +233,8 @@ public class ClipMap {
 	public void generateMaps() {
 		setScale(1);
 		
-		tempX += cam.getAlt().x;
-		tempZ += cam.getAlt().z;
+		tempX += cam.getAlt().x/generalScale;
+		tempZ += cam.getAlt().z/generalScale;
 
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2) {moveClip(0, 1);	tempZ = 0;}
