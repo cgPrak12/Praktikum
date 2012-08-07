@@ -167,7 +167,7 @@ public class FluidRenderer {
 
 		// TODO this is DEBUG DRAW
 		drawTextureSP.use();
-        drawTextureSP.setUniform("image", normalIntTex);
+        drawTextureSP.setUniform("image", cubeMapTex);
         screenQuad.draw();
 	}
 	
@@ -480,6 +480,7 @@ public class FluidRenderer {
 	 * @param blurCount number of blur iterations.
 	 */
 	private void thickness(int blurCount) {
+		
 	    startPath(thicknessSP, thicknessFB);
 	    thicknessSP.setUniform("viewProj", viewProj);
 	    thicknessSP.setUniform("camera", cam.getCamPos());
@@ -510,6 +511,7 @@ public class FluidRenderer {
 	 * Creates some lighting.
 	 */
 	private void createLighting() {
+		
 		startPath(colorSP, colorFB);
         colorSP.setUniform("thicknessTex", thicknessTex);
         screenQuad.draw();
@@ -531,6 +533,7 @@ public class FluidRenderer {
 	 * Creates advanced lighting effects
 	 */
 	private void cubeMap() {
+		
 		startPath(cubeMapSP, cubeMapFB);
         cubeMapSP.setUniform("normalTex", normalVBlurTex);
         cubeMapSP.setUniform("depthTex", depthTex);
@@ -548,6 +551,7 @@ public class FluidRenderer {
 	 * Draws a plane to the ground. 
 	 */
 	private void createTestPlane() {
+		
 		startPath(testPlaneSP, testPlaneFB);
 	    testPlaneSP.setUniform("viewProj", viewProj);
 	    testPlaneSP.setUniform("colorTex", planeTex);
@@ -561,6 +565,7 @@ public class FluidRenderer {
 	 * @param cubeMap cubemap name
 	 */
 	private void createCubeMap() {
+		
 		String[] cubeMapFileName = {"cubemap/sky_right.jpg", "cubemap/sky_left.jpg", "cubemap/sky_top.jpg",
 				"cubemap/sky_bottom.jpg", "cubemap/sky_front.jpg", "cubemap/sky_back.jpg"};
 
