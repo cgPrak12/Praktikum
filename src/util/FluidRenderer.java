@@ -386,6 +386,7 @@ public class FluidRenderer {
 			bindFB(depthHBlurFB);	    
 	    	screenQuad.draw();	
 	    	if(!skipLow) {
+	    		depthHBlurSP.setUniform("depthTex", i==0?depthTexLQ:depthVBlurTexLQ);
 		    	bindFB(depthHBlurFBLQ);	    
 		    	screenQuad.draw();	
 	    	}
@@ -396,6 +397,7 @@ public class FluidRenderer {
         	bindFB(depthVBlurFB);
         	screenQuad.draw();
         	if(!skipLow) {
+        		depthVBlurSP.setUniform("depthTex", depthHBlurTexLQ);
 		    	bindFB(depthVBlurFBLQ);
 		    	screenQuad.draw();
         	}
@@ -445,6 +447,7 @@ public class FluidRenderer {
 			bindFB(normalHBlurFB);
 			screenQuad.draw();
 			if(!skipLow) {
+				normalHBlurSP.setUniform("normalTex", i==0?normalTexLQ:normalVBlurTexLQ);
 				bindFB(normalHBlurFBLQ);
 				screenQuad.draw();
 			}
@@ -457,6 +460,7 @@ public class FluidRenderer {
 			bindFB(normalVBlurFB);
 			screenQuad.draw();
 			if(!skipLow) {
+				normalVBlurSP.setUniform("normalTex", normalHBlurTexLQ);
 				bindFB(normalVBlurFBLQ);
 				screenQuad.draw();
 			}
