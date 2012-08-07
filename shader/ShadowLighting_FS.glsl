@@ -13,10 +13,10 @@ const vec4 downColor = vec4(0.0, 0.0, 0.0, 1.0);
 uniform sampler2D normalTex;
 uniform sampler2D worldTex;
 uniform sampler2D diffuseTex;
+uniform sampler2D shadowCoordsTex;
 uniform sampler2D shadowTex;
 
 uniform vec3 camPos;
-
 uniform vec3 sunDir;
 
 in vec2 texCoord;
@@ -29,9 +29,7 @@ const float k_dif = 0.5; // 0.06;
 const float es = 16.0;
 const float sunIntensity = 1.0;
 
-//const vec3 sunDir = vec3(1.0, 0.0, 0.0);
-
-/**F
+/**
  * Calculate lightning with Blinn-Phong.
  * @param pos position of the point in world coords
  * @param normal normel of the point in world coords
@@ -61,12 +59,6 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 
 void main(void)
 {
-	float visibility = 1.0;
-	if ( texture2D(shadowTex, texCoord).z  <  texCoord.z){
-		visibility = 0.5;
-	}
-	
-	
 	vec3 normal = texture(normalTex, texCoord).xyz;	
 		
 	if(length(normal) < 0.1)
@@ -79,7 +71,7 @@ void main(void)
 		// vec4 enlightenedColor = mix(downColor, upColor, strength);
 		
 		normal = normalize(normal);
-		vec3 positionWC = texture(worldTex, texCoord).xyz;
+		vec4 positionWC = texture(worldTex, texCoord);
 		
 		//ambient light
 		float strength = 0.5 + 0.5 * dot(normal, vec3(0,1,0));
@@ -89,8 +81,28 @@ void main(void)
 		vec3 diff = texture(diffuseTex, texCoord).rgb;
 		vec3 spec = vec3(0.8, 0.8, 0.8);	//texture(specularTex, texCoord).rgb;
 		
+		//shadow
+		vec4 shadowCoord = texture(shadowCoordsTex, texCoord);
+		float shadow = texture(shadowTex, shadowCoord.xy / shadowCoord.w).w;
+		
+		float dist = distance(10.0 * sunDir, positionWC.xyz);
+		if(shadow < dist)
+		{
+			enlightenedColor = vec4(0);
+		}
+		else
+		{
+			enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb), 1.0);
+		}
+		
 		//blinn-phong calculations
-		enlightenedColor = vec4(calcLighting(positionWC, normal, diff * visibility, spec * visibiliry, ambi.rgb), 1.0);
+		
 	
+		// vec4 s = texture(shadowCoordsTex, texCoord);
+		// s /= s.w;
+		// s.z = 0;
+		// enlightenedColor = texture(shadowTex, s.xy);
 	}
 }
+
+

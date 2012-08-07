@@ -34,22 +34,25 @@ public class DeferredShader {
 	private Texture texPosition;
 	private Texture texNormal;
 	private Texture texVertexColor;
+	private Texture texShadow;
     
     public DeferredShader() {
     }
    
-    public void init() {
+    public void init(int unitOffset) {
     	frameBuffer.init(true, GL.WIDTH, GL.HEIGHT);
         
     	// generate textures
-    	texPosition = 	 new Texture(GL11.GL_TEXTURE_2D, 0);
-    	texNormal = 	 new Texture(GL11.GL_TEXTURE_2D, 2);
-    	texVertexColor = new Texture(GL11.GL_TEXTURE_2D, 1);
+    	texPosition = 	 new Texture(GL11.GL_TEXTURE_2D, unitOffset + 0);
+    	texNormal = 	 new Texture(GL11.GL_TEXTURE_2D, unitOffset + 2);
+    	texVertexColor = new Texture(GL11.GL_TEXTURE_2D, unitOffset + 1);
+    	texShadow = 	 new Texture(GL11.GL_TEXTURE_2D, unitOffset + 3);
     	    	
     	frameBuffer.addTexture(texPosition, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texNormal, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texVertexColor, GL30.GL_RGBA16F, GL11.GL_RGBA);
-    	
+    	frameBuffer.addTexture(texShadow, GL30.GL_RGBA32F, GL11.GL_RGBA);
+
     	frameBuffer.drawBuffers();
     }
     
@@ -59,7 +62,7 @@ public class DeferredShader {
     
     public void registerShaderProgram(ShaderProgram shaderProgram) {
     	shaderProgram.use();
-        frameBuffer.BindFragDataLocations(shaderProgram, "position", "normal", "color");        
+        frameBuffer.BindFragDataLocations(shaderProgram, "position", "normal", "color", "shadowCoord");        
     }
     
     public void clear() {
@@ -83,6 +86,10 @@ public class DeferredShader {
         return frameBuffer.getTexture(2);
     }
     
+    public Texture getShadowTexture() {
+    	return frameBuffer.getTexture(3);
+    }
+    
     public void DrawTexture(Texture tex) {
         drawTextureSP.use();
         drawTextureSP.setUniform("image", tex);
@@ -96,6 +103,7 @@ public class DeferredShader {
         texPosition.delete();
         texNormal.delete();
         texVertexColor.delete();
+        texShadow.delete();
     }
 
 }

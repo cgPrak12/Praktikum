@@ -54,6 +54,8 @@ public class TerrainMain {
     
     private static float orthoScaleValue = 1f;
     
+    private static Matrix4f bias;
+    
     private static ShaderProgram fboSP;
     private static ShaderProgram shadowSP;
     
@@ -88,22 +90,32 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
+		//bias matrix for shadow mapping
+		bias = new Matrix4f();
+		bias.m00 = 0.5f;
+		bias.m11 = 0.5f;
+		bias.m22 = 0.5f;
+		bias.m33 = 1.0f;
+		bias.m30 = 0.5f;
+		bias.m31 = 0.5f;
+		bias.m32 = 0.5f;
+        
         shadowSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
-        fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+        fboSP = new ShaderProgram("./shader/MainShadow_VS.glsl", "./shader/MainShadow_FS.glsl");
         
         Matrix4f floorQuadMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
-        shadowCam.changeProjection();
+        //shadowCam.changeProjection();
         Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
 
         
         DeferredShader shadowShader = new DeferredShader();
-        shadowShader.init();
+        shadowShader.init(0);
         shadowShader.registerShaderProgram(shadowSP);
         
         DeferredShader shader = new DeferredShader();
-        shader.init();
+        shader.init(4);
         shader.registerShaderProgram(fboSP);
         
         Geometry testCube = GeometryFactory.createCube();
@@ -157,54 +169,70 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
+            //test cube
             fboSP.use();
+            
         	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
         	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-        	fboSP.setUniform("model", 	 modelMatrix);
-        	fboSP.setUniform("modelIT",  modelIT);
-        	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-            fboSP.setUniform("camPos",   cam.getCamPos());
+        	Matrix4f shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), modelMatrix);
+        	
+        	fboSP.setUniform("model", 	 	 modelMatrix);
+        	fboSP.setUniform("modelIT",  	 modelIT);
+        	fboSP.setUniform("viewProj", 	 Util.mul(null, cam.getProjection(), cam.getView()));
+            fboSP.setUniform("shadowMatrix", shadowMatrix);
+        	fboSP.setUniform("camPos",   	 cam.getCamPos());
             
             shader.bind();
             shader.clear();
         	
             testCube.draw();
             
+            //floor quad
+            shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), floorQuadMatrix);
+
             fboSP.setUniform("model", floorQuadMatrix);
-        	fboSP.setUniform("modelIT", floorQuadMatrix);
+        	fboSP.setUniform("modelIT", floorQuadMatrix); //Util.transposeInverse(floorQuadMatrix, null));
+        	fboSP.setUniform("shadowMatrix", shadowMatrix);
             
             floorQuad.draw();
             
+            //sun cube
+            shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), sunMatrix);
+            
             fboSP.setUniform("model", sunMatrix);
-            fboSP.setUniform("modelIT", sunMatrix);
+            fboSP.setUniform("modelIT", Util.transposeInverse(sunMatrix, null));
+            fboSP.setUniform("shadowMatrix", shadowMatrix);
             
             sunCube.draw();
             
         	shader.finish();
         	
-        	fboSP.use();
-        	fboSP.setUniform("model", 	 modelMatrix);
-        	fboSP.setUniform("modelIT",  modelIT);
-        	fboSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
-            fboSP.setUniform("camPos",   shadowCam.getCamPos());
+        	//test cube (shadow map)
+        	shadowSP.use();
+        	shadowSP.setUniform("model", 	modelMatrix);
+        	shadowSP.setUniform("modelIT",  modelIT);
+        	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
+        	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
         	
         	shadowShader.bind();
         	shadowShader.clear();
         	
         	testCube.draw();
         	
-			fboSP.setUniform("model", floorQuadMatrix);
-        	fboSP.setUniform("modelIT", floorQuadMatrix);
-        	fboSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
-            fboSP.setUniform("camPos",   shadowCam.getCamPos());
+        	shadowSP.setUniform("model",    floorQuadMatrix);
+        	shadowSP.setUniform("modelIT",  floorQuadMatrix);
+        	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
+        	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
         	
         	floorQuad.draw();
         	
         	shadowShader.finish();
         	
-        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+        	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
+        	
+//        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
         	        	        	
-        	//shader.DrawTexture(enlightenedFBO.getTexture(0));
+//        	shader.DrawTexture(shader.getShadowTexture());
 
         	if (splitScreen) {
         		fbo = getQuadScreen(splitScreenVal, shader, shadowShader);

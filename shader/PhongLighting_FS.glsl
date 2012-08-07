@@ -15,7 +15,6 @@ uniform sampler2D worldTex;
 uniform sampler2D diffuseTex;
 
 uniform vec3 camPos;
-
 uniform vec3 sunDir;
 
 in vec2 texCoord;
