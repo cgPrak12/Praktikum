@@ -77,9 +77,9 @@ public final class Camera {
      */
     public void updateProjection() {
         if(perspective) {
-            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+4f, projection);
+            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+5f, projection);
         } else {
-            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+4f, projection);
+            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+5f, projection);
         }
     }
     

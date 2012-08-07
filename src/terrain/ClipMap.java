@@ -49,7 +49,7 @@ public class ClipMap {
 	private Geometry bottomRight;
 	private Geometry center;
 	
-	private final float generalScale = 0.25f; // Skaliert die gesamte ClipMap um Faktor
+	private final float generalScale = 0.1f; // Skaliert die gesamte ClipMap um Faktor
 
 	/**
 	 * Erstellt eine ClipMap aus den gegebenen Parametern
