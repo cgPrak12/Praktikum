@@ -149,6 +149,7 @@ public class FluidRenderer {
 	public void render() {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
+		
 		// TODO: select pathes
 		createDepth(2);
 		createNormals(5, 1.5f);
@@ -163,15 +164,17 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", depthTex);
 //		drawTextureSP.setUniform("image", depthHBlurTex);
 //		drawTextureSP.setUniform("image", depthVBlurTex);
-//		drawTextureSP.setUniform("image", normalTex);
-//		drawTextureSP.setUniform("image", normalHBlurTex);
-//		drawTextureSP.setUniform("image", normalVBlurTex);
 //		drawTextureSP.setUniform("image", depthTexLQ);
 //		drawTextureSP.setUniform("image", depthHBlurTexLQ);
 //		drawTextureSP.setUniform("image", depthVBlurTexLQ);
+//		drawTextureSP.setUniform("image", depthIntTex);
+//		drawTextureSP.setUniform("image", normalTex);
+//		drawTextureSP.setUniform("image", normalHBlurTex);
+//		drawTextureSP.setUniform("image", normalVBlurTex);
 //		drawTextureSP.setUniform("image", normalTexLQ);
 //		drawTextureSP.setUniform("image", normalHBlurTexLQ);
 //		drawTextureSP.setUniform("image", normalVBlurTexLQ);
+//		drawTextureSP.setUniform("image", normalIntTex);
 //		drawTextureSP.setUniform("image", thicknessTex);
 //		drawTextureSP.setUniform("image", thicknessHBlurTex);
 //		drawTextureSP.setUniform("image", thicknessVBlurTex);
@@ -491,6 +494,9 @@ public class FluidRenderer {
 				screenQuad.draw();
 			}
 		}
+		if(!skipLow)
+			interpolate(normalVBlurTex, normalVBlurTexLQ, normalIntFB);
+	        
 		endPath();
 	}
 
