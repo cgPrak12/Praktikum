@@ -61,7 +61,7 @@ public class MainTest {
             terrainModelITLoc = glGetUniformLocation(terrainProgram, "modelIT");
             terrainParamLoc = glGetUniformLocation(terrainProgram, "param");
                    
-            terra = new util.Terrain(0f,1024,1024,2);
+            terra = new util.Terrain(0.2f, 1024, 1024, 4);
             terra.genTerrain(10);
             terrainGeometry = GeometryFactory.genTerrain(terra.getTerra());
             
