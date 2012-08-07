@@ -534,11 +534,39 @@ public class GeometryFactory {
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		float[] vertices = new float[10 * length + 10 * (length - 1)];
-		int[] indices = new int[(length - 2) * 5 + 2 * length + 1];
+		float[] vertices = new float[4*length*2];
+		int[] indices = new int[4*length+4];
 		int count = 0;
 
+		for (int y=0; y<length ; y +=length-1){
+		for(int i=0; i< length;i++){
+			vertices[count++]= i;
+			vertices[count++]= y;
+		}}
 
+		
+		for(int y=0; y<length; y+=length-1){
+		for(int i=0; i<length;i++){
+			vertices[count++]=y;
+			vertices[count++]=i;
+		}}
+		
+		
+		//Indices
+		int icount=0;
+		    
+		int mul=1;
+		int k =0;
+		for(int j=0; j<4;j++){
+			for(int i=k; i<mul*length;i++){
+				indices[icount++]=i;
+			}
+			indices[icount++]=-1;
+			k=mul*length;
+			mul++;
+			
+		}
+		
 		
 		
 		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
@@ -553,7 +581,6 @@ public class GeometryFactory {
 		geo.setVertices(fbu);
 		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
 
 		return geo;
 	}
