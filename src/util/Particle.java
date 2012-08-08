@@ -88,7 +88,7 @@ public class Particle {
     //////////////////////////////////////////////////////////////////
     
     /** number cells per dimension spatial dimension */
-    private int gridLen = 100;
+    private int gridLen = 125;
     /** max number of particles per cell */
     private int gridMaxParticles = 20;
     /** holds the number of particles in a specific grid cell */

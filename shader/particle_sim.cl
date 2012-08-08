@@ -1,11 +1,10 @@
 #define LOCAL_MEM_SIZE 64
-#define RADIUS 0.004
+#define RADIUS 0.0045
 #define WITH_COLLISION 1
-#define GRIDLEN 100
-
+#define GRIDLEN 125
 
 #define DAMPING 0.25
-#define SPRING 3
+#define SPRING 1
 #define SHEAR 0.001
 // Methode zur Berechnung der neuen Geschwindigkeit nach einer Kollision
 float4 collide(
@@ -136,8 +135,9 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 	return normalize(c1+c2+c3+c4);
 }
 
-#define GROUND_NORM_DAMPING 0.00009
-#define GROUND_VELO_DAMPING 0.8
+#define GROUND_NORM_DAMPING 0.00004
+//#define GROUND_VELO_DAMPING 0.8
+#define GROUND_VELO_DAMPING 1
 #define COLLISION_DAMPING -0.00001;
 #define COLLIDE_DAMPING 0.0002;
 
@@ -175,15 +175,17 @@ kernel void particle_sim
     //////////////////////////////////////////////////////////
     float4 gravity = (float4)(0,-0.00001,0,0);
     myvel += gravity;
-    float4 dVelo = (float4)(0);  	
+    float4 dVelo = (float4)(0);  
+    
     if(mypos.s1 <= height.s0+RADIUS)
     {
         mypos.s1 = height.s0+RADIUS;
         dVelo = (float4)(normal.s012*GROUND_NORM_DAMPING,0);
-        myvel += dVelo;
+        myvel += dVelo + (float4)(normal.s0,0,normal.s2,0)*GROUND_NORM_DAMPING*2;
         myvel *= GROUND_VELO_DAMPING;
     }
-
+	
+    
 
     // add particle to counter and cell grid
     g_add_particle(&grid, mypos.s012);
@@ -233,11 +235,13 @@ kernel void particle_sim
 	float2 well = (float2)(0.71f,0.17f);
 	float well_height = read_imagef(heightmap, sampler, well).s0;
 
-
+	//float die_height = read_imagef(heightmap, sampler, (float2)(0.6,0.4)).s0;
+	
 	if(mypos.s0<0||mypos.s0>1||mypos.s2<0||mypos.s2>1) {mypos.s3=0;}
 	//if(length(myvel)<0.001&&mypos.s1>well_height+0.01) {mypos.s3=0;}//{mypos.s3-=0.02;}
-	if(length(myvel)<0.00001&&mypos.s1>0.05) {mypos.s3=0;}//{mypos.s3-=0.02;}
-	//mypos.s3-=0.00001;
+	if(length(myvel)<0.00001&&mypos.s1>0.03) {mypos.s3=0;}//{mypos.s3-=0.02;}
+	//if(mypos.s1<=die_height+0.005) {mypos.s3=0;}//{mypos.s3-=0.02;}
+	mypos.s3-=0.00001;
 	
 	if(mypos.s3<=0) {
 		mypos=(float4)(well.s0+random*0.001,well_height,well.s1+random*0.001,1.0f);
