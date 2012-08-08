@@ -19,13 +19,10 @@ void main(void) {
 
 	n.z = 0.15 * sqrt(1.0 - r2);
 	vec4 pos = (view * positionWC);
-	pos = pos / pos.w;
-	vec4 pixelPos = vec4(pos.xyz + n*0.5, 1.0);
-	vec4 positionWC1 = view * positionWC;
-	
+	vec4 pixelPos = vec4(pos.xyz + n, 1.0);
 
 	// original
-	depth = vec4(pixelPos.xyz, distance(-pixelPos.xyz, camPos) / viewDistance); 
+	depth = vec4(pixelPos.xyz, length(pixelPos.xyz) / viewDistance); 
 	
 	// position in xyz, "easy" depth in w !
 	//depth = vec4(positionWC.xyz, -pixelPos.z);

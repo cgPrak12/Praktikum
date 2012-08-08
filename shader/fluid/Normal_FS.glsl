@@ -2,7 +2,6 @@
 
 uniform sampler2D depthTex;
 uniform float texSize;
-uniform vec3 camPos;
 
 in vec2 texCoord;
 out vec4 color;
@@ -17,7 +16,7 @@ vec3 eyePos(vec2 offset) {
 
 void main(void) {
     // this should be inserted, but has to be left out due to light...
-	//if(texture(depthTex, texCoord).w <= 0) discard;
+	if(texture(depthTex, texCoord).w <= 0) discard;
 	
 	vec3 eye = eyePos(vec2(0));
 	
@@ -30,5 +29,6 @@ void main(void) {
 	if(abs(ddy2.z) < abs(ddy.z)) ddy = ddy2;
 	
 	vec3 normal = -cross(ddx, ddy);
+	normal.z = -normal.z;
 	color = normalize(vec4(normal, 0));
  }
