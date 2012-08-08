@@ -314,7 +314,7 @@ public class TerrainMain {
 	        	}
         	}
         	
-        	fbo = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
+        	//fbo = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
         	shader.DrawTexture(fbo.getTexture(0));
         	            
             // present screen
