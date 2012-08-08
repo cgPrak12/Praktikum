@@ -149,7 +149,7 @@ public class FluidRenderer {
 		
 		// TODO: select pathes
 		createDepth(2);
-		createNormals(5, 1.5f);
+		createNormals(5, 1.5f, false);
 		thickness();
 		createLighting();
 		cubeMap();
@@ -414,7 +414,7 @@ public class FluidRenderer {
         	
         	bindFB(depthVBlurFB);
         	screenQuad.draw();
-    		depthVBlurSP.setUniform("scene", depthHBlurTexLQ);
+        	depthVBlurSP.setUniform("scene", depthHBlurTexLQ);
 	    	bindFB(depthVBlurFBLQ);
 	    	screenQuad.draw();
 		}        
@@ -436,7 +436,7 @@ public class FluidRenderer {
 	 * @param blurCount number of blur iterations
 	 */
 	private void normals(int blurCount) {
-		createNormals(blurCount, 1.0f);
+		createNormals(blurCount, 1.0f, false);
 	}
 	
 	/**
@@ -444,14 +444,15 @@ public class FluidRenderer {
 	 * @param blurCount number of blur iterations
 	 * @param offsetValue blur factor
 	 */
-	private void createNormals(int blurCount, float offsetValue) {
+	private void createNormals(int blurCount, float offsetValue, boolean source) {
 		startPath(normalSP);
-		normalSP.setUniform("depthTex", depthTex);
+		normalSP.setUniform("depthTex", source?depthVBlurTex:depthTex);
 		normalSP.setUniform("texSize", (float)WIDTH);
 		normalSP.setUniform("camPos", cam.getCamPos());
 
 		bindFB(normalFB);
 		screenQuad.draw();
+		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ);
 		bindFB(normalFBLQ);
 		screenQuad.draw();
 		
