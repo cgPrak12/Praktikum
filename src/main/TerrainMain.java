@@ -36,6 +36,20 @@ public class TerrainMain {
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
+    //Map to simulate a terrain with different types of ground
+    private static int[][] map = new int[500][500];
+
+
+    private static int sum(int[] values) {
+        int result = 0;
+        
+        for(int value : values){
+            result += value;
+        }
+        
+        return result;
+    }
+    
 /*    //einfache geometrie für ein quadrat
     private static Geometry quad = null;
     //shader erzeugen
@@ -43,6 +57,33 @@ public class TerrainMain {
     
     
     public static void main(String[] argv) {
+        //Generate random numbers with wights
+        int[] values = {0,1,2};
+        int[] weights = {70,20,10};
+        
+        int weightSum = sum(weights);        
+        int[] histogram = new int[values.length];
+        
+        Random random = new Random();
+        for(int i=0; i<map.length; i++) {
+            for(int j=0; j<map.length; j++){
+                int currentLimit = random.nextInt(weightSum+1);
+            
+                int currentSum = 0;
+                for(int k = 0; k< values.length;k++){
+                    currentSum += weights[k];
+                    if(currentSum >= currentLimit){
+                        
+                        map[i][j] = values[k];
+                        
+                        histogram[k]++;
+                        
+                        break;
+                    }
+                }
+            }
+        }
+        
         try {
             init();
             OpenCL.init();
@@ -104,47 +145,50 @@ public class TerrainMain {
             Matrix4f scale = new Matrix4f().scale(new Vector3f(1.0f, 1.0f, 1.0f));
             Matrix4f model = new Matrix4f();
             Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
-            
+
             shaderProgram.use();
-                        
-            for(int i=0; i<=6; i++) {
-                for(int j=0; j<=6; j++) {
+            
+            for(int i=0; i<map.length; i+=20) {
+                for(int j=0; j<map.length; j+=20) {
                     Matrix4f translate = new Matrix4f();
                     translate.m00 = 1;
                     translate.m11 = 1;
                     translate.m22 = 1;
                     translate.m33 = 1;
-                    translate.m30 = 15*i;
-                    translate.m32 = 15*j;
+                    translate.m30 = 1*i;
+                    translate.m32 = 1*j;
 
                     Iterator<ModelPart> modelPartListIterator = null;
-                    if(i%2==0)
+                    if(map[i][j]==1)
                         modelPartListIterator = modelPartList1.listIterator();
-                    else
+                    else if(map[i][j]==2)
                         modelPartListIterator = modelPartList2.listIterator();
-                    while(modelPartListIterator.hasNext()) {
-                        ModelPart modelPart = modelPartListIterator.next();
+                    else
+                        modelPartListIterator = null;
+                    if(modelPartListIterator!=null) {
+                        while(modelPartListIterator.hasNext()) {
+                            ModelPart modelPart = modelPartListIterator.next();
+                            shaderProgram.setUniform("scale", scale);
+                            shaderProgram.setUniform("translate", translate);
+                            
+                            shaderProgram.setUniform("model", model);
+//                            shaderProgram.setUniform("modelIT", new Matrix4f());
+                            shaderProgram.setUniform("viewProj", viewProj);   
+                            
+                            shaderProgram.setUniform("k_a", modelPart.material.ambientRef);
+                            shaderProgram.setUniform("k_dif", modelPart.material.diffuseRef);
+                            shaderProgram.setUniform("k_spec", modelPart.material.specularRef);
+                            shaderProgram.setUniform("k_diss", modelPart.material.dissolveFact);
                         
-                        shaderProgram.setUniform("scale", scale);
-                        shaderProgram.setUniform("translate", translate);
+                            if(modelPart.material.textureDiffuseRefColorMap!=null)
+                                shaderProgram.setUniform("diffuseTex", modelPart.material.textureDiffuseRefColorMap);
+                            if(modelPart.material.textureDissolveFactColorMap!=null)
+                                shaderProgram.setUniform("dissolveTex", modelPart.material.textureDissolveFactColorMap);
+                            if(modelPart.material.textureSpecularRefColorMap!=null)
+                                shaderProgram.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);
                         
-                        shaderProgram.setUniform("model", model);
-//                        shaderProgram.setUniform("modelIT", new Matrix4f());
-                        shaderProgram.setUniform("viewProj", viewProj);   
- 
-                        shaderProgram.setUniform("k_a", modelPart.material.ambientRef);
-                        shaderProgram.setUniform("k_dif", modelPart.material.diffuseRef);
-                        shaderProgram.setUniform("k_spec", modelPart.material.specularRef);
-                        shaderProgram.setUniform("k_diss", modelPart.material.dissolveFact);
-                        
-                        if(modelPart.material.textureDiffuseRefColorMap!=null)
-                            shaderProgram.setUniform("diffuseTex", modelPart.material.textureDiffuseRefColorMap);
-                        if(modelPart.material.textureDissolveFactColorMap!=null)
-                            shaderProgram.setUniform("dissolveTex", modelPart.material.textureDissolveFactColorMap);
-                        if(modelPart.material.textureSpecularRefColorMap!=null)
-                            shaderProgram.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);                
-                        
-                        modelPart.geometry.draw();
+                            modelPart.geometry.draw();
+                        }
                     }
                 }
             }
