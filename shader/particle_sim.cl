@@ -3,17 +3,28 @@
 #define WITH_COLLISION 1
 #define GRIDLEN 100
 
-float xor128() {
-  int x = 123456789;
-  int y = 362436069;
-  int z = 521288629;
-  int w = 88675123;
-  int t;
- 
-  t = x ^ (x << 11);
-  x = y; y = z; z = w;
-  return w = w ^ (w >> 19) ^ (t ^ (t >> 8));
+
+#define DAMPING 0.25
+#define SPRING 3
+#define SHEAR 0.001
+// Methode zur Berechnung der neuen Geschwindigkeit nach einer Kollision
+float4 collide(
+float4 n, 
+float4 vi, 
+float4 vj, 
+float distance)
+{
+	// Vektoren 
+    float4 norm = normalize(n);
+    float4 relVelo = vj - vi;
+    float d = dot(norm, relVelo);
+    float4 tanVelo = relVelo - d*norm;
+    float s = -SPRING*(RADIUS + RADIUS - distance);
+    // Neue Geschwindigkeit
+    return (SHEAR*tanVelo + DAMPING*relVelo + s*norm);
 }
+
+
 constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE| CLK_FILTER_LINEAR| CLK_ADDRESS_REPEAT;
 
 // epsilon environment to find the minimum height
@@ -125,9 +136,10 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 	return normalize(c1+c2+c3+c4);
 }
 
-#define GROUND_NORM_DAMPING 0.0001
-#define GROUND_VELO_DAMPING 0.9
+#define GROUND_NORM_DAMPING 0.00009
+#define GROUND_VELO_DAMPING 0.95
 #define COLLISION_DAMPING -0.00001;
+#define COLLIDE_DAMPING 0.0002;
 
 //////////////////////////////////////////////////////////
 // Particle Kernel                                      //
@@ -142,7 +154,8 @@ kernel void particle_sim
     global int* g_cells,
     int g_num_cells,
     int g_max_particles,
-    float dt) 
+    float dt,
+    float random) 
 {
     grid_t grid = { g_num_cells,
                     g_max_particles,
@@ -167,7 +180,7 @@ kernel void particle_sim
     {
         mypos.s1 = height.s0+RADIUS;
         dVelo = normal.s012*GROUND_NORM_DAMPING;
-        myvel += (float4)(dVelo,1);
+        myvel += (float4)(dVelo,0);
         myvel *= GROUND_VELO_DAMPING;
     }
 
@@ -177,7 +190,10 @@ kernel void particle_sim
 
     //////////////////////////////////////////////////////////
     // particle-particle interaction                        //
-    //////////////////////////////////////////////////////////   
+    //////////////////////////////////////////////////////////  
+    
+    float4 collide_velo = 0;
+    if(mypos.s3>0.1){ 
     for(int i=-1; i<=1; i++){
         for(int j=-1; j<=1; j++){
             for(int k=-1; k<=1; k++){
@@ -196,21 +212,36 @@ kernel void particle_sim
                     float distance = length(n.s012);
                     if(distance < RADIUS*2)
                     {
-                        if(mypos.s1 > other_pos.s1){
-                                myvel-=gravity*0.1;
-                        }
-                        myvel+=normalize(n)*COLLISION_DAMPING;
+                        //if(mypos.s1 > other_pos.s1){
+                        //        myvel-=gravity*0.1;
+                        //}
+                        //collide_velo+=normalize(n)*COLLISION_DAMPING;
+                        collide_velo+=collide(other_pos-mypos, myvel , other_vel, distance-(RADIUS*2))*COLLIDE_DAMPING;
                     }
                     ///////////////////////////////////////////////////////////
                 }
             }
         }
     }
-    
+    }
     barrier(CLK_GLOBAL_MEM_FENCE);
 
-    mypos.s012 += myvel.s012*4;
+	myvel+=collide_velo;
+    mypos.s012 += myvel.s012*3;
 
+	float2 well = (float2)(0.5f,0.2f);
+	float well_height = read_imagef(heightmap, sampler, well).s0;
+
+
+	if(mypos.s0<0||mypos.s0>1||mypos.s2<0||mypos.s2>1) {mypos.s3=0;}
+	if(length(myvel)<0.0001&&mypos.s1>well_height+0.01) {mypos.s3-=0.02;}
+	//mypos.s3-=0.00001;
+	
+	
+	if(mypos.s3<=0) {
+		mypos=(float4)(well.s0,well_height,well.s1,1.0f);
+		myvel=(float4)(-random*0.0001f,random*0.0001f,random*0.0001f,0);
+	}
 
     position[mygid] = mypos;
     velos[mygid] = myvel;
