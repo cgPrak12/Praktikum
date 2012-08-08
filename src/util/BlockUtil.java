@@ -1,23 +1,33 @@
 package util;
 
-import java.io.*;
-import java.util.Date;
+//import java.util.Date;
+//import java.util.Random;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
-public class BlockParser {
+public class BlockUtil {
 
 	/**
 	 * Liest einen gegebenen Block ein und schreibt diesen in eine blockfile (.bf) Datei
 	 * 
-	 * @param map	Terrain
-	 * @return file	geschriebene Datei	
+	 * @param block		einzulesener Block
+	 * @return file		geschriebene .bf Datei	
 	 */
 	public static File writeBlockData(Block block)
 	{
-		long time = new Date().getTime();
+//		long time = new Date().getTime();
 				
-		File file = new File(block.getPosX() + "_" + block.getPosZ()+ "_.bf");
+		File file = new File(block.getID()[0] + "_" + block.getID()[1] + "_.bf");
 						
 		try( FileOutputStream fos = new FileOutputStream(file);
 			 ByteOutputStream dos = new ByteOutputStream(256 * 256 * 5); 
@@ -41,7 +51,7 @@ public class BlockParser {
 					}
 				}
 				
-				System.out.println("Schreibdauer: " + (new Date().getTime() - time) + " Millisekunden");
+//				System.out.println("Schreibdauer: " + (new Date().getTime() - time) + " Millisekunden");
 				
 				return file;
 			}
@@ -59,7 +69,7 @@ public class BlockParser {
 					
 			fos.write(dos.getBytes());
 			
-			System.out.println("Schreibdauer: " + (new Date().getTime() - time) + " Millisekunden");
+//			System.out.println("Schreibdauer: " + (new Date().getTime() - time) + " Millisekunden");
 			
 			return file;
 		}
@@ -78,19 +88,17 @@ public class BlockParser {
 	/**
 	 * Liest eine blockfile Datei ein und schreibt deren Inhalt in einen neuen Block
 	 * 
-	 * @param data	einzulesenede Datei
-	 * @param x		float.length
-	 * @param z		float[0].length
-	 * @return map	float[][][]
+	 * @param blockdata		einzulesende .bf Datei
+	 * @return newblock		aus der Datei erzeugter Block
 	 */
 	public static Block readBlockData(File blockData)
 	{
-		long time = new Date().getTime();
+//		long time = new Date().getTime();
 		
 		try( FileInputStream fis = new FileInputStream(blockData); 
 			 DataInputStream input = new DataInputStream(new BufferedInputStream(fis)))
 		{		
-			// posX und posZ mittels string slitting aus dem filename lesen
+			// posX und posZ mittels string splitting aus dem filename lesen
 			String fileName = blockData.getName();
 			String[] tmp;
 			String delimiter = "_";
@@ -98,8 +106,8 @@ public class BlockParser {
 			int x = new Integer(tmp[0]);
 			int z = new Integer(tmp[1]);
 			
-			// block erzeugen und mit floats füllen
-			Block b = new Block(x,z);
+			// neuen Block erzeugen und mit eingelesenen floats fuellen
+			Block newblock = new Block(x,z);
 				
 				for(int i = 0; i < 256; i++)
 				{
@@ -107,14 +115,13 @@ public class BlockParser {
 					{
 						for(int k = 0; k < 5; k++)
 						{		
-							b.setInfo(i, j, k, input.readFloat());
+							newblock.setInfo(i, j, k, input.readFloat());
 						}		
 					}
 				}
+//			System.out.println("Lesedauer: " + (new Date().getTime() - time) + " Millisekunden");
 			
-			System.out.println("Lesedauer: " + (new Date().getTime() - time) + " Millisekunden");
-			
-			return b;
+			return newblock;
 		}
 		catch (FileNotFoundException e3)
 		{
@@ -128,22 +135,17 @@ public class BlockParser {
 		}				
 	}
 	
-	// Test main method
-	public static void main(String[] args) {
+	public static Block readBlockData(int x, int z)
+	{
+		return readBlockData(new File(x + "_" + z + "_.bf"));
+	}
+	
+	
+	public static Block getBlock(Camera cam)
+	{
+		int x = Math.round(cam.getCamPos().x);
+		int z = Math.round(cam.getCamPos().z);
 		
-        int maxX, maxZ;
-        maxX = maxZ = 256;
-        
-        Block b = new Block(1,2);
-        
-        System.out.println("block size: Array[" + maxX + "][" + maxZ + "]" + "[" + 5 + "]");
-        System.out.println("vertices: " + (maxX * maxZ));
-        System.out.println("floats: " + (maxX * maxZ * 5));
-        System.out.println("bytes: " + (maxX * maxZ * 5) * 4);
-        System.out.println();
-        
-        File data = writeBlockData(b);
-//        Block block = readBlockData(data);
-        data.delete();
+		return BlockUtil.readBlockData(x / 256, z / 256);
 	}
 }

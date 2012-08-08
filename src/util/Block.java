@@ -1,22 +1,10 @@
 package util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.Serializable;
-
-import com.sun.xml.internal.messaging.saaj.util.*;
 
 public class Block implements Serializable {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	
 	private float[][][] vertexInfo;
 	private int posX;
 	private int posZ;
@@ -61,12 +49,6 @@ public class Block implements Serializable {
 		{
 				vertexInfo[x][z][pos] = info;
 		}
-		
-//		if(x == 255 && z == 255)
-//		{
-//			String filename = "block" + posX + "_" + posZ + ".bf";
-//			this.save(filename);
-//		}
 	}
 	
 	/**
@@ -87,81 +69,4 @@ public class Block implements Serializable {
 		}
 		return result;
 	}
-	
-	/**
-	 * Schreibe Vertex-Informationen aus dem Array in eine Datei
-	 * @param filename angegebene Datei
-	 * @return true bei Erfolg, false sonst
-	 */
-	public boolean save(String filename)
-	{
-		boolean result = false;
-		int dimX = vertexInfo.length;
-		int dimY = vertexInfo[0].length;
-		int dimZ = vertexInfo[0][0].length;
-		try(FileOutputStream fos = new FileOutputStream(filename);
-			ByteOutputStream bos = new ByteOutputStream(dimX * dimY * dimZ); 	
-			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(bos)))
-		{
-			for(int i = 0; i < vertexInfo.length; i++)
-			{
-				for(int j = 0; j < vertexInfo[0].length; j++)
-				{
-					for(int k = 0; k < vertexInfo[0][0].length; k++)
-					{
-						dos.writeFloat(vertexInfo[i][j][k]);
-					}
-				}
-			}
-			fos.write(bos.getBytes());
-			result = true;
-		}
-		catch (Exception e)
-		{
-			System.err.println("ERROR: " + e.getMessage());
-		}
-		return result;
-	}
-
-	
-	/**
-	 * Lade Vertex-Informationen aus einer Datei ins Array
-	 * @param filename angegebene Datei
-	 * @return true bei Erfolg, false sonst
-	 */
-	public boolean load(String filename)
-	{
-		boolean result = false;
-		try(FileInputStream fis = new FileInputStream(filename); 	
-			DataInputStream dis = new DataInputStream(new BufferedInputStream(fis)))
-		{			
-			for(int i = 0; i < vertexInfo.length; i++)
-			{
-				for(int j = 0; j < vertexInfo[0].length; j++)
-				{
-					for(int k = 0; k < vertexInfo[0][0].length; k++)
-					{
-						vertexInfo[i][j][k] = dis.readFloat();
-					}
-				}
-			}
-			result = true;
-		}
-		catch (Exception e)
-		{
-			System.err.println("ERROR: " + e.getMessage());
-		}
-		return result;
-	}
-
-	public int getPosX() {
-		return getID()[0];
-	}
-	
-	public int getPosZ() {
-		return getID()[1];
-	}
-	
-	
-
 }

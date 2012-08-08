@@ -24,7 +24,7 @@ public class TerrainView {
 	 */
 	private void init()
 	{
-		myBl[4][4] = BlockFactory.getBlock(cam);
+		myBl[4][4] = BlockUtil.getBlock(cam);
 		middle = myBl[4][4].getID();
 		
 		int idI = middle[0]-1;
@@ -36,7 +36,7 @@ public class TerrainView {
 		{
 			for(int j=0; j<9; j++)
 			{
-				myBl[i][j] = BlockParser.readBlockData(new File((idI+i) + "_" + (idJ+j) + "_.bf"));
+				myBl[i][j] = BlockUtil.readBlockData(new File((idI+i) + "_" + (idJ+j) + "_.bf"));
 			}
 		}
 	}
@@ -46,8 +46,8 @@ public class TerrainView {
 	 */
 	public void updateTerrainView()
 	{		
-		int diffX = (BlockFactory.getBlock(cam)).getID()[0] - middle[0];
-		int diffY = (BlockFactory.getBlock(cam)).getID()[1] - middle[1];
+		int diffX = (BlockUtil.getBlock(cam)).getID()[0] - middle[0];
+		int diffY = (BlockUtil.getBlock(cam)).getID()[1] - middle[1];
 		
 		if(Math.abs(diffX) > 2 || Math.abs(diffX) > 2)
 		{
@@ -64,7 +64,7 @@ public class TerrainView {
 					{
 						File file = new File((myBl[i][j].getID()[0] + diffX) 
 								     + "_" + (myBl[i][j].getID()[0] + diffX) + "_.bf");
-						myBl[i][j] = BlockParser.readBlockData(file);
+						myBl[i][j] = BlockUtil.readBlockData(file);
 					}
 					else
 					{
@@ -115,4 +115,11 @@ public class TerrainView {
 		
 		return (int)((cam.getCamPos().z%256)+256);
 	}
+
+	public Block[][] getBlocks() {
+
+		return myBl;
+	}
+	
+
 }

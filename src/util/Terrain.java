@@ -16,7 +16,7 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class Terrain {
 
-	private TerrainGrid terra;
+	private TerrainWrap terra;
 	private float[][] noiseMap = new float [32][32];
 	private float[][] mountainMap1 = new float [32][32];
 	private float[][] mountainMap2 = new float [32][32];
@@ -64,7 +64,7 @@ public class Terrain {
 	*/
 	public Terrain(float initialHeight, int maxX, int maxZ, int seed){
 		
-		this.terra = new TerrainGrid(maxX, maxZ, vertexInfoCount);
+		this.terra = new TerrainWrap(maxX, maxZ, vertexInfoCount);
 		this.MAXHEIGHT = 20;
 
 		this.biomeMap = new float[maxX][maxZ];
@@ -74,23 +74,25 @@ public class Terrain {
 		this.maxZ= maxZ; 
 		
 		// Gen flat terra, with no norms and material info
-		for(int x=0; x < maxX; ++x) {
-			for(int z=0; z < maxZ; ++z) {
-				this.terra.set(x,z,0,initialHeight);
+		// this.terra.init();
+		
+		for(int x = 0; x < maxX; x++) {
+			for(int z = 0; z < maxZ; z++) {
+				this.terra.set(x, z, 0, initialHeight);
 			}
-		} 		
+		}
 
 		// Gen Noisemap       
 
-		for(int x=0; x < noiseMap.length; ++x) {
-			for(int z=0; z < noiseMap[0].length; ++z) {
-				this.noiseMap[x][z] = this.random.nextFloat()*2-1;
+		for(int x = 0; x < noiseMap.length; x++) {
+			for(int z = 0; z < noiseMap[0].length; z++) {
+				this.noiseMap[x][z] = this.random.nextFloat() * 2 - 1;
 			}
 		}
 
 		//Gen MountainMap
-		for(int x=0; x < 32; ++x) {
-			for(int z=0; z < 32; ++z) {
+		for(int x = 0; x < 32; x++) {
+			for(int z = 0; z < 32; z++) {
 
 				this.mountainMap1[x][z] = ((16-(Math.abs(-(x-16))))/16f*(16-(Math.abs(-(z-16))))/16f);
 				this.mountainMap2[x][z] = (float) (((Math.cos(((x-16)/12.9f)*((x-16)/12.9f)) *
@@ -264,16 +266,15 @@ public class Terrain {
 	/**
 	 * smoothing of terra
 	 */
-	private void smooth(){
-		for(int x=0; x<maxX; x++){
-			for(int z=0; z<maxZ; z++){
-
-
-				Util.smooth(this.terra.getBlock(), x, z);
-			}
-		}
-		//checkNormals();
-	}
+//	private void smooth(){
+//		for(int x = 0; x < maxX; x++){
+//			for(int z = 0; z < maxZ; z++){
+//
+//				Util.smooth(this.terra.getBlock(), x, z);
+//			}
+//		}
+//		//checkNormals();
+//	}
 
 	
 
@@ -817,7 +818,7 @@ public class Terrain {
 //		this.testForm(desertMap);
 //		this.flatten(1024, 1024, 1024, 1, 2);
 		this.flattenAllBiomes(25);
-		this.smooth();
+//		this.smooth();
 //		this.checkNormals();
 	}
 	private void testForm(float[][]map){

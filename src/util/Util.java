@@ -603,6 +603,8 @@ public class Util {
 	 * @param z
 	 */
 	public static void smooth(float[][][] terra, int x, int z){
+		// Util.smooth(terra.get(x, z, 4))
+		// public static void smooth(int i)
 
 		switch(Math.round(terra[x][z][4])){
 
