@@ -74,6 +74,7 @@ public class Particle {
     private CLCommandQueue queue;
     private CLKernel kernel0;
     private CLKernel kernel1;
+    private CLKernel kernel2;
 	
 	private int MAX_PARTICLES;
     
@@ -268,9 +269,14 @@ public class Particle {
         
         this.kernel0.setArg(8, 1e-3f*millis);
         this.kernel0.setArg(9, (float)Math.random());
+        
+        // clear the grid
         clEnqueueNDRangeKernel(this.queue, kernel1, 1, null, 
-                BufferUtils.createPointerBuffer(1).put(0,84*84*84), 
+                BufferUtils.createPointerBuffer(1).put(0,gridLen*gridLen*gridLen), 
                 BufferUtils.createPointerBuffer(1).put(0,1), null, null);
+        // add particles to grid
+        clEnqueueNDRangeKernel(this.queue, kernel2, 1, null, gwz, lwz, null, null);
+        // calculate particle movement / interaction
         clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
 
         clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
@@ -351,6 +357,11 @@ public class Particle {
         this.kernel1 = clCreateKernel(this.program, "gridclear_sim");
         this.kernel1.setArg(0, this.gridCounters);
 
+        // kernel to initialize the grid with zeros
+        this.kernel2 = clCreateKernel(this.program, "gridadd_sim");
+
+
+        
     	IntBuffer errorCheck = BufferUtils.createIntBuffer(1);
     	
         heightmap = CL10GL.clCreateFromGLTexture2D(this.context, 
@@ -378,7 +389,12 @@ public class Particle {
         this.kernel0.setArg(7,this.gridMaxParticles);
         this.kernel0.setArg(8, 0.0f); // dt, see draw()
         this.kernel0.setArg(9, 0.0f);
-    
+
+        this.kernel2.setArg(0,this.old_pos);
+        this.kernel2.setArg(1,this.gridCounters);
+        this.kernel2.setArg(2,this.gridCells);
+        this.kernel2.setArg(3,this.gridLen);
+        this.kernel2.setArg(4,this.gridMaxParticles);
     }
     
     /**

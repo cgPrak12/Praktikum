@@ -1,5 +1,5 @@
 #define LOCAL_MEM_SIZE 64
-#define RADIUS 0.0045
+#define RADIUS 0.006
 #define WITH_COLLISION 1
 #define GRIDLEN 125
 
@@ -67,14 +67,22 @@ cell_id_t g_get_cell_id(grid_t *grid, float3 pos, int3 dpos)
     int3 gp = (int3)((int)(pos.s0*dl),
                      (int)(pos.s1*dl),
                      (int)(pos.s2*dl));
-    
-    int counter_id =    (gp.s0+dpos.s0)
-                + (gp.s1+dpos.s1)*dl
-                + (gp.s2+dpos.s2)*dl*dl;
+    gp = gp + dpos;
+    cell_id_t cid;
+
+    if (gp.s0 < 0 || gp.s0 >= dl ||
+        gp.s1 < 0 || gp.s1 >= dl ||
+        gp.s2 < 0 || gp.s2 >= dl)
+    {
+        cid.cnt_id = cid.cell_id = -1;
+        return cid;
+    }
+
+    int counter_id =    (gp.s0)
+                + (gp.s1)*dl
+                + (gp.s2)*dl*dl;
 
     int maxid = dl*dl*dl;
-    
-    cell_id_t cid;
 
     if (counter_id >= maxid || counter_id < 0)
     {
@@ -83,11 +91,8 @@ cell_id_t g_get_cell_id(grid_t *grid, float3 pos, int3 dpos)
     }
     
     int mp = grid->max_p;
-    int index_id =  (gp.s0+dpos.s0)*mp
-                    + (gp.s1+dpos.s1)*dl*mp
-                    + (gp.s2+dpos.s2)*dl*dl*mp;
     cid.cnt_id = counter_id;
-    cid.cell_id = index_id;
+    cid.cell_id = counter_id*mp;
     return cid;
 }
 
@@ -98,8 +103,12 @@ void g_add_particle(grid_t *grid, float3 pos)
     if (cid.cnt_id != -1)
     {
         // valid id
+        int mp = grid->max_p;
         int old_num = atomic_inc(grid->counter+cid.cnt_id);
-        grid->cells[cid.cell_id+old_num] = get_global_id(0);
+        if (old_num < mp) 
+        {
+            grid->cells[cid.cell_id+old_num] = get_global_id(0);
+        }
     }
 }
 
@@ -187,8 +196,7 @@ kernel void particle_sim
 	
     
 
-    // add particle to counter and cell grid
-    g_add_particle(&grid, mypos.s012);
+
 
     //////////////////////////////////////////////////////////
     // particle-particle interaction                        //
@@ -266,4 +274,28 @@ kernel void gridclear_sim
     global int* g_counter) 
 {
     g_counter[get_global_id(0)] = 0;
+}
+
+//////////////////////////////////////////////////////////
+// Add particles to grid Kernel                         //
+//////////////////////////////////////////////////////////
+kernel void gridadd_sim
+(
+    global float4* position, 
+    global int* g_counter,
+    global int* g_cells,
+    int g_num_cells,
+    int g_max_particles) 
+{
+    grid_t grid = { g_num_cells,
+                    g_max_particles,
+                    g_counter,
+                    g_cells};
+
+
+    int mygid = get_global_id(0);
+    float4 mypos = position[mygid];
+
+    // add particle to counter and cell grid
+    g_add_particle(&grid, mypos.s012);   
 }	
