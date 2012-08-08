@@ -84,7 +84,7 @@ public class TerrainMain {
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
-        particles = new Particle(2048, Device_Type.GPU, Display.getDrawable());
+        particles = new Particle((int)Math.pow(2,9), Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         
         while(bContinue && !Display.isCloseRequested()) {

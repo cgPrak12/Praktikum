@@ -92,7 +92,7 @@ public class Particle {
     /** number cells per dimension spatial dimension */
     private int gridLen = 84;
     /** max number of particles per cell */
-    private int gridMaxParticles = 20;
+    private int gridMaxParticles = 15;
     /** holds the number of particles in a specific grid cell */
     private CLMem gridCounters;
     /** holds the cell's particles global_ids */
@@ -183,10 +183,10 @@ public class Particle {
         this.queue = clCreateCommandQueue(this.context, this.device, 0);
         
         this.program = clCreateProgramWithSource(this.context, source);
-        this.program2 = clCreateProgramWithSource(this.context, Util.getFileContents("./shader/particle_sim_2.cl"));
+        //this.program2 = clCreateProgramWithSource(this.context, Util.getFileContents("./shader/particle_sim_2.cl"));
 
         clBuildProgram(this.program, this.device, "", null);
-        clBuildProgram(this.program2, this.device, "", null);
+        //clBuildProgram(this.program2, this.device, "", null);
     }
     
     public ShaderProgram getShaderProgram() {
@@ -365,9 +365,9 @@ public class Particle {
         this.kernel1 = clCreateKernel(this.program, "gridclear_sim");
         this.kernel1.setArg(0, this.gridCounters);
 
-        this.kernel2 = clCreateKernel(this.program2, "gridadd_sim");
+        this.kernel2 = clCreateKernel(this.program, "gridadd_sim");
         
-        this.kernel3 = clCreateKernel(this.program2, "massdensity_sim");
+        this.kernel3 = clCreateKernel(this.program, "massdensity_sim");
         
     	IntBuffer errorCheck = BufferUtils.createIntBuffer(1);
     	

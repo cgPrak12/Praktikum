@@ -1,5 +1,5 @@
 #define LOCAL_MEM_SIZE 64
-#define RADIUS 0.005
+#define RADIUS 0.0025
 #define WITH_COLLISION 1
 #define GRIDLEN 100
 
@@ -166,7 +166,7 @@ float3 nW_pres(float3 r, float h)
 	
     float norm_r = length(r);
 
-    if (norm_r < 0.0001)
+    if (norm_r < 0.000001)
         return (float3)(45.0/(PI*pow(h,6)));
 
     return (-45.0/(PI*pow(h,6)) * (r/norm_r) * (h-norm_r)*(h-norm_r));
@@ -201,10 +201,11 @@ float lW_visc(float3 r, float h)
 #define K_CONSTANT 3.0
 //#define H_CONSTANT 2.0*RADIUS
 //#define H_CONSTANT 0.0457
-#define H_CONSTANT 0.0457
+#define H_CONSTANT 0.0454
 #define MU_CONSTANT 3.5*1.003*10e-3
 #define GRAVITY -9.81
 #define REST_DENS 998.29
+#define SURFACE_TENS 0.0728
 //////////////////////////////////////////////////////////
 // Particle Kernel                                      //
 //////////////////////////////////////////////////////////
@@ -231,7 +232,7 @@ kernel void particle_sim
     float4 mypos = position[mygid];
     float4 myvel = velos[mygid];
     float4 height = read_imagef(heightmap, sampler, mypos.s02);
-//    float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
+    float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
 
 
     //////////////////////////////////////////////////////////
@@ -240,9 +241,14 @@ kernel void particle_sim
 
     float my_pressure = valuebuf[mygid].s1;
     float my_massdens = valuebuf[mygid].s0;
+    
 
     float3 f_pressure = (float3)(0);
     float3 f_viscos = (float3)(0);
+    float3 f_surface = (float3)(0);
+    float3 f_surface_mod = 0;
+    float3 surface_norm = (float3)(0);
+    
 
     for(int i=-1; i<=1; i++){
         for(int j=-1; j<=1; j++){
@@ -269,15 +275,23 @@ kernel void particle_sim
                     f_viscos += (other_vel.s012-myvel.s012)
                         * (MASS/other_massdens)
                         * lW_visc(mypos.s012-other_pos.s012,H_CONSTANT);
+                    
+                    surface_norm += (MASS/other_massdens) 
+                    	* nW(mypos.s012-other_pos.s012,H_CONSTANT);
+                    
+                    f_surface_mod += (MASS/other_massdens) * lW(mypos.s012-other_pos.s012,H_CONSTANT); 	   
                 }
             }
         }
     }
 
     
+    
     f_pressure *= (-my_massdens);
     f_viscos *= MU_CONSTANT;
-
+	
+	f_surface = -SURFACE_TENS * (surface_norm / length(surface_norm)) * f_surface_mod;
+	
     float3 f_internal = f_pressure + f_viscos;
 
     //// gravity 
@@ -286,16 +300,18 @@ kernel void particle_sim
 
     //mypos.s012 += myvel.s012*4;
 
-    float3 f_sum = f_internal*0.0001 + f_gravity*0.01;
+    float3 f_sum = f_internal + f_gravity + f_surface ;
 
-    float3 f_acc = f_sum / my_massdens;
+    float3 f_acc = (f_sum / my_massdens) *0.000195;
 
-    //myvel *= 0.001;
+    //myvel *= 0.085;
     mypos = mypos + myvel*dt;
     myvel = myvel + f_acc*dt;
+    myvel *= 0.95;
     
-    if(mypos.s1<height.s0){
-    	mypos.s1=height.s0;
+   if(mypos.s1<height.s0){
+    	//mypos.s1=height.s0;
+    	myvel = (float4)(normal.s012 * 0.01,0);
     }
 
     position[mygid] = mypos;
@@ -318,7 +334,7 @@ kernel void gridclear_sim
 
 }
 
-/**
+
 //////////////////////////////////////////////////////////
 // Add particles to grid Kernel                         //
 //////////////////////////////////////////////////////////
@@ -376,8 +392,8 @@ kernel void massdensity_sim
         }
     }
     float mass_density = sum_neighbours;
-    //float pressure = K_CONSTANT *( mass_density - REST_DENS);
-    float pressure = K_CONSTANT *mass_density ;
+    float pressure = K_CONSTANT *( mass_density - REST_DENS);
+    //float pressure = K_CONSTANT *mass_density ;
 
     valuebuf[mygid] = (float2)(mass_density, pressure);
-}*/
+}
