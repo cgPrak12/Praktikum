@@ -35,10 +35,10 @@ public class ClipMap {
 	private float tempX; 
 	private float tempZ;
 	private float tempY;
+	private int scaleFaktor;
+	private int countScales;
 
 	private Camera cam;
-	private float correctionX;
-	private float correctionZ;
 
 	// Cached Geometries
 	private Geometry mxm;
@@ -91,6 +91,9 @@ public class ClipMap {
 		translation = new Matrix4f();
 
 		movement = new int[stage][2];
+		
+		scaleFaktor = 1;
+		countScales = 0;
 
 		alignment = new boolean[stage][4];
 		for (int i = 0; i < alignment.length; i++) {
@@ -115,7 +118,6 @@ public class ClipMap {
 		updateSize();
 		updateHeightScale();
 		
-		correctionX = 1;
 		
 	}
 
@@ -262,11 +264,10 @@ public class ClipMap {
 	 * Generiert die Clip Map
 	 */
 	public void generateMaps() {
-		setScale(1);
 		
 
-		tempX += cam.getAlt().x / generalScale;
-		tempZ += cam.getAlt().z / generalScale;
+		tempX += cam.getAlt().x / generalScale / scaleFaktor;
+		tempZ += cam.getAlt().z / generalScale / scaleFaktor;
 
 
 		// Positiv Z --- Nach Vorn
@@ -277,46 +278,44 @@ public class ClipMap {
 		if (tempZ < -2) {moveClip(0, 3); tempZ %= 2;}
 		// Negativ X --- Nach Rechts
 		if (tempX < -2) {moveClip(0, 2); tempX %= 2;}
-
-
-		Util.mul(translation, Util.translationX(2 * (-gridsize - middlesize)
-				+ middlesize + movement[0][0], null), Util
-				.translationZ(-2 * gridsize + movement[0][1],
-						null));
-		setProgram();
-		center.draw();
 		
-		outer.draw();
+		updateHeight();
 
-		for (int i = 1; i < stage; i++) {
-			setScale((float) Math.pow(2, i));
+		for (int i = 0; i < stage; i++) {
+			if(i==0){
+				Util.mul(translation, Util.translationX(2 * (-gridsize - middlesize)
+						+ middlesize + movement[0][0], null), Util
+						.translationZ(-2 * gridsize + movement[0][1],
+								null));
+				setScale(scaleFaktor);
+				setProgram();
+				center.draw();
+				outer.draw();				
+			}else{
+			setScale((float) Math.pow(2, i+countScales));
 			createClip(i);
 			setLGrid(i);
-		
+			}
 		}
 		
 //		checkHeight();
 	}
 	
-	private void checkHeight() {
+	private void updateHeight() {
 		tempY += cam.getAlt().y;
-		
-		if(tempY >= 2){
-			tempY %= 2;
-//			size /= 2;
-			generalScale *= 2;
-			correctionX *= 2;
-			updateGeometries();
-			updateSize();
+		System.out.println(cam.getCamPos().y);
+		if(tempY > 20 && stage > 1){
+			stage--;
+			tempY %= 10;
+			scaleFaktor *= 2;
+			countScales++;
 		}
-		if(tempY <= -2){
-			tempY %= 2;
-//			size *= 2;
-			correctionX /= 2;
-			generalScale /= 2;
-			updateGeometries();
-			updateSize();
-		}
+		if(tempY <= -20 && cam.getCamPos().y > 5){
+			stage++;
+			tempY %= 10;
+			scaleFaktor /= 2;
+			countScales--;
+		}		
 	}
 
 	/** 
@@ -408,7 +407,6 @@ public class ClipMap {
 	}
 	
 	private void updateSize(){
-		System.out.println(Math.pow(2, stage-1)*(size)*generalScale);
 		program.setFloat("worldSize", (float)(Math.pow(2, stage-1)*(size))*generalScale);
 	}
 	private void updateHeightScale(){

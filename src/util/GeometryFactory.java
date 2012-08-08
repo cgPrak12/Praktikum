@@ -555,18 +555,23 @@ public class GeometryFactory {
 		//Indices
 		int icount=0;
 		    
-		int mul=1;
-		int k =0;
-		for(int j=0; j<4;j++){
-			for(int i=k; i<mul*length;i++){
-				indices[icount++]=i;
-			}
-			indices[icount++]=-1;
-			k=mul*length;
-			mul++;
-			
-		}
 		
+		//1
+		for(int i=0; i<length;i++){
+	    	indices[icount++]=i;
+	    }indices[icount++]=-1;
+	    //2
+	    for(int i=3*length; i<4*length;i++){
+	    	indices[icount++]=i;
+	    }indices[icount++]=-1;
+	    //3
+	    for(int i=2*length-1;i>=length;i--){
+	    	indices[icount++]=i;
+	    }indices[icount++]=-1;
+	    //4
+	    for(int i=3*length-1; i>=2*length;i--){
+	    	indices[icount++]=i;
+	    }
 		
 		
 		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
