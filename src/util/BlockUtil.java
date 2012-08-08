@@ -146,6 +146,11 @@ public class BlockUtil {
 		int x = Math.round(cam.getCamPos().x);
 		int z = Math.round(cam.getCamPos().z);
 		
-		return BlockUtil.readBlockData(x / 256, z / 256);
+		return getBlock(x, z);
+	}
+	
+	public static Block getBlock(int x, int z)
+	{
+		return readBlockData(x / 256, z / 256);
 	}
 }

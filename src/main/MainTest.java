@@ -23,7 +23,7 @@ public class MainTest {
     private static int terrainProgram;
     
     // terrain
-    private static util.Terrain terra;
+    private static util.TerrainUtil terra;
     
     // uniform locations
     private static int terrainViewProjLoc;
@@ -61,8 +61,8 @@ public class MainTest {
             terrainModelITLoc = glGetUniformLocation(terrainProgram, "modelIT");
             terrainParamLoc = glGetUniformLocation(terrainProgram, "param");
                    
-            terra = new util.Terrain(0.2f, 2048, 2048, 4);
-            terra.genTerrain(10);
+            terra = new util.TerrainUtil(0.2f, 2048, 2048, 4);
+//            terra.genTerrain();
             terrainGeometry = GeometryFactory.genTerrain(terra.getTerra());
             
             glEnable(GL_DEPTH_TEST);

@@ -19,12 +19,6 @@ public class Block implements Serializable {
 		vertexInfo = new float[256][256][5];		
 	}
 	
-	public int[] getID()
-	{
-		int[] result = {posX, posZ};
-		return result;
-	}
-	
 	public float getInfo(int x, int z, int pos)
 	{
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
@@ -69,4 +63,14 @@ public class Block implements Serializable {
 		}
 		return result;
 	}
+	
+	public int getX()	{	return posX;	}
+	
+	public int getZ()	{	return posZ;	}	
+	
+	public int[] getID()
+	{
+		int[] result = {posX, posZ};
+		return result;
+	}	
 }
