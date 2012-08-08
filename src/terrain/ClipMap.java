@@ -34,7 +34,7 @@ public class ClipMap
 	private boolean[][] alignment; // Array das Lage der Clipmap angibt
 	private float tempX;
 	private float tempZ;
-	private float tempY;
+//	private float tempY;
 	private int scaleFaktor;
 	private int countScales;
 
@@ -92,15 +92,8 @@ public class ClipMap
 		movement = new int[stage][2];
 		scaleFaktor = 1;
 		countScales = 0;
-
-		for (int i = 0; i < movement.length; i++)
-		{
-				movement[0][0] = (int) cam.getCamPos().x / scaleFaktor;
-				movement[0][1] = (int) cam.getCamPos().z / scaleFaktor;
-		}
-
-
 		alignment = new boolean[stage][4];
+
 		for (int i = 0; i < alignment.length; i++)
 		{
 			alignment[i][0] = false;
