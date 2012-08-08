@@ -93,9 +93,10 @@ public class ClipMap {
 		this.cam = cam;
 		translation = new Matrix4f();
 
+		//Bewegungsfaktoren zum updaten der Clipmap
 		movement = new int[stage][2];
-
 		alignment = new boolean[stage][4];
+		
 		for (int i = 0; i < alignment.length; i++) {
 			alignment[i][0] = false;
 			alignment[i][1] = true;

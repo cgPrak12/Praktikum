@@ -55,6 +55,7 @@ public class TerrainMain {
             init();
             OpenCL.init();
             glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
             glFrontFace(GL_CCW);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_PRIMITIVE_RESTART);
@@ -63,7 +64,7 @@ public class TerrainMain {
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(2, 10, program, cam);
+            clip = new ClipMap(62, 8, program, cam);
             
             tex = Texture.generateTexture(".\\earth_height.jpg", 1);
             tex.bind();
