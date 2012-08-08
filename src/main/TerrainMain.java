@@ -1,42 +1,80 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package main;
 
 import static opengl.GL.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import opengl.GL;
 import opengl.OpenCL;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
+
 import util.*;
+import window.MenuDialog;
 
 /**
- *
  * @author nico3000
  */
 public class TerrainMain {
+	// textures
+    private static Texture normalQuaderTexture;
+    private static Texture quaderTexture;
+    private static Texture diffuseQuaderTexture;
+    private static Texture specularQuaderTexture;
+    private static Texture bumpQuaderTexture;
+    private static Texture skydomeTexture;
+    private static Texture sunTexture;
+    private static Texture FBTexture2;
+    private static Texture FBTexture1;
+    private static Texture skyCloudTexture;
+    private static Texture noiseTexture;
+    private static Texture groundTexture;
+    private static Texture blackTexture;
+    private static Texture whiteTexture;
+    
     // current configurations
     private static boolean bContinue = true;
-    private static boolean culling = true;
+    private static boolean splitScreen = false;
+    private static int splitScreenVal = 1234;
+
+	private static boolean culling   = true;
     private static boolean wireframe = true;
+    
+    private static boolean tonemapping =  true;
+    private static boolean rotatelight = false;
+    private static boolean bloomBlend = false;
+    private static boolean bloom = true;
+    private static boolean shadows = true;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
     private static final Camera cam = new Camera(); 
+    private static final Camera shadowCam = new Camera();
     
     // animation params
-    private static float ingameTime = 0;
+    private static float ingameTime = 0.0f;
     private static float ingameTimePerSecond = 1.0f;
     
+    //tone mapping
+    private static float exposure    = 0.4f;
+    private static float bloomFactor = 0.3f;
+    private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    private static Vector3f sunDirection = new Vector3f(1.0f, 1.0f, 1.0f);
+         
+    private static final ScreenManipulation screenMan = new ScreenManipulation();
+    
+    private static float orthoScaleValue = 1f;
+    
+    private static Matrix4f bias;
+    
     private static ShaderProgram fboSP;
-    private static ShaderProgram waterSP;
+    private static ShaderProgram shadowSP;
     
     public static void main(String[] argv) {
         try {
@@ -47,6 +85,27 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+
+            //texturen
+            normalQuaderTexture   = Texture.generateTexture("./res/stone_wall_normal_map.jpg",0 );
+            quaderTexture         = Texture.generateTexture("./res/stone_wall.jpg",1 );
+            diffuseQuaderTexture  = Texture.generateTexture("./res/stone_wall.jpg",2 );
+            specularQuaderTexture = Texture.generateTexture("./res/stone_wall_specular.jpg",3 );
+            bumpQuaderTexture     = Texture.generateTexture("./res/stone_wall_bump.jpg",4 );
+           
+            skydomeTexture         = Texture.generateTexture("./res/sky_2.jpg",5 );
+            sunTexture			   = Texture.generateTexture("./res/sun.jpg",6);
+            skyCloudTexture        = Texture.generateTexture("./res/sky_sw.jpg",9 );
+            noiseTexture 		   = Texture.generateTexture("./res/noise.png",10);
+            groundTexture 		   = Texture.generateTexture("./res/ground.jpg",11);
+            blackTexture		   = Texture.generateTexture("./res/blackTex.jpg",12);
+            whiteTexture		   = Texture.generateTexture("./res/blackTex.jpg",13);
+            
+            
+            //initialize ScreenManipulation with all the used Shaders
+            screenMan.init("./shader/ScreenQuad_VS.glsl", "./shader/Blur_FS.glsl",
+            "./shader/Brightness_FS.glsl", "./shader/Bloom_FS.glsl", "./shader/ToneMapping_FS.glsl",
+            "./shader/PhongLighting_FS.glsl", 28, GL.WIDTH, GL.HEIGHT);
             
             render();
             OpenCL.destroy();
@@ -55,8 +114,8 @@ public class TerrainMain {
             Logger.getLogger(TerrainMain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public static void render() throws LWJGLException {
+
+	public static void render() throws LWJGLException {
         glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
         
         long last = System.currentTimeMillis();
@@ -64,21 +123,49 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
-//        waterSP = new ShaderProgram("./shader/WaterRenderer_VS.glsl", "./shader/WaterRenderer_FS.glsl");
-        waterSP = new ShaderProgram("./shader/WaterRenderer_VS.glsl", "./shader/FluidThickness_FS.glsl");
-       
-        DeferredShader shader = new DeferredShader(cam);
-        shader.init();
-        DeferredShader waterShader = new DeferredShader(cam);
-        waterShader.init();
+		//bias matrix for shadow mapping
+		bias = new Matrix4f();
+		bias.m00 = 0.5f;
+		bias.m11 = 0.5f;
+		bias.m22 = 0.5f;
+		bias.m33 = 1.0f;
+		bias.m30 = 0.5f;
+		bias.m31 = 0.5f;
+		bias.m32 = 0.5f;
         
-        FluidRenderer fluidRenderer = new FluidRenderer(cam);
+        shadowSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+        fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+        //fboSP = new ShaderProgram("./shader/MainShadow_VS.glsl", "./shader/MainShadow_FS.glsl");
+        
+        Matrix4f floorQuadMatrix = new Matrix4f();
+        //Matrix4f floorQuadITMatrix = new Matrix4f();
+        
+        //shadowCam.changeProjection();
+        Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
+
+        
+        DeferredShader shadowShader = new DeferredShader();
+        shadowShader.init(14);
+        shadowShader.registerShaderProgram(shadowSP);
+        
+        DeferredShader shader = new DeferredShader();
+        shader.init(22);
+        shader.registerShaderProgram(fboSP);
         
         Geometry testCube = GeometryFactory.createCube();
-        Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
-       
+        Geometry floorQuad = GeometryFactory.createWhiteScreenQuad();
+        Geometry sunCube = GeometryFactory.createCube();
         
+        Matrix4f sunMatrix = new Matrix4f();
+        
+        //enlighted fbo
+        FrameBuffer enlightenedFBO = new FrameBuffer();
+        enlightenedFBO.init(false, GL.WIDTH, GL.HEIGHT);
+        FrameBuffer fbo = new FrameBuffer();
+        fbo.init(false, GL.WIDTH, GL.HEIGHT);
+        FrameBuffer shadowFBO = new FrameBuffer();
+        shadowFBO.init(false, GL.WIDTH, GL.HEIGHT);
+
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -86,6 +173,12 @@ public class TerrainMain {
             last = now;     
             frameTimeDelta += millis;
             ++frames;
+            
+            shadowCam.setCamDir(sunDirection.negate(null));
+            shadowCam.setCamPos(new Vector3f(sunDirection.x * 10f, sunDirection.y * 10f, sunDirection.z * 10f));
+            
+            Util.mul(sunMatrix, Util.translation(new Vector3f(sunDirection.x*10, sunDirection.y*10, sunDirection.z*10), null));
+            
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
                 frameTimeDelta -= 1000;
@@ -95,59 +188,195 @@ public class TerrainMain {
             // input and animation
             handleInput(millis);
             animate(millis);
-            
+            if(rotatelight) {
+            	Vector4f sunDirection4f = new Vector4f(sunDirection.x, sunDirection.y, sunDirection.z, 0f);
+            	Matrix4f.transform(Util.rotationY(0.005f, null), sunDirection4f, sunDirection4f);
+            	sunDirection.set(sunDirection4f.x, sunDirection4f.y, sunDirection4f.z);
+            }
+            if(bloomBlend && bloomFactor >0.5f) {
+            	bloomFactor -= 0.08;
+            }
+            else {
+            	bloomBlend = false;
+            }
+            	
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            
+            //test cube
             fboSP.use();
-        	Matrix4f modelMatrix = new Matrix4f();
+            
+        	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
         	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-        	fboSP.setUniform("model", 	 modelMatrix);
-        	fboSP.setUniform("modelIT",  modelIT);
-        	fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-            
-            shader.prepareRendering(fboSP);
-            shader.clear();
-            
-            testCube.draw();
+        	Matrix4f shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), modelMatrix);
         	
-            shader.finish();
-//            shader.DrawTexture(shader.getWorldTexture());
+        	fboSP.setUniform("model", 	 	 modelMatrix);
+        	fboSP.setUniform("modelIT",  	 modelIT);
+        	fboSP.setUniform("viewProj", 	 Util.mul(null, cam.getProjection(), cam.getView()));
+            fboSP.setUniform("shadowMatrix", shadowMatrix);
+        	fboSP.setUniform("camPos",   	 cam.getCamPos());
+            fboSP.setUniform("view", cam.getView());
+            fboSP.setUniform("camFar", cam.getFar());
+            fboSP.setUniform("lightPosition", sunDirection);
+            fboSP.setUniform("normalTexture", normalQuaderTexture);
+            fboSP.setUniform("specularTexture", specularQuaderTexture);
+            fboSP.setUniform("textureImage", quaderTexture);
             
+            shader.bind();
             
+            shader.clear();
+        	
+            testCube.draw();
             
-            // TODO: postfx
-            
-            // START WATER
-//            waterSP.use();
-//            waterSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-//            waterShader.prepareRendering(waterSP);
-//            waterShader.clear();
-//            glBlendFunc(GL_ONE, GL_ONE);
-//            glEnable(GL_BLEND);
-//            glDisable(GL_DEPTH_TEST);
-////            GL11.glEnable(GL11.GL_POINT_SMOOTH);
-//            GL11.glPointSize(15);
-//            testWaterParticles.draw();
-//            GL11.glPointSize(GL11.GL_POINT_SIZE);
-//            glDisable(GL_BLEND);
-//            glEnable(GL_DEPTH_TEST);
-//            waterShader.finish();
-//            waterShader.DrawTexture(waterShader.getWorldTexture());
+            //floor quad
+            shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), floorQuadMatrix);
 
-            fluidRenderer.fluidThickness();
+            fboSP.setUniform("model", floorQuadMatrix);
+        	fboSP.setUniform("modelIT", floorQuadMatrix); //Util.transposeInverse(floorQuadMatrix, null));
+        	fboSP.setUniform("shadowMatrix", shadowMatrix);
             
-            // END WATER
+            floorQuad.draw();
             
+            //sun cube
+            shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), sunMatrix);
+            
+            fboSP.setUniform("model", sunMatrix);
+            fboSP.setUniform("modelIT", Util.transposeInverse(sunMatrix, null));
+            fboSP.setUniform("shadowMatrix", shadowMatrix);
+            
+            sunCube.draw();
+            
+        	shader.finish();
+        	
+        	
+        	
+        	
+        	//shader.DrawTexture(shader.getDiffuseTexture());
+        	
+        	//test cube (shadow map)
+        	glCullFace(GL_FRONT);
+        	shadowSP.use();
+        	shadowSP.setUniform("model", 	modelMatrix);
+        	shadowSP.setUniform("modelIT",  modelIT);
+        	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
+        	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
+       	
+        	shadowShader.bind();
+        	shadowShader.clear();
+   	
+        	testCube.draw();
+        	glCullFace(GL_BACK);
+        	
+        	shadowSP.setUniform("model",    floorQuadMatrix);
+        	shadowSP.setUniform("modelIT",  floorQuadMatrix);
+        	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
+        	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
+        	
+        	floorQuad.draw();
+        	
+        	shadowShader.finish();
+        	
+        	
+        	//shader.DrawTexture(shader.getDiffuseTexture());
+        	
+//        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+//        	shader.DrawTexture(shader.getWorldTexture());
+//        	shader.DrawTexture(enlightenedFBO.getTexture(0));
+        	
+        	if (shadows) {
+            	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
+        	}
+        	else {
+        		enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+        	}
+        	        	        	
+//        	shader.DrawTexture(shader.getShadowTexture());
+
+        	if (splitScreen) {
+        		fbo = getQuadScreen(splitScreenVal, shader, shadowShader);
+        	}
+        	else {
+	        	if (tonemapping) {
+	            	if (bloom) {
+	            		fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure);
+	            	}
+	            	else {
+	            		fbo = screenMan.getToneMapped(enlightenedFBO, exposure);
+	            	}
+	        	}
+	        	else {
+	            	if (bloom) {
+	            		fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor);
+	            	}
+	            	else {
+	            		fbo = enlightenedFBO;
+	            	}
+	        	}
+        	}
+        	
+        	fbo = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
+        	shader.DrawTexture(fbo.getTexture(0));
+        	            
             // present screen
             Display.update();
             Display.sync(60);
         }
+        MenuDialog.destroyInstance();
+        screenMan.delete();
         shader.delete();
-        waterShader.delete();
     }
     
+	/**
+	 * creates a screen with 4 frame buffers
+	 * @param splitScreenValue what shall be shown on the screen parts
+	 * @param shader deferred shader
+	 * @return frame buffer containing the screen 
+	 */
+	private static FrameBuffer getQuadScreen(int splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
+	
+		FrameBuffer fbo1 = new FrameBuffer();
+		FrameBuffer fbo2 = new FrameBuffer();
+		FrameBuffer fbo3 = new FrameBuffer();
+		FrameBuffer fbo4 = new FrameBuffer();
+		
+		fbo1 = getScreen(splitScreenValue        / 1000, shader, shadowShader);
+		fbo2 = getScreen(splitScreenValue % 1000 /  100, shader, shadowShader);
+		fbo3 = getScreen(splitScreenValue %  100 /   10, shader, shadowShader);
+		fbo4 = getScreen(splitScreenValue %   10 /    1, shader, shadowShader);
+		return screenMan.getQuadScreenView(fbo1, fbo2, fbo3, fbo4);	
+	}
+	
+	/**
+	 * Returns a specific frame buffer according to a input variable.
+	 * @param splitScreenValue defining what to render
+	 * @param shader deferred shader
+	 * @return frame buffer with the screen
+	 */
+	private static FrameBuffer getScreen(int splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
+		
+		FrameBuffer fbo = new FrameBuffer();
+		FrameBuffer enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+		
+		switch (splitScreenValue) {   		
+			case 0: 
+				fbo = enlightenedFBO; break;
+			case 1:
+				fbo = screenMan.getToneMappedBloomed(enlightenedFBO, bloomFactor, brightnessFactor, exposure); break;
+			case 2:
+				fbo = screenMan.getToneMapped(enlightenedFBO, exposure); break;
+			case 3:
+				fbo = screenMan.getBlur54(enlightenedFBO); break;
+			case 4:
+				fbo = screenMan.getBloom(enlightenedFBO, bloomFactor, brightnessFactor); break;
+			case 5:
+				fbo = screenMan.getBrightness(enlightenedFBO, brightnessFactor); break;
+			case 6:
+				fbo = screenMan.getShadowMap(shadowShader.getWorldTexture()); break;
+
+		}		
+		return fbo;
+	}
+	
     /**
      * Behandelt Input und setzt die Kamera entsprechend.
      * @param millis Millisekunden seit dem letzten Aufruf
@@ -192,6 +421,65 @@ public class TerrainMain {
                         break;
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
+                    case Keyboard.KEY_M:  MenuDialog.getInstance(); break;
+                    
+                    // exposure adjustment
+                    case Keyboard.KEY_NUMPAD8:
+                    	if (exposure <  19.0f && exposure >= 1.0f)
+                    		exposure += 1.0f;
+                    	else if (exposure < 1.0f)
+                    		exposure += 0.1f;
+                    	break;
+                    case Keyboard.KEY_NUMPAD2:
+                    	if (exposure > 1.0f)
+                    		exposure -= 1.0f;
+                    	else if (exposure <= 1.0f && exposure > 0f)
+                    		exposure -= 0.1f ;
+                    	break;
+                    // bloom adjustment
+                    case Keyboard.KEY_NUMPAD7:
+                    	if (bloomFactor <  19.0f && bloomFactor >= 1.0f)
+                    		bloomFactor += 1.0f;
+                    	else if (bloomFactor < 1.0f)
+                    		bloomFactor += 0.1f;
+                    	break;
+                    case Keyboard.KEY_NUMPAD1:
+                    	if (bloomFactor > 1.0f)
+                    		bloomFactor -= 1.0f;
+                    	else if (bloomFactor > 0f && bloomFactor <= 1.0f)
+                    		bloomFactor -= 0.1f;
+                    	break;
+                    	
+                    // brightness adjustment
+                    case Keyboard.KEY_NUMPAD9:
+                    	brightnessFactor.x += 0.1f;
+                    	brightnessFactor.y += 0.1f;
+                    	brightnessFactor.z += 0.1f;
+                       	break; 
+                    case Keyboard.KEY_NUMPAD3:
+                    	brightnessFactor.x -= 0.1f;
+                    	brightnessFactor.y -= 0.1f;
+                    	brightnessFactor.z -= 0.1f;
+                       	break; 
+                    		
+                    case Keyboard.KEY_F5:
+                    	tonemapping = !tonemapping; break;
+                    case Keyboard.KEY_F6:
+                    	rotatelight = !rotatelight; break;
+                    case Keyboard.KEY_F7:
+                    	bloomBlend = !bloomBlend; break;
+                    case Keyboard.KEY_F8:
+                    	bloom = !bloom; break;
+                    case Keyboard.KEY_ADD:
+                    	shadowCam.setOrthoScaleValue(orthoScaleValue += 0.5f); break;
+                    case Keyboard.KEY_SUBTRACT:
+                    	if(orthoScaleValue >= 0.5f) {
+                    		shadowCam.setOrthoScaleValue(orthoScaleValue -= 0.5f);
+                    	}
+                    	else {
+                    		orthoScaleValue = 0f; 
+                    	}
+                    	break;
                 }
             }
         }
@@ -216,5 +504,96 @@ public class TerrainMain {
      */
     private static void animate(long millis) {
 
-    }
+    }  
+
+    
+    //Getter and setter 
+
+	public static void setCulling(boolean culling) {
+		TerrainMain.culling = culling;
+	}
+
+	public static boolean isWireframe() {
+		return wireframe;
+	}
+
+	public static void setWireframe(boolean wireframe) {
+		TerrainMain.wireframe = wireframe;
+	}
+
+	public static boolean isBloom() {
+		return bloom;
+	}
+
+	public static void setBloom(boolean bloom) {
+		TerrainMain.bloom = bloom;
+	}
+
+	public static boolean isTonemapping() {
+		return tonemapping;
+	}
+
+	public static void setTonemapping(boolean tonemapping) {
+		TerrainMain.tonemapping = tonemapping;
+	}
+
+	public static boolean isRotatelight() {
+		return rotatelight;
+	}
+
+	public static void setRotatelight(boolean rotatelight) {
+		TerrainMain.rotatelight = rotatelight;
+	}
+
+	public static float getExposure() {
+		return exposure;
+	}
+
+	public static void setExposure(float exposure) {
+		TerrainMain.exposure = exposure;
+	}
+
+	public static float getBloomFactor() {
+		return bloomFactor;
+	}
+
+	public static void setBloomFactor(float bloomFactor) {
+		TerrainMain.bloomFactor = bloomFactor;
+	}
+
+	public static Vector4f getBrightnessFactor() {
+		return brightnessFactor;
+	}
+
+	public static void setBrightnessFactor(Vector4f brightnessFactor) {
+		TerrainMain.brightnessFactor.set(brightnessFactor);
+	}
+	
+	public static boolean isSplitScreen() {
+		return splitScreen;
+	}
+
+	public static void setSplitScreen(boolean splitScreen) {
+		TerrainMain.splitScreen = splitScreen;
+	}
+
+	public static int getSplitScreenVal() {
+		return splitScreenVal;
+	}
+
+	public static void setSplitScreenVal(int splitScreenVal) {
+		TerrainMain.splitScreenVal = splitScreenVal;
+	}
+	
+    public static boolean isCulling() {
+		return culling;
+	}
+
+	public static boolean isShadows() {
+		return shadows;
+	}
+
+	public static void setShadows(boolean shadows) {
+		TerrainMain.shadows = shadows;
+	}
 }

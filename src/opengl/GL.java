@@ -17,12 +17,12 @@ public class GL {
     /**
      * Breite des OpenGL Fensters
      */
-    public static final int WIDTH = 800;
+    public static final int WIDTH = 1000;
     
     /**
      * Hoehe des OpenGL Fensters
      */
-    public static final int HEIGHT = 800;
+    public static final int HEIGHT = 1000;
     
     /**
      * Primitive Restart Index
@@ -905,7 +905,7 @@ public class GL {
         GL.checkError("glVertexAttribPointer");
     }
     
-    private static void checkError(String source) {
+    public static void checkError(String source) {
         if(checkForErrors) {
             int errorcode = GL11.glGetError();
             String errorstring = null;

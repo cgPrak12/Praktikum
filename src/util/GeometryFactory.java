@@ -3,6 +3,9 @@ package util;
 import static opengl.GL.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+
+import opengl.GL;
+
 import org.lwjgl.BufferUtils;
 
 /**
@@ -40,28 +43,83 @@ public class GeometryFactory {
         return geo;
     }
     
+    public static Geometry createWhiteScreenQuad() {        
+        int vaid = glGenVertexArrays();
+        glBindVertexArray(vaid);        
+        
+        // vertexbuffer
+        FloatBuffer vertexData = BufferUtils.createFloatBuffer(4*(3+3+3+4+2));
+        vertexData.put(new float[] {
+            -1.0f, -1.0f,0.0f, 0.0f,1.0f,0.0f, 10.0f, 10.0f, 10.0f, 1.0f, 1.0f,0.0f,0.0f, -1.0f, -1.0f,
+            +1.0f, -1.0f,0.0f, 0.0f,1.0f,0.0f, 10.0f, 10.0f, 10.0f, 1.0f, 1.0f,0.0f,0.0f, +1.0f, -1.0f,
+            -1.0f, +1.0f,0.0f, 0.0f,1.0f,0.0f, 10.0f, 10.0f, 10.0f, 1.0f, 1.0f,0.0f,0.0f,-1.0f, +1.0f,
+            +1.0f, +1.0f,0.0f, 0.0f,1.0f,0.0f, 10.0f, 10.0f, 10.0f, 1.0f, 1.0f,0.0f,0.0f,+1.0f, +1.0f
+            
+        });
+        vertexData.position(0);
+        
+        // indexbuffer
+        IntBuffer indexData = BufferUtils.createIntBuffer(4);
+        indexData.put(new int[] { 0, 1, 2, 3, });
+        indexData.position(0);
+        
+        Geometry geo = new Geometry();
+        geo.setIndices(indexData, GL_TRIANGLE_STRIP);
+        geo.setVertices(vertexData);
+        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+        geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 3*4);
+        geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 3*4+3*4);
+        geo.addVertexAttribute(ShaderProgram.ATTR_TANGENT, 3, 3*4+3*4+4*4);
+        geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 3*4+3*4+4*4+3*4);
+        return geo;
+    }
+    
     public static Geometry createCube() {
     	float[] cubeVertices  = {
-       		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f, // front top right
-       		-0.5f,  0.5f,  0.5f, 	0.0f, 1.0f, 1.0f, 1.0f, // front top left
-       		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 1.0f, 1.0f, // front bottom right
-       		-0.5f, -0.5f,  0.5f, 	0.0f, 0.0f, 1.0f, 1.0f, // front bottom left
-       		
-       		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 0.0f, 1.0f, // back top right
-       		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f, 0.0f, 1.0f, // back top left
-       		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
-       		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 0.0f, 1.0f  // back bottom left		
-       };
+         	 0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  		1.0f, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f, 1.0f,// front top right
+       		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  	 	0.0f, 1.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 0.0f,1.0f,// front top left
+       		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  		0.0f, 0.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f,// front bottom right
+       		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  		0.0f, 1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,// front bottom left
+           		
+       		 0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  		10.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,// back top right
+       		 0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  		0.0f, 10.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,  0.0f,1.0f,// back top left
+       		-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  		1.0f, 0.0f, 20.0f, 1.0f, 1.0f, 0.0f, 0.0f,1.0f, 0.0f,// back bottom right
+       		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,  		0.0f, 0.0f, 30.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,// back bottom left		
+
+       		 0.5f, 0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  		20.0f, 2.0f, 20.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,// front top right
+       		 0.5f, 0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  		0.0f, 2.0f, 2.0f, 1.0f,   0.0f, 0.0f, 1.0f, 0.0f,1.0f,// front top left
+       		-0.5f, 0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  		30.0f, 0.0f, 2.0f, 1.0f,  0.0f, 0.0f, 1.0f,1.0f, 0.0f,// front bottom right
+       		-0.5f, 0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  		0.0f, 0.0f, 5.0f, 1.0f,   0.0f, 0.0f, 1.0f,0.0f, 0.0f,// front bottom left
+               		
+       		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,  		2.0f, 50.0f, 2.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,// front top right
+	    	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,  		0.0f, 2.0f, 20.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,1.0f,// front top left
+			 0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,  		20.0f, 0.0f, 2.0f, 1.0f, 0.0f, 0.0f, 1.0f,1.0f, 0.0f,// front bottom right
+	 		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,  		0.0f, 0.0f, 2.0f, 1.0f,  0.0f, 0.0f, 1.0f,0.0f, 0.0f,// front bottom left
+               		
+       		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  		0.5f, 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,// front top right
+       		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  		0.0f, 1.0f, 0.5f, 1.0f,  0.0f, 1.0f, 0.0f, 0.0f,1.0f,// front top left
+       		 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  		2.0f, 0.0f, 0.5f, 1.0f,  0.0f, 1.0f, 0.0f,1.0f, 0.0f,// front bottom right
+       		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  		0.0f, 0.0f, 0.1f, 1.0f,  0.0f, 1.0f, 0.0f,0.0f, 0.0f,// front bottom left
+           		
+       		-0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  		0.2f, 0.7f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,// front top right
+       		-0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  		0.0f, 2.0f, 0.2f, 1.0f,  0.0f, 1.0f, 0.0f, 0.0f,1.0f,// front top left
+       		-0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  		20.0f, 0.0f, 2.0f, 1.0f, 0.0f, 1.0f, 0.0f,1.0f, 0.0f, // front bottom right
+       		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  		5.0f, 10.0f, 2.0f, 1.0f, 0.0f, 1.0f, 0.0f,0.0f, 0.0f// front bottom left
+   	};
        
        int[] cubeIndices = {
-    		5, 4, 7, 6, 2, 4, 0, 
-    		5, 1, 7, 3, 2, 1, 0
+    		 0,  1,  2,  3, GL.RESTART_INDEX,
+    		 4,  5,  6,  7, GL.RESTART_INDEX,
+    		 8,  9, 10, 11, GL.RESTART_INDEX,
+    		12, 13, 14, 15, GL.RESTART_INDEX,
+    		16, 17, 18, 19, GL.RESTART_INDEX,
+    		20, 21, 22, 23, GL.RESTART_INDEX,
        };
        
        FloatBuffer cubeVertBuf = BufferUtils.createFloatBuffer(cubeVertices.length);
+       IntBuffer cubeIndBuf = BufferUtils.createIntBuffer(cubeIndices.length);
        cubeVertBuf.put(cubeVertices);
        cubeVertBuf.flip();
-       IntBuffer cubeIndBuf = BufferUtils.createIntBuffer(cubeIndices.length);
        cubeIndBuf.put(cubeIndices);
        cubeIndBuf.flip();
        
@@ -69,29 +127,10 @@ public class GeometryFactory {
        geo.setIndices(cubeIndBuf, GL_TRIANGLE_STRIP);
        geo.setVertices(cubeVertBuf);
        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
-       geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
+       geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 12);
+       geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 24);
+       geo.addVertexAttribute(ShaderProgram.ATTR_TANGENT, 3, 40);
+       geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 52);
        return geo;
-    }
-    
-    public static Geometry createTestParticles(int num) {
-    	FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(num*3);
-    	for(int i = 0; i < num; i++) {
-    		vertexBuffer.put((float)Math.random()-0.5f);
-    		vertexBuffer.put((float)Math.random()*0.2f);
-    		vertexBuffer.put((float)Math.random()-0.5f);
-    	}
-    	vertexBuffer.position(0);
-    	
-    	IntBuffer indexBuffer = BufferUtils.createIntBuffer(num);
-    	for(int i = 0; i < num; i++) {
-    		indexBuffer.put(i);
-    	}
-    	indexBuffer.position(0);
-    	
-    	Geometry geo = new Geometry();
-    	geo.setVertices(vertexBuffer);
-    	geo.setIndices(indexBuffer, GL_POINTS);
-    	geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
-    	return geo;
     }
 }

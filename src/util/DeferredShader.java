@@ -1,57 +1,77 @@
 package util;
 
+import opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
 /**
  * Usage:
- * - ShaderProgram.use() (ggf. eigenes erstellen, sonst fbo Nutzen)
- * - set Uniforms
- * - DeferredShader.prepareRendering(ShaderProgram )
- * - (optional: DeferredShader.clear() )
- * - draw-Aufruf der Geometry
- * - DeferredShader.finish()
- * - DeferredShader.drawTexture(Texture ...)
- * FragmentShader braucht als out-Variablen position, normal, color!
+ * - Initial einmal:
+ *  - ShaderProgram erzeugen mit folgenden FS out Variablen:
+ *   - out vec4 position;   // position.xyz enthalten Weltkoordinaten, position.w enthaelt Abstand zur Kamera
+ *   - out vec3 normal;     // enthaelt Normale in Weltkoordinaten
+ *   - out vec4 color;      // enthaelt diffuse Farbe (Textur oder Vertexfarbe)
+ *  - DeferredShader.registerShaderProgram(...); (ShaderProgram fuer Nutzung mit DeferredShader registrieren)
+ * - In jedem Frame fuer jedes ShaderProgram:
+ *  - ShaderProgram.use();      (ShaderProgram aktivieren)
+ *  - setUniform*(...);         (alle Unidforms setzen)
+ *  - DeferredShader.bind();    (Deferred Shading aktivieren)
+ *  - optional: DeferredShader.clear(); (Bild loeschen)
+ *  - Alle Geometrien zeichnen
+ * - Jeden Fram ganz zum Schluss:
+ *  - DeferredShader.finish();
+ *  - DeferredShader.drawTexture(Texture ...);  (Textur direkt zeichnen)
+ *  - oder
+ *  - DeferredShader.get*Texture();             (Textur weiter benutzen)
  * @author nico3000
  */
 public class DeferredShader {
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
-    private Geometry screenQuadGeo 		= GeometryFactory.createScreenQuad();
-    private FrameBuffer frameBuffer 	= new FrameBuffer();
+    private Geometry screenQuadGeo = GeometryFactory.createScreenQuad();
+    
+    private FrameBuffer frameBuffer = new FrameBuffer();
     
 	private Texture texPosition;
 	private Texture texNormal;
 	private Texture texVertexColor;
-
-    private Camera cam;
+	private Texture texSpec;
+	private Texture skyColor;
+	private Texture texSun;
+	private Texture texShadow;
     
-    public DeferredShader(Camera camTmp) {
-    	cam = camTmp;
+    public DeferredShader() {
     }
    
-    public void init() {
-    	
+    public void init(int unitOffset) {
+    	frameBuffer.init(true, GL.WIDTH, GL.HEIGHT);
+        
     	// generate textures
-    	texPosition = 	 new Texture(GL11.GL_TEXTURE_2D, 0);
-    	texVertexColor = new Texture(GL11.GL_TEXTURE_2D, 0);
-    	texNormal = 	 new Texture(GL11.GL_TEXTURE_2D, 0);
-    	    	
-    	frameBuffer.addTexture(texPosition,    GL11.GL_RGBA8, GL11.GL_RGBA);
+    	texPosition    = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +0);
+    	texVertexColor = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +1);
+    	texNormal 	   = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +2);
+    	texSpec        = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +3);
+    	skyColor       = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +4);
+    	texSun		   = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +5);
+    	texShadow = 	 new Texture(GL11.GL_TEXTURE_2D,  unitOffset +6);
+    	
+    	frameBuffer.addTexture(texPosition, GL30.GL_RGBA32F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texVertexColor, GL11.GL_RGBA8, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texNormal,      GL11.GL_RGBA8, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texNormal, GL30.GL_RGBA32F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texSpec, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(skyColor, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texSun, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texShadow, GL30.GL_RGBA32F, GL11.GL_RGBA);
     	
     	frameBuffer.drawBuffers();
     }
     
-    public void prepareRendering(ShaderProgram shaderProgram) {
-    	shaderProgram.use();
-   		GL30.glBindFragDataLocation(shaderProgram.getId(), 0, "position");
-   		GL30.glBindFragDataLocation(shaderProgram.getId(), 1, "normal");
-   		GL30.glBindFragDataLocation(shaderProgram.getId(), 2, "color");
-    	shaderProgram.setUniform("camPos", cam.getCamPos());
-   		
+    public void bind() {
    		frameBuffer.bind();
+    }
+    
+    public void registerShaderProgram(ShaderProgram shaderProgram) {
+    	shaderProgram.use();
+        frameBuffer.BindFragDataLocations(shaderProgram, "position", "normal", "color","spec", "skyColor", "texSun","shadowCoord");        
     }
     
     public void clear() {
@@ -75,6 +95,20 @@ public class DeferredShader {
         return frameBuffer.getTexture(2);
     }
     
+    public Texture getSpecTexture() {
+        return frameBuffer.getTexture(3);
+    }
+    
+    public Texture getSkyTexture() {
+        return frameBuffer.getTexture(4);
+    }
+    public Texture getSunTexture() {
+        return frameBuffer.getTexture(5);
+    }
+    
+    public Texture getShadowTexture() {
+    	return frameBuffer.getTexture(6);
+    }
     public void DrawTexture(Texture tex) {
         drawTextureSP.use();
         drawTextureSP.setUniform("image", tex);
@@ -84,6 +118,7 @@ public class DeferredShader {
     public void delete() {
         drawTextureSP.delete();
         screenQuadGeo.delete();
+        
         texPosition.delete();
         texNormal.delete();
         texVertexColor.delete();
