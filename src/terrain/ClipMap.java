@@ -65,7 +65,9 @@ public class ClipMap {
 	 *            Kamera des Programms
 	 */
 	public ClipMap(int size, int stage, ShaderProgram program, Camera cam) {
-		if ((size + 2) % 2 != 0) throw new IllegalArgumentException("(size+2) muss Zweierpotenz sein!");
+		
+		
+		if (Integer.bitCount(size+2)  != 1 || (size+2)<8) throw new IllegalArgumentException("(size+2) muss eine Zweierpotenz > 7 sein!");
 		
 		/*
 		 * float camX = cam.getCamPos().x;

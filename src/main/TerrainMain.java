@@ -30,6 +30,7 @@ public class TerrainMain {
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
+    private static boolean movement = false;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -62,7 +63,7 @@ public class TerrainMain {
             program = new ShaderProgram(".\\shader\\Test_Vs.glsl",".\\shader\\Test_Fs.glsl");
             program.use();
 
-            clip = new ClipMap(254, 10, program, cam);
+            clip = new ClipMap(2, 10, program, cam);
             
             tex = Texture.generateTexture(".\\earth_height.jpg", 1);
             tex.bind();
@@ -81,7 +82,7 @@ public class TerrainMain {
             
             program.setUniform("coloration", tex);
           
-            
+
             render();
             OpenCL.destroy();
             destroy();
@@ -114,12 +115,15 @@ public class TerrainMain {
             updateUniforms();
             handleInput(millis);
             animate(millis);
+           
+  
+            
             program.use();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+ 
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);   
             clip.generateMaps();
-    
-            Display.update();
+            
+            Display.update();           
             Display.sync(60);
         }
     }

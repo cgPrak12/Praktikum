@@ -8,7 +8,5 @@ out vec4 finalColor;
 
 
 void main(void) {
-
 	finalColor = vec4(texture(coloration,tex).rgb, 1);
-
 }
