@@ -137,7 +137,7 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 }
 
 #define GROUND_NORM_DAMPING 0.00009
-#define GROUND_VELO_DAMPING 0.95
+#define GROUND_VELO_DAMPING 0.8
 #define COLLISION_DAMPING -0.00001;
 #define COLLIDE_DAMPING 0.0002;
 
@@ -175,12 +175,12 @@ kernel void particle_sim
     //////////////////////////////////////////////////////////
     float4 gravity = (float4)(0,-0.00001,0,0);
     myvel += gravity;
-    float3 dVelo = (float3)(0);  	
+    float4 dVelo = (float4)(0);  	
     if(mypos.s1 <= height.s0+RADIUS)
     {
         mypos.s1 = height.s0+RADIUS;
-        dVelo = normal.s012*GROUND_NORM_DAMPING;
-        myvel += (float4)(dVelo,0);
+        dVelo = (float4)(normal.s012*GROUND_NORM_DAMPING,0);
+        myvel += dVelo;
         myvel *= GROUND_VELO_DAMPING;
     }
 
@@ -193,55 +193,58 @@ kernel void particle_sim
     //////////////////////////////////////////////////////////  
     
     float4 collide_velo = 0;
-    if(mypos.s3>0.1){ 
-    for(int i=-1; i<=1; i++){
-        for(int j=-1; j<=1; j++){
-            for(int k=-1; k<=1; k++){
-                cell_id_t cid = g_get_cell_id(&grid, mypos.s012, (int3)(i,j,k));
-                if (cid.cnt_id == -1) continue;
-                int num = grid.counter[cid.cnt_id];
-                num = num > grid.max_p ? grid.max_p : num;
-                
-                for (int m = 0; m < num; m++) {
-                    ///////////////////////////////////////////////////////////
-                    int other_gid = grid.cells[cid.cell_id+m];
-                    if (other_gid == mygid) continue;
-                    float4 other_pos = position[other_gid];
-                    float4 other_vel = velos[other_gid];                    
-                    float4 n = (other_pos - mypos);
-                    float distance = length(n.s012);
-                    if(distance < RADIUS*2)
-                    {
-                        //if(mypos.s1 > other_pos.s1){
-                        //        myvel-=gravity*0.1;
-                        //}
-                        //collide_velo+=normalize(n)*COLLISION_DAMPING;
-                        collide_velo+=collide(other_pos-mypos, myvel , other_vel, distance-(RADIUS*2))*COLLIDE_DAMPING;
-                    }
-                    ///////////////////////////////////////////////////////////
-                }
-            }
-        }
-    }
+    if(mypos.s3>0.8){ 
+	    for(int i=-1; i<=1; i++){
+	        for(int j=-1; j<=1; j++){
+	            for(int k=-1; k<=1; k++){
+	                cell_id_t cid = g_get_cell_id(&grid, mypos.s012, (int3)(i,j,k));
+	                if (cid.cnt_id == -1) continue;
+	                int num = grid.counter[cid.cnt_id];
+	                num = num > grid.max_p ? grid.max_p : num;
+	                
+	                for (int m = 0; m < num; m++) {
+	                    ///////////////////////////////////////////////////////////
+	                    int other_gid = grid.cells[cid.cell_id+m];
+	                    if (other_gid == mygid) continue;
+	                    float4 other_pos = position[other_gid];
+	                    float4 other_vel = velos[other_gid];                    
+	                    float4 n = (other_pos - mypos);
+	                    float distance = length(n.s012);
+	                    if(distance < RADIUS*2)
+	                    {
+	                        //if(mypos.s1 > other_pos.s1){
+	                        //        myvel-=gravity*0.1;
+	                        //}
+	                        //collide_velo+=normalize(n)*COLLISION_DAMPING;
+	                        collide_velo+=collide(other_pos-mypos, myvel , other_vel, distance-(RADIUS*2))*COLLIDE_DAMPING;
+	                    }
+	                    ///////////////////////////////////////////////////////////
+	                }
+	            }
+	        }
+	    }
     }
     barrier(CLK_GLOBAL_MEM_FENCE);
 
 	myvel+=collide_velo;
     mypos.s012 += myvel.s012*3;
 
-	float2 well = (float2)(0.5f,0.2f);
+	//float2 well = (float2)(0.5f,0.2f);
+	float2 well = (float2)(0.71f,0.17f);
 	float well_height = read_imagef(heightmap, sampler, well).s0;
 
 
 	if(mypos.s0<0||mypos.s0>1||mypos.s2<0||mypos.s2>1) {mypos.s3=0;}
-	if(length(myvel)<0.0001&&mypos.s1>well_height+0.01) {mypos.s3-=0.02;}
+	//if(length(myvel)<0.001&&mypos.s1>well_height+0.01) {mypos.s3=0;}//{mypos.s3-=0.02;}
+	if(length(myvel)<0.00001&&mypos.s1>0.05) {mypos.s3=0;}//{mypos.s3-=0.02;}
 	//mypos.s3-=0.00001;
 	
-	
 	if(mypos.s3<=0) {
-		mypos=(float4)(well.s0,well_height,well.s1,1.0f);
-		myvel=(float4)(-random*0.0001f,random*0.0001f,random*0.0001f,0);
+		mypos=(float4)(well.s0+random*0.001,well_height,well.s1+random*0.001,1.0f);
+		//myvel=(float4)(-random*0.0001f,random*0.0001f,random*0.0001f,0);
+		myvel = (float4)(-0.0006,0.0003,0.00001*random+0.0001f,0);
 	}
+	
 
     position[mygid] = mypos;
     velos[mygid] = myvel;

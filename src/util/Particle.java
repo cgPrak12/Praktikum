@@ -232,7 +232,7 @@ public class Particle {
     	veloBuffer.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
                 veloBuffer.put(0);
-    		veloBuffer.put(0.001f*(float)Math.random());
+    		veloBuffer.put(0.1f*(float)Math.random());
                 veloBuffer.put(0);
                 veloBuffer.put(0);
     	}
@@ -267,6 +267,7 @@ public class Particle {
         clEnqueueAcquireGLObjects(this.queue, this.normalmap, null, null);
         
         this.kernel0.setArg(8, 1e-3f*millis);
+        this.kernel0.setArg(9, (float)Math.random());
         clEnqueueNDRangeKernel(this.queue, kernel1, 1, null, 
                 BufferUtils.createPointerBuffer(1).put(0,84*84*84), 
                 BufferUtils.createPointerBuffer(1).put(0,1), null, null);
@@ -376,7 +377,7 @@ public class Particle {
         this.kernel0.setArg(6,this.gridLen);
         this.kernel0.setArg(7,this.gridMaxParticles);
         this.kernel0.setArg(8, 0.0f); // dt, see draw()
-        this.kernel0.setArg(9, (float)Math.random());
+        this.kernel0.setArg(9, 0.0f);
     
     }
     

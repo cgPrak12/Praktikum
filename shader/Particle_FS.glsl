@@ -7,7 +7,7 @@ void main(void)
 {
     finalColor = vec4(0,0,1,1);
 
-	if( lifetime <= 0.1f) 
+	if( lifetime <= 0.8f) 
 	{
 		discard;
     }
