@@ -460,11 +460,11 @@ public class TerrainMain {
 	}
 
 	public static boolean isWireframe() {
-		return wireframe;
+		return !wireframe;
 	}
 
 	public static void setWireframe(boolean wireframe) {
-		TerrainMain.wireframe = wireframe;
+		TerrainMain.wireframe = !wireframe;
 	}
 
 	public static boolean isBloom() {

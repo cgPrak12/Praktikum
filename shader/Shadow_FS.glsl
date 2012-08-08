@@ -10,5 +10,5 @@ void main(void)
 {
 	vec4 shadow = texture(shadowImage, texCoord);
 
-	color = vec4(shadow.w, shadow.w, shadow.w, shadow.w);
+	color = vec4(shadow.w/20, shadow.w/20, shadow.w/20, shadow.w/20);
 }
