@@ -76,9 +76,9 @@ public class GeometryFactory {
     public static Geometry createTestParticles(int num) {
     	FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(num*3);
     	for(int i = 0; i < num; i++) {
-    		vertexBuffer.put((float)Math.random()-0.5f);
-    		vertexBuffer.put((float)Math.random()*0.2f);
-    		vertexBuffer.put((float)Math.random()-0.5f);
+    		vertexBuffer.put(((float)Math.random()-0.5f) * 3.0f);
+    		vertexBuffer.put((float)Math.random()*0.4f);
+    		vertexBuffer.put(((float)Math.random()-0.5f) * 3.0f);
     	}
     	vertexBuffer.position(0);
     	
@@ -102,10 +102,10 @@ public class GeometryFactory {
         // vertexbuffer
         FloatBuffer vertexData = BufferUtils.createFloatBuffer(12);
         vertexData.put(new float[] {
-            -1.0f, 0.0f, -1.0f,
-            +1.0f, 0.0f, -1.0f,
-            -1.0f, 0.0f, +1.0f,
-            +1.0f, 0.0f, +1.0f
+            -2.0f, 0.0f, -2.0f,
+            +2.0f, 0.0f, -2.0f,
+            -2.0f, 0.0f, +2.0f,
+            +2.0f, 0.0f, +2.0f
         });
         vertexData.position(0);
         
