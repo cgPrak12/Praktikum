@@ -6,31 +6,41 @@ const float FACTORS[SAMPLES] = float[](
 	0.000244141
 );
 
-uniform sampler2D tex;
+uniform sampler2D skip;
 uniform sampler2D depth;
+uniform sampler2D normal;
+uniform sampler2D thickness;
 uniform float offsetValue = 1.0f; // how far to go?
 uniform float dir = 1.0f; 		  // 1 = horizontal, 0 = vertical
 
 in vec2 texCoord;
 
-out vec4 color;
+out vec4 depthBlur;
+out vec4 normalBlur;
+out vec4 thicknessBlur;
 
 void main(void) {
-	float offset = offsetValue / ( dir * textureSize(tex, 0).x + (1 - dir) * textureSize(tex, 0).y );
+	float offset = offsetValue / ( dir * textureSize(skip, 0).x + (1 - dir) * textureSize(skip, 0).y );
 	
 	float newRelVecCoord = -(float(SAMPLES) / 2.0f - 0.5f) * offset;
 	vec2 newTC;
 	
-	vec4 sumNewColor = vec4(0.0f);
+	vec4 sumNewDepth = vec4(0.0f);
+	vec4 sumNewNormal = vec4(0.0f);
+	vec4 sumNewThickness = vec4(0.0f);
 	
 	for(int i = 0; i < SAMPLES; i++) {
 		newTC = texCoord + vec2(dir * newRelVecCoord, (1 - dir) * newRelVecCoord);
-		if(texture(depth, newTC).w == 0.0) newTC = texCoord;
+		if(texture(skip, newTC).w == 0.0) newTC = texCoord;
 				
-		sumNewColor += texture(tex, newTC) * FACTORS[i];
+		sumNewDepth += texture(depth, newTC) * FACTORS[i];
+		sumNewNormal += texture(normal, newTC) * FACTORS[i];
+		sumNewThickness += texture(thickness, newTC) * FACTORS[i];
 		
 		newRelVecCoord += offset;
 	}
 	
-	color = sumNewColor;
+	depthBlur = sumNewDepth;
+	normalBlur = sumNewNormal;
+	thicknessBlur = sumNewThickness;
 }

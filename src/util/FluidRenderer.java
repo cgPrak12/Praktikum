@@ -3,8 +3,10 @@ package util;
 import static opengl.GL.*;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -49,29 +51,20 @@ public class FluidRenderer {
 
     // Blur filter
     private ShaderProgram blurSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Blur_FS.glsl");
+    	// framebuffers
+    private FrameBuffer blurFB   = new FrameBuffer();
+    private FrameBuffer blurFBLQ   = new FrameBuffer();
     	// depth
-    private FrameBuffer depthHBlurFB   = new FrameBuffer();
-    private FrameBuffer depthVBlurFB   = new FrameBuffer();
-    private FrameBuffer depthHBlurFBLQ = new FrameBuffer();
-    private FrameBuffer depthVBlurFBLQ = new FrameBuffer();
     private Texture depthHBlurTex 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture depthVBlurTex 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture depthHBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture depthVBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
     	// normals
-    private FrameBuffer normalHBlurFB 	= new FrameBuffer();
-    private FrameBuffer normalVBlurFB 	= new FrameBuffer();
-    private FrameBuffer normalHBlurFBLQ	= new FrameBuffer();
-    private FrameBuffer normalVBlurFBLQ	= new FrameBuffer();
     private Texture normalHBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture normalVBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture normalHBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture normalVBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
     	// thickness
-    private FrameBuffer thicknessHBlurFB   = new FrameBuffer();
-    private FrameBuffer thicknessVBlurFB   = new FrameBuffer();
-    private FrameBuffer thicknessHBlurFBLQ = new FrameBuffer();
-    private FrameBuffer thicknessVBlurFBLQ = new FrameBuffer();
     private Texture thicknessHBlurTex	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture thicknessVBlurTex 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture thicknessHBlurTexLQ	   = new Texture(GL_TEXTURE_2D, textureUnit++);
@@ -136,11 +129,8 @@ public class FluidRenderer {
     	init(interpolationSP, thicknessIntFB, thicknessIntTex);
     	
     	// init blur
-    	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB}, 
-    				 new Texture[]    {depthHBlurTex,   depthVBlurTex,   normalHBlurTex,   normalVBlurTex,   thicknessHBlurTex,   thicknessVBlurTex});
-    	init(blurSP, new FrameBuffer[]{depthHBlurFBLQ,  depthVBlurFBLQ,  normalHBlurFBLQ,  normalVBlurFBLQ,  thicknessHBlurFBLQ,  thicknessVBlurFBLQ}, 
-    				 new Texture[]    {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ}, true);
-
+    	initBlur();
+    	
     	createCubeMap();
     	
 	} 
@@ -162,12 +152,6 @@ public class FluidRenderer {
 		thickness();
 		
 		// blur
-		blur(depthTexLQ, depthHBlurFB, depthVBlurFB, 1.0f);
-		blur(depthTexLQ, depthHBlurFBLQ, depthVBlurFBLQ, 1.0f);
-		blur(normalTexLQ, normalHBlurFB, depthVBlurFB, 1.0f);
-		blur(normalTexLQ, normalHBlurFBLQ, normalVBlurFBLQ, 1.0f);
-		blur(thicknessTexLQ, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
-		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
 		
 		// interpolation
 		interpolate(depthTex,     depthTexLQ,     depthIntFB);
@@ -544,31 +528,59 @@ public class FluidRenderer {
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
 	
-	private void blur(Texture tex, FrameBuffer hFB, FrameBuffer vFB, float offset) {
-		blur(new Texture[] { tex }, new FrameBuffer[] { hFB }, new FrameBuffer[] { vFB }, new float[] { offset });
-	}
 	
-	private void blur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
-		startPath(blurSP);
-		blurSP.setUniform("depth", depthTex);
-		runBlur(tex, hFB, vFB, offset);
-		endPath();
-	}
-	
-	private void runBlur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
-		blurSP.setUniform("dir", 1.0f);
-		for(int i = 0; i < vFB.length; i++) {
-			blurSP.setUniform("tex", tex[i]);
-			bindFB(hFB[i]);
-			screenQuad.draw();
+	private void initBlur() {
+		Texture[] blurTextures = {depthHBlurTex, depthVBlurTex, normalHBlurTex, normalVBlurTex, thicknessHBlurTex, thicknessVBlurTex};
+		Texture[] blurTexturesLQ = {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ};
+		String[] names = {"depthBlur", "normalBlur", "thicknessBlur"};
+
+		for(int i = 0; i < names.length; i++) {
+			glBindFragDataLocation(blurSP.getId(), i, names[i]);
 		}
 		
-		blurSP.setUniform("dir", 0.0f);
-		for(int i = 0; i < hFB.length; i++) {
-			blurSP.setUniform("tex", hFB[i].getTexture(0));
-			bindFB(vFB[i]);
-			screenQuad.draw();
+		blurFB.init(false, WIDTH, HEIGHT);
+		for(Texture tex: blurTextures) {
+			addBlurTexture(blurFB, tex);
 		}
+		blurFB.drawBuffers();
+
+		blurFBLQ.init(false, WIDTH/2, HEIGHT/2);
+		for(Texture tex: blurTexturesLQ) {
+			addBlurTexture(blurFBLQ, tex);
+		}
+		blurFBLQ.drawBuffers();
+	}
+	
+	private void addBlurTexture(FrameBuffer fb, Texture tex) {
+		fb.addTexture(tex, GL_RGBA16F, GL_RGBA);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+	
+	private void blur() {
+		startPath(blurSP);
+		blurSP.setUniform("skip", depthTex);
+		blurSP.setUniform("depth", depthTexLQ);
+		blurSP.setUniform("normal", normalTexLQ);
+		blurSP.setUniform("thickness", thicknessTexLQ);
+		blurSP.setUniform("dir", 1.0f);
+		
+		bindFB(blurFB);
+		IntBuffer buffers = BufferUtils.createIntBuffer(3);
+		buffers.put(new int[]{0,2,4});
+		glDrawBuffers(buffers);
+		screenQuad.draw();
+		bindFB(blurFBLQ);
+
+		screenQuad.draw();
+		
+		blurSP.setUniform("dir", 0.0f);
+		bindFB(blurFB);
+
+		screenQuad.draw();
+		bindFB(blurFBLQ);
+
+		screenQuad.draw();		
 	}
 	
 	private void interpolate(Texture high, Texture low, FrameBuffer fb){
