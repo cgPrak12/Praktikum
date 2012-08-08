@@ -48,12 +48,12 @@ public class GeometryFactory {
         glBindVertexArray(vaid);        
         
         // vertexbuffer
-        FloatBuffer vertexData = BufferUtils.createFloatBuffer(24);
+        FloatBuffer vertexData = BufferUtils.createFloatBuffer(40);
         vertexData.put(new float[] {
-            -1.0f, -1.0f, 10.0f, 10.0f, 10.0f, 1.0f, 
-            +1.0f, -1.0f, 10.0f, 10.0f, 10.0f, 1.0f, 
-            -1.0f, +1.0f, 10.0f, 10.0f, 10.0f, 1.0f, 
-            +1.0f, +1.0f, 10.0f, 10.0f, 10.0f, 1.0f
+            -1.0f, -1.0f, 0.0f, 5.0f, 5.0f, 5.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+            +1.0f, -1.0f, 0.0f, 5.0f, 5.0f, 5.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+            -1.0f, +1.0f, 0.0f, 5.0f, 5.0f, 5.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+            +1.0f, +1.0f, 0.0f, 5.0f, 5.0f, 5.0f, 1.0f,  0.0f, 1.0f, 0.0f
         });
         vertexData.position(0);
         
@@ -65,14 +65,15 @@ public class GeometryFactory {
         Geometry geo = new Geometry();
         geo.setIndices(indexData, GL_TRIANGLE_STRIP);
         geo.setVertices(vertexData);
-        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-        geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 8);
+        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+        geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
+        geo.addVertexAttribute(ShaderProgram.ATTR_NORMAL, 3, 36);
         return geo;
     }
     
     public static Geometry createCube() {
     	float[] cubeVertices  = {
-         		 0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // front top right
+    		 0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // front top right
        		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f, // front top left
        		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 1.0f, // front bottom right
        		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f, // front bottom left

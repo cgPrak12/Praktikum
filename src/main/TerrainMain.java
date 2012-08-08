@@ -24,7 +24,7 @@ public class TerrainMain {
     // current configurations
     private static boolean bContinue = true;
     private static boolean splitScreen = false;
-    private static int splitScreenVal = 1234;
+    private static int[] splitScreenVal = { 1, 2, 3, 4 };
 
 	private static boolean culling   = true;
     private static boolean wireframe = true;
@@ -107,7 +107,7 @@ public class TerrainMain {
         Matrix4f floorQuadMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
-        //shadowCam.changeProjection();
+//        shadowCam.changeProjection();
         Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
 
         
@@ -222,6 +222,7 @@ public class TerrainMain {
         	testCube.draw();
         	glCullFace(GL_BACK);
         	
+        	//floor quad (shadow map)
         	shadowSP.setUniform("model",    floorQuadMatrix);
         	shadowSP.setUniform("modelIT",  floorQuadMatrix);
         	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
@@ -278,18 +279,18 @@ public class TerrainMain {
 	 * @param shader deferred shader
 	 * @return frame buffer containing the screen 
 	 */
-	private static FrameBuffer getQuadScreen(int splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
+	private static FrameBuffer getQuadScreen(int[] splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
 	
+		FrameBuffer fbo0 = new FrameBuffer();
 		FrameBuffer fbo1 = new FrameBuffer();
 		FrameBuffer fbo2 = new FrameBuffer();
 		FrameBuffer fbo3 = new FrameBuffer();
-		FrameBuffer fbo4 = new FrameBuffer();
 		
-		fbo1 = getScreen(splitScreenValue        / 1000, shader, shadowShader);
-		fbo2 = getScreen(splitScreenValue % 1000 /  100, shader, shadowShader);
-		fbo3 = getScreen(splitScreenValue %  100 /   10, shader, shadowShader);
-		fbo4 = getScreen(splitScreenValue %   10 /    1, shader, shadowShader);
-		return screenMan.getQuadScreenView(fbo1, fbo2, fbo3, fbo4);	
+		fbo0 = getScreen(splitScreenValue[0], shader, shadowShader);
+		fbo1 = getScreen(splitScreenValue[1], shader, shadowShader);
+		fbo2 = getScreen(splitScreenValue[2], shader, shadowShader);
+		fbo3 = getScreen(splitScreenValue[3], shader, shadowShader);
+		return screenMan.getQuadScreenView(fbo0, fbo1, fbo2, fbo3);	
 	}
 	
 	/**
@@ -318,7 +319,6 @@ public class TerrainMain {
 				fbo = screenMan.getBrightness(enlightenedFBO, brightnessFactor); break;
 			case 6:
 				fbo = screenMan.getShadowMap(shadowShader.getWorldTexture()); break;
-
 		}		
 		return fbo;
 	}
@@ -523,12 +523,12 @@ public class TerrainMain {
 		TerrainMain.splitScreen = splitScreen;
 	}
 
-	public static int getSplitScreenVal() {
-		return splitScreenVal;
+	public static int getSplitScreenVal(int loc) {
+		return splitScreenVal[loc];
 	}
 
-	public static void setSplitScreenVal(int splitScreenVal) {
-		TerrainMain.splitScreenVal = splitScreenVal;
+	public static void setSplitScreenVal(int value, int loc) {
+		TerrainMain.splitScreenVal[loc] = value;
 	}
 	
     public static boolean isCulling() {

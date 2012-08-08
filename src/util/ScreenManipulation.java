@@ -421,14 +421,13 @@ public class ScreenManipulation {
 		fboShadowPhong.bind();
 		
 		spoShadowPhong.use();
-		spoShadowPhong.setUniform("normalTex",  shader.getNormalTexture());
-		spoShadowPhong.setUniform("worldTex",   shader.getWorldTexture());
-		spoShadowPhong.setUniform("diffuseTex", shader.getDiffuseTexture());
-		//spoShadowPhong.setUniform("shadowTex", 	shader.getShadowTexture());
-		spoShadowPhong.setUniform("shadowTex", shadowShader.getWorldTexture());
+		spoShadowPhong.setUniform("normalTex",    	 shader.getNormalTexture());
+		spoShadowPhong.setUniform("worldTex",    	 shader.getWorldTexture());
+		spoShadowPhong.setUniform("diffuseTex", 	 shader.getDiffuseTexture());
+		spoShadowPhong.setUniform("shadowTex", 		 shadowShader.getWorldTexture());
 		spoShadowPhong.setUniform("shadowCoordsTex", shader.getShadowTexture());
-		spoShadowPhong.setUniform("camPos",     camPos);
-		spoShadowPhong.setUniform("sunDir",	 	sunDirection);
+		spoShadowPhong.setUniform("camPos",     	 camPos);
+		spoShadowPhong.setUniform("sunDir",	 		 sunDirection);
 		
 		this.screenQuad.draw();
 		
@@ -450,7 +449,7 @@ public class ScreenManipulation {
 		spoHalf.delete();
 		spoQuad.delete();
 		spoShadow.delete();
-//		spoShadowPhong.delete();
+		spoShadowPhong.delete();
 	}
 
 	/**

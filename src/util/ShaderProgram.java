@@ -112,7 +112,6 @@ public class ShaderProgram {
                 }
     		}
     	}
-    	GL.checkError("");
     	
 //    	FloatBuffer val = BufferUtils.createFloatBuffer(vectorarray.length * 2);
 //        if(loc != -1) {

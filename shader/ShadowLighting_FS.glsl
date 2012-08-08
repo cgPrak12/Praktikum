@@ -85,40 +85,38 @@ void main(void)
 		vec4 shadowCoord = texture(shadowCoordsTex, texCoord);
 		//float shadow = texture(shadowTex, shadowCoord.xy / shadowCoord.w).w;
 		float sum = 0;
+		int count = 0;
 		
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2(-1,-1)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2(-1, 1)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2( 1, 1)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2( 1,-1)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2(-1,-2)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2(-1, 2)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2( 1, 2)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2( 1,-2)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2(-2,-1)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2(-2, 1)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2( 2, 1)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2( 2,-1)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2(-2,-2)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2(-2, 2)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2( 2, 2)).w;
-		sum += textureOffset(shadowTex, shadowCoord.xy / shadowCoord.w, ivec2( 2,-2)).w;
-		
-		float shadow = sum / 16;
+		for (int i = -2; i < 3; i++) 
+		{
+			for (int j = -2; j < 3; j++)
+			{
+				sum += textureProjOffset(shadowTex, shadowCoord, ivec2(i,j)).w;
+				count++;
+			}
+		}
+		float shadow = sum / count;
 		
 		float dist = distance(10.0 * sunDir, positionWC.xyz);
-		diff = mix((shadow/10000)*diff, diff, 0.0001)*100;
+		// diff = mix((shadow/10000)*diff, diff, 0.0001)*100;
+		
+		// diff = mix(vec3(0,0,0)*diff, diff, shadow);
+		
+		// shadow /= dist*3;
+		// diff *= shadow;
+
+		
 		// enlightenedColor = vec4(shadow/40);
 		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, (shadow/35)*spec, ambi.rgb), 1.0);
 		
-		// if(shadow < dist)
-		// {
-		// enlightenedColor = vec4(shadow/40);
-			// enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, vec3(0), vec3(0), ambi.rgb), 1.0);
-		// }
-		// else
-		// {
-			// enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb), 1.0);
-		// }	
+		if(shadow < dist)
+		{
+			enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, vec3(0), vec3(0), ambi.rgb), 1.0);
+		}
+		else
+		{
+			enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb), 1.0);
+		}	
 	}
 }
 

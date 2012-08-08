@@ -38,6 +38,7 @@ import java.awt.ItemSelectable;
 
 public class MenuDialog extends JDialog {
 
+	//strings for check boxes (split screen)
 	private static final String ENLIGHTENED = "Enlightened";
 	private static final String TONEMAPPEDBLOOMED = "Tone Mapped Bloomed";
 	private static final String TONEMAPPED = "Tone Mapped";
@@ -45,6 +46,12 @@ public class MenuDialog extends JDialog {
 	private static final String BLOOMED = "Bloomed";
 	private static final String BRIGHTMAP = "Brightmap";
 	private static final String SHADOWMAP = "Shadowmap";
+	
+	//consts for split screen view
+	private static final int TOPLEFT = 0;
+	private static final int TOPRIGHT = 1;
+	private static final int BOTTOMLEFT = 2;
+	private static final int BOTTOMRIGHT = 3;
 	
 	private static MenuDialog mDial;
 	private static final long serialVersionUID = 1L;
@@ -530,13 +537,13 @@ public class MenuDialog extends JDialog {
 			gbc_cbxStrings.insets = new Insets(0, 0, 5, 5);
 			gbc_cbxStrings.gridx = 2;
 			gbc_cbxStrings.gridy = 5;
-			cbxTopLeft.setSelectedIndex(main.TerrainMain.getSplitScreenVal() / 1000);
+			cbxTopLeft.setSelectedIndex(main.TerrainMain.getSplitScreenVal(TOPLEFT));
 			splitScreenPanel.add(cbxTopLeft, gbc_cbxStrings);
 			ActionListener actionListener = new ActionListener() {
 			      public void actionPerformed(ActionEvent actionEvent) {
 			        ItemSelectable is = (ItemSelectable)actionEvent.getSource();
 			        int val = string2Value(selectedString(is));
-			        main.TerrainMain.setSplitScreenVal((main.TerrainMain.getSplitScreenVal() % 1000) + (val*1000));
+			        main.TerrainMain.setSplitScreenVal(val, TOPLEFT);
 			      }
 			};
 			cbxTopLeft.addActionListener(actionListener);
@@ -561,13 +568,13 @@ public class MenuDialog extends JDialog {
 			gbc_cbxStrings.insets = new Insets(0, 0, 5, 5);
 			gbc_cbxStrings.gridx = 2;
 			gbc_cbxStrings.gridy = 6;
-			cbxTopRight.setSelectedIndex(main.TerrainMain.getSplitScreenVal() % 1000 / 100);
+			cbxTopRight.setSelectedIndex(main.TerrainMain.getSplitScreenVal(TOPRIGHT));
 			splitScreenPanel.add(cbxTopRight, gbc_cbxStrings);
 			ActionListener actionListener = new ActionListener() {
 			      public void actionPerformed(ActionEvent actionEvent) {
 			        ItemSelectable is = (ItemSelectable)actionEvent.getSource();
 			        int val = string2Value(selectedString(is));
-			        main.TerrainMain.setSplitScreenVal((main.TerrainMain.getSplitScreenVal() / 1000)*1000 + (main.TerrainMain.getSplitScreenVal() % 100) + (val*100));
+			        main.TerrainMain.setSplitScreenVal(val, TOPRIGHT);
 			      }
 			};
 			cbxTopRight.addActionListener(actionListener);
@@ -592,13 +599,13 @@ public class MenuDialog extends JDialog {
 			gbc_cbxStrings.insets = new Insets(0, 0, 5, 5);
 			gbc_cbxStrings.gridx = 2;
 			gbc_cbxStrings.gridy = 8;
-			cbxBottomLeft.setSelectedIndex(main.TerrainMain.getSplitScreenVal() % 100 / 10);
+			cbxBottomLeft.setSelectedIndex(main.TerrainMain.getSplitScreenVal(BOTTOMLEFT));
 			splitScreenPanel.add(cbxBottomLeft, gbc_cbxStrings);
 			ActionListener actionListener = new ActionListener() {
 			      public void actionPerformed(ActionEvent actionEvent) {
 			        ItemSelectable is = (ItemSelectable)actionEvent.getSource();
 			        int val = string2Value(selectedString(is));
-			        main.TerrainMain.setSplitScreenVal((main.TerrainMain.getSplitScreenVal() / 100)*100 + (main.TerrainMain.getSplitScreenVal() % 10) + (val*10));
+			        main.TerrainMain.setSplitScreenVal(val, BOTTOMLEFT);
 			      }
 			};
 			cbxBottomLeft.addActionListener(actionListener);
@@ -623,13 +630,13 @@ public class MenuDialog extends JDialog {
 			gbc_cbxStrings.insets = new Insets(0, 0, 5, 5);
 			gbc_cbxStrings.gridx = 2;
 			gbc_cbxStrings.gridy = 9;
-			cbxBottomRight.setSelectedIndex(main.TerrainMain.getSplitScreenVal() % 10);
+			cbxBottomRight.setSelectedIndex(main.TerrainMain.getSplitScreenVal(BOTTOMRIGHT));
 			splitScreenPanel.add(cbxBottomRight, gbc_cbxStrings);
 			ActionListener actionListener = new ActionListener() {
 			      public void actionPerformed(ActionEvent actionEvent) {
 			        ItemSelectable is = (ItemSelectable)actionEvent.getSource();
 			        int val = string2Value(selectedString(is));
-			        main.TerrainMain.setSplitScreenVal((main.TerrainMain.getSplitScreenVal() / 10)*10 + (val));
+			        main.TerrainMain.setSplitScreenVal(val, BOTTOMRIGHT);
 			      }
 			};
 			cbxBottomRight.addActionListener(actionListener);
