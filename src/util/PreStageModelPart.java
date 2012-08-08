@@ -70,57 +70,29 @@ public class PreStageModelPart {
 
         //Loop through all faces
         int counter= 0;
+        Vector3f[] vertexArray = new Vector3f[faceList.size()*3*3*3];
+        int position = 0;
+        ThreadGroup bufferCreatorThreadGroup = new ThreadGroup("buffer creator threads");
         while(faceIterator.hasNext()) {
-            //Speichere aktuelles Face zwischen
-            Face currentFace = faceIterator.next();
-
-            //Hole vertexCoordinaten zum jeweiligen vertexIndizies
-            vertexList.get((int)currentFace.vertexIndizies.x).store(vertexBuffer);            
-            //check if the model has texture coordinates
-            if(currentFace.vertexTextureIndizies.length()!=0)
-                new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).x,
-                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).y*-1.0f,
-                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).z).store(vertexBuffer);
-            else
-                new Vector3f().store(vertexBuffer);
-            //check if the model has normals
-            if(currentFace.vertexNormalIndizies.length()!=0)
-                vertexNormalList.get((int)currentFace.vertexNormalIndizies.x).store(vertexBuffer);
-            else
-                new Vector3f().store(vertexBuffer);
-            
-            vertexList.get((int)currentFace.vertexIndizies.y).store(vertexBuffer);
-            //check if the model has texture coordinates
-            if(currentFace.vertexTextureIndizies.length()!=0)
-                new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).x,
-                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).y*-1.0f,
-                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).z).store(vertexBuffer);
-            else
-                new Vector3f().store(vertexBuffer);
-            //check if the model has normals
-            if(currentFace.vertexNormalIndizies.length()!=0)
-                vertexNormalList.get((int)currentFace.vertexNormalIndizies.y).store(vertexBuffer);
-            else
-                new Vector3f().store(vertexBuffer);
-
-            vertexList.get((int)currentFace.vertexIndizies.z).store(vertexBuffer);
-            //check if the model has texture coordinates
-            if(currentFace.vertexTextureIndizies.length()!=0)
-                new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).x,
-                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).y*-1.0f,
-                        vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).z).store(vertexBuffer);
-            else
-                new Vector3f().store(vertexBuffer);
-            //check if the model has normals
-            if(currentFace.vertexNormalIndizies.length()!=0)
-                vertexNormalList.get((int)currentFace.vertexNormalIndizies.z).store(vertexBuffer);
-            else
-                new Vector3f().store(vertexBuffer);
+            BufferConstructor bufferConstrucot = new BufferConstructor(faceIterator.next(), vertexArray, position, vertexBuffer, vertexList, vertexTextureList, vertexNormalList);
+            Thread threadObject = new Thread(bufferCreatorThreadGroup, bufferConstrucot);
+            threadObject.start();
+            position += 9;
         }
         
         for(int i=0; i<faceList.size()*3; i++) {
             indexBuffer.put(i);
         }
+        
+        //wait if the buffer array us fully created (each thread finished)
+        while(bufferCreatorThreadGroup.activeCount()>0);
+        
+        //sore vertex array into buffer
+        for(int i=0; i<vertexArray.length; i++) {
+            if(vertexArray[i]!=null)
+                vertexArray[i].store(vertexBuffer);
+        }
+        
         
         vertexBuffer.position(0);
         indexBuffer.position(0);
