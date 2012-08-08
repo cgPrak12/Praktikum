@@ -6,15 +6,17 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 /**
  * This class provides water textures for particles.
  * @author S. Hoeffner, K. Schmidt, A. Werner
  */
 public class FluidRenderer {
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024);
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024 * 16);
 	private int 	 textureUnit = 0;
 	private Camera   cam;
+	private Vector3f lightPos;
 	private Matrix4f viewProj;
 	private boolean  skipLow = false;	// if true, all LQ Textures and functions based on them are skipped
 	
@@ -75,10 +77,6 @@ public class FluidRenderer {
 	private FrameBuffer lightingFB   = new FrameBuffer();
     private Texture lightingTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-    private ShaderProgram colorSP    = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/Color_FS.glsl");
-    private FrameBuffer colorFB      = new FrameBuffer();
-    private Texture colorTex         = new Texture(GL_TEXTURE_2D, textureUnit++);
-
     private ShaderProgram cubeMapSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/CubeMap_FS.glsl");
     private FrameBuffer cubeMapFB   = new FrameBuffer();
     private Texture cubeMapTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
@@ -99,8 +97,9 @@ public class FluidRenderer {
      * also creates the cubemap.
      * @param camTmp Camera from main program
      */
-    public FluidRenderer(Camera camTmp) {
+    public FluidRenderer(Camera camTmp, Vector3f light) {
     	cam = camTmp;
+    	lightPos = light;
     	
     	// init shaderPrograms, frameBuffers, ...
     	glPointSize(GL_POINT_SIZE);
@@ -129,7 +128,6 @@ public class FluidRenderer {
     	
     	// init lighting TODO: finish
     	init(lightingSP,  lightingFB,  lightingTex);
-    	init(colorSP, 	  colorFB,     colorTex);
     	init(cubeMapSP,   cubeMapFB,   cubeMapTex);
     	init(testPlaneSP, testPlaneFB, testPlaneTex);
     	
@@ -150,8 +148,8 @@ public class FluidRenderer {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 		// TODO: select pathes
-		createDepth(2);
-		createNormals(5, 1.5f);
+		createDepth(1);
+		createNormals(1, 1.5f);
 		thickness();
 		createLighting();
 		cubeMap();
@@ -175,8 +173,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessTex);
 //		drawTextureSP.setUniform("image", thicknessHBlurTex);
 //		drawTextureSP.setUniform("image", thicknessVBlurTex);
-//		drawTextureSP.setUniform("image", lightingTex);
-//		drawTextureSP.setUniform("image", colorTex);
+		drawTextureSP.setUniform("image", lightingTex);
 //		drawTextureSP.setUniform("image", cubeMapTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
@@ -538,18 +535,15 @@ public class FluidRenderer {
 	 * Creates some lighting.
 	 */
 	private void createLighting() {
-		
-		startPath(colorSP, colorFB);
-        colorSP.setUniform("thicknessTex", thicknessTex);
-        screenQuad.draw();
         
         startPath(lightingSP, lightingFB);
+        lightingSP.setUniform("view", cam.getView());
 	    lightingSP.setUniform("depthTex", depthTex);
 	    lightingSP.setUniform("normalTex", normalVBlurTex);
-	    lightingSP.setUniform("camPos", cam.getCamPos());
-	    lightingSP.setUniform("view", cam.getView());
 	    lightingSP.setUniform("thicknessTex", thicknessTex);
-	    lightingSP.setUniform("colorTex", colorTex);
+        lightingSP.setUniform("cubeMap", cubemap);
+        lightingSP.setUniform("plane", testPlaneTex);
+        lightingSP.setUniform("lightPosW", lightPos);
         screenQuad.draw();
         
         endPath();

@@ -1,61 +1,80 @@
-#version 150 core
+#version 150
 
 in vec2 texCoords;
 
+uniform mat4 view; 
 uniform sampler2D depthTex;
 uniform sampler2D normalTex;
 uniform sampler2D thicknessTex;
-uniform sampler2D colorTex;
-uniform vec3 camPos;
-uniform mat4 view; 
+uniform samplerCube cubeMap;
+uniform sampler2D plane;
+uniform vec3 lightPosW;
 
-out vec4 finalColor;
+out vec3 color;
 
-//const vec3 c_d = vec3(0.0, 0.5, 0.8);  // diffuse Farbe
+
 const vec3 c_s = vec3(1.0, 1.0, 1.0);  // spekulare Farbe
 const vec3 c_a = vec3(1.0, 1.0, 1.0);  // ambiente Farbe
-
-//const vec3 lightPos = vec3(0.0, 5.0, 0.0);
-const vec3 lightColor = vec3(1.0, 1.0, 1.0);
-
 // material eigenschaften
-const float k_a    =  0.05;
-const float k_diff =  0.6;
-const float k_spec =  0.3;
+const float k_a    = 0.05;
+const float k_dif  = 0.6;
+const float k_spec = 0.3;
 const float es     = 16.0;
 
 
-void main(void)
-{
-//	if(texture(depthTex,texCoords).w == 1) discard;
+void main(void) {
 	
-	float depth = texture(depthTex, texCoords).w;
-//	vec3 position = vec3(texCoords*2-1,depth);
-	vec3 position = ( view * texture(depthTex, texCoords)).xyz;
+	vec3 position = texture(depthTex, texCoords).xyz;
+	vec3 normal = normalize(texture(normalTex, texCoords).xyz);
+	float thickness = texture(thicknessTex, texCoords).z;
 	
-	vec3 normal = normalize( ( texture(normalTex,texCoords)).xyz );
-//	vec3 normal = normalize( texture(normalTex,texCoords).xyz );
-//	vec3 normal = normalize( ( inverse(view) * texture(normalTex,texCoords)).xyz );
+// ***************************	
+// Color due to absorption
+	if(texture(thicknessTex, texCoords).z == 0) discard;
+	
+	float thickness1 = pow(thickness, 0.5);
+	
+	vec4 darkBlue  = vec4(0.0, 0.1, 0.5, 0.0);
+	vec4 lightBlue = vec4(0.0, 0.7, 1.0, 0.0);
+	
+	vec4 color1 = (1.0-thickness1)*lightBlue + thickness1*darkBlue;
+	vec3 c_d = vec3(0.0, max(0.1, color1.y), max(0.5, color1.z));
+	
+// ***************************	
+// Phong-Lighting
 
-	vec3 lightPos = ( view * vec4(0.0, -5.0, 0.0, 1.0)).xyz;	
+	vec3 lightPos = (view * vec4(lightPosW, 1.0) ).xyz;		
+	vec3 pos2eye = normalize(-position);	
+	vec3 light2pos = normalize(position - lightPos);
+	vec3 reflected = normalize(reflect(light2pos, normal));
 	
-//	vec3 c_d = (1.0-(texture(thicknessTex,texCoords)).z) * vec3(0.0, 0.5, 0.8);  // diffuse Farbe
-	vec3 c_d = texture(colorTex,texCoords).xyz;  // diffuse Farbe
-	
-    vec3 color = c_a * k_a;
-//    vec3 newCamPos = vec3(view * vec4(camPos,1));
-    vec3 pos2eye = normalize(-position);
+	vec3 phong = c_a * k_a
+			   + c_d * k_dif * max(0, dot(-light2pos, normal))
+			   + c_s * k_spec * max(0, pow(dot(reflected, pos2eye), es));
 
-    vec3 intensity = vec3(1, 1, 1);//plIntensity(position, lightPos);
-    vec3 light2pos = normalize(position - lightPos);
-    vec3 reflected = reflect(light2pos, normal);
-        
-    color += c_d * k_diff * intensity * max(0, dot(-light2pos, normal));             // diffuse
-    color += c_s * k_spec * intensity * max(0, pow(dot(reflected, pos2eye), es));    // specular		
+// ***************************			  
+// CubeMap
 
+	vec3 reflectedW = vec3(inverse(view) * vec4(reflected, 0.0)).xyz;
+	reflectedW.y += 0.2;
+	vec4 cubeColor = texture(cubeMap, reflectedW);
+
+
+	float rNull = 1.3333;//0.5 * ((1.0003-1.3333)/(1.0003+1.3333) + (1.3333-1.0003)/(1.3333+1.0003));
+	float fresnel = rNull + ((1.0 - rNull) * pow(1.0 - dot(position, normal), 5.0));  //normal, vec3(0.0, 0.0, 1.0) ),5.0));
+
+
+//	color = vec3(fresnel);
+//	color = vec3(cubeColor);
+
+//	color = phong;
+
+	vec3 waterColor =  0.3 * vec3(cubeColor) + 0.7 * phong;
 	
-	finalColor = vec4(color, 1.0);
-//	finalColor = texture(depthTex, texCoords);//normalize( ( texture(normalTex,texCoords)) );
-//	finalColor = vec4(texture(depthTex, texCoords).w);
-//	finalColor = vec4(normal,0);
+	vec3 planeColor = texture(plane, texCoords).xyz;
+
+	color = min(1.0, thickness+0.3) * waterColor + max(0.0, (1.0-thickness-0.3)) * planeColor;
+
+
+
 }
