@@ -18,7 +18,6 @@ public class FluidRenderer {
 	private Camera   cam;
 	private Vector3f lightPos;
 	private Matrix4f viewProj;
-	private boolean  skipLow = false;	// if true, all LQ Textures and functions based on them are skipped
 	
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
     private Geometry screenQuad = GeometryFactory.createScreenQuad();    
@@ -128,6 +127,7 @@ public class FluidRenderer {
     	
     	// init lighting TODO: finish
     	init(lightingSP,  lightingFB,  lightingTex);
+
     	init(cubeMapSP,   cubeMapFB,   cubeMapTex);
     	init(testPlaneSP, testPlaneFB, testPlaneTex);
     	
@@ -137,8 +137,6 @@ public class FluidRenderer {
     	
     	createCubeMap();
     	
-    	// TODO this is DEBUG
-    	skipLow = false;
 	} 
 	
     /**
@@ -147,11 +145,12 @@ public class FluidRenderer {
 	public void render() {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
+		
 		// TODO: select pathes
-		createDepth(1);
-		createNormals(1, 1.5f);
+		createDepth(2);
+		createNormals(5, 1.5f, false);
 		thickness();
-		createLighting();
+		lighting();
 		cubeMap();
 		createTestPlane();
 
@@ -161,19 +160,21 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", depthTex);
 //		drawTextureSP.setUniform("image", depthHBlurTex);
 //		drawTextureSP.setUniform("image", depthVBlurTex);
-//		drawTextureSP.setUniform("image", normalTex);
-//		drawTextureSP.setUniform("image", normalHBlurTex);
-//		drawTextureSP.setUniform("image", normalVBlurTex);
 //		drawTextureSP.setUniform("image", depthTexLQ);
 //		drawTextureSP.setUniform("image", depthHBlurTexLQ);
 //		drawTextureSP.setUniform("image", depthVBlurTexLQ);
+//		drawTextureSP.setUniform("image", depthIntTex);
+//		drawTextureSP.setUniform("image", normalTex);
+//		drawTextureSP.setUniform("image", normalHBlurTex);
+//		drawTextureSP.setUniform("image", normalVBlurTex);
 //		drawTextureSP.setUniform("image", normalTexLQ);
 //		drawTextureSP.setUniform("image", normalHBlurTexLQ);
 //		drawTextureSP.setUniform("image", normalVBlurTexLQ);
+//		drawTextureSP.setUniform("image", normalIntTex);
 //		drawTextureSP.setUniform("image", thicknessTex);
 //		drawTextureSP.setUniform("image", thicknessHBlurTex);
 //		drawTextureSP.setUniform("image", thicknessVBlurTex);
-		drawTextureSP.setUniform("image", lightingTex);
+//		drawTextureSP.setUniform("image", lightingTex);
 //		drawTextureSP.setUniform("image", cubeMapTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
@@ -393,10 +394,8 @@ public class FluidRenderer {
         bindFB(depthFB);
 	    testWaterParticles.draw();
 	    
-	    if(!skipLow) {
-	    	bindFB(depthFBLQ);
-	    	testWaterParticles.draw();
-	    }
+    	bindFB(depthFBLQ);
+    	testWaterParticles.draw();
 	    
         for(int i = 0; i <= blurCount-1; i++) {
         	depthHBlurSP.use();
@@ -404,26 +403,21 @@ public class FluidRenderer {
 
 			bindFB(depthHBlurFB);	    
 	    	screenQuad.draw();	
-	    	if(!skipLow) {
-	    		depthHBlurSP.setUniform("scene", i==0?depthTexLQ:depthVBlurTexLQ);
-		    	bindFB(depthHBlurFBLQ);	    
-		    	screenQuad.draw();	
-	    	}
+    		depthHBlurSP.setUniform("scene", i==0?depthTexLQ:depthVBlurTexLQ);
+	    	bindFB(depthHBlurFBLQ);	    
+	    	screenQuad.draw();	
 	    	
         	depthVBlurSP.use();
         	depthVBlurSP.setUniform("scene", depthHBlurTex);
         	
         	bindFB(depthVBlurFB);
         	screenQuad.draw();
-        	if(!skipLow) {
-        		depthVBlurSP.setUniform("scene", depthHBlurTexLQ);
-		    	bindFB(depthVBlurFBLQ);
-		    	screenQuad.draw();
-        	}
+        	depthVBlurSP.setUniform("scene", depthHBlurTexLQ);
+	    	bindFB(depthVBlurFBLQ);
+	    	screenQuad.draw();
 		}        
         
-        if(!skipLow)
-        	interpolate(depthVBlurTex, depthVBlurTexLQ, depthIntFB);
+    	interpolate(depthVBlurTex, depthVBlurTexLQ, depthIntFB);
         
         endPath();
 	}
@@ -440,7 +434,7 @@ public class FluidRenderer {
 	 * @param blurCount number of blur iterations
 	 */
 	private void normals(int blurCount) {
-		createNormals(blurCount, 1.0f);
+		createNormals(blurCount, 1.0f, false);
 	}
 	
 	/**
@@ -448,18 +442,17 @@ public class FluidRenderer {
 	 * @param blurCount number of blur iterations
 	 * @param offsetValue blur factor
 	 */
-	private void createNormals(int blurCount, float offsetValue) {
+	private void createNormals(int blurCount, float offsetValue, boolean source) {
 		startPath(normalSP);
-		normalSP.setUniform("depthTex", depthTex);
+		normalSP.setUniform("depthTex", source?depthVBlurTex:depthTex);
 		normalSP.setUniform("texSize", (float)WIDTH);
 		normalSP.setUniform("camPos", cam.getCamPos());
 
 		bindFB(normalFB);
 		screenQuad.draw();
-		if(!skipLow) {
-			bindFB(normalFBLQ);
-			screenQuad.draw();
-		}
+		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ);
+		bindFB(normalFBLQ);
+		screenQuad.draw();
 		
 		for(int i = 0; i <= blurCount-1; i++){
 			normalHBlurSP.use();
@@ -469,11 +462,9 @@ public class FluidRenderer {
 
 			bindFB(normalHBlurFB);
 			screenQuad.draw();
-			if(!skipLow) {
-				normalHBlurSP.setUniform("normalTex", i==0?normalTexLQ:normalVBlurTexLQ);
-				bindFB(normalHBlurFBLQ);
-				screenQuad.draw();
-			}
+			normalHBlurSP.setUniform("normalTex", i==0?normalTexLQ:normalVBlurTexLQ);
+			bindFB(normalHBlurFBLQ);
+			screenQuad.draw();
 			
 			normalVBlurSP.use(); 
 			normalVBlurSP.setUniform("normalTex", normalHBlurTex);
@@ -482,12 +473,12 @@ public class FluidRenderer {
 			
 			bindFB(normalVBlurFB);
 			screenQuad.draw();
-			if(!skipLow) {
-				normalVBlurSP.setUniform("normalTex", normalHBlurTexLQ);
-				bindFB(normalVBlurFBLQ);
-				screenQuad.draw();
-			}
+			normalVBlurSP.setUniform("normalTex", normalHBlurTexLQ);
+			bindFB(normalVBlurFBLQ);
+			screenQuad.draw();
 		}
+		interpolate(normalVBlurTex, normalVBlurTexLQ, normalIntFB);
+	        
 		endPath();
 	}
 
@@ -534,7 +525,7 @@ public class FluidRenderer {
 	/**
 	 * Creates some lighting.
 	 */
-	private void createLighting() {
+	private void lighting() {
         
         startPath(lightingSP, lightingFB);
         lightingSP.setUniform("view", cam.getView());
