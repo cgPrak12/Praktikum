@@ -154,4 +154,14 @@ public class Block implements Serializable {
 		return result;
 	}
 
+	public int getPosX() {
+		return getID()[0];
+	}
+	
+	public int getPosZ() {
+		return getID()[1];
+	}
+	
+	
+
 }

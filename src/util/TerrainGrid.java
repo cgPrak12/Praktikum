@@ -3,9 +3,6 @@ package util;
 public class TerrainGrid {
 	private float values[][][];
 	
-	// myGrid.get(10000, 10000, 5);
-	// myGrid.get(10000, 10000)[5];
-	
 	public TerrainGrid(int sizeX, int sizeZ, int vertexInfo) {
 		this.values = new float[sizeX][sizeZ][vertexInfo];
 	}
@@ -19,8 +16,7 @@ public class TerrainGrid {
 	}
 	
 	public float[][][] getBlock(){
-		return values;
-		
+		return values;		
 	}
 	
 	public void add(int x, int z, int vertexInfo, float dValue) {

@@ -72,13 +72,6 @@ public class Terrain {
 
 		this.maxX = maxX;
 		this.maxZ= maxZ; 
-
-		/*
-		 * for(Block block : myGrid)
-		 * {
-		 * 		setVertex(x, z, 0, height);
-		 * 
-		 */
 		
 		// Gen flat terra, with no norms and material info
 		for(int x=0; x < maxX; ++x) {

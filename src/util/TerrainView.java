@@ -1,11 +1,17 @@
 package util;
 
+import java.io.File;
+
 public class TerrainView {
 
 	private Block[][] myBl;
 	private Camera cam;
 	private int[] middle;
 	
+	/**
+	 * constructor
+	 * @param c Camera
+	 */
 	public TerrainView(Camera c)
 	{		
 		myBl = new Block[9][9];
@@ -13,6 +19,9 @@ public class TerrainView {
 		init();
 	}
 	
+	/**
+	 * set the blocks 
+	 */
 	private void init()
 	{
 		myBl[4][4] = BlockFactory.getBlock(cam);
@@ -21,17 +30,20 @@ public class TerrainView {
 		int idI = middle[0]-1;
 		int idJ = middle[1]-1;
 		
-		//hier fehlt noch die Fehlerbehandlung am Rand
-		//dummy-Block wenn man am/über dem Rand ist 
+		// hier fehlt noch die Fehlerbehandlung am Rand
+		// dummy-Block wenn man am/über dem Rand ist 
 		for(int i=0; i<9; i++)
 		{
 			for(int j=0; j<9; j++)
 			{
-				myBl[i][j] = BlockParser.readBlockData("block_"+(idI+i)+"_"+(idJ+j)+".bf");
+				myBl[i][j] = BlockParser.readBlockData(new File((idI+i) + "_" + (idJ+j) + "_.bf"));
 			}
 		}
 	}
 
+	/**
+	 * update the whole blocks
+	 */
 	public void updateTerrainView()
 	{		
 		int diffX = (BlockFactory.getBlock(cam)).getID()[0] - middle[0];
@@ -50,8 +62,8 @@ public class TerrainView {
 
 					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
 					{
-						String file = "block_" + (myBl[i][j].getID()[0] + diffX) 
-								         + "_" + (myBl[i][j].getID()[0] + diffX) + ".bf";
+						File file = new File((myBl[i][j].getID()[0] + diffX) 
+								     + "_" + (myBl[i][j].getID()[0] + diffX) + "_.bf");
 						myBl[i][j] = BlockParser.readBlockData(file);
 					}
 					else
@@ -63,6 +75,10 @@ public class TerrainView {
 		}
 	}
 	
+	/**
+	 * methode for getting the latest blocks as an float[][][] with sizes [2304][2304][5]
+	 * @return float[][][]
+	 */
 	public float[][][] getArray(){
 		
 		float[][][] area = new float[9*256][9*256][5];
@@ -82,4 +98,21 @@ public class TerrainView {
 		return area;
 	}
 	
+	/**
+	 * methode gives the camPosX as related to the float[][][]
+	 * @return int 
+	 */
+	public int arrayCamPosX(){
+		
+		return (int)((cam.getCamPos().x%256)+256);
+	}
+	
+	/**
+	 * methode gives the camPosZ as related to the float[][][]
+	 * @return
+	 */
+	public int arrayCamPosZ(){
+		
+		return (int)((cam.getCamPos().z%256)+256);
+	}
 }

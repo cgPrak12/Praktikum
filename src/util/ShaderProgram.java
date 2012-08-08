@@ -1,6 +1,5 @@
 package util;
 
-import opengl.GL;
 import static opengl.GL.*;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
