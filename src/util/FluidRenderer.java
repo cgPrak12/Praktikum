@@ -152,6 +152,7 @@ public class FluidRenderer {
 		thickness();
 		
 		// blur
+		blur();
 		
 		// interpolation
 		interpolate(depthTex,     depthTexLQ,     depthIntFB);
@@ -532,7 +533,7 @@ public class FluidRenderer {
 	private void initBlur() {
 		Texture[] blurTextures = {depthHBlurTex, depthVBlurTex, normalHBlurTex, normalVBlurTex, thicknessHBlurTex, thicknessVBlurTex};
 		Texture[] blurTexturesLQ = {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ};
-		String[] names = {"depthBlur", "normalBlur", "thicknessBlur"};
+		String[] names = {"depthBlur", "depthBlur", "normalBlur", "normalBlur", "thicknessBlur", "thicknessBlur"};
 
 		for(int i = 0; i < names.length; i++) {
 			glBindFragDataLocation(blurSP.getId(), i, names[i]);
@@ -558,29 +559,43 @@ public class FluidRenderer {
 	}
 	
 	private void blur() {
+		int count = 1;
 		startPath(blurSP);
-		blurSP.setUniform("skip", depthTex);
-		blurSP.setUniform("depth", depthTexLQ);
-		blurSP.setUniform("normal", normalTexLQ);
-		blurSP.setUniform("thickness", thicknessTexLQ);
-		blurSP.setUniform("dir", 1.0f);
+		for(int i = 0; i <= count-1; i++) {
+			blurSP.setUniform("skip", depthTex);
+			blurSP.setUniform("depth", i==0?depthTexLQ:blurFB.getTexture(1));
+			blurSP.setUniform("normal", i==0?normalTexLQ:blurFB.getTexture(3));
+			blurSP.setUniform("thickness", i==0?thicknessTexLQ:blurFB.getTexture(5));
+			blurSP.setUniform("dir", 1.0f);
 		
-		bindFB(blurFB);
-		IntBuffer buffers = BufferUtils.createIntBuffer(3);
-		buffers.put(new int[]{0,2,4});
-		glDrawBuffers(buffers);
-		screenQuad.draw();
-		bindFB(blurFBLQ);
-
-		screenQuad.draw();
+			bindFB(blurFB);
+			// draw depth to 0, 
+			screenQuad.draw();
+			
+			if(i!=0) {
+				blurSP.setUniform("depth", blurFBLQ.getTexture(1));
+				blurSP.setUniform("normal", blurFBLQ.getTexture(3));
+				blurSP.setUniform("thickness", blurFBLQ.getTexture(5));
+			}
+			bindFB(blurFBLQ);
+			// same again 
+			screenQuad.draw();
 		
-		blurSP.setUniform("dir", 0.0f);
-		bindFB(blurFB);
+			blurSP.setUniform("dir", 0.0f);
+			blurSP.setUniform("depth", blurFB.getTexture(0));
+			blurSP.setUniform("normal", blurFB.getTexture(2));
+			blurSP.setUniform("thickness", blurFB.getTexture(4));
+			bindFB(blurFB);
+			// draw depth to 1, normal to 3, thickness to 5
+			screenQuad.draw();
 
-		screenQuad.draw();
-		bindFB(blurFBLQ);
-
-		screenQuad.draw();		
+			blurSP.setUniform("depth", blurFBLQ.getTexture(0));
+			blurSP.setUniform("normal", blurFBLQ.getTexture(2));
+			blurSP.setUniform("thickness", blurFBLQ.getTexture(4));
+			bindFB(blurFBLQ);
+			// same again
+			screenQuad.draw();
+		}
 	}
 	
 	private void interpolate(Texture high, Texture low, FrameBuffer fb){

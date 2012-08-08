@@ -1,4 +1,4 @@
-#version 150
+#version 330
 const int SAMPLES = 13;
 const float FACTORS[SAMPLES] = float[](
 	0.000244141, 0.002929688, 0.016113281, 0.053710938, 0.120849609, 0.193359375, 
@@ -15,9 +15,9 @@ uniform float dir = 1.0f; 		  // 1 = horizontal, 0 = vertical
 
 in vec2 texCoord;
 
-out vec4 depthBlur;
-out vec4 normalBlur;
-out vec4 thicknessBlur;
+layout(location = 0) layout(location = 1) out vec4 depthBlur; // layout(location) needs(!) #version 330
+layout(location = 2) layout(location = 3) out vec4 normalBlur;
+layout(location = 4) layout(location = 5) out vec4 thicknessBlur;
 
 void main(void) {
 	float offset = offsetValue / ( dir * textureSize(skip, 0).x + (1 - dir) * textureSize(skip, 0).y );
