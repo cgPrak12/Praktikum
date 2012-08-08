@@ -23,7 +23,7 @@ public class ClipMap {
 	private int gridsize; // Kantenlänge der 12 Quadrate
 	private int middlesize; // Kantenlänge der Füllstücke
 	private int lsize; // Länge der Ls
-	private float size;	// Kantenlänge des ClipMapRings
+	private int size;	// Kantenlänge des ClipMapRings
 
 	// Shader Updates
 	private ShaderProgram program;
@@ -32,8 +32,9 @@ public class ClipMap {
 	// Animation Params
 	private int[][] movement; // Array das Bewegungstranslation speichert
 	private boolean[][] alignment; // Array das Lage der Clipmap angibt
-	float tempX; 
-	float tempZ;
+	private float tempX; 
+	private float tempZ;
+	private float tempY;
 
 	private Camera cam;
 	private float correctionX;
@@ -50,7 +51,7 @@ public class ClipMap {
 	private Geometry center;
 	private Geometry outer;
 	
-	private final float generalScale = 0.1f; // Skaliert die gesamte ClipMap um Faktor
+	private float generalScale = 0.1f; // Skaliert die gesamte ClipMap um Faktor
 
 	/**
 	 * Erstellt eine ClipMap aus den gegebenen Parametern
@@ -81,11 +82,9 @@ public class ClipMap {
 		 */
 		
 		// Größen der ClipMap
-		this.gridsize = size / 4;
-		this.middlesize = size % 4;
-		this.lsize = 2 * gridsize + middlesize + 1;
 		this.size = size;
 		this.stage = stage;
+		updateGeometries();
 		
 		this.program = program;
 		this.cam = cam;
@@ -116,6 +115,14 @@ public class ClipMap {
 		updateSize();
 		updateHeightScale();
 		
+		correctionX = 1;
+		
+	}
+
+	private void updateGeometries() {
+		this.gridsize = size / 4;
+		this.middlesize = size % 4;
+		this.lsize = 2 * gridsize + middlesize + 1;
 	}
 
 	/**
@@ -147,8 +154,8 @@ public class ClipMap {
 
 		// 1
 		Util.mul(translation,Util.translationX(size / 2 - gridsize - middlesize / 2 
-				+ movement[i][0] + correctionX, null),	Util.translationZ(size / 2 - gridsize + middlesize / 2
-						+ movement[i][1] + correctionZ, null));
+				+ movement[i][0], null),	Util.translationZ(size / 2 - gridsize + middlesize / 2
+						+ movement[i][1], null));
 		setProgram();
 		mxm.draw();
 
@@ -273,14 +280,13 @@ public class ClipMap {
 
 
 		Util.mul(translation, Util.translationX(2 * (-gridsize - middlesize)
-				+ middlesize + movement[0][0] + correctionX, null), Util
-				.translationZ(-2 * gridsize + movement[0][1] + correctionZ,
+				+ middlesize + movement[0][0], null), Util
+				.translationZ(-2 * gridsize + movement[0][1],
 						null));
 		setProgram();
 		center.draw();
 		
 		outer.draw();
-		
 
 		for (int i = 1; i < stage; i++) {
 			setScale((float) Math.pow(2, i));
@@ -288,8 +294,31 @@ public class ClipMap {
 			setLGrid(i);
 		
 		}
+		
+//		checkHeight();
 	}
 	
+	private void checkHeight() {
+		tempY += cam.getAlt().y;
+		
+		if(tempY >= 2){
+			tempY %= 2;
+//			size /= 2;
+			generalScale *= 2;
+			correctionX *= 2;
+			updateGeometries();
+			updateSize();
+		}
+		if(tempY <= -2){
+			tempY %= 2;
+//			size *= 2;
+			correctionX /= 2;
+			generalScale /= 2;
+			updateGeometries();
+			updateSize();
+		}
+	}
+
 	/** 
 	 * Verschiebt die ClipMap abhängig vom Kamerastandpunkt
 	 * @param i Ebene der aktuellen ClipMap
@@ -355,35 +384,35 @@ public class ClipMap {
 		case 0: break;
 		case 1: 
 			Util.mul(translation,Util.translationX(size / 2 -(gridsize+1) -2*gridsize-middlesize 
-					+ movement[i][0] + correctionX , null),
-					Util.translationZ(movement[i][1] + correctionZ-gridsize, null));
+					+ movement[i][0], null),
+					Util.translationZ(movement[i][1] -gridsize, null));
 			setProgram();
 		    topRight.draw(); break;
 		case 2:   
-			Util.mul(translation, Util.translationX(size / 2 -(gridsize+1)-1 + movement[i][0] + correctionX , null),
-					Util.translationZ(movement[i][1] + correctionZ-gridsize, null));
+			Util.mul(translation, Util.translationX(size / 2 -(gridsize+1)-1 + movement[i][0], null),
+					Util.translationZ(movement[i][1] - gridsize, null));
 			setProgram();
 		    topLeft.draw();break;
 		case 3:		    
-			Util.mul(translation, Util.translationX(size / 2 -(gridsize+1)-1 + movement[i][0] + correctionX , null),
-					Util.translationZ(movement[i][1] + correctionZ-gridsize, null));
+			Util.mul(translation, Util.translationX(size / 2 -(gridsize+1)-1 + movement[i][0], null),
+					Util.translationZ(movement[i][1] - gridsize, null));
 			setProgram();
 		    bottomLeft.draw();break;
 		case 4:		    
 			Util.mul(translation, Util.translationX(size / 2 -(gridsize+1) - 2*gridsize-middlesize
-					+ movement[i][0] + correctionX , null),
-					Util.translationZ(movement[i][1] + correctionZ-gridsize, null));
+					+ movement[i][0], null),
+					Util.translationZ(movement[i][1] - gridsize, null));
 			setProgram();
 		    bottomRight.draw();break;
 		}
 	}
 	
 	private void updateSize(){
-		System.out.println((float)Math.pow(2,stage));
-		program.setFloat("worldSize", (float)(Math.pow(2, stage)*((size+2)/16)));
+		System.out.println(Math.pow(2, stage-1)*(size)*generalScale);
+		program.setFloat("worldSize", (float)(Math.pow(2, stage-1)*(size))*generalScale);
 	}
 	private void updateHeightScale(){
-		program.setFloat("heightScale", (float)(stage*(size+2)/16)+12f);
+		program.setFloat("heightScale", (float)((stage*(size+2)/16)+12f));
 	
 	}
 }
