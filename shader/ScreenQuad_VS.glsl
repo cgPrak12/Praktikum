@@ -9,15 +9,15 @@ in vec3 positionMC;
 in vec3 normalMC;
 in vec2 vertexTexCoords;
 
-out vec3 positionWC;
-out vec3 normalWC;
+out vec4 positionWC;
+out vec4 normalWC;
 out vec2 fragmentTexCoords;
 
 void main(void)
 {
     vec4 world = model * vec4(positionMC, 1.0);
-    positionWC = world.xyz / world.w;
-    normalWC = (modelIT * vec4(normalMC, 0.0)).xyz;
+    positionWC = vec4(world.xyz / world.w, 1.0);
+    normalWC = (modelIT * vec4(normalMC, 0.0));
     fragmentTexCoords = vertexTexCoords;
     gl_Position = viewProj * translate * scale * world;
 }

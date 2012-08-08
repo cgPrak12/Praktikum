@@ -69,13 +69,17 @@ public class TerrainMain {
         int frames = 0;
         
         ShaderProgram shaderProgram = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/FragmentLighting_FS.glsl");
-        
-//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.mtl", "");
-//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\uh60.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\uh60.mtl",  "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\");
-//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\Bandit Heavy.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\Bandit Heavy.mtl",  "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\");
-//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\");
-        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\elm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\elm-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\");
 
+        //Current time in millis
+    	long timeInMillis = System.currentTimeMillis();
+        
+//        List modelPartList3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.mtl", "");
+//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\uh60.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\uh60.mtl",  "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\");
+//        List modelPartList3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\Bandit Heavy.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\Bandit Heavy.mtl",  "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\");
+        List modelPartList1 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\");
+        List modelPartList2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\elm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\elm-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\");
+
+        System.out.println("Importing took "+(System.currentTimeMillis()-timeInMillis)+" milliseconds.");
 
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -112,8 +116,12 @@ public class TerrainMain {
                     translate.m33 = 1;
                     translate.m30 = 15*i;
                     translate.m32 = 15*j;
-                
-                    Iterator<ModelPart> modelPartListIterator = modelPartList.listIterator();
+
+                    Iterator<ModelPart> modelPartListIterator = null;
+                    if(i%2==0)
+                        modelPartListIterator = modelPartList1.listIterator();
+                    else
+                        modelPartListIterator = modelPartList2.listIterator();
                     while(modelPartListIterator.hasNext()) {
                         ModelPart modelPart = modelPartListIterator.next();
                         
@@ -121,7 +129,7 @@ public class TerrainMain {
                         shaderProgram.setUniform("translate", translate);
                         
                         shaderProgram.setUniform("model", model);
-//                      shaderProgram.setUniform("modelIT", new Matrix4f());
+//                        shaderProgram.setUniform("modelIT", new Matrix4f());
                         shaderProgram.setUniform("viewProj", viewProj);   
  
                         shaderProgram.setUniform("k_a", modelPart.material.ambientRef);

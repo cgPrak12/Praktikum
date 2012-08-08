@@ -14,20 +14,24 @@ uniform sampler2D specularTex;          // spekulare farbe
 // szenenspezifische eigenschaften
 //uniform vec3 eyePosition;   // position der kamera
 
-in vec3 positionWC;
-in vec3 normalWC;
+in vec4 positionWC;
+in vec4 normalWC;
 in vec2 fragmentTexCoords;
 
-out vec4 fragColor;
+//out vec4 position;
+//out vec4 normal;
+out vec4 color;
 
 void main(void)
 {
-        if(k_diss != 1.0 && texture(dissolveTex, fragmentTexCoords).a <= k_diss)
-            discard;
+    if(k_diss != 1.0 && texture(dissolveTex, fragmentTexCoords).a <= k_diss)
+        discard;
 
-        vec3 color = k_a;
-        color += k_dif*texture(diffuseTex, fragmentTexCoords).rgb;
-        color += k_spec*texture(specularTex, fragmentTexCoords).rgb;
+    vec3 colorMix = k_a;
+    colorMix += k_dif*texture(diffuseTex, fragmentTexCoords).rgb;
+    colorMix += k_spec*texture(specularTex, fragmentTexCoords).rgb;
 
-	fragColor = vec4(color, 1.0);
+//    position = positionWC;
+//    normal = normalWC;
+    color = vec4(colorMix, 0.0);
 }

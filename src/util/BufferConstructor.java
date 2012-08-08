@@ -33,6 +33,7 @@ public class BufferConstructor implements Runnable {
     public void run() {
         //Get vertex coordinates of the first vertex of the triangle
         vertexArray[position++] = vertexList.get((int)currentFace.vertexIndizies.x);
+
         //check if the model has texture coordinates
         if(currentFace.vertexTextureIndizies.length()!=0)
            vertexArray[position++] = new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).x,

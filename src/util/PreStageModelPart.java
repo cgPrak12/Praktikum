@@ -68,7 +68,7 @@ public class PreStageModelPart {
         //Schreibe Indexdaten aus der Index Liste in den Index Buffer
         Iterator<Face> faceIterator = faceList.listIterator();
 
-        //Loop through all faces
+        //Loop through all faces        
         int counter= 0;
         Vector3f[] vertexArray = new Vector3f[faceList.size()*3*3*3];
         int position = 0;
