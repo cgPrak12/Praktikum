@@ -40,7 +40,7 @@ public class TerrainMain {
     // current configurations
     private static boolean bContinue = true;
     private static boolean splitScreen = false;
-    private static int splitScreenVal = 1234;
+    private static int[] splitScreenVal = { 1, 2, 3, 4 };
 
 	private static boolean culling   = true;
     private static boolean wireframe = true;
@@ -61,11 +61,11 @@ public class TerrainMain {
     private static float ingameTimePerSecond = 1.0f;
     
     //tone mapping
-    private static float exposure    = 0.4f;
-    private static float bloomFactor = 0.3f;
-    private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    private static float exposure    = 0.7f;
+    private static float bloomFactor = 0.2f;
+    private static Vector4f brightnessFactor  = new Vector4f(0.8f, 0.8f, 0.8f, 1.0f);
     
-    private static Vector3f sunDirection = new Vector3f(1.0f, 1.0f, 1.0f);
+    private static Vector3f sunDirection = new Vector3f(0, 10f, 10);
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
@@ -116,7 +116,7 @@ public class TerrainMain {
     }
 
 	public static void render() throws LWJGLException {
-        glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // background color: dark red
         
         long last = System.currentTimeMillis();
         long now, millis;
@@ -140,8 +140,8 @@ public class TerrainMain {
         Matrix4f floorQuadMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
-        //shadowCam.changeProjection();
-        Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
+//        shadowCam.changeProjection();
+        Util.mul(floorQuadMatrix, Util.translationY(-1, null), Util.scale(20, null), Util.rotationX(-Util.PI_DIV2, null)); 
 
         
         DeferredShader shadowShader = new DeferredShader();
@@ -149,7 +149,7 @@ public class TerrainMain {
         shadowShader.registerShaderProgram(shadowSP);
         
         DeferredShader shader = new DeferredShader();
-        shader.init(22);
+        shader.init(40);
         shader.registerShaderProgram(fboSP);
         
         Geometry testCube = GeometryFactory.createCube();
@@ -165,7 +165,7 @@ public class TerrainMain {
         fbo.init(false, GL.WIDTH, GL.HEIGHT);
         FrameBuffer shadowFBO = new FrameBuffer();
         shadowFBO.init(false, GL.WIDTH, GL.HEIGHT);
-
+        
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -175,9 +175,9 @@ public class TerrainMain {
             ++frames;
             
             shadowCam.setCamDir(sunDirection.negate(null));
-            shadowCam.setCamPos(new Vector3f(sunDirection.x * 10f, sunDirection.y * 10f, sunDirection.z * 10f));
+            shadowCam.setCamPos(new Vector3f(sunDirection.x, sunDirection.y, sunDirection.z));
             
-            Util.mul(sunMatrix, Util.translation(new Vector3f(sunDirection.x*10, sunDirection.y*10, sunDirection.z*10), null));
+            Util.mul(sunMatrix, Util.translation(new Vector3f(sunDirection.x, sunDirection.y, sunDirection.z), null));
             
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
@@ -189,9 +189,7 @@ public class TerrainMain {
             handleInput(millis);
             animate(millis);
             if(rotatelight) {
-            	Vector4f sunDirection4f = new Vector4f(sunDirection.x, sunDirection.y, sunDirection.z, 0f);
-            	Matrix4f.transform(Util.rotationY(0.005f, null), sunDirection4f, sunDirection4f);
-            	sunDirection.set(sunDirection4f.x, sunDirection4f.y, sunDirection4f.z);
+            	Util.transformDir(Util.rotationY(0.005f, null), sunDirection, sunDirection);
             }
             if(bloomBlend && bloomFactor >0.5f) {
             	bloomFactor -= 0.08;
@@ -208,13 +206,12 @@ public class TerrainMain {
             
         	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
         	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-        	Matrix4f shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), modelMatrix);
+        	Matrix4f shadowMatrix = Util.mul(null, shadowCam.getProjection(), shadowCam.getView());
         	
         	fboSP.setUniform("model", 	 	 modelMatrix);
         	fboSP.setUniform("modelIT",  	 modelIT);
         	fboSP.setUniform("viewProj", 	 Util.mul(null, cam.getProjection(), cam.getView()));
             fboSP.setUniform("shadowMatrix", shadowMatrix);
-            System.out.println(shadowMatrix);
         	fboSP.setUniform("camPos",   	 cam.getCamPos());
             fboSP.setUniform("view", cam.getView());
             fboSP.setUniform("camFar", cam.getFar());
@@ -223,43 +220,30 @@ public class TerrainMain {
             fboSP.setUniform("specularTexture", specularQuaderTexture);
             fboSP.setUniform("textureImage", quaderTexture);
             
-            shader.bind();
-            
+            shader.bind();            
             shader.clear();
         	
             testCube.draw();
             
-            //floor quad
-            shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), floorQuadMatrix);
-
-            fboSP.setUniform("model", floorQuadMatrix);
-        	fboSP.setUniform("modelIT", floorQuadMatrix); //Util.transposeInverse(floorQuadMatrix, null));
-        	fboSP.setUniform("shadowMatrix", shadowMatrix);
-            
-            floorQuad.draw();
-            
             //sun cube
-            shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), sunMatrix);
-            
             fboSP.setUniform("model", sunMatrix);
             fboSP.setUniform("modelIT", Util.transposeInverse(sunMatrix, null));
             fboSP.setUniform("shadowMatrix", shadowMatrix);
             
             sunCube.draw();
             
+            fboSP.setUniform("model", floorQuadMatrix);
+            fboSP.setUniform("modelIT", floorQuadMatrix);
+            floorQuad.draw();
+            
         	shader.finish();
-        	
-        	
-        	
-        	
-        	//shader.DrawTexture(shader.getDiffuseTexture());
         	
         	//test cube (shadow map)
         	glCullFace(GL_FRONT);
         	shadowSP.use();
         	shadowSP.setUniform("model", 	modelMatrix);
         	shadowSP.setUniform("modelIT",  modelIT);
-        	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
+        	shadowSP.setUniform("viewProj", shadowMatrix);
         	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
        	
         	shadowShader.bind();
@@ -270,30 +254,21 @@ public class TerrainMain {
         	
         	shadowSP.setUniform("model",    floorQuadMatrix);
         	shadowSP.setUniform("modelIT",  floorQuadMatrix);
-        	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
+        	shadowSP.setUniform("viewProj", shadowMatrix);
         	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
         	
         	floorQuad.draw();
         	
         	shadowShader.finish();
-        	//shader.DrawTexture(screenMan.getShadowMap(shadowShader.getWorldTexture()).getTexture(0));
-        	
-        	//shader.DrawTexture(shader.getDiffuseTexture());
-        	
-//        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
-//        	shader.DrawTexture(shader.getWorldTexture());
-//        	shader.DrawTexture(enlightenedFBO.getTexture(0));
-        	//shader.DrawTexture(shader.getShadowTexture());
+
         	
         	if (shadows) {
-            	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
+            	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection, shadowCam);
         	}
         	else {
         		enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
         	}
         	        	  
-//        	shader.DrawTexture(shader.getShadowTexture());
-
         	if (splitScreen) {
         		fbo = getQuadScreen(splitScreenVal, shader, shadowShader);
         	}
@@ -314,11 +289,10 @@ public class TerrainMain {
 	            		fbo = enlightenedFBO;
 	            	}
 	        	}
-        	}
+        	} 
         	
-        	//fbo = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
         	shader.DrawTexture(fbo.getTexture(0));
-        	            
+        	
             // present screen
             Display.update();
             Display.sync(60);
@@ -334,18 +308,18 @@ public class TerrainMain {
 	 * @param shader deferred shader
 	 * @return frame buffer containing the screen 
 	 */
-	private static FrameBuffer getQuadScreen(int splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
+	private static FrameBuffer getQuadScreen(int[] splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
 	
+		FrameBuffer fbo0 = new FrameBuffer();
 		FrameBuffer fbo1 = new FrameBuffer();
 		FrameBuffer fbo2 = new FrameBuffer();
 		FrameBuffer fbo3 = new FrameBuffer();
-		FrameBuffer fbo4 = new FrameBuffer();
 		
-		fbo1 = getScreen(splitScreenValue        / 1000, shader, shadowShader);
-		fbo2 = getScreen(splitScreenValue % 1000 /  100, shader, shadowShader);
-		fbo3 = getScreen(splitScreenValue %  100 /   10, shader, shadowShader);
-		fbo4 = getScreen(splitScreenValue %   10 /    1, shader, shadowShader);
-		return screenMan.getQuadScreenView(fbo1, fbo2, fbo3, fbo4);	
+		fbo0 = getScreen(splitScreenValue[0], shader, shadowShader);
+		fbo1 = getScreen(splitScreenValue[1], shader, shadowShader);
+		fbo2 = getScreen(splitScreenValue[2], shader, shadowShader);
+		fbo3 = getScreen(splitScreenValue[3], shader, shadowShader);
+		return screenMan.getQuadScreenView(fbo0, fbo1, fbo2, fbo3);	
 	}
 	
 	/**
@@ -579,12 +553,12 @@ public class TerrainMain {
 		TerrainMain.splitScreen = splitScreen;
 	}
 
-	public static int getSplitScreenVal() {
-		return splitScreenVal;
+	public static int getSplitScreenVal(int loc) {
+		return splitScreenVal[loc];
 	}
 
-	public static void setSplitScreenVal(int splitScreenVal) {
-		TerrainMain.splitScreenVal = splitScreenVal;
+	public static void setSplitScreenVal(int value, int loc) {
+		TerrainMain.splitScreenVal[loc] = value;
 	}
 	
     public static boolean isCulling() {

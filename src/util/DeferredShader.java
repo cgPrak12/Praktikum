@@ -2,6 +2,7 @@ package util;
 
 import opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 
 /**
@@ -47,6 +48,10 @@ public class DeferredShader {
         
     	// generate textures
     	texPosition    = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +0);
+    	texPosition.bind();
+    	GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+    	GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+    	
     	texVertexColor = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +1);
     	texNormal 	   = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +2);
     	texSpec        = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +3);

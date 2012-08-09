@@ -36,10 +36,10 @@ void main(void) {
    vec3 mapNormal = 2 * texture(normalTexture, fragmentTexCoords).rgb - vec3(1);
    
    //Tiefeninformation in der W komponente der normale
-   normal =vec4(   mapNormal.z * normalAbs 
+   normal = vec4(mapNormal.z * normalAbs 
    				 + mapNormal.y * binormal 
 				 + mapNormal.x * tangent , depth);
-				 
+	normal = vec4(normalAbs,0);
    //color = color1;
    color = texture(textureImage, fragmentTexCoords);
    position = positionWC;

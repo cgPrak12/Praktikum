@@ -417,9 +417,8 @@ public class ScreenManipulation {
 		return fboShadow;
 	}
 	
-	public FrameBuffer getShadowLighting(DeferredShader shader, DeferredShader shadowShader, Vector3f camPos, Vector3f sunDirection) {				
+	public FrameBuffer getShadowLighting(DeferredShader shader, DeferredShader shadowShader, Vector3f camPos, Vector3f sunDirection, Camera shadowCam) {				
 		fboShadowPhong.bind();
-		
 		spoShadowPhong.use();
 		spoShadowPhong.setUniform("normalTex",  shader.getNormalTexture());
 		spoShadowPhong.setUniform("worldTex",   shader.getWorldTexture());
@@ -427,8 +426,10 @@ public class ScreenManipulation {
 		spoShadowPhong.setUniform("specularTex", shader.getSpecTexture());
 		spoShadowPhong.setUniform("shadowTex", shadowShader.getWorldTexture());
 		spoShadowPhong.setUniform("shadowCoordsTex", shader.getShadowTexture());
-		spoShadowPhong.setUniform("camPos",     camPos);
+		spoShadowPhong.setUniform("camPos",     shadowCam.getCamPos());
 		spoShadowPhong.setUniform("sunDir",	 	sunDirection);
+		spoShadowPhong.setUniform("lView",	shadowCam.getView());
+		spoShadowPhong.setUniform("lProj",	shadowCam.getProjection());
 		
 		this.screenQuad.draw();
 		

@@ -24,12 +24,12 @@ out vec4 shadowCoordWC;
 
 void main(void) { 
    positionWC = model * vec4(positionMC, 1.0);
-   depth= (view* positionWC).z / camFar * (-1);
+   shadowCoordWC = shadowMatrix * positionWC;
+   depth = (view * positionWC).z / camFar * (-1);
    gl_Position = viewProj * positionWC;
    normalWC = modelIT * vec4(normalMC, 0.0);
    color1 = vertexColor;
-   fragmentTexCoords =texCoords;
-   positionWC.w = length(positionWC.xyz - camPos);
+   fragmentTexCoords = texCoords;
+   positionWC.w = distance(positionWC.xyz, camPos);
    tangentWC = modelIT * vec4(tangentMC,0);
-   shadowCoordWC = shadowMatrix * vec4(positionMC, 1.0);
 }

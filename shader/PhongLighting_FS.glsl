@@ -62,7 +62,7 @@ void main(void)
 {
 
 	
-	vec3 normal = 1 - texture(normalTex, texCoord).xyz;	
+	vec3 normal = texture(normalTex, texCoord).xyz;	
 		
 	// if(length(normal) < 0.1)
 	// {
@@ -78,7 +78,6 @@ void main(void)
 		// }
 		// else
 		// {
-			normal = normalize(normal);
 			vec3 positionWC = texture(worldTex, texCoord).xyz;
 			
 			//ambient light
