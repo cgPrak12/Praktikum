@@ -29,8 +29,6 @@ public class ScreenManipulation {
 	private static FrameBuffer blured2;
 	private static FrameBuffer blured3;
 	private static FrameBuffer blured4;
-	private static FrameBuffer bluredShadow1;
-	private static FrameBuffer bluredShadow2;
 	
 	//shader programs
 	private static ShaderProgram spoBlur;
@@ -42,7 +40,6 @@ public class ScreenManipulation {
 	private static ShaderProgram spoQuad;
 	private static ShaderProgram spoShadow;
 	private static ShaderProgram spoShadowPhong;
-	private static ShaderProgram spoBlur20;
 
 	
     private static Vector2f[] tc_offset_5;
@@ -127,14 +124,6 @@ public class ScreenManipulation {
         blured4.init(false, width, height);
         blured4.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 13), GL30.GL_RGBA16F, GL_RGBA);
         
-        bluredShadow1 = new FrameBuffer();
-        bluredShadow1.init(false, width, height);
-        bluredShadow1.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 14), GL30.GL_RGBA16F, GL_RGBA);
-        
-        bluredShadow2 = new FrameBuffer();
-        bluredShadow2.init(false, width, height);
-        bluredShadow2.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 15), GL30.GL_RGBA16F, GL_RGBA);  
-        
         fboBlur20 = new FrameBuffer();
 		fboBlur20.init(false, width, height);
         fboBlur20.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 16), GL30.GL_RGBA16F, GL_RGBA);
@@ -161,7 +150,6 @@ public class ScreenManipulation {
 		spoQuad = new ShaderProgram(vertexShader, "./shader/Quad_FS.glsl");
 		spoShadow = new ShaderProgram(vertexShader, "./shader/Shadow_FS.glsl");
 		spoShadowPhong = new ShaderProgram(vertexShader, "./shader/ShadowLighting_FS.glsl");
-		spoBlur20 = new ShaderProgram(vertexShader, "./shader/Blur20_FS.glsl");
 	}
 	
 	/**
@@ -188,26 +176,6 @@ public class ScreenManipulation {
 		fboPhong.unbind();
 		
 		return fboPhong;
-	}
-	
-	/**
-	 * Returns a FrameBuffer with blured image
-	 * @param toBlur FrameBuffer to blur
-	 * @param screenQuad screenQuad
-	 * @return FrameBuffer with blured image
-	 */
-	public FrameBuffer getBlur201(FrameBuffer toBlur) {
-		fboBlur20.bind();
-		
-		spoBlur20.use();
-		spoBlur20.setUniform("colorTex", toBlur.getTexture(0));
-		spoBlur20.setUniform("tc_offset", tc_offset_5);
-		  
-		this.screenQuad.draw();
-		
-		fboBlur20.unbind();
-		
-		return fboBlur20;
 	}
 	
 	/**
@@ -460,7 +428,9 @@ public class ScreenManipulation {
 	}
 	
 	public FrameBuffer getShadowLighting(DeferredShader shader, DeferredShader shadowShader, Vector3f camPos, Vector3f sunDirection, FrameBuffer shadowTex) {				
-		bluredShadow1 = getBlur201(shadowTex);
+//		bluredShadow1 = getBlur51(shadowTex);
+//		bluredShadow2 = getBlur52(bluredShadow1);
+
 		
 		fboShadowPhong.bind();
 		
@@ -470,7 +440,7 @@ public class ScreenManipulation {
 		spoShadowPhong.setUniform("diffuseTex", shader.getDiffuseTexture());
 		spoShadowPhong.setUniform("specularTex", shader.getSpecTexture());
 		//spoShadowPhong.setUniform("shadowTex", shadowShader.getWorldTexture());
-		spoShadowPhong.setUniform("shadowTex", bluredShadow1.getTexture(0));
+		spoShadowPhong.setUniform("shadowTex", shadowTex.getTexture(0));
 		spoShadowPhong.setUniform("shadowCoordsTex", shader.getShadowTexture());
 		spoShadowPhong.setUniform("camPos",     camPos);
 		spoShadowPhong.setUniform("sunDir",	 	sunDirection);

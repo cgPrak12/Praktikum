@@ -38,5 +38,6 @@ void main(void)
 		enlightenedColor = vec4(1,1,1,1);
 
 	}
+	enlightenedColor = vec4(shadow/dist);
 }
 
