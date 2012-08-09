@@ -87,7 +87,7 @@ public class FluidRenderer {
     private FrameBuffer cubeMapFB   = new FrameBuffer();
     private Texture cubeMapTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/TestPlane_FS.glsl");
+    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/fluid/TestPlane_VS.glsl", "./shader/fluid/TestPlane_FS.glsl");
     private FrameBuffer testPlaneFB   = new FrameBuffer();
     private Texture testPlaneTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
     
@@ -164,7 +164,7 @@ public class FluidRenderer {
 		// blur
 		blur(depthTexLQ, depthHBlurFB, depthVBlurFB, 1.0f);
 		blur(depthTexLQ, depthHBlurFBLQ, depthVBlurFBLQ, 1.0f);
-		blur(normalTexLQ, normalHBlurFB, depthVBlurFB, 1.0f);
+		blur(normalTexLQ, normalHBlurFB, normalVBlurFB, 1.0f);
 		blur(normalTexLQ, normalHBlurFBLQ, normalVBlurFBLQ, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
@@ -197,13 +197,13 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", normalVBlurTexLQ);
 //		drawTextureSP.setUniform("image", normalIntTex);
 //		drawTextureSP.setUniform("image", thicknessTex);
-		drawTextureSP.setUniform("image", thicknessHBlurTex);
+//		drawTextureSP.setUniform("image", thicknessHBlurTex);
 //		drawTextureSP.setUniform("image", thicknessVBlurTex);
 //		drawTextureSP.setUniform("image", thicknessTexLQ);
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
 //		drawTextureSP.setUniform("image", lightingTex);
-//		drawTextureSP.setUniform("image", cubeMapTex);
+		drawTextureSP.setUniform("image", cubeMapTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
 		screenQuad.draw();
