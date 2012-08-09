@@ -140,7 +140,7 @@ public class TerrainMain {
         Matrix4f floorQuadMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
-        //shadowCam.changeProjection();
+        shadowCam.changeProjection();
         Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
 
         
@@ -411,6 +411,7 @@ public class TerrainMain {
                     case Keyboard.KEY_SPACE: moveDir.y -= 1.0f; break;
                     case Keyboard.KEY_C: moveDir.y += 1.0f; break;
                     case Keyboard.KEY_F1: cam.changeProjection(); break;
+                    case Keyboard.KEY_P: shadowCam.changeProjection(); break;
                     case Keyboard.KEY_LEFT:
                         if(Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
                             ingameTimePerSecond = 0.0f;

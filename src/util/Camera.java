@@ -16,7 +16,7 @@ public final class Camera {
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
     private boolean perspective = true;
-    private float orthoScaleValue = 1f;
+    private float orthoScaleValue = 30f;
     private final float far = 1e+2f;
     
 
