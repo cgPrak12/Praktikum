@@ -209,7 +209,7 @@ public class TerrainMain {
             
         	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
         	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-        	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(1.5f, null), Util.translationZ(1.5f, null), Util.translationY(1.0f, null));
+        	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(10f, null), Util.translationZ(10f, null), Util.translationY(5f, null));
         	Matrix4f modelIT1 = Util.transposeInverse(modelMatrix1, null);
         	Matrix4f shadowMatrix = Util.mul(null, bias, shadowCam.getProjection(), shadowCam.getView(), modelMatrix);
         	
@@ -258,7 +258,7 @@ public class TerrainMain {
             
         	shader.finish();
         	
-        	
+//        	shader.DrawTexture(shader.getShadowTexture());
         	
         	
         	//shader.DrawTexture(shader.getDiffuseTexture());
@@ -296,7 +296,7 @@ public class TerrainMain {
         	else {
         		enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
         	}
-        	        	  
+        	        	
 //        	shader.DrawTexture(shader.getShadowTexture());
 //        	shader.DrawTexture(screenMan.getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getWorldTexture(), sunDirection).getTexture(0));
 
