@@ -24,13 +24,14 @@ const float es     = 16.0;
 
 void main(void) {
 	
-	vec3 position = texture(depthTex, texCoords).xyz;
+	if(texture(thicknessTex, texCoords).z == 0 && texture(plane, texCoords).x == 0) discard;
+	
+	vec3 position = normalize(texture(depthTex, texCoords).xyz);
 	vec3 normal = normalize(texture(normalTex, texCoords).xyz);
 	float thickness = texture(thicknessTex, texCoords).z;
 	
 // ***************************	
 // Color due to absorption
-	if(texture(thicknessTex, texCoords).z == 0) discard;
 	
 	float thickness1 = pow(thickness, 0.5);
 	
@@ -57,23 +58,28 @@ void main(void) {
 
 	vec3 reflectedW = vec3(inverse(view) * vec4(reflected, 0.0)).xyz;
 	reflectedW.y += 0.2;
-	vec4 cubeColor = texture(cubeMap, reflectedW);
+	vec3 cubeColor = texture(cubeMap, reflectedW).xyz;
 
+// ***************************			  
+// Fresnel
 
-	float rNull = 1.3333;//0.5 * ((1.0003-1.3333)/(1.0003+1.3333) + (1.3333-1.0003)/(1.3333+1.0003));
-	float fresnel = rNull + ((1.0 - rNull) * pow(1.0 - dot(position, normal), 5.0));  //normal, vec3(0.0, 0.0, 1.0) ),5.0));
+	float rNull = (1.0003-1.3333)/(1.0003+1.3333);//0.5 * ((1.0003-1.3333)/(1.0003+1.3333) + (1.3333-1.0003)/(1.3333+1.0003));
+	float fresnel = rNull + ((1.0 - rNull) * pow(1.0 - dot(pos2eye, normal), 2.0));  //normal, vec3(0.0, 0.0, 1.0) ),5.0));
 
 
 //	color = vec3(fresnel);
-//	color = vec3(cubeColor);
+//	color = cubeColor;
+//	color = vec3(1 - dot(pos2eye, normal));
 
-//	color = phong;
+	color = phong;
 
-	vec3 waterColor =  0.3 * vec3(cubeColor) + 0.7 * phong;
+	vec3 waterColor =  0.3 * fresnel * cubeColor + 0.7 * phong;
+	
+//	color = fresnel * cubeColor;
 	
 	vec3 planeColor = texture(plane, texCoords).xyz;
 
-	color = min(1.0, thickness+0.3) * waterColor + max(0.0, (1.0-thickness-0.3)) * planeColor;
+//	color = min(1.0, thickness+0.3) * waterColor + max(0.0, (1.0-thickness-0.3)) * planeColor;
 
 
 
