@@ -64,6 +64,11 @@ public class TerrainMain
 			program.use();
 
 			clip = new ClipMap(254, 8, program, cam);
+			
+			Terrain terrain = new Terrain(1024);
+			TerrainView tv = new TerrainView(cam);
+			
+			float[][] heightMap = tv.getHeightMap();
 
 			tex = Texture.generateTexture(".\\earth_height.jpg", 1);
 			tex.bind();
