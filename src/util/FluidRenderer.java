@@ -540,29 +540,20 @@ public class FluidRenderer {
 	}
 	
 	private void blur(Texture tex, FrameBuffer hFB, FrameBuffer vFB, float offset) {
-		blur(new Texture[] { tex }, new FrameBuffer[] { hFB }, new FrameBuffer[] { vFB }, new float[] { offset }, new int[] { 13 });
+		blur(new Texture[] { tex }, new FrameBuffer[] { hFB }, new FrameBuffer[] { vFB }, new float[] { offset });
 	}
 	
-	private void blur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset, int[] samples) {
+	private void blur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
 		startPath(blurSP);
 		blurSP.setUniform("depth", depthTex);
-		runBlur(tex, hFB, vFB, offset, samples);
+		runBlur(tex, hFB, vFB, offset);
 		endPath();
 	}
 	
-	private void runBlur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset, int[] samples) {
-		int[] sampleValues = new int[]{7,9,11,13,15,17,19};
-		int start = 0;
+	private void runBlur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
 		blurSP.setUniform("dir", 1.0f);
 		for(int i = 0; i < vFB.length; i++) {
 			blurSP.setUniform("tex", tex[i]);
-			blurSP.setUniform("samples", samples[i]);
-			
-			for(int j = 0; j < sampleValues.length; j++)
-				if(sampleValues[j]<samples[i]) start += sampleValues[j];
-			blurSP.setUniform("startValue", start);
-			start = 0;
-			
 			bindFB(hFB[i]);
 			screenQuad.draw();
 		}
@@ -570,13 +561,6 @@ public class FluidRenderer {
 		blurSP.setUniform("dir", 0.0f);
 		for(int i = 0; i < hFB.length; i++) {
 			blurSP.setUniform("tex", hFB[i].getTexture(0));
-			blurSP.setUniform("samples", samples[i]);
-			
-			for(int j = 0; j < sampleValues.length; j++)
-				if(sampleValues[j]<samples[i]) start += sampleValues[j];
-			blurSP.setUniform("startValue", start);
-			start = 0;
-			
 			bindFB(vFB[i]);
 			screenQuad.draw();
 		}
