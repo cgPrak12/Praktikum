@@ -1,37 +1,26 @@
-#version 150
-const int SAMPLES = 7;
-const float factors[SAMPLES] = float[]( 
-	/* 7*/ 0.015625000, 0.093750000, 0.234375000, 0.312500000, 0.234375000, 0.093750000, 0.015625000
-//	/* 9*/ 0.003906250, 0.031250000, 0.109375000, 0.218750000, 0.273437500, 0.218750000, 0.109375000, 0.031250000, 0.003906250
-//	/*11*/ 0.000976563, 0.009765625, 0.043945313, 0.117187500, 0.205078125, 0.246093750, 0.205078125, 0.117187500, 0.043945313, 0.009765625, 0.000976563
-//	/*13*/ 0.000244141, 0.002929688, 0.016113281, 0.053710938, 0.120849609, 0.193359375, 0.225585938, 0.193359375, 0.120849609, 0.053710938, 0.016113281, 0.002929688, 0.000244141
-); 
+#version 330
 
 in vec2 texCoord;
 
 uniform sampler2D tex;
-uniform sampler2D depth;
-uniform float offsetValue = 1.0f; // how far to go?
-uniform float dir = 1.0f; 		  // 1 = horizontal, 0 = vertical
+uniform int dir; 		  // 1 = horizontal, 0 = vertical
 
 out vec4 color;
 
 void main(void) {
-	float offset = offsetValue / ( dir * textureSize(tex, 0).x + (1 - dir) * textureSize(tex, 0).y );
-	
-	float newRelVecCoord = -(float(SAMPLES) / 2.0f - 0.5f) * offset;
-	vec2 newTC;
-	
 	vec4 sumNewColor = vec4(0.0f);
+	vec2 stepSize = vec2( sign(dir)   * 1.0 / textureSize(tex, 0).x, 
+					      sign(1-dir) * 1.0 / textureSize(tex, 0).y);
 	
-	for(int i = 0; i < SAMPLES; i++) {
-		newTC = texCoord + vec2(dir * newRelVecCoord, (1 - dir) * newRelVecCoord);
-		if(texture(depth, newTC).w == 0.0) newTC = texCoord;
-				
-		sumNewColor += texture(tex, newTC) * factors[i];
-		
-		newRelVecCoord += offset;
-	}
+	sumNewColor += 0.0000000076834112 * (texture(tex, texCoord - (15.0 + 0.030303)*stepSize) + texture(tex, texCoord + (15.0 + 0.030303)*stepSize));
+    sumNewColor += 0.0000012703239918 * (texture(tex, texCoord - (13.0 + 0.090909)*stepSize) + texture(tex, texCoord + (13.0 + 0.090909)*stepSize));
+    sumNewColor += 0.0000552590936422 * (texture(tex, texCoord - (11.0 + 0.151515)*stepSize) + texture(tex, texCoord + (11.0 + 0.151515)*stepSize));
+    sumNewColor += 0.0009946636855602 * (texture(tex, texCoord - ( 9.0 + 0.212121)*stepSize) + texture(tex, texCoord + ( 9.0 + 0.212121)*stepSize));
+    sumNewColor += 0.0089796027168632 * (texture(tex, texCoord - ( 7.0 + 0.272727)*stepSize) + texture(tex, texCoord + ( 7.0 + 0.272727)*stepSize));
+    sumNewColor += 0.0450612790882587 * (texture(tex, texCoord - ( 5.0 + 0.333333)*stepSize) + texture(tex, texCoord + ( 5.0 + 0.333333)*stepSize));
+    sumNewColor += 0.1334507111459971 * (texture(tex, texCoord - ( 3.0 + 0.393939)*stepSize) + texture(tex, texCoord + ( 3.0 + 0.393939)*stepSize));
+    sumNewColor += 0.2414822392165661 * (texture(tex, texCoord - ( 1.0 + 0.454545)*stepSize) + texture(tex, texCoord + ( 1.0 + 0.454545)*stepSize));
+    sumNewColor += 0.1399499340914190 * texture(tex, texCoord);
 	
 	color = sumNewColor;
 }

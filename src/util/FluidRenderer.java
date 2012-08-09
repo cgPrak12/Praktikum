@@ -13,7 +13,7 @@ import org.lwjgl.util.vector.Vector3f;
  * @author S. Hoeffner, K. Schmidt, A. Werner
  */
 public class FluidRenderer {
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024 * 16);
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024 * 8);
 	private int 	 textureUnit = 0;
 	private Camera   cam;
 	private Vector3f lightPos;
@@ -99,11 +99,6 @@ public class FluidRenderer {
     private Texture normalIntTex          = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture thicknessIntTex       = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-    /**
-     * Initializes the ShaderPrograms, FrameBuffers, Textures and sets some GL_STATES,
-     * also creates the cubemap.
-     * @param camTmp Camera from main program
-     */
     public FluidRenderer(Camera camTmp, Vector3f light) {
     	cam = camTmp;
     	lightPos = light;
@@ -123,13 +118,12 @@ public class FluidRenderer {
 		init(normalSP, normalFB, normalFBLQ, normalTex, normalTexLQ);
     	init(thicknessSP, thicknessFB, thicknessFBLQ, thicknessTex, thicknessTexLQ);
 
-    	// init lighting TODO: finish
-    	init(lightingSP,  lightingFB,  lightingTex);
-
-    	init(finalImageSP,   finalImageFB,   finalImageTex);
-    	init(testPlaneSP, testPlaneFB, testPlaneTex);
+    	// init lighting
+    	init(lightingSP, lightingFB, lightingTex, "color", false, false, GL_RGBA8);
+    	init(finalImageSP, finalImageFB, finalImageTex, "color", false, false, GL_RGBA8);
+    	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", false, false, GL_RGBA8);
     	
-    	// init interpolation TODO: correction
+    	// init interpolation
     	init(interpolationSP, depthIntFB,     depthIntTex);
     	init(interpolationSP, normalIntFB,    normalIntTex);
     	init(interpolationSP, thicknessIntFB, thicknessIntTex);
@@ -144,9 +138,6 @@ public class FluidRenderer {
     	
 	} 
 	
-    /**
-     * Renders the current frame's water texture (and draws it for now). 
-     */
 	public void render() {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
@@ -155,7 +146,7 @@ public class FluidRenderer {
 		depth();
 		
 		// normals
-		normals();
+		normals(); // Wenn normals(true), dann werden die Normalen mit der geblurrten depth berechnet. Aufpassen!
 		
 		// thickness
 		thickness();
@@ -163,22 +154,22 @@ public class FluidRenderer {
 		// blur
 		blur(depthTexLQ, depthHBlurFB, depthVBlurFB, 1.0f);
 		blur(depthTexLQ, depthHBlurFBLQ, depthVBlurFBLQ, 1.0f);
-		blur(normalTexLQ, normalHBlurFB, normalVBlurFB, 5.0f);
+		blur(normalTex, normalHBlurFB, normalVBlurFB, 1.0f);
 		blur(normalTexLQ, normalHBlurFBLQ, normalVBlurFBLQ, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
 		
 		// interpolation
-		interpolate(depthTex,     depthTexLQ,     depthIntFB);
-		interpolate(normalTex,    normalTexLQ,    normalIntFB);
-		interpolate(thicknessTex, thicknessTexLQ, thicknessIntFB);
-		
+		interpolate(depthVBlurTex, depthVBlurTexLQ, depthIntFB);
+		interpolate(normalVBlurTex, normalVBlurTexLQ, normalIntFB);
+		interpolate(thicknessVBlurTex, thicknessVBlurTexLQ, thicknessIntFB); // möglicherweise tun's hier auch die normale 
+																			 // und die normal große geblurrte Texture, dann 
+																			 // könnte man sich den gesamten LQ-Kram sparen
 		// lighting
 		testPlane();
 		lighting();
 		finalImage();
 
-		// TODO this is DEBUG DRAW
 		drawTextureSP.use();
 		
 //		drawTextureSP.setUniform("image", depthTex);
@@ -202,79 +193,28 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
 //		drawTextureSP.setUniform("image", lightingTex);
-//		drawTextureSP.setUniform("image", finalImageTex);
+		drawTextureSP.setUniform("image", finalImageTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
 		screenQuad.draw();
-		
-		// TODO FINAL IMAGES
 	}
 	
-	/**
-	 * Inits a ShaderProgram with a FrameBuffer and a Texture and
-	 * binds it to "color".
-	 * @param sp ShaderProgram
-	 * @param fb FrameBuffer
-	 * @param tex Texture
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex) {
 		init(sp, fb, tex, "color");
 	}
 	
-	/**
-	 * Inits a ShaderProgram with a FrameBuffer, a Texture and an
-	 * Attachment Name for the fragment shader.
-	 * @param sp ShaderProgram
-	 * @param fb FrameBuffer
-	 * @param tex Texture
-	 * @param attachmentName Attachment Name (has to be "out" in fragment shader)
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex, String attachmentName) {
 		init(sp, fb, tex, attachmentName, false);
 	}
 
-	/**
-	 * Inits a ShaderProgram with a FrameBuffer, a Texture, an
-	 * Attachment Name for the fragment shader and a given 
-	 * DepthTest State.
-	 * @param sp ShaderProgram
-	 * @param fb FrameBuffer
-	 * @param tex Texture
-	 * @param attachmentName Attachment Name (has to be "out" in fragment shader)
-	 * @param depthTest DepthTest en-/dis-abled
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex, String attachmentName, boolean depthTest) {
 		init(sp, fb, tex, attachmentName, depthTest, false);
 	}
 	
-	/**
-	 * Inits a ShaderProgram with a FrameBuffer, a Texture, an
-	 * Attachment Name for the fragment shader, a given DepthTest 
-	 * State and a switch for HQ/LQ-Textures.
-	 * @param sp ShaderProgram
-	 * @param fb FrameBuffer
-	 * @param tex Texture
-	 * @param attachmentName Attachment Name (has to be "out" in fragment shader)
-	 * @param depthTest DepthTest en-/dis-abled
-	 * @param low HQ/LQ-Textures
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex, String attachmentName, boolean depthTest, boolean low) {
 		init(sp, fb, tex, attachmentName, depthTest, low, GL_RGBA16F);
 	}
 
-	/**
-	 * Inits a ShaderProgram with a FrameBuffer, a Texture, an
-	 * Attachment Name for the fragment shader, a given DepthTest 
-	 * State, a switch for HQ/LQ-Textures and a switch for
-	 * OpenGL's internal format used in the texture.
-	 * @param sp ShaderProgram
-	 * @param fb FrameBuffer
-	 * @param tex Texture
-	 * @param attachmentName Attachment Name (has to be "out" in fragment shader)
-	 * @param depthTest DepthTest en-/dis-abled
-	 * @param low HQ/LQ-Textures
-	 * @param internalFormat GL internal Format
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex, String attachmentName, boolean depthTest, boolean low, int internalFormat) {
 		fb.init(depthTest, WIDTH/(low?2:1), HEIGHT/(low?2:1));
     	fb.addTexture(tex, internalFormat, GL_RGBA);
@@ -284,60 +224,18 @@ public class FluidRenderer {
     	fb.drawBuffers();
 	}
 
-	/**
-	 * Inits a ShaderProgram for each, a HQ and LQ Texture.
-	 * @param sp ShaderProgram
-	 * @param fbHQ FrameBuffer HQ Texture
-	 * @param fbLQ FrameBuffer LQ Texture
-	 * @param texHQ HQ Texture
-	 * @param texLQ LQ Texture
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fbHQ, FrameBuffer fbLQ, Texture texHQ, Texture texLQ) {
 		init(sp, fbHQ, fbLQ, texHQ, texLQ, "color");
 	}
 	
-	/**
-	 * Inits a ShaderProgram for each, a HQ and LQ Texture, and applies
-	 * the textures to a specific attachment name.
-	 * @param sp ShaderProgram
-	 * @param fbHQ FrameBuffer HQ Texture
-	 * @param fbLQ FrameBuffer LQ Texture
-	 * @param texHQ HQ Texture
-	 * @param texLQ LQ Texture
-	 * @param attachmentName Attachment Name (has to be "out" in fragment shader)
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fbHQ, FrameBuffer fbLQ, Texture texHQ, Texture texLQ, String attachmentName) {
 		init(sp, fbHQ, fbLQ, texHQ, texLQ, attachmentName, false);
 	}
 	
-	/**
-	 * Inits a ShaderProgram for each, a HQ and LQ Texture, applies
-	 * the textures to a specific attachment name and adds a DepthTest switch.
-	 * @param sp ShaderProgram
-	 * @param fbHQ FrameBuffer HQ Texture
-	 * @param fbLQ FrameBuffer LQ Texture
-	 * @param texHQ HQ Texture
-	 * @param texLQ LQ Texture
-	 * @param attachmentName Attachment Name (has to be "out" in fragment shader)
-	 * @param depthTest En-/Dis-able DepthTest
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fbHQ, FrameBuffer fbLQ, Texture texHQ, Texture texLQ, String attachmentName, boolean depthTest) {
 		init(sp, fbHQ, fbLQ, texHQ, texLQ, attachmentName, depthTest, GL_RGBA16F);
 	}
 	
-	/**
-	 * Inits a ShaderProgram for each, a HQ and LQ Texture, applies
-	 * the textures to a specific attachment name, adds a DepthTest switch and
-	 * specifies an OpenGL internal format.
-	 * @param sp ShaderProgram
-	 * @param fbHQ FrameBuffer HQ Texture
-	 * @param fbLQ FrameBuffer LQ Texture
-	 * @param texHQ HQ Texture
-	 * @param texLQ LQ Texture
-	 * @param attachmentName Attachment Name (has to be "out" in fragment shader)
-	 * @param depthTest En-/Dis-able DepthTest
-	 * @param internalFormat OpenGL internal Format
-	 */
 	private void init(ShaderProgram sp, FrameBuffer fbHQ, FrameBuffer fbLQ, Texture texHQ, Texture texLQ, String attachmentName, boolean depthTest, int internalFormat) {
 		fbHQ.init(depthTest, WIDTH, HEIGHT);
 		fbHQ.addTexture(texHQ, internalFormat, GL_RGBA);
@@ -369,40 +267,21 @@ public class FluidRenderer {
 		}
     }
 	
-	/**
-	 * Starts a path by using a ShaderProgram, binding a FrameBuffer and
-	 * setting the clearColor.
-	 * @param sp ShaderProgram
-	 * @param fb FrameBuffer
-	 */
-	
 	private void startPath(ShaderProgram sp, FrameBuffer fb) {
 		sp.use();
 		fb.bind();
 		fb.clearColor();
 	}
 	
-	/**
-	 * Starts a path by using a ShaderProgram.
-	 * @param sp ShaderProgram
-	 */
 	private void startPath(ShaderProgram sp) {
 		sp.use();
 	}
 	
-	/**
-	 * Binds a FrameBuffer and sets the clear color.
-	 * @param fb FrameBuffer
-	 */
 	private void bindFB(FrameBuffer fb) {
 		fb.bind();
 		fb.clearColor();
 	}
 	
-	/**
-	 * Unbinds the current FrameBuffer.
-	 */
-	    
 	private void endPath() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -426,8 +305,8 @@ public class FluidRenderer {
         endPath();
 	}
 	
-	private void normals() { createNormals(false); }
-	private void createNormals(boolean source) {
+	private void normals() { normals(false); }
+	private void normals(boolean source) {
 		startPath(normalSP);
 		normalSP.setUniform("depthTex", source?depthVBlurTex:depthTex);
 		normalSP.setUniform("texSize", (float)WIDTH);
@@ -436,7 +315,7 @@ public class FluidRenderer {
 		bindFB(normalFB);
 		screenQuad.draw();
 		
-//		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ);
+//		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ); // TODO probieren, ob diese Zeile doch rein muss
 		bindFB(normalFBLQ);
 		screenQuad.draw();
 		
@@ -459,15 +338,11 @@ public class FluidRenderer {
 
         endPath();
     }
-	
-	// TODO LIGHTING
-	/**
-	 * Creates some lighting.
-	 */
+
 	private void lighting() {
         startPath(lightingSP, lightingFB);
         lightingSP.setUniform("view", cam.getView());
-	    lightingSP.setUniform("depthTex", depthTex);
+	    lightingSP.setUniform("depthTex", depthVBlurTex);   // TODO Sorry Kristin, ich habe das mal in geblurrten geändert, musst du evtl. anders machen!
 	    lightingSP.setUniform("normalTex", normalVBlurTex);
 	    lightingSP.setUniform("thicknessTex", thicknessTex);
         lightingSP.setUniform("cubeMap", cubemap);
@@ -478,10 +353,7 @@ public class FluidRenderer {
         endPath();
 	}
 	
-	// TODO MORE LIGHTING
-	/**
-	 * Creates advanced lighting effects
-	 */
+	// TODO final image
 	private void finalImage() {
 		
 		startPath(finalImageSP, finalImageFB);
@@ -493,9 +365,6 @@ public class FluidRenderer {
         endPath();
 	}
 		
-	/** 
-	 * Draws a plane to the ground. 
-	 */
 	private void testPlane() {
 		
 		startPath(testPlaneSP, testPlaneFB);
@@ -506,10 +375,6 @@ public class FluidRenderer {
 	    endPath();
 	}
 	
-	/**
-	 * Initializes a cubemap.
-	 * @param cubeMap cubemap name
-	 */
 	private void createCubeMap() {
 		
 		String[] cubeMapFileName = {"cubemap/sky_right.jpg", "cubemap/sky_left.jpg", "cubemap/sky_top.jpg",
@@ -545,20 +410,19 @@ public class FluidRenderer {
 	
 	private void blur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
 		startPath(blurSP);
-		blurSP.setUniform("depth", depthTex);
 		runBlur(tex, hFB, vFB, offset);
 		endPath();
 	}
 	
 	private void runBlur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
-		blurSP.setUniform("dir", 1.0f);
+		blurSP.setUniform("dir", 1);
 		for(int i = 0; i < vFB.length; i++) {
 			blurSP.setUniform("tex", tex[i]);
 			bindFB(hFB[i]);
 			screenQuad.draw();
 		}
 		
-		blurSP.setUniform("dir", 0.0f);
+		blurSP.setUniform("dir", 0);
 		for(int i = 0; i < hFB.length; i++) {
 			blurSP.setUniform("tex", hFB[i].getTexture(0));
 			bindFB(vFB[i]);
@@ -566,23 +430,15 @@ public class FluidRenderer {
 		}
 	}
 	
+	// TODO Interpolation - evtl. depth neu skalieren?
 	private void interpolate(Texture high, Texture low, FrameBuffer fb){
-		interpolationSP.use();
-		
-		interpolationSP.setUniform("viewProj", viewProj);
+		startPath(interpolationSP, fb);
 		interpolationSP.setUniform("highTex", high);
 		interpolationSP.setUniform("lowTex", low);
+		interpolationSP.setUniform("depthTex", depthTex);
 
-//   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
-		fb.bind();
-		fb.clearColor();
-    
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        
         screenQuad.draw();
-        //testWaterParticles.draw();
-        fb.unbind();
-
+        
+        endPath();
 	}
 }

@@ -12,6 +12,6 @@ void main(void) {
 	positionWC = vec4(positionMC,1);
 
 	gl_Position = viewProj * positionWC;
-	pointSize = 100.0 / (1 + length(positionMC - camPos));
+	pointSize = 100.0 / (1 + length(positionMC - camPos)); // evtl. wie in Thickness? Basti
 	gl_PointSize = pointSize;
 }
