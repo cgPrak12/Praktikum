@@ -55,7 +55,6 @@ public class TerrainMain {
     //shader erzeugen
     private static ShaderProgram shader = null;*/
     
-    
     public static void main(String[] argv) {
         //Generate random numbers with wights
         int[] values = {0,1,2,3};
@@ -121,7 +120,7 @@ public class TerrainMain {
         List modelPartList2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\elm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\elm-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\elm-tree\\");
 
         System.out.println("Importing took "+(System.currentTimeMillis()-timeInMillis)+" milliseconds.");
-
+        
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
