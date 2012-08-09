@@ -4,7 +4,6 @@ import static opengl.GL.GL_RGBA;
 import static opengl.GL.GL_TEXTURE_2D;
 
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;

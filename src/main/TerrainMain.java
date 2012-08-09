@@ -105,7 +105,7 @@ public class TerrainMain {
             //initialize ScreenManipulation with all the used Shaders
             screenMan.init("./shader/ScreenQuad_VS.glsl", "./shader/Blur_FS.glsl",
             "./shader/Brightness_FS.glsl", "./shader/Bloom_FS.glsl", "./shader/ToneMapping_FS.glsl",
-            "./shader/PhongLighting_FS.glsl", 28, GL.WIDTH, GL.HEIGHT);
+            "./shader/PhongLighting_FS.glsl", 29, GL.WIDTH, GL.HEIGHT);
             
             render();
             OpenCL.destroy();
@@ -214,6 +214,7 @@ public class TerrainMain {
         	fboSP.setUniform("modelIT",  	 modelIT);
         	fboSP.setUniform("viewProj", 	 Util.mul(null, cam.getProjection(), cam.getView()));
             fboSP.setUniform("shadowMatrix", shadowMatrix);
+            System.out.println(shadowMatrix);
         	fboSP.setUniform("camPos",   	 cam.getCamPos());
             fboSP.setUniform("view", cam.getView());
             fboSP.setUniform("camFar", cam.getFar());
@@ -275,13 +276,14 @@ public class TerrainMain {
         	floorQuad.draw();
         	
         	shadowShader.finish();
-        	
+        	//shader.DrawTexture(screenMan.getShadowMap(shadowShader.getWorldTexture()).getTexture(0));
         	
         	//shader.DrawTexture(shader.getDiffuseTexture());
         	
 //        	enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
 //        	shader.DrawTexture(shader.getWorldTexture());
 //        	shader.DrawTexture(enlightenedFBO.getTexture(0));
+        	//shader.DrawTexture(shader.getShadowTexture());
         	
         	if (shadows) {
             	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
@@ -289,7 +291,7 @@ public class TerrainMain {
         	else {
         		enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
         	}
-        	        	        	
+        	        	  
 //        	shader.DrawTexture(shader.getShadowTexture());
 
         	if (splitScreen) {

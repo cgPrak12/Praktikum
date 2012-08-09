@@ -13,7 +13,6 @@ const vec4 downColor = vec4(0.0, 0.0, 0.0, 1.0);
 uniform sampler2D normalTex;
 uniform sampler2D worldTex;
 uniform sampler2D diffuseTex;
-uniform sampler2D specularTex;
 uniform sampler2D shadowCoordsTex;
 uniform sampler2D shadowTex;
 
@@ -52,7 +51,7 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 	finalColor += sunIntensity * k_dif * c_d * max(dot(sunDir, normal), 0.0);
 		
 	//specular
-	finalColor += sunIntensity * k_spec * c_s * max(pow(dot(halfvec, normal), (es + 4)), 0.0);
+	//finalColor += sunIntensity * k_spec * c_s * max(pow(dot(halfvec, normal), (es + 4)), 0.0);
 	
     return (finalColor);
 }
@@ -61,36 +60,36 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 void main(void)
 {
 	vec3 normal = 1 - texture(normalTex, texCoord).xyz;	
-
-		// float strength = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-		// vec4 enlightenedColor = mix(downColor, upColor, strength);
+	// float strength = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
+	// vec4 enlightenedColor = mix(downColor, upColor, strength);
 		
-		normal = normalize(normal);
-		vec4 positionWC = texture(worldTex, texCoord);
+	normal = normalize(normal);
+	vec4 positionWC = texture(worldTex, texCoord);
 		
-		//ambient light
-		float strength = 0.5 + 0.5 * dot(normal, vec3(0,1,0));
-		vec4 ambi = mix(downColor, upColor, strength);
+	//ambient light
+	float strength = 0.5 + 0.5 * dot(normal, vec3(0,1,0));
+	vec4 ambi = mix(downColor, upColor, strength);
 		
-		//diffuse and specular
-		vec3 diff = texture(diffuseTex, texCoord).rgb;
-		vec3 spec = texture(specularTex, texCoord).rgb;
+	//diffuse and specular
+	vec3 diff = texture(diffuseTex, texCoord).rgb;
+	vec3 spec = vec3(0.8, 0.8, 0.8);	//texture(specularTex, texCoord).rgb;
 		
-		//shadow
-		vec4 shadowCoord = texture(shadowCoordsTex, texCoord);
-		float shadow = texture(shadowTex, shadowCoord.xy / shadowCoord.w).w;
+	//shadow
+	vec4 shadowCoord = texture(shadowCoordsTex, texCoord);
+	float shadow = texture(shadowTex, shadowCoord.xy / shadowCoord.w).w;
 		
-		float dist = distance(10.0 * sunDir, positionWC.xyz);
-				
-		if(shadow < dist)
-		{
-			enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, vec3(0), vec3(0), ambi.rgb), 1.0);
-			enlightenedColor = vec4(0);
-		}
-		else
-		{
-			enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb), 1.0);
-		}
+	float dist = distance(10.0 * sunDir, positionWC.xyz);
+	// diff = mix((shadow/10000)*diff, diff, 0.0001)*100;s
+	// enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, (shadow/35)*spec, ambi.rgb), 1.0);
+		
+	if(shadow < dist)
+	{
+		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, vec3(0), vec3(0), ambi.rgb), 1.0);
+	}
+	else
+	{
+		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb), 1.0);
+	}
 }
 
 

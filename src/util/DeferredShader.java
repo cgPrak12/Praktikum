@@ -51,7 +51,7 @@ public class DeferredShader {
     	texNormal 	   = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +2);
     	texSpec        = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +3);
     	skyColor       = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +4);
-    	texSun		   = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +5);
+    	//texSun		   = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +5);
     	texShadow = 	 new Texture(GL11.GL_TEXTURE_2D,  unitOffset +6);
     	
     	frameBuffer.addTexture(texPosition, GL30.GL_RGBA32F, GL11.GL_RGBA);
@@ -59,7 +59,7 @@ public class DeferredShader {
     	frameBuffer.addTexture(texNormal, GL30.GL_RGBA32F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texSpec, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	frameBuffer.addTexture(skyColor, GL30.GL_RGBA16F, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texSun, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	//frameBuffer.addTexture(texSun, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texShadow, GL30.GL_RGBA32F, GL11.GL_RGBA);
     	
     	frameBuffer.drawBuffers();
@@ -71,7 +71,7 @@ public class DeferredShader {
     
     public void registerShaderProgram(ShaderProgram shaderProgram) {
     	shaderProgram.use();
-        frameBuffer.BindFragDataLocations(shaderProgram, "position", "normal", "color","spec", "skyColor", "texSun","shadowCoord");        
+        frameBuffer.BindFragDataLocations(shaderProgram, "position", "normal", "color","spec", "skyColor"/*, "texSun"*/,"shadowCoord");        
     }
     
     public void clear() {
@@ -102,12 +102,12 @@ public class DeferredShader {
     public Texture getSkyTexture() {
         return frameBuffer.getTexture(4);
     }
-    public Texture getSunTexture() {
-        return frameBuffer.getTexture(5);
-    }
+//    public Texture getSunTexture() {
+//        return frameBuffer.getTexture(5);
+//    }
     
     public Texture getShadowTexture() {
-    	return frameBuffer.getTexture(6);
+    	return frameBuffer.getTexture(5);
     }
     public void DrawTexture(Texture tex) {
         drawTextureSP.use();
