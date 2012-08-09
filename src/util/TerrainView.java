@@ -70,8 +70,8 @@ public class TerrainView {
 
 					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
 					{
-						String file = "block_" + (myBl[i][j].getID()[0] + diffX) 
-								         + "_" + (myBl[i][j].getID()[0] + diffX) + ".bf";
+						String file = (myBl[i][j].getID()[0] + diffX) 
+								         + "_" + (myBl[i][j].getID()[0] + diffX) + "_.bf";
 						myBl[i][j] = BlockUtil.readBlockData(new File(file));
 					}
 					else

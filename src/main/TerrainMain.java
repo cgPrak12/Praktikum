@@ -5,14 +5,19 @@
 package main;
 
 import static opengl.GL.*;
+
+import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import opengl.OpenCL;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -65,13 +70,19 @@ public class TerrainMain
 
 			clip = new ClipMap(254, 8, program, cam);
 			
-			Terrain terrain = new Terrain(1024);
+			Terrain terrain = new Terrain(5000);
 			TerrainView tv = new TerrainView(cam);
 			
 			float[][] heightMap = tv.getHeightMap();
-
-			tex = Texture.generateTexture(".\\earth_height.jpg", 1);
+			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length*heightMap.length);
+			for(int i = 0; i < heightMap.length; i++) {
+				fbuffer.put(heightMap[i]);
+			}
+			fbuffer.flip();
+//			tex = Texture.generateTexture(".\\earth_height.jpg", 1);
+			tex = new Texture(GL_TEXTURE_2D, 1);
 			tex.bind();
+			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, heightMap.length, heightMap[0].length, 0, GL11.GL_RED, GL_FLOAT, fbuffer);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
