@@ -144,7 +144,8 @@ public class TerrainMain {
         Util.mul(floorQuadMatrix, Util.translationY(-1, null), Util.scale(20, null), Util.rotationX(-Util.PI_DIV2, null)); 
 
         
-        ShadowShader shadowShader = new ShadowShader();
+//        ShadowShader shadowShader = new ShadowShader();
+        DeferredShader shadowShader = new DeferredShader();        
         shadowShader.init(14);
         shadowShader.registerShaderProgram(shadowSP);
         
