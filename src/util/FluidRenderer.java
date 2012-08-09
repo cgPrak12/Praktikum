@@ -82,7 +82,7 @@ public class FluidRenderer {
 	private FrameBuffer lightingFB   = new FrameBuffer();
     private Texture lightingTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-    private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/CubeMap_FS.glsl");
+    private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/FinalImage_FS.glsl");
     private FrameBuffer finalImageFB   = new FrameBuffer();
     private Texture finalImageTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
@@ -190,7 +190,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", depthIntTex);
 //		drawTextureSP.setUniform("image", normalTex);
 //		drawTextureSP.setUniform("image", normalHBlurTex);
-		drawTextureSP.setUniform("image", normalVBlurTex);
+//		drawTextureSP.setUniform("image", normalVBlurTex);
 //		drawTextureSP.setUniform("image", normalTexLQ);
 //		drawTextureSP.setUniform("image", normalHBlurTexLQ);
 //		drawTextureSP.setUniform("image", normalVBlurTexLQ);
@@ -202,7 +202,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
 //		drawTextureSP.setUniform("image", lightingTex);
-//		drawTextureSP.setUniform("image", cubeMapTex);
+//		drawTextureSP.setUniform("image", finalImageTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
 		screenQuad.draw();
@@ -485,13 +485,9 @@ public class FluidRenderer {
 	private void finalImage() {
 		
 		startPath(finalImageSP, finalImageFB);
-        finalImageSP.setUniform("normalTex", normalVBlurTex);
-        finalImageSP.setUniform("depthTex", depthTex);
         finalImageSP.setUniform("lightingTex", lightingTex);
         finalImageSP.setUniform("plane", testPlaneTex);
         finalImageSP.setUniform("thicknessTex", thicknessTex);
-        finalImageSP.setUniform("cubeMap", cubemap);
-        finalImageSP.setUniform("view", cam.getView());
         screenQuad.draw();
         
         endPath();
