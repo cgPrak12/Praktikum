@@ -15,6 +15,7 @@ public class ScreenManipulation {
 	private static FrameBuffer fboBlur1;
 	private static FrameBuffer fboBlur2;
 	private static FrameBuffer fboBlur3;
+	private static FrameBuffer fboBlur20;
 	private static FrameBuffer fboBrightness;
 	private static FrameBuffer fboBloom;
 	private static FrameBuffer fboTone;
@@ -39,11 +40,14 @@ public class ScreenManipulation {
 	private static ShaderProgram spoQuad;
 	private static ShaderProgram spoShadow;
 	private static ShaderProgram spoShadowPhong;
+
 	
     private static Vector2f[] tc_offset_5;
+
     
     //screen quad
     private Geometry screenQuad;
+	private Geometry highScreenQuad;
     
     /**
      * Initialize the ScreenManipulation
@@ -63,6 +67,7 @@ public class ScreenManipulation {
 		
 		//initialize screen quad
 		screenQuad = GeometryFactory.createScreenQuad();
+		highScreenQuad = GeometryFactory.createScreenQuad();
 		
 		//initialize all the FrameBufferObjects
 		fboBlur0 = new FrameBuffer();
@@ -120,14 +125,18 @@ public class ScreenManipulation {
         blured4 = new FrameBuffer();
         blured4.init(false, width, height);
         blured4.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 13), GL30.GL_RGBA16F, GL_RGBA);
+        
+        fboBlur20 = new FrameBuffer();
+		fboBlur20.init(false, width, height);
+        fboBlur20.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 16), GL30.GL_RGBA16F, GL_RGBA);
               
         fboQuad = new FrameBuffer();
         fboQuad.init(false, width, height);
         fboQuad.addTexture(new Texture(GL_TEXTURE_2D, 14), GL30.GL_RGBA16F, GL_RGBA);
         
         fboShadow = new FrameBuffer();
-        fboShadow.init(false, width, height);
-        fboShadow.addTexture(new Texture(GL_TEXTURE_2D, 15), GL30.GL_RGBA16F, GL_RGBA);
+        fboShadow.init(false, 2048, 2048);
+        fboShadow.addTexture(new Texture(GL_TEXTURE_2D, 15), GL30.GL_RGBA32F, GL_RGBA);
         
         fboShadowPhong = new FrameBuffer();
         fboShadowPhong.init(false, width, height);
@@ -404,13 +413,16 @@ public class ScreenManipulation {
 	 * @param shadowImage Texture with depth-informations(GlobalTexture)
 	 * @return FrameBuffer FrameBuffer with depth-informations
 	 */
-	public FrameBuffer getShadowMap(Texture shadowImage) {
+	public FrameBuffer getShadowMix(Texture worldTex, Texture shadowCoordsTex, Texture shadowTex, Vector3f sunDir) {
 		fboShadow.bind();
 		
 		spoShadow.use();
-		spoShadow.setUniform("shadowImage", shadowImage);
+		spoShadow.setUniform("worldTex", worldTex);
+		spoShadow.setUniform("shadowCoordsTex", shadowCoordsTex);
+		spoShadow.setUniform("shadowTex", shadowTex);
+		spoShadow.setUniform("sunDir", sunDir);
 		
-		this.screenQuad.draw();
+		this.highScreenQuad.draw();
 		
 		fboShadow.unbind();
 		

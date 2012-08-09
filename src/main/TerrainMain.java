@@ -69,7 +69,7 @@ public class TerrainMain {
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
-    private static float orthoScaleValue = 1f;
+    private static float orthoScaleValue = 15f;
     
     private static Matrix4f bias;
     
@@ -144,7 +144,7 @@ public class TerrainMain {
         Util.mul(floorQuadMatrix, Util.translationY(-1, null), Util.scale(20, null), Util.rotationX(-Util.PI_DIV2, null)); 
 
         
-        DeferredShader shadowShader = new DeferredShader();
+        ShadowShader shadowShader = new ShadowShader();
         shadowShader.init(14);
         shadowShader.registerShaderProgram(shadowSP);
         
@@ -153,6 +153,7 @@ public class TerrainMain {
         shader.registerShaderProgram(fboSP);
         
         Geometry testCube = GeometryFactory.createCube();
+        Geometry testCube1 = GeometryFactory.createCube();
         Geometry floorQuad = GeometryFactory.createWhiteScreenQuad();
         Geometry sunCube = GeometryFactory.createCube();
         
@@ -206,6 +207,8 @@ public class TerrainMain {
             
         	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
         	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+        	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(10f, null), Util.translationZ(10f, null), Util.translationY(5f, null));
+        	Matrix4f modelIT1 = Util.transposeInverse(modelMatrix1, null);
         	Matrix4f shadowMatrix = Util.mul(null, shadowCam.getProjection(), shadowCam.getView());
         	
         	fboSP.setUniform("model", 	 	 modelMatrix);
@@ -225,7 +228,14 @@ public class TerrainMain {
         	
             testCube.draw();
             
-            //sun cube
+            fboSP.setUniform("model", modelMatrix1);
+            fboSP.setUniform("modelIT", modelIT1);
+
+            testCube1.draw();
+            
+        	fboSP.setUniform("modelIT", floorQuadMatrix); //Util.transposeInverse(floorQuadMatrix, null));
+			
+			//sun cube
             fboSP.setUniform("model", sunMatrix);
             fboSP.setUniform("modelIT", Util.transposeInverse(sunMatrix, null));
             fboSP.setUniform("shadowMatrix", shadowMatrix);
@@ -238,8 +248,8 @@ public class TerrainMain {
             
         	shader.finish();
         	
+        	
         	//test cube (shadow map)
-        	glCullFace(GL_FRONT);
         	shadowSP.use();
         	shadowSP.setUniform("model", 	modelMatrix);
         	shadowSP.setUniform("modelIT",  modelIT);
@@ -250,8 +260,11 @@ public class TerrainMain {
         	shadowShader.clear();
    	
         	testCube.draw();
-        	glCullFace(GL_BACK);
         	
+            fboSP.setUniform("model", modelMatrix1);
+            fboSP.setUniform("modelIT", modelIT1);
+
+            testCube1.draw();
         	shadowSP.setUniform("model",    floorQuadMatrix);
         	shadowSP.setUniform("modelIT",  floorQuadMatrix);
         	shadowSP.setUniform("viewProj", shadowMatrix);
@@ -261,14 +274,15 @@ public class TerrainMain {
         	
         	shadowShader.finish();
 
-        	
+        	//shader.DrawTexture(shader.getDiffuseTexture());
         	if (shadows) {
             	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection, shadowCam);
         	}
         	else {
         		enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
         	}
-        	        	  
+        	        	
+//        	shader.DrawTexture(screenMan.getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getWorldTexture(), sunDirection).getTexture(0));
         	if (splitScreen) {
         		fbo = getQuadScreen(splitScreenVal, shader, shadowShader);
         	}
@@ -381,6 +395,7 @@ public class TerrainMain {
                     case Keyboard.KEY_SPACE: moveDir.y -= 1.0f; break;
                     case Keyboard.KEY_C: moveDir.y += 1.0f; break;
                     case Keyboard.KEY_F1: cam.changeProjection(); break;
+                    case Keyboard.KEY_P: shadowCam.changeProjection(); break;
                     case Keyboard.KEY_LEFT:
                         if(Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
                             ingameTimePerSecond = 0.0f;
