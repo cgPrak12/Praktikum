@@ -87,7 +87,6 @@ void main(void)
 		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb) * shadow, 1.0);
 		//enlightenedColor = vec4(0,0,0,0);
 	}
-	enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb) * shadow, 1.0);
 }
 
 

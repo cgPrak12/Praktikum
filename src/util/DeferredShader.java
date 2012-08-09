@@ -43,7 +43,11 @@ public class DeferredShader {
     }
    
     public void init(int unitOffset) {
-    	frameBuffer.init(true, GL.WIDTH, GL.HEIGHT);
+    	this.init(unitOffset, GL.WIDTH, GL.HEIGHT);
+    }
+    
+    public void init(int unitOffset, int width, int height) {
+    	frameBuffer.init(true, width, height);
         
     	// generate textures
     	texPosition    = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +0);

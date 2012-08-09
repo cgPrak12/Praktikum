@@ -26,8 +26,7 @@ void main(void)
 	//shadow
 	vec4 shadowCoord = texture(shadowCoordsTex, texCoord);
 	float shadow = texture(shadowTex, shadowCoord.xy / shadowCoord.w).w;
-		
-	float dist = distance(10.0 * sunDir, positionWC.xyz);
+	float dist = distance(10.0 * sunDir, positionWC.xyz);		
 		
 	if(shadow < dist)
 	{
