@@ -26,11 +26,11 @@ void main(void) {
 
 	// original
 	depth = vec4(pixelPos.xyz, distance(-pixelPos.xyz, camPos) / viewDistance); 
-	
+	depth = vec4(positionWC.xyz, distance(-pixelPos.xyz, camPos) / viewDistance); 
 	// position in xyz, "easy" depth in w !
 	//depth = vec4(positionWC.xyz, -pixelPos.z);
 	
 	// debug (depth in xyzw, -pixelPos.z in xyzw)
 	//depth = vec4(distance(-pixelPos.xyz, camPos) / viewDistance);
-	//depth = vec4(-pixelPos.z);
+	depth = vec4(length(-pixelPos.z));
 }
