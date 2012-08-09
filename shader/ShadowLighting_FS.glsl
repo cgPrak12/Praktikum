@@ -77,7 +77,6 @@ void main(void)
 	
 	float shadow = texture(shadowTex, texCoord).x;
 		
-		
 	if(shadow < 0.5)
 	{
 		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, vec3(0), vec3(0), ambi.rgb), 1.0);

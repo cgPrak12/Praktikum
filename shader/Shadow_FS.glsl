@@ -31,7 +31,8 @@ void main(void)
 		
 	if(shadow < dist)
 	{
-		enlightenedColor = vec4(1 - (shadow/dist));
+		//enlightenedColor = vec4(shadow/dist);
+		enlightenedColor = vec4(0.7);
 	}
 	else
 	{

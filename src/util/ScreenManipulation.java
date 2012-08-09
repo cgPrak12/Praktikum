@@ -428,10 +428,7 @@ public class ScreenManipulation {
 	}
 	
 	public FrameBuffer getShadowLighting(DeferredShader shader, DeferredShader shadowShader, Vector3f camPos, Vector3f sunDirection, FrameBuffer shadowTex) {				
-//		bluredShadow1 = getBlur51(shadowTex);
-//		bluredShadow2 = getBlur52(bluredShadow1);
-
-		
+	
 		fboShadowPhong.bind();
 		
 		spoShadowPhong.use();
