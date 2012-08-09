@@ -1,22 +1,21 @@
 package util;
 
-//import java.util.Date;
-//import java.util.Random;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
-
 public class BlockUtil {
 
+	private static final int blockSize = 256; 	/* block length / width */
+	private static final int vertexInfos = 5; 	/* vertexInfo quantity */
+	
 	/**
 	 * Liest einen gegebenen Block ein und schreibt diesen in eine blockfile (.bf) Datei
 	 * 
@@ -24,63 +23,53 @@ public class BlockUtil {
 	 * @return file		geschriebene .bf Datei	
 	 */
 	public static File writeBlockData(Block block)
-	{
-//		long time = new Date().getTime();
-				
+	{				
 		File file = new File(block.getID()[0] + "_" + block.getID()[1] + "_.bf");
 						
 		try( FileOutputStream fos = new FileOutputStream(file);
-			 ByteOutputStream dos = new ByteOutputStream(256 * 256 * 5); 
-			 DataOutputStream output = new DataOutputStream(new BufferedOutputStream(dos)) )
+			 ByteArrayOutputStream bos = new ByteArrayOutputStream(blockSize * blockSize * vertexInfos * 4);
+			 DataOutputStream output = new DataOutputStream(new BufferedOutputStream(bos)) )
 		{
 			if(!file.exists())
 			{
 				file.createNewFile();
 			}
 			
+			// wenn ein Block sich ausserhalb des Terrains befindet
 			if(block.getID()[0] < 0 || block.getID()[1] < 0)
 			{
-				for(int i = 0; i < 256; i++)
+				for(int i = 0; i < blockSize; i++)
 				{
-					for(int j = 0; j < 256; j++)
+					for(int j = 0; j < blockSize; j++)
 					{
-						for(int k = 0; k < 5; k++)
+						for(int k = 0; k < vertexInfos; k++)
 						{		
 							output.writeFloat(0.0f);
 						}		
 					}
 				}
-				
-//				System.out.println("Schreibdauer: " + (new Date().getTime() - time) + " Millisekunden");
+				fos.write(bos.toByteArray());
 				
 				return file;
 			}
-											
-			for(int i = 0; i < 256; i++)
+					
+			// wenn ein Block sich innerhalb des Terrains befindet
+			for(int i = 0; i < blockSize; i++)
 			{
-				for(int j = 0; j < 256; j++)
+				for(int j = 0; j < blockSize; j++)
 				{
-					for(int k = 0; k < 5; k++)
+					for(int k = 0; k < vertexInfos; k++)
 					{		
 						output.writeFloat(block.getInfo(i, j, k));
 					}		
 				}
 			}
-					
-			fos.write(dos.getBytes());
-			
-//			System.out.println("Schreibdauer: " + (new Date().getTime() - time) + " Millisekunden");
-			
+			fos.write(bos.toByteArray());						
 			return file;
 		}
-		catch (FileNotFoundException e1)
+		catch (IOException e1)
 		{
-			System.err.println("FileNotFoundException : " + e1.getMessage());
-			return null;
-		}
-		catch (IOException e2)
-		{
-			System.err.println("IOException : " + e2.getMessage());
+			System.err.println(e1.getClass().getName() + " : " + e1.getMessage());
 			return null;
 		}
 	}
@@ -93,12 +82,12 @@ public class BlockUtil {
 	 */
 	public static Block readBlockData(File blockData)
 	{
-//		long time = new Date().getTime();
+		byte[] bytes = new byte[blockSize * blockSize * vertexInfos * 4];
 		
 		try( FileInputStream fis = new FileInputStream(blockData); 
-			 DataInputStream input = new DataInputStream(new BufferedInputStream(fis)))
-		{		
-			// posX und posZ mittels string splitting aus dem filename lesen
+			 ByteArrayInputStream bis = new ByteArrayInputStream(bytes);	
+			 DataInputStream input = new DataInputStream(new BufferedInputStream(bis)) )
+		{				
 			String fileName = blockData.getName();
 			String[] tmp;
 			String delimiter = "_";
@@ -106,41 +95,45 @@ public class BlockUtil {
 			int x = new Integer(tmp[0]);
 			int z = new Integer(tmp[1]);
 			
-			// neuen Block erzeugen und mit eingelesenen floats fuellen
 			Block newblock = new Block(x,z);
 				
-				for(int i = 0; i < 256; i++)
+			for(int i = 0; i < blockSize; i++)
+			{
+				for(int j = 0; j < blockSize; j++)
 				{
-					for(int j = 0; j < 256; j++)
-					{
-						for(int k = 0; k < 5; k++)
-						{		
-							newblock.setInfo(i, j, k, input.readFloat());
-						}		
-					}
+					for(int k = 0; k < vertexInfos; k++)
+					{		
+						newblock.setInfo(i, j, k, input.readFloat());
+					}		
 				}
-//			System.out.println("Lesedauer: " + (new Date().getTime() - time) + " Millisekunden");
-			
+			}
+			fis.read(bytes);
 			return newblock;
 		}
-		catch (FileNotFoundException e3)
+		catch (IOException e2)
 		{
-			System.err.println("FileNotFoundException : " + e3.getMessage());
-			return null;
-		}
-		catch (IOException e4)
-		{
-			System.err.println("IOException : " + e4.getMessage());
+			System.err.println(e2.getClass().getName() + " : " + e2.getMessage());
 			return null;
 		}				
 	}
 	
+	/**
+	 * Liest ein Blockfile aus, dessen ID mit der gegeben uebereinstimmt
+	 * 
+	 * @param x		X_0_.bf
+	 * @param z		0_Z_.bf
+	 * @return block
+	 */
 	public static Block readBlockData(int x, int z)
 	{
 		return readBlockData(new File(x + "_" + z + "_.bf"));
 	}
 	
-	
+	/**
+	 * 
+	 * @param cam
+	 * @return
+	 */
 	public static Block getBlock(Camera cam)
 	{
 		int x = Math.round(cam.getCamPos().x);
@@ -149,6 +142,13 @@ public class BlockUtil {
 		return getBlock(x, z);
 	}
 	
+	/**
+	 * Greift auf einen Block im Terrain zu
+	 * 
+	 * @param x		X-pos im Terrain
+	 * @param z		Z-pos im Terrain
+	 * @return block
+	 */
 	public static Block getBlock(int x, int z)
 	{
 		return readBlockData(x / 256, z / 256);

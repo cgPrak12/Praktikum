@@ -2,11 +2,17 @@ package util;
 
 public class Terrain
 {
+	private static final int MEM_BLOCKS_SET = 16;
+	private static final int MEM_BLOCKS_GET = 4;
+	
 	private String[][] blocks;
 	private int size;
 	private float initialHeight;
-	private int[][] currentIDs;
-	private Block[] currentBlocks;
+	
+	private int[][] currentIDsSet;
+	private int[][] currentIDsGet;
+	private Block[] currentBlocksSet;
+	private Block[] currentBlocksGet;
 	
 	/**
 	 * Konstruktor mit konkreten Angaben zu Groesse und Initialhoehe
@@ -15,22 +21,15 @@ public class Terrain
 	 */
 	public Terrain(int size, float initHeight)
 	{
-		this.size = size;
+		System.out.println("0%      +++      Bloecke werden geschrieben       +++       100%");
+		this.size = getLastPow2(size);
 		this.initialHeight = initHeight;
-		currentBlocks = new Block[4];
-		currentIDs = new int[4][2];
+		currentBlocksSet = new Block[MEM_BLOCKS_SET];
+		currentBlocksGet = new Block[MEM_BLOCKS_GET];
+		currentIDsSet = new int[MEM_BLOCKS_SET][2];
+		currentIDsGet = new int[MEM_BLOCKS_GET][2];
+		
 		init();
-		
-		currentBlocks[0] = BlockUtil.getBlock(0,0);
-		currentBlocks[1] = BlockUtil.getBlock(1,0);
-		currentBlocks[2] = BlockUtil.getBlock(2,0);
-		currentBlocks[3] = BlockUtil.getBlock(3,0);
-		
-		currentIDs[0][0] = 0; currentIDs[0][1] = 0;
-		currentIDs[1][0] = 1; currentIDs[1][1] = 0;
-		currentIDs[2][0] = 2; currentIDs[2][1] = 0;
-		currentIDs[3][0] = 3; currentIDs[3][1] = 0;
-		
 	}
 	
 	/* Konstruktoren mit Standardwerten */
@@ -40,11 +39,17 @@ public class Terrain
 	
 	/**
 	 * Setze alle Vertices initial auf die gleiche Hoehe
+	 * Initialisiere dabei Block[] fuer schnelleren Zugriff bei get- und set-Aufrufen
 	 */
 	public void init()
 	{
 		int dim = size / 256;
+		
 		blocks = new String[dim][dim];
+		int countSet = 0;
+		int countGet = 0;
+		int count = 0;
+		int factor = (size / 1024) * (size / 1024);
 		
 		// Unterteilung in 1024x1024er Bloecke
 		for(int i = 0; i < size / 1024; i++)
@@ -56,15 +61,34 @@ public class Terrain
 				{
 					for(int l = 0; l < 4; l++)
 					{
+//						if(count++ % factor == 0)
+//							System.out.print("....");
 						int xPos = i * 4 + k;
 						int zPos = j * 4 + l;
 						Block block = new Block(xPos, zPos);
 						
+						if(xPos * dim + zPos < MEM_BLOCKS_SET)
+						{
+							currentBlocksSet[countSet]   = block;
+							currentIDsSet[countSet][0]   = xPos;
+							currentIDsSet[countSet++][1] = zPos;	
+						}
+						
+						if(xPos * xPos < MEM_BLOCKS_GET && zPos * zPos < MEM_BLOCKS_GET)
+						{
+							currentBlocksGet[countGet]   = block;
+							currentIDsGet[countGet][0]   = xPos;
+							currentIDsGet[countGet++][1] = zPos;
+						}
+						
 						// Fuellen der Bloecke mit Initialhoehe
 						for(int m = 0; m < 256; m++)
 						{
+							
 							for(int n = 0; n < 256; n++)
 							{
+								if(count++ % (factor * 16384) == 0)
+									System.out.print(".");
 								block.setInfo(m, n, 0, initialHeight);
 							}
 						}
@@ -75,6 +99,7 @@ public class Terrain
 				}
 			}
 		}
+		System.out.println();
 	}
 	
 	/**
@@ -98,9 +123,9 @@ public class Terrain
 			// wenn nicht, neue Bloecke reinladen
 			boolean test = false;
 			int n = 0;
-			while(n < 4)
+			while(n < MEM_BLOCKS_SET)
 			{
-				if(currentIDs[n][0] == idX && currentIDs[n][1] == idZ)
+				if(currentIDsSet[n][0] == idX && currentIDsSet[n][1] == idZ)
 				{
 					test = true;
 					break;
@@ -110,11 +135,11 @@ public class Terrain
 			
 			if(!test)
 			{
-				updateBlocks(x, z);
+				updateBlocksSet(x, z);
 				n = 0;
-				while(n < 4)
+				while(n < MEM_BLOCKS_SET)
 				{
-					if(currentIDs[n][0] == idX && currentIDs[n][1] == idZ)
+					if(currentIDsSet[n][0] == idX && currentIDsSet[n][1] == idZ)
 					{
 						break;
 					}
@@ -122,8 +147,7 @@ public class Terrain
 				}
 			}
 
-			Block myBlock = currentBlocks[n];
-//			Block myBlock = BlockUtil.readBlockData(idX, idZ);
+			Block myBlock = currentBlocksSet[n];
 			myBlock.setInfo(blockX, blockZ, pos, value);
 			BlockUtil.writeBlockData(myBlock);
 			
@@ -141,12 +165,40 @@ public class Terrain
 	 */
 	public float get(int x, int z, int pos)
 	{
-		int terX   = x / 256;
-		int blockX = x % 256;
-		int terZ   = z / 256;
-		int blockZ = z % 256;
+		int idX    = x / 256; // x-Koordinate im Terrain
+		int blockX = x % 256; // x-Koordinate im Block
+		int idZ    = z / 256; // z-Koordinate im Terrain
+		int blockZ = z % 256; // z-Koordinate im Block
 		
-		Block myBlock = BlockUtil.readBlockData(terX, terZ);
+		// liegt der Block bereits vor?
+		// wenn nicht, neue Bloecke reinladen
+		boolean test = false;
+		int n = 0;
+		while((n+1) < MEM_BLOCKS_GET)
+		{
+			if(currentIDsGet[n][0] == idX && currentIDsGet[n][1] == idZ)
+			{
+				test = true;
+				break;
+			}
+			n++;
+		}
+		
+		if(!test)
+		{
+			updateBlocksGet(x, z);
+			n = 0;
+			while(n < MEM_BLOCKS_GET)
+			{
+				if(currentIDsGet[n][0] == idX && currentIDsGet[n][1] == idZ)
+				{
+					break;
+				}
+				n++;
+			}
+		}
+		
+		Block myBlock = currentBlocksSet[n];
 		return myBlock.getInfo(blockX, blockZ, pos);
 	}
 	
@@ -162,28 +214,61 @@ public class Terrain
 		set(x, z, pos, get(x, z, pos) + dValue);
 	}
 	
-	private void updateBlocks(int x, int z)
+	/**
+	 * Hilfsmethode, updated das Block[] fuer set-Aufrufe
+	 * @param x x-Koordinate im Terrain
+	 * @param z z-Koordinate im Terrain
+	 */
+	private void updateBlocksSet(int x, int z)
 	{
-		int idX = getLastMul4(x / 256);
+		int idX = x / 256;
 		int idZ = z / 256;
 		
-		Block block = BlockUtil.readBlockData(idX, idZ);
-		currentBlocks[0] = block;
-		currentBlocks[1] = BlockUtil.readBlockData(idX + 1, idZ);
-		currentBlocks[2] = BlockUtil.readBlockData(idX + 2, idZ);
-		currentBlocks[3] = BlockUtil.readBlockData(idX + 3, idZ);
-		
-		currentIDs[0][0] = idX    ; currentIDs[0][1] = idZ;
-		currentIDs[1][0] = idX + 1; currentIDs[1][1] = idZ;
-		currentIDs[2][0] = idX + 2; currentIDs[2][1] = idZ;
-		currentIDs[3][0] = idX + 3; currentIDs[3][1] = idZ;
+		for(int i = 0; i < MEM_BLOCKS_SET; i++)
+		{
+			int getX = (idX + i) % (size / 256);
+			int getZ = (idZ + (idX + i) / (size / 256)) % (size / 256);
+			currentBlocksSet[i] = BlockUtil.readBlockData(getX, getZ);
+			currentIDsSet[i][0] = getX; currentIDsSet[i][1] = getZ;  
+		}
 	}
 	
-	private int getLastMul4(int n)
+	/**
+	 * Hilfsmethode, updated das Block[] fuer get-Aufrufe
+	 * @param x x-Koordinate im Terrain
+	 * @param z z-Koordinate im Terrain
+	 */
+	private void updateBlocksGet(int x, int z)
 	{
-		if(n < 0) return 0;
-		int i = 0;
-		while(i < n) i += 4;
+		int idX = x / 256;
+		int idZ = z / 256;
+		int count = 0;
+		
+		for(int i = 0; i * i < MEM_BLOCKS_GET; i++)
+		{
+			for(int j = 0; j * j < MEM_BLOCKS_GET; j++)
+			{
+				currentBlocksGet[count] = BlockUtil.readBlockData(idX + i, (idZ + j) % (size / 256));
+				currentIDsGet[count][0] = idX + i;
+				currentIDsGet[count][1] = (idZ + j) % (size / 256);
+				count++;
+			}
+		}
+	}
+	
+	/**
+	 * Berechnet die naechst kleinere 2er-Potenz einer Zahl n
+	 * @param n angegebene Zahl
+	 * @return naechst kleinere 2er-Potenz
+	 */
+	private static int getLastPow2(int n)
+	{
+		if(n < 1024) return 1024;
+		int i = 1024;
+		while(i <= n) i *= 2;
+		i /= 2;
 		return i;
 	}
+	
+	public int getSize() { return size; }
 }

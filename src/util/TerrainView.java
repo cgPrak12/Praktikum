@@ -2,8 +2,14 @@ package util;
 
 import java.io.File;
 
+/**
+ * this class take care of the blocks which are in use
+ * @author group data
+ *
+ */
 public class TerrainView {
 
+	// private values
 	private Block[][] myBl;
 	private Camera cam;
 	private int[] middle;
@@ -30,17 +36,19 @@ public class TerrainView {
 		int idI = middle[0]-1;
 		int idJ = middle[1]-1;
 		
-		// hier fehlt noch die Fehlerbehandlung am Rand
-		// dummy-Block wenn man am/über dem Rand ist 
+		//hier fehlt noch die Fehlerbehandlung am Rand
+		//dummy-Block wenn man am/über dem Rand ist 
 		for(int i=0; i<9; i++)
 		{
 			for(int j=0; j<9; j++)
 			{
-				myBl[i][j] = BlockUtil.readBlockData(new File((idI+i) + "_" + (idJ+j) + "_.bf"));
+				if(i!=4 && j!=4){
+					myBl[i][j] = BlockUtil.readBlockData(new File((idI+i)+"_"+(idJ+j)+"_.bf"));
+				}
 			}
 		}
 	}
-
+	
 	/**
 	 * update the whole blocks
 	 */
@@ -62,9 +70,9 @@ public class TerrainView {
 
 					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
 					{
-						File file = new File((myBl[i][j].getID()[0] + diffX) 
-								     + "_" + (myBl[i][j].getID()[0] + diffX) + "_.bf");
-						myBl[i][j] = BlockUtil.readBlockData(file);
+						String file = "block_" + (myBl[i][j].getID()[0] + diffX) 
+								         + "_" + (myBl[i][j].getID()[0] + diffX) + ".bf";
+						myBl[i][j] = BlockUtil.readBlockData(new File(file));
 					}
 					else
 					{
@@ -73,6 +81,23 @@ public class TerrainView {
 				}
 			}
 		}
+	}
+	
+	public float[][] getHeightMap(){
+		
+		float[][] heightMap = new float[9*256][9*256];
+		
+		for(int x=0; x<heightMap.length; x++){
+			for(int z=0; z<heightMap.length; z++){
+				
+				int bx = (int)x/256;
+				int bz = (int)z/256;
+				
+				heightMap[x][z]= myBl[bx][bz].getInfo(x%256, z%256, 0);
+			}
+		}
+		
+		return heightMap;
 	}
 	
 	/**
@@ -115,11 +140,4 @@ public class TerrainView {
 		
 		return (int)((cam.getCamPos().z%256)+256);
 	}
-
-	public Block[][] getBlocks() {
-
-		return myBl;
-	}
-	
-
 }
