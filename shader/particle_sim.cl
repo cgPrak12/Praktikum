@@ -146,7 +146,7 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 
 #define GROUND_NORM_DAMPING 0.00004
 //#define GROUND_VELO_DAMPING 0.8
-#define GROUND_VELO_DAMPING 1
+#define GROUND_VELO_DAMPING 0.9
 #define COLLISION_DAMPING -0.00001;
 #define COLLIDE_DAMPING 0.0002;
 
@@ -205,7 +205,9 @@ kernel void particle_sim
     //////////////////////////////////////////////////////////  
     
     float4 collide_velo = 0;
-    if(mypos.s3>0.8){ 
+    int leqneighs = 0;
+    if(mypos.s3>0.8){
+     
 	    for(int i=-1; i<=1; i++){
 	        for(int j=-1; j<=1; j++){
 	            for(int k=-1; k<=1; k++){
@@ -214,7 +216,9 @@ kernel void particle_sim
 	                int num = grid.counter[cid.cnt_id];
 	                num = num > grid.max_p ? grid.max_p : num;
 	                
+
 	                for (int m = 0; m < num; m++) {
+
 	                    ///////////////////////////////////////////////////////////
 	                    int other_gid = grid.cells[cid.cell_id+m];
 	                    if (other_gid == mygid) continue;
@@ -222,24 +226,37 @@ kernel void particle_sim
 	                    float4 other_vel = vel_inbuf[other_gid];                    
 	                    float4 n = (other_pos - mypos);
 	                    float distance = length(n.s012);
+
+ //                           if (j == -1 && distance < RADIUS*4)
+ //                               leqneighs++;
+
 	                    if(distance < RADIUS*2)
 	                    {
-	                        //if(mypos.s1 > other_pos.s1){
-	                        //        myvel-=gravity*0.1;
-	                        //}
+                                
+
 	                        //collide_velo+=normalize(n)*COLLISION_DAMPING;
-	                        collide_velo+=collide(other_pos-mypos, myvel , other_vel, distance-(RADIUS*2))*COLLIDE_DAMPING;
-	                    }
+	                        collide_velo+=collide(other_pos-mypos, myvel , other_vel, distance)*COLLIDE_DAMPING;
+	                        if(mypos.s1 > other_pos.s1){
+                                    float d = mypos.s1 - other_pos.s1;
+                                    myvel.s1 = 0.0;
+                                    collide_velo.s1 = 0.0;
+	                        }
+                            }
 	                    ///////////////////////////////////////////////////////////
+
 	                }
 	            }
 	        }
 	    }
+
     }
     barrier(CLK_GLOBAL_MEM_FENCE);
+    
 
 	myvel+=collide_velo;
+  //      if (leqneighs > 3) myvel.s1 = 0.0;
     mypos.s012 += myvel.s012*3;
+
 
 	//float2 well = (float2)(0.5f,0.2f);
 	float2 well = (float2)(0.71f,0.17f);
