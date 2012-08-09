@@ -229,7 +229,7 @@ public class Terrain
 			int getX = (idX + i) % (size / 256);
 			int getZ = (idZ + (idX + i) / (size / 256)) % (size / 256);
 			currentBlocksSet[i] = BlockUtil.readBlockData(getX, getZ);
-			currentIDsSet[i][0] = getX; currentIDsSet[i][1] = getZ;  
+			currentIDsSet[i][0] = getX; currentIDsSet[i][1] = getZ;
 		}
 	}
 	
