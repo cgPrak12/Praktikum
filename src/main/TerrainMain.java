@@ -140,7 +140,7 @@ public class TerrainMain {
         Matrix4f floorQuadMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
-        shadowCam.changeProjection();
+        //shadowCam.changeProjection();
         Util.mul(floorQuadMatrix, Util.rotationX(-Util.PI_DIV2, null), Util.translationZ(-1.0f, null), Util.scale(10, null)); 
 
         
@@ -290,13 +290,14 @@ public class TerrainMain {
         	shadowShader.finish();
         	
         	if (shadows) {
-            	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection);
+            	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection, screenMan.getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getWorldTexture(), sunDirection));
         	}
         	else {
         		enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
         	}
         	        	  
 //        	shader.DrawTexture(shader.getShadowTexture());
+//        	shader.DrawTexture(screenMan.getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getWorldTexture(), sunDirection).getTexture(0));
 
         	if (splitScreen) {
         		fbo = getQuadScreen(splitScreenVal, shader, shadowShader);
@@ -377,7 +378,7 @@ public class TerrainMain {
 			case 5:
 				fbo = screenMan.getBrightness(enlightenedFBO, brightnessFactor); break;
 			case 6:
-				fbo = screenMan.getShadowMap(shadowShader.getWorldTexture()); break;
+				fbo = screenMan.getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getWorldTexture(), sunDirection); break;
 
 		}		
 		return fbo;

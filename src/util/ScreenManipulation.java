@@ -15,6 +15,7 @@ public class ScreenManipulation {
 	private static FrameBuffer fboBlur1;
 	private static FrameBuffer fboBlur2;
 	private static FrameBuffer fboBlur3;
+	private static FrameBuffer fboBlur20;
 	private static FrameBuffer fboBrightness;
 	private static FrameBuffer fboBloom;
 	private static FrameBuffer fboTone;
@@ -28,6 +29,8 @@ public class ScreenManipulation {
 	private static FrameBuffer blured2;
 	private static FrameBuffer blured3;
 	private static FrameBuffer blured4;
+	private static FrameBuffer bluredShadow1;
+	private static FrameBuffer bluredShadow2;
 	
 	//shader programs
 	private static ShaderProgram spoBlur;
@@ -39,8 +42,11 @@ public class ScreenManipulation {
 	private static ShaderProgram spoQuad;
 	private static ShaderProgram spoShadow;
 	private static ShaderProgram spoShadowPhong;
+	private static ShaderProgram spoBlur20;
+
 	
     private static Vector2f[] tc_offset_5;
+
     
     //screen quad
     private Geometry screenQuad;
@@ -120,6 +126,18 @@ public class ScreenManipulation {
         blured4 = new FrameBuffer();
         blured4.init(false, width, height);
         blured4.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 13), GL30.GL_RGBA16F, GL_RGBA);
+        
+        bluredShadow1 = new FrameBuffer();
+        bluredShadow1.init(false, width, height);
+        bluredShadow1.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 14), GL30.GL_RGBA16F, GL_RGBA);
+        
+        bluredShadow2 = new FrameBuffer();
+        bluredShadow2.init(false, width, height);
+        bluredShadow2.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 15), GL30.GL_RGBA16F, GL_RGBA);  
+        
+        fboBlur20 = new FrameBuffer();
+		fboBlur20.init(false, width, height);
+        fboBlur20.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 16), GL30.GL_RGBA16F, GL_RGBA);
               
         fboQuad = new FrameBuffer();
         fboQuad.init(false, width, height);
@@ -143,6 +161,7 @@ public class ScreenManipulation {
 		spoQuad = new ShaderProgram(vertexShader, "./shader/Quad_FS.glsl");
 		spoShadow = new ShaderProgram(vertexShader, "./shader/Shadow_FS.glsl");
 		spoShadowPhong = new ShaderProgram(vertexShader, "./shader/ShadowLighting_FS.glsl");
+		spoBlur20 = new ShaderProgram(vertexShader, "./shader/Blur20_FS.glsl");
 	}
 	
 	/**
@@ -169,6 +188,26 @@ public class ScreenManipulation {
 		fboPhong.unbind();
 		
 		return fboPhong;
+	}
+	
+	/**
+	 * Returns a FrameBuffer with blured image
+	 * @param toBlur FrameBuffer to blur
+	 * @param screenQuad screenQuad
+	 * @return FrameBuffer with blured image
+	 */
+	public FrameBuffer getBlur201(FrameBuffer toBlur) {
+		fboBlur20.bind();
+		
+		spoBlur20.use();
+		spoBlur20.setUniform("colorTex", toBlur.getTexture(0));
+		spoBlur20.setUniform("tc_offset", tc_offset_5);
+		  
+		this.screenQuad.draw();
+		
+		fboBlur20.unbind();
+		
+		return fboBlur20;
 	}
 	
 	/**
@@ -404,11 +443,14 @@ public class ScreenManipulation {
 	 * @param shadowImage Texture with depth-informations(GlobalTexture)
 	 * @return FrameBuffer FrameBuffer with depth-informations
 	 */
-	public FrameBuffer getShadowMap(Texture shadowImage) {
+	public FrameBuffer getShadowMix(Texture worldTex, Texture shadowCoordsTex, Texture shadowTex, Vector3f sunDir) {
 		fboShadow.bind();
 		
 		spoShadow.use();
-		spoShadow.setUniform("shadowImage", shadowImage);
+		spoShadow.setUniform("worldTex", worldTex);
+		spoShadow.setUniform("shadowCoordsTex", shadowCoordsTex);
+		spoShadow.setUniform("shadowTex", shadowTex);
+		spoShadow.setUniform("sunDir", sunDir);
 		
 		this.screenQuad.draw();
 		
@@ -417,7 +459,9 @@ public class ScreenManipulation {
 		return fboShadow;
 	}
 	
-	public FrameBuffer getShadowLighting(DeferredShader shader, DeferredShader shadowShader, Vector3f camPos, Vector3f sunDirection) {				
+	public FrameBuffer getShadowLighting(DeferredShader shader, DeferredShader shadowShader, Vector3f camPos, Vector3f sunDirection, FrameBuffer shadowTex) {				
+		bluredShadow1 = getBlur201(shadowTex);
+		
 		fboShadowPhong.bind();
 		
 		spoShadowPhong.use();
@@ -425,7 +469,8 @@ public class ScreenManipulation {
 		spoShadowPhong.setUniform("worldTex",   shader.getWorldTexture());
 		spoShadowPhong.setUniform("diffuseTex", shader.getDiffuseTexture());
 		spoShadowPhong.setUniform("specularTex", shader.getSpecTexture());
-		spoShadowPhong.setUniform("shadowTex", shadowShader.getWorldTexture());
+		//spoShadowPhong.setUniform("shadowTex", shadowShader.getWorldTexture());
+		spoShadowPhong.setUniform("shadowTex", bluredShadow1.getTexture(0));
 		spoShadowPhong.setUniform("shadowCoordsTex", shader.getShadowTexture());
 		spoShadowPhong.setUniform("camPos",     camPos);
 		spoShadowPhong.setUniform("sunDir",	 	sunDirection);

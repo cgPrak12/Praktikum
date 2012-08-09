@@ -74,21 +74,21 @@ void main(void)
 	//diffuse and specular
 	vec3 diff = texture(diffuseTex, texCoord).rgb;
 	vec3 spec = texture(specularTex, texCoord).rgb;
+	
+	float shadow = texture(shadowTex, texCoord).x;
 		
-	//shadow
-	vec4 shadowCoord = texture(shadowCoordsTex, texCoord);
-	float shadow = texture(shadowTex, shadowCoord.xy / shadowCoord.w).w;
 		
-	float dist = distance(10.0 * sunDir, positionWC.xyz);
-		
-	if(shadow < dist)
+	if(shadow < 0.5)
 	{
 		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, vec3(0), vec3(0), ambi.rgb), 1.0);
+		//enlightenedColor = vec4(1,1,1,1);
 	}
 	else
 	{
-		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb), 1.0);
+		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb) * shadow, 1.0);
+		//enlightenedColor = vec4(0,0,0,0);
 	}
+	enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb) * shadow, 1.0);
 }
 
 
