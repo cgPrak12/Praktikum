@@ -288,6 +288,7 @@ public class TerrainMain {
         	floorQuad.draw();
         	
         	shadowShader.finish();
+        	
 //        	shader.DrawTexture(screenMan.getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getWorldTexture(), sunDirection).getTexture(0));
         	if (shadows) {
             	enlightenedFBO = screenMan.getShadowLighting(shader, cam.getCamPos(), sunDirection, screenMan.getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getTexture(), sunDirection));
