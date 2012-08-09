@@ -35,10 +35,10 @@ public class BufferConstructor implements Runnable {
         vertexArray[position++] = vertexList.get((int)currentFace.vertexIndizies.x);
 
         //check if the model has texture coordinates
-        Vector3f vertex;
+        Vector3f tmpValueTriplet;
         if(currentFace.vertexTextureIndizies.length()!=0) {
-           vertex = vertexTextureList.get((int)currentFace.vertexTextureIndizies.x);
-           vertexArray[position++] = new Vector3f(vertex.x, vertex.y*-1.0f, vertex.z);
+           tmpValueTriplet = vertexTextureList.get((int)currentFace.vertexTextureIndizies.x);
+           vertexArray[position++] = new Vector3f(tmpValueTriplet.x, tmpValueTriplet.y*-1.0f, tmpValueTriplet.z);
         } else
             vertexArray[position++] = new Vector3f();
         //check if the model has normals
@@ -51,8 +51,8 @@ public class BufferConstructor implements Runnable {
         vertexArray[position++] = vertexList.get((int)currentFace.vertexIndizies.y);
         //check if the model has texture coordinates
         if(currentFace.vertexTextureIndizies.length()!=0) {
-            vertex = vertexTextureList.get((int)currentFace.vertexTextureIndizies.y);
-            vertexArray[position++] = new Vector3f(vertex.x, vertex.y*-1.0f, vertex.z);
+            tmpValueTriplet = vertexTextureList.get((int)currentFace.vertexTextureIndizies.y);
+            vertexArray[position++] = new Vector3f(tmpValueTriplet.x, tmpValueTriplet.y*-1.0f, tmpValueTriplet.z);
         } else
             vertexArray[position++] = new Vector3f();
         //check if the model has normals
@@ -65,8 +65,8 @@ public class BufferConstructor implements Runnable {
         vertexArray[position++] = vertexList.get((int)currentFace.vertexIndizies.z);
         //check if the model has texture coordinates
         if(currentFace.vertexTextureIndizies.length()!=0) {
-            vertex = vertexTextureList.get((int)currentFace.vertexTextureIndizies.z);
-            vertexArray[position++] = new Vector3f(vertex.x, vertex.y*-1.0f, vertex.z);
+            tmpValueTriplet = vertexTextureList.get((int)currentFace.vertexTextureIndizies.z);
+            vertexArray[position++] = new Vector3f(tmpValueTriplet.x, tmpValueTriplet.y*-1.0f, tmpValueTriplet.z);
         } else
             vertexArray[position++] = new Vector3f();
         //check if the model has normals

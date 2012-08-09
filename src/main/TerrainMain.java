@@ -58,8 +58,8 @@ public class TerrainMain {
     
     public static void main(String[] argv) {
         //Generate random numbers with wights
-        int[] values = {0,1,2};
-        int[] weights = {70,20,10};
+        int[] values = {0,1,2,3};
+        int[] weights = {70,18,10,2};
         
         int weightSum = sum(weights);        
         int[] histogram = new int[values.length];
@@ -114,7 +114,7 @@ public class TerrainMain {
         //Current time in millis
     	long timeInMillis = System.currentTimeMillis();
         
-//        List modelPartList3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.mtl", "");
+        List modelPartList3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.mtl", "");
 //        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\uh60.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\uh60.mtl",  "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\");
 //        List modelPartList3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\Bandit Heavy.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\Bandit Heavy.mtl",  "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\");
         List modelPartList1 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\");
@@ -163,6 +163,8 @@ public class TerrainMain {
                         modelPartListIterator = modelPartList1.listIterator();
                     else if(map[i][j]==2)
                         modelPartListIterator = modelPartList2.listIterator();
+                    else if(map[i][j]==3)
+                        modelPartListIterator = modelPartList3.listIterator();
                     else
                         modelPartListIterator = null;
                     if(modelPartListIterator!=null) {
