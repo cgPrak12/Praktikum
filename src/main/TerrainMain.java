@@ -264,7 +264,6 @@ public class TerrainMain {
         	//shader.DrawTexture(shader.getDiffuseTexture());
         	
         	//test cube (shadow map)
-        	glCullFace(GL_FRONT);
         	shadowSP.use();
         	shadowSP.setUniform("model", 	modelMatrix);
         	shadowSP.setUniform("modelIT",  modelIT);
@@ -281,8 +280,6 @@ public class TerrainMain {
             fboSP.setUniform("shadowMatrix", shadowMatrix);
 
             testCube1.draw();
-        	glCullFace(GL_BACK);
-
         	shadowSP.setUniform("model",    floorQuadMatrix);
         	shadowSP.setUniform("modelIT",  floorQuadMatrix);
         	shadowSP.setUniform("viewProj", Util.mul(null, shadowCam.getProjection(), shadowCam.getView()));
