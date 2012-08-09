@@ -8,13 +8,10 @@ import util.GeometryFactory;
 import util.ShaderProgram;
 import util.Util;
 
-/**
- * Clip Map
+/** Clip Map
  * 
- * @author Christoph, Michael
- */
+ * @author Christoph, Michael */
 
-// @SuppressWarnings("unused")
 public class ClipMap
 {
 
@@ -26,74 +23,54 @@ public class ClipMap
 	private int size; // Kantenlänge des ClipMapRings
 
 	// Shader Updates
-	private ShaderProgram program;
-	private Matrix4f translation;
+	private ShaderProgram program; // Aktives Shaderprogramm
+	private Matrix4f translation; // Translationsmatrix für Shaderprogramm
 
 	// Animation Params
+	private Camera cam; // Kamera des Programms
 	private int[][] movement; // Array das Bewegungstranslation speichert
 	private boolean[][] alignment; // Array das Lage der Clipmap angibt
-	private float tempX;
-	private float tempZ;
-//	private float tempY;
-	private int scaleFaktor;
-	private int countScales;
-
-	private Camera cam;
+	private float tempX; // Variable für Bewegungsschwellenwert
+	private float tempZ; // Variable für Bewegungsschwellenwert
 
 	// Cached Geometries
-	private Geometry mxm;
-	private Geometry mxn;
-	private Geometry nxm;
-	private Geometry topRight;
-	private Geometry topLeft;
-	private Geometry bottomLeft;
-	private Geometry bottomRight;
-	private Geometry center;
-	private Geometry outer;
+	private Geometry mxm; // Quadratisches Grid
+	private Geometry mxn; // Rechteckiges Grid
+	private Geometry nxm; // Rechteckiges Grid
+	private Geometry topRight; // L
+	private Geometry topLeft; // L
+	private Geometry bottomLeft; // L
+	private Geometry bottomRight; // L
+	private Geometry center; // Quadratisches Grid
+	private Geometry outer; // Füllgeometrie um Löcher am Rand zu "stopfen"
 
 	private float generalScale = 0.1f; // Skaliert die gesamte ClipMap um Faktor
 
-	/**
-	 * Erstellt eine ClipMap aus den gegebenen Parametern
+	/** Konstruktor Erstellt eine ClipMap aus den gegebenen Parametern
 	 * 
-	 * @param size
-	 *            Größe der ClipMap (Anzahl der Kästchen)
-	 * @param stage
-	 *            Anzahl der Auflösungslevel
-	 * @param program
-	 *            Dazugehöriges Shaderprogram
-	 * @param cam
-	 *            Kamera des Programms
-	 */
+	 * @param size Größe der ClipMap (Anzahl der Kästchen)
+	 * @param stage Anzahl der Auflösungslevel
+	 * @param program Dazugehöriges Shaderprogram
+	 * @param cam Kamera des Programms */
 	public ClipMap(int size, int stage, ShaderProgram program, Camera cam)
 	{
+
 		if ((size + 2) % 2 != 0)
 			throw new IllegalArgumentException("(size+2) muss Zweierpotenz sein!");
-
-		/*
-		 * float camX = cam.getCamPos().x; float camZ = cam.getCamPos().z; float
-		 * vertexHeight = terrain[(int) camX][(int) camZ][0];
-		 * 
-		 * float camHeight = cam.getCamPos().z; float minHeight = vertexHeight;
-		 * float maxHeight = cam.getMaxHeight();
-		 * 
-		 * size = Util.scale(camHeight, minHeight, maxHeight, minSize, maxSize);
-		 */
 
 		// Größen der ClipMap
 		this.size = size;
 		this.stage = stage;
-		updateGeometries();
+		this.gridsize = size / 4;
+		this.middlesize = size % 4;
+		this.lsize = 2 * gridsize + middlesize + 1;
 
+		// Animationsparameter
 		this.program = program;
 		this.cam = cam;
 		translation = new Matrix4f();
-
 		movement = new int[stage][2];
-		scaleFaktor = 1;
-		countScales = 0;
 		alignment = new boolean[stage][4];
-
 		for (int i = 0; i < alignment.length; i++)
 		{
 			alignment[i][0] = false;
@@ -110,53 +87,37 @@ public class ClipMap
 		topRight = GeometryFactory.createTopRight(lsize);
 		bottomLeft = GeometryFactory.createBottomLeft(lsize);
 		bottomRight = GeometryFactory.createBottomRight(lsize);
-		center = GeometryFactory.createGrid(4 * gridsize + middlesize + middlesize / 2, 4 * gridsize + middlesize + middlesize
-				/ 2);
+		center = GeometryFactory.createGrid(4 * gridsize + middlesize + middlesize / 2, 4 * gridsize + middlesize
+				+ middlesize / 2);
 		outer = GeometryFactory.outerTriangle(size + 1);
 
+		// Anpassung der Höhe und Texturkoordinaten
 		updateSize();
 		updateHeightScale();
-
 	}
 
-	private void updateGeometries()
-	{
-		this.gridsize = size / 4;
-		this.middlesize = size % 4;
-		this.lsize = 2 * gridsize + middlesize + 1;
-	}
-
-	/**
-	 * Updatet des Shaderprogramm mit der neuen Translationsmatrix
-	 */
+	/** Updatet des Shaderprogramm mit der neuen Translationsmatrix */
 	private void setProgram()
 	{
 		this.program.setUniform("translation", translation);
 	}
 
-	/**
-	 * Legt den Scalefaktor des aktuellen Auflösungslevels fest
+	/** Legt den Scalefaktor des aktuellen Auflösungslevels fest
 	 * 
-	 * @param scale
-	 *            Skalierungsfaktor 2er Potenz
-	 */
+	 * @param scale Skalierungsfaktor 2er Potenz */
 
 	private void setScale(float scale)
 	{
 		this.program.setUniform("scale", Util.scale(scale * generalScale, null));
 	}
 
-	/**
-	 * Zeichnet die Geometrie eines ClipMap "Rings" aus den vorgeladenen
+	/** Zeichnet die Geometrie eines ClipMap "Rings" aus den vorgeladenen
 	 * Geometrien. Nach Vorlage von
 	 * http://research.microsoft.com/en-us/um/people/hoppe/gpugcm.pdf (S.33f.)
 	 * 
-	 * @param i
-	 *            Level des gezeichneten Rings
-	 */
+	 * @param i Level des gezeichneten Rings */
 	private void createClip(int i)
 	{
-
 		// 1
 		Util.mul(translation, Util.translationX(size / 2 - gridsize - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(size / 2 - gridsize + middlesize / 2 + movement[i][1], null));
@@ -212,7 +173,8 @@ public class ClipMap
 		mxm.draw();
 
 		// 10
-		Util.mul(translation, Util.translationX(size / 2 - gridsize - gridsize - middlesize / 2 + movement[i][0], null),
+		Util.mul(translation,
+				Util.translationX(size / 2 - gridsize - gridsize - middlesize / 2 + movement[i][0], null),
 				Util.translationZ(-size / 2 + middlesize / 2 + movement[i][1], null));
 		setProgram();
 		mxm.draw();
@@ -261,14 +223,13 @@ public class ClipMap
 
 	}
 
-	/**
-	 * Generiert die Clip Map
-	 */
+	/** Generiert die Clip Map **/
 	public void generateMaps()
 	{
 
-		tempX += cam.getAlt().x / generalScale / scaleFaktor;
-		tempZ += cam.getAlt().z / generalScale / scaleFaktor;
+		// Zähle Floats hoch, bis Schwellenwert erreicht ist
+		tempX += cam.getAlt().x / generalScale;
+		tempZ += cam.getAlt().z / generalScale;
 
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
@@ -295,91 +256,50 @@ public class ClipMap
 			tempX %= 2;
 		}
 
-		// updateHeight();
-		System.out.println("Cam Pos " + cam.getCamPos().x);
-		System.out.println("Movement0 y " + movement[0][1]);
-		System.out.println("Movement1 y " + movement[1][1]);
-		System.out.println("Movement2 y " + movement[2][1]);
-		System.out.println("Movement3 y " + movement[3][1]);
-		System.out.println("Movement4 y " + movement[4][1]);
-		System.out.println("Movement5 y " + movement[5][1]);
-
 		for (int i = 0; i < stage; i++)
 		{
-			if (i == 0)
+			if (i == 0) // Wenn Stage == 0, schreibe innerstes Grid
 			{
-				Util.mul(translation, Util.translationX(2 * (-gridsize - middlesize) + middlesize + movement[0][0], null),
+				Util.mul(translation,
+						Util.translationX(2 * (-gridsize - middlesize) + middlesize + movement[0][0], null),
 						Util.translationZ(-2 * gridsize + movement[0][1], null));
-				setScale(scaleFaktor);
+				setScale(1);
 				setProgram();
 				center.draw();
 				outer.draw();
 			} else
+			// Zeichne ClipMap Ring
 			{
-				setScale((float) Math.pow(2, i + countScales));
+				setScale((float) pow(i));
 				createClip(i);
 				setLGrid(i);
 			}
 		}
 	}
 
-//	private void updateHeight()
-//	{
-//		tempY += cam.getAlt().y;
-//		System.out.println(cam.getCamPos().y);
-//		if (tempY > 20 && stage > 1)
-//		{
-//			stage--;
-//			tempY %= 10;
-//			scaleFaktor *= 2;
-//			countScales++;
-//			for (int i = 0; i < movement.length - 1; i++)
-//			{
-//				movement[i][0] /= 2;
-//				// movement[i][0] += (movement[i][0]%2);
-//				movement[i][1] /= 2;
-//				// movement[i][1] += (movement[i][1]%2);
-//			}
-//		}
-//		if (tempY <= -20 && cam.getCamPos().y > 5)
-//		{
-//			stage++;
-//			tempY %= 10;
-//			scaleFaktor /= 2;
-//			countScales--;
-//			for (int i = 0; i < movement.length; i++)
-//			{
-//				movement[i][0] *= 2;
-//				movement[i][1] *= 2;
-//			}
-//			movement[0][0] -= (movement[1][0] % 2);
-//			movement[0][1] -= (movement[1][1] % 2);
-//		}
-//	}
-
-	/**
-	 * Verschiebt die ClipMap abhängig vom Kamerastandpunkt
+	/** Verschiebt die ClipMap abhängig vom Kamerastandpunkt
 	 * 
-	 * @param i
-	 *            Ebene der aktuellen ClipMap
-	 * @param dir
-	 *            Richtung in die geschoben werden soll
-	 */
+	 * @param i Ebene der aktuellen ClipMap
+	 * @param dir Richtung in die geschoben werden soll */
 	private void moveClip(int i, int dir)
 	{
-		if (dir == 0 || dir == 1)
+		if (dir == 0 || dir == 1) // Unterscheidung der Bewegungsrichtung: pos X
+									// & pos Y
 		{
-			if (i == stage - 1)
+			if (i == stage - 1) // Abbruchbedingung wenn der äußerste
+								// ClipMapRing erreicht ist
 			{
 				movement[i][dir] += 2;
 			} else
 			{
-				if (alignment[i][dir])
+				if (alignment[i][dir]) // Wenn noch "Platz" zum bewegen ist
 				{
 					movement[i][dir] += 2;
 					alignment[i][dir] ^= true;
 					alignment[i][dir + 2] ^= true;
 				} else
+				// Ansonsten schiebe rekursiv alle ClipMapRinge in die
+				// Bewegungsrichtung bis Platz ist oder äußerster Ring erreicht
 				{
 					alignment[i][dir] ^= true;
 					alignment[i][dir + 2] ^= true;
@@ -389,7 +309,7 @@ public class ClipMap
 			}
 		} else
 		{
-			if (dir == 2 || dir == 3)
+			if (dir == 2 || dir == 3) // Analog für neg X & neg Y
 			{
 				if (i == stage - 1)
 				{
@@ -413,17 +333,14 @@ public class ClipMap
 		}
 	}
 
-	/**
-	 * Erzeug die für eine ClipMap benötigten L-Geometrien und zeichnet diese
+	/** Erzeugt die für eine ClipMap benötigten L-Geometrien und zeichnet diese
 	 * lageabhängig
 	 * 
-	 * @param i
-	 *            ClipMap Ebene
-	 */
+	 * @param i ClipMap Ebene */
 	private void setLGrid(int i)
 	{
 
-		int side = 0;
+		int side = 0; // Lage der L Geometrien, abhängig von der Lage bestimmen
 		if (alignment[i - 1][0] && alignment[i - 1][1])
 		{
 			side = 2;
@@ -475,14 +392,25 @@ public class ClipMap
 		}
 	}
 
+	/** Setzt die Welttexturkoordinaten */
 	private void updateSize()
 	{
-		program.setFloat("worldSize", (float) (Math.pow(2, stage - 1) * (size)) * generalScale);
+		program.setFloat("worldSize", (float) (pow(stage - 1) * (size)) * generalScale);
 	}
 
+	/** Skaliert die Höhe passend der gewählten Gridgröße */
 	private void updateHeightScale()
 	{
 		program.setFloat("heightScale", (float) ((stage * (size + 2) / 16) + 12f));
+	}
 
+	/** Unglaublich performante Wundermethode
+	 * 
+	 * @param expo 2^expo
+	 * @return 2^expo */
+	private int pow(int expo)
+	{
+		int result = 1;
+		return result << expo;
 	}
 }

@@ -3,10 +3,7 @@ package util;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-/**
- * 
- * @author nico3000
- */
+/** @author nico3000 */
 public final class Camera
 {
 	private float phi = 0, theta = 0;
@@ -14,7 +11,7 @@ public final class Camera
 	private final Vector3f upDir = new Vector3f(0, 1, 0);
 	private final Vector3f sideDir = new Vector3f(1, 0, 0);
 
-	private final Vector3f camPos = new Vector3f(0, 5, 0);
+	private final Vector3f camPos = new Vector3f(0, 20, 0);
 	private final Matrix4f view = new Matrix4f();
 	private final Matrix4f projection = new Matrix4f();
 	private boolean perspective = true;
@@ -22,23 +19,17 @@ public final class Camera
 	private float altY;
 	private float altZ;
 
-	/**
-	 * Default Constructor.
-	 */
+	/** Default Constructor. */
 	public Camera()
 	{
 		this.updateView();
 		this.updateProjection();
 	}
 
-	/**
-	 * Rotiert die Kamera horizontal und vertikal.
+	/** Rotiert die Kamera horizontal und vertikal.
 	 * 
-	 * @param dPhi
-	 *            horizontale Rotation
-	 * @param dTheta
-	 *            vertikale Rotation
-	 */
+	 * @param dPhi horizontale Rotation
+	 * @param dTheta vertikale Rotation */
 	public void rotate(float dPhi, float dTheta)
 	{
 		phi += dPhi;
@@ -52,16 +43,11 @@ public final class Camera
 		viewDir.set(rot.m20, rot.m21, rot.m22);
 	}
 
-	/**
-	 * Bewegt die Kamera.
+	/** Bewegt die Kamera.
 	 * 
-	 * @param fb
-	 *            Bewegung in Sichtrichtung
-	 * @param lr
-	 *            Bewegung in seitliche Richtung
-	 * @param ud
-	 *            Bewegung nach oben/unten
-	 */
+	 * @param fb Bewegung in Sichtrichtung
+	 * @param lr Bewegung in seitliche Richtung
+	 * @param ud Bewegung nach oben/unten */
 	public void move(float fb, float lr, float ud)
 	{
 		altX = fb * viewDir.x + lr * sideDir.x;
@@ -77,18 +63,14 @@ public final class Camera
 		return new Vector3f(altX, altY, altZ);
 	}
 
-	/**
-	 * Aktualisiert die Viewmatrix.
-	 */
+	/** Aktualisiert die Viewmatrix. */
 	public void updateView()
 	{
 		Vector3f lookAt = Vector3f.add(camPos, viewDir, null);
 		Util.lookAtRH(camPos, lookAt, upDir, view);
 	}
 
-	/**
-	 * Aktualisiert die Projektionsmatrix.
-	 */
+	/** Aktualisiert die Projektionsmatrix. */
 	public void updateProjection()
 	{
 		if (perspective)
@@ -100,30 +82,24 @@ public final class Camera
 		}
 	}
 
-	/**
-	 * Aendert die Projektion (perspektivisch vs. parellel).
-	 */
+	/** Aendert die Projektion (perspektivisch vs. parellel). */
 	public void changeProjection()
 	{
 		perspective ^= true;
 	}
 
-	/**
-	 * Getter fuer die Projektionsmatrix.
+	/** Getter fuer die Projektionsmatrix.
 	 * 
-	 * @return Projektionsmatrix
-	 */
+	 * @return Projektionsmatrix */
 	public Matrix4f getProjection()
 	{
 		this.updateProjection();
 		return projection;
 	}
 
-	/**
-	 * Getter fuer die Viewmatrix.
+	/** Getter fuer die Viewmatrix.
 	 * 
-	 * @return Viewmatrix
-	 */
+	 * @return Viewmatrix */
 	public Matrix4f getView()
 	{
 		this.updateView();

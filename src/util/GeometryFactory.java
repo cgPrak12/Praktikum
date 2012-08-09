@@ -5,32 +5,30 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 
-/**
- * Stellt Methoden zur Erzeugung von Geometrie bereit.
+/** Stellt Methoden zur Erzeugung von Geometrie bereit.
  * 
- * @author Sascha Kolodzey, Nico Marniok
- */
-public class GeometryFactory {
-	/**
-	 * Erzeugt ein Viereck in der xy-Ebene. (4 Indizes)
+ * @author Sascha Kolodzey, Nico Marniok */
+public class GeometryFactory
+{
+	/** Erzeugt ein Viereck in der xy-Ebene. (4 Indizes)
 	 * 
-	 * @return VertexArrayObject ID
-	 * 
-	 */
+	 * @return VertexArrayObject ID */
 
-	public static Geometry createScreenQuad() {
+	public static Geometry createScreenQuad()
+	{
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
 		// vertexbuffer
 		FloatBuffer vertexData = BufferUtils.createFloatBuffer(8);
-		vertexData.put(new float[] { -1.0f, -1.0f, +1.0f, -1.0f, -1.0f, +1.0f,
-				+1.0f, +1.0f, });
+		vertexData.put(new float[]
+		{ -1.0f, -1.0f, +1.0f, -1.0f, -1.0f, +1.0f, +1.0f, +1.0f, });
 		vertexData.position(0);
 
 		// indexbuffer
 		IntBuffer indexData = BufferUtils.createIntBuffer(4);
-		indexData.put(new int[] { 0, 1, 2, 3, });
+		indexData.put(new int[]
+		{ 0, 1, 2, 3, });
 		indexData.position(0);
 
 		Geometry geo = new Geometry();
@@ -40,16 +38,13 @@ public class GeometryFactory {
 		return geo;
 	}
 
-	/**
-	 * Erzeugt ein MxNGrid in der XZ-Ebene
+	/** Erzeugt ein MxNGrid in der XZ-Ebene
 	 * 
-	 * @param m
-	 *            breite
-	 * @param n
-	 *            länge
-	 * @return Grid : Geometry
-	 */
-	public static Geometry createMxNGrid(int m, int n) {
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry */
+	public static Geometry createMxNGrid(int m, int n)
+	{
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
@@ -57,8 +52,10 @@ public class GeometryFactory {
 		float[] vertices = new float[5 * m * n];
 		int count = 0;
 
-		for (int y = 0; y < n; y++) {
-			for (int x = 0; x < m; x++) {
+		for (int y = 0; y < n; y++)
+		{
+			for (int x = 0; x < m; x++)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.35f;
@@ -72,8 +69,10 @@ public class GeometryFactory {
 
 		count = 0;
 
-		for (int i = 0; i < n - 1; i++) {
-			for (int j = 0; j < m; j++) {
+		for (int i = 0; i < n - 1; i++)
+		{
+			for (int j = 0; j < m; j++)
+			{
 
 				indices[count++] = i * (m) + j + m;
 				indices[count++] = i * (m) + j;
@@ -103,24 +102,23 @@ public class GeometryFactory {
 
 	}
 
-	/**
-	 * Erzeugt ein Grid in der XZ-Ebene
+	/** Erzeugt ein Grid in der XZ-Ebene
 	 * 
-	 * @param m
-	 *            breite
-	 * @param n
-	 *            länge
-	 * @return Grid : Geometry
-	 */
-	public static Geometry createGrid(int x, int y) {
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry */
+	public static Geometry createGrid(int x, int y)
+	{
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
 		float[] vertices = new float[5 * x * y];
 		int count = 0;
 
-		for (int j = 0; j < y; j++) {
-			for (int i = 0; i < x; i++) {
+		for (int j = 0; j < y; j++)
+		{
+			for (int i = 0; i < x; i++)
+			{
 				vertices[count++] = i;
 				vertices[count++] = j;
 				vertices[count++] = 0.8f;
@@ -131,8 +129,10 @@ public class GeometryFactory {
 
 		int[] indices = new int[6 * x * y];
 		count = 0;
-		for (int i = 0; i < (y - 1); i++) {
-			for (int j = 0; j < (x - 1); j++) {
+		for (int i = 0; i < (y - 1); i++)
+		{
+			for (int j = 0; j < (x - 1); j++)
+			{
 				indices[count++] = i + j * (x); // 0 + 0*10 = 0
 				indices[count++] = i + (j + 1) * (x); // 0+1*10 = 10
 				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11
@@ -160,24 +160,23 @@ public class GeometryFactory {
 		return geo;
 	}
 
-	/**
-	 * Erzeugt ein Grid in der XZ-Ebene
+	/** Erzeugt ein Grid in der XZ-Ebene
 	 * 
-	 * @param m
-	 *            breite
-	 * @param n
-	 *            länge
-	 * @return Grid : Geometry
-	 */
-	public static Geometry createGridTex(int x, int y) {
+	 * @param m breite
+	 * @param n länge
+	 * @return Grid : Geometry */
+	public static Geometry createGridTex(int x, int y)
+	{
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
 		float[] vertices = new float[6 * x * y];
 		int count = 0;
 
-		for (int i = 0; i < x; i++) {
-			for (int j = 0; j < y; j++) {
+		for (int i = 0; i < x; i++)
+		{
+			for (int j = 0; j < y; j++)
+			{
 				vertices[count++] = i;
 				vertices[count++] = j;
 				vertices[count++] = ((float) 1 / (float) x) * (float) i;
@@ -187,8 +186,10 @@ public class GeometryFactory {
 
 		int[] indices = new int[6 * x * y];
 		count = 0;
-		for (int i = 0; i < (y - 1); i++) {
-			for (int j = 0; j < (x - 1); j++) {
+		for (int i = 0; i < (y - 1); i++)
+		{
+			for (int j = 0; j < (x - 1); j++)
+			{
 				indices[count++] = i + j * (x); // 0 + 0*10 = 0
 				indices[count++] = i + (j + 1) * (x); // 0+1*10 = 10
 				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11
@@ -216,28 +217,27 @@ public class GeometryFactory {
 		return geo;
 	}
 
-	/**
-	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben rechts"
+	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben rechts"
 	 * 
-	 * @param length
-	 *            Länge einer Kante
-	 * @return TopRightL Geometrie
-	 */
+	 * @param length Länge einer Kante
+	 * @return TopRightL Geometrie */
 
-	public static Geometry createTopRight(int length){
+	public static Geometry createTopRight(int length)
+	{
 
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
 		// Vertex und Index Arrays mit passender Größe erzeugen
 		float[] vertices = new float[10 * length + 10 * (length - 1)];
-		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2)
-				* 10];
+		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2) * 10];
 		int count = 0;
 
 		// VertexBufferArray beschreiben
-		for (int x = 0; x < length; x++) {
-			for (int y = 0; y < 2; y++) {
+		for (int x = 0; x < length; x++)
+		{
+			for (int y = 0; y < 2; y++)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.5f;
@@ -246,8 +246,10 @@ public class GeometryFactory {
 			}
 		}
 
-		for (int x = length - 2; x < length; x++) {
-			for (int y = 2; y < length; y++) {
+		for (int x = length - 2; x < length; x++)
+		{
+			for (int y = 2; y < length; y++)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.5f;
@@ -259,7 +261,8 @@ public class GeometryFactory {
 		// IndexBufferArray beschreiben als TRIANGLE_STRIP
 
 		int icount = 0;
-		for (int i = 0; i < 2 * length; i += 2) {
+		for (int i = 0; i < 2 * length; i += 2)
+		{
 			indices[icount++] = i + 1;
 			indices[icount++] = i;
 		}
@@ -270,11 +273,14 @@ public class GeometryFactory {
 		indices[icount++] = 2 * length - 1;
 
 		indices[icount++] = -1;
-		for (int j = 0; j < length - 3; j++) {
-			for (int i = 1; i >= 0; i--) {
+		for (int j = 0; j < length - 3; j++)
+		{
+			for (int i = 1; i >= 0; i--)
+			{
 				indices[icount++] = 2 * length + i + j;
 			}
-			for (int i = 1; i >= 0; i--) {
+			for (int i = 1; i >= 0; i--)
+			{
 				indices[icount++] = 3 * length + i + j - 2;
 			}
 			indices[icount++] = -1;
@@ -299,26 +305,25 @@ public class GeometryFactory {
 		return geo;
 	}
 
-	/**
-	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten rechts"
+	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten rechts"
 	 * 
-	 * @param length
-	 *            Länge "einer" Kante
-	 * @return BottomRechtsL Geometrie
-	 */
+	 * @param length Länge "einer" Kante
+	 * @return BottomRechtsL Geometrie */
 
-	public static Geometry createBottomRight(int length){
+	public static Geometry createBottomRight(int length)
+	{
 
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
 		float[] vertices = new float[10 * length + 10 * (length - 1)];
-		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2)
-				* 10];
+		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2) * 10];
 		int count = 0;
 
-		for (int x = 0; x < length; x++) {
-			for (int y = 0; y < 2; y++) {
+		for (int x = 0; x < length; x++)
+		{
+			for (int y = 0; y < 2; y++)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.5f;
@@ -327,8 +332,10 @@ public class GeometryFactory {
 			}
 		}
 
-		for (int x = 0; x < 2; x++) {
-			for (int y = 2; y < length; y++) {
+		for (int x = 0; x < 2; x++)
+		{
+			for (int y = 2; y < length; y++)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.5f;
@@ -338,7 +345,8 @@ public class GeometryFactory {
 		}
 
 		int icount = 0;
-		for (int i = 0; i < 2 * length; i += 2) {
+		for (int i = 0; i < 2 * length; i += 2)
+		{
 			indices[icount++] = i + 1;
 			indices[icount++] = i;
 		}
@@ -349,11 +357,14 @@ public class GeometryFactory {
 		indices[icount++] = 3;
 
 		indices[icount++] = -1;
-		for (int j = 0; j < length - 3; j++) {
-			for (int i = 1; i >= 0; i--) {
+		for (int j = 0; j < length - 3; j++)
+		{
+			for (int i = 1; i >= 0; i--)
+			{
 				indices[icount++] = 2 * length + i + j;
 			}
-			for (int i = 1; i >= 0; i--) {
+			for (int i = 1; i >= 0; i--)
+			{
 				indices[icount++] = 3 * length + i + j - 2;
 			}
 			indices[icount++] = -1;
@@ -376,14 +387,12 @@ public class GeometryFactory {
 		return geo;
 	}
 
-	/**
-	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben links"
+	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben links"
 	 * 
-	 * @param length
-	 *            Länge einer Kante
-	 * @return TopLeftL Geometrie
-	 */
-	public static Geometry createTopLeft(int length){
+	 * @param length Länge einer Kante
+	 * @return TopLeftL Geometrie */
+	public static Geometry createTopLeft(int length)
+	{
 
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
@@ -392,8 +401,10 @@ public class GeometryFactory {
 		int[] indices = new int[(length - 2) * 5 + 2 * length + 1];
 		int count = 0;
 
-		for (int x = 0; x < length; x++) {
-			for (int y = 0; y < 2; y++) {
+		for (int x = 0; x < length; x++)
+		{
+			for (int y = 0; y < 2; y++)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.5f;
@@ -402,8 +413,10 @@ public class GeometryFactory {
 			}
 		}
 
-		for (int x = length - 2; x < length; x++) {
-			for (int y = -1; y > -length + 1; y--) {
+		for (int x = length - 2; x < length; x++)
+		{
+			for (int y = -1; y > -length + 1; y--)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.5f;
@@ -413,7 +426,8 @@ public class GeometryFactory {
 		}
 
 		int icount = 0;
-		for (int i = 0; i < 2 * length; i += 2) {
+		for (int i = 0; i < 2 * length; i += 2)
+		{
 			indices[icount++] = i + 1;
 			indices[icount++] = i;
 		}
@@ -425,11 +439,14 @@ public class GeometryFactory {
 		indices[icount++] = 3 * length - 2;
 
 		indices[icount++] = -1;
-		for (int j = 0; j < length - 3; j++) {
-			for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < length - 3; j++)
+		{
+			for (int i = 0; i < 2; i++)
+			{
 				indices[icount++] = 2 * length + i + j;
 			}
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 2; i++)
+			{
 				indices[icount++] = 3 * length + i + j - 2;
 			}
 			indices[icount++] = -1;
@@ -452,15 +469,13 @@ public class GeometryFactory {
 		return geo;
 	}
 
-	/**
-	 * Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten links"
+	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten links"
 	 * 
-	 * @param length
-	 *            Länge einer Kante
-	 * @return BottomLeftL Geometrie
-	 */
+	 * @param length Länge einer Kante
+	 * @return BottomLeftL Geometrie */
 
-	public static Geometry createBottomLeft(int length){
+	public static Geometry createBottomLeft(int length)
+	{
 
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
@@ -469,8 +484,10 @@ public class GeometryFactory {
 		int[] indices = new int[(length - 2) * 5 + 2 * length + 1];
 		int count = 0;
 
-		for (int x = 0; x < length; x++) {
-			for (int y = 0; y < 2; y++) {
+		for (int x = 0; x < length; x++)
+		{
+			for (int y = 0; y < 2; y++)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.5f;
@@ -479,8 +496,10 @@ public class GeometryFactory {
 			}
 		}
 
-		for (int x = 0; x < 2; x++) {
-			for (int y = -1; y > -length + 1; y--) {
+		for (int x = 0; x < 2; x++)
+		{
+			for (int y = -1; y > -length + 1; y--)
+			{
 				vertices[count++] = y;
 				vertices[count++] = x;
 				vertices[count++] = 0.5f;
@@ -490,7 +509,8 @@ public class GeometryFactory {
 		}
 
 		int icount = 0;
-		for (int i = 0; i < 2 * length; i += 2) {
+		for (int i = 0; i < 2 * length; i += 2)
+		{
 			indices[icount++] = i + 1;
 			indices[icount++] = i;
 		}
@@ -502,11 +522,14 @@ public class GeometryFactory {
 		indices[icount++] = 3 * length - 2;
 
 		indices[icount++] = -1;
-		for (int j = 0; j < length - 3; j++) {
-			for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < length - 3; j++)
+		{
+			for (int i = 0; i < 2; i++)
+			{
 				indices[icount++] = 2 * length + i + j;
 			}
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 2; i++)
+			{
 				indices[icount++] = 3 * length + i + j - 2;
 			}
 			indices[icount++] = -1;
@@ -528,52 +551,62 @@ public class GeometryFactory {
 
 		return geo;
 	}
-	
-	public static Geometry outerTriangle(int length){
+
+	public static Geometry outerTriangle(int length)
+	{
 
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		float[] vertices = new float[4*length*2];
-		int[] indices = new int[4*length+4];
+		float[] vertices = new float[4 * length * 2];
+		int[] indices = new int[4 * length + 4];
 		int count = 0;
 
-		for (int y=0; y<length ; y +=length-1){
-		for(int i=0; i< length;i++){
-			vertices[count++]= i;
-			vertices[count++]= y;
-		}}
+		for (int y = 0; y < length; y += length - 1)
+		{
+			for (int i = 0; i < length; i++)
+			{
+				vertices[count++] = i;
+				vertices[count++] = y;
+			}
+		}
 
-		
-		for(int y=0; y<length; y+=length-1){
-		for(int i=0; i<length;i++){
-			vertices[count++]=y;
-			vertices[count++]=i;
-		}}
-		
-		
-		//Indices
-		int icount=0;
-		    
-		
-		//1
-		for(int i=0; i<length;i++){
-	    	indices[icount++]=i;
-	    }indices[icount++]=-1;
-	    //2
-	    for(int i=3*length; i<4*length;i++){
-	    	indices[icount++]=i;
-	    }indices[icount++]=-1;
-	    //3
-	    for(int i=2*length-1;i>=length;i--){
-	    	indices[icount++]=i;
-	    }indices[icount++]=-1;
-	    //4
-	    for(int i=3*length-1; i>=2*length;i--){
-	    	indices[icount++]=i;
-	    }
-		
-		
+		for (int y = 0; y < length; y += length - 1)
+		{
+			for (int i = 0; i < length; i++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = i;
+			}
+		}
+
+		// Indices
+		int icount = 0;
+
+		// 1
+		for (int i = 0; i < length; i++)
+		{
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+		// 2
+		for (int i = 3 * length; i < 4 * length; i++)
+		{
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+		// 3
+		for (int i = 2 * length - 1; i >= length; i--)
+		{
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+		// 4
+		for (int i = 3 * length - 1; i >= 2 * length; i--)
+		{
+			indices[icount++] = i;
+		}
+
 		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
 		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
 		fbu.put(vertices);
