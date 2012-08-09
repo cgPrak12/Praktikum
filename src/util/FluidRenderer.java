@@ -164,7 +164,7 @@ public class FluidRenderer {
 		// blur
 		blur(depthTexLQ, depthHBlurFB, depthVBlurFB, 1.0f);
 		blur(depthTexLQ, depthHBlurFBLQ, depthVBlurFBLQ, 1.0f);
-		blur(normalTexLQ, normalHBlurFB, normalVBlurFB, 1.0f);
+		blur(normalTexLQ, normalHBlurFB, normalVBlurFB, 5.0f);
 		blur(normalTexLQ, normalHBlurFBLQ, normalVBlurFBLQ, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
@@ -191,7 +191,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", depthIntTex);
 //		drawTextureSP.setUniform("image", normalTex);
 //		drawTextureSP.setUniform("image", normalHBlurTex);
-//		drawTextureSP.setUniform("image", normalVBlurTex);
+		drawTextureSP.setUniform("image", normalVBlurTex);
 //		drawTextureSP.setUniform("image", normalTexLQ);
 //		drawTextureSP.setUniform("image", normalHBlurTexLQ);
 //		drawTextureSP.setUniform("image", normalVBlurTexLQ);
@@ -203,7 +203,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
 //		drawTextureSP.setUniform("image", lightingTex);
-		drawTextureSP.setUniform("image", cubeMapTex);
+//		drawTextureSP.setUniform("image", cubeMapTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
 		screenQuad.draw();
@@ -545,20 +545,29 @@ public class FluidRenderer {
 	}
 	
 	private void blur(Texture tex, FrameBuffer hFB, FrameBuffer vFB, float offset) {
-		blur(new Texture[] { tex }, new FrameBuffer[] { hFB }, new FrameBuffer[] { vFB }, new float[] { offset });
+		blur(new Texture[] { tex }, new FrameBuffer[] { hFB }, new FrameBuffer[] { vFB }, new float[] { offset }, new int[] { 13 });
 	}
 	
-	private void blur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
+	private void blur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset, int[] samples) {
 		startPath(blurSP);
 		blurSP.setUniform("depth", depthTex);
-		runBlur(tex, hFB, vFB, offset);
+		runBlur(tex, hFB, vFB, offset, samples);
 		endPath();
 	}
 	
-	private void runBlur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
+	private void runBlur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset, int[] samples) {
+		int[] sampleValues = new int[]{7,9,11,13,15,17,19};
+		int start = 0;
 		blurSP.setUniform("dir", 1.0f);
 		for(int i = 0; i < vFB.length; i++) {
 			blurSP.setUniform("tex", tex[i]);
+			blurSP.setUniform("samples", samples[i]);
+			
+			for(int j = 0; j < sampleValues.length; j++)
+				if(sampleValues[j]<samples[i]) start += sampleValues[j];
+			blurSP.setUniform("startValue", start);
+			start = 0;
+			
 			bindFB(hFB[i]);
 			screenQuad.draw();
 		}
@@ -566,6 +575,13 @@ public class FluidRenderer {
 		blurSP.setUniform("dir", 0.0f);
 		for(int i = 0; i < hFB.length; i++) {
 			blurSP.setUniform("tex", hFB[i].getTexture(0));
+			blurSP.setUniform("samples", samples[i]);
+			
+			for(int j = 0; j < sampleValues.length; j++)
+				if(sampleValues[j]<samples[i]) start += sampleValues[j];
+			blurSP.setUniform("startValue", start);
+			start = 0;
+			
 			bindFB(vFB[i]);
 			screenQuad.draw();
 		}
