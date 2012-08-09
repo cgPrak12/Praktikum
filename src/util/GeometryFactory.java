@@ -34,7 +34,6 @@ public class GeometryFactory {
         try (BufferedReader objBufferedReader = new BufferedReader(new FileReader(mtlPath))) {
             //Loop through file line by line
             String line = "";
-            int i=1;
             
             String materialLibrary = "default";
             Material material = null;

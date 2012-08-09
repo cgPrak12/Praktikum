@@ -35,11 +35,11 @@ public class BufferConstructor implements Runnable {
         vertexArray[position++] = vertexList.get((int)currentFace.vertexIndizies.x);
 
         //check if the model has texture coordinates
-        if(currentFace.vertexTextureIndizies.length()!=0)
-           vertexArray[position++] = new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).x,
-                                         vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).y*-1.0f,
-                                         vertexTextureList.get((int)currentFace.vertexTextureIndizies.x).z);
-        else
+        Vector3f vertex;
+        if(currentFace.vertexTextureIndizies.length()!=0) {
+           vertex = vertexTextureList.get((int)currentFace.vertexTextureIndizies.x);
+           vertexArray[position++] = new Vector3f(vertex.x, vertex.y*-1.0f, vertex.z);
+        } else
             vertexArray[position++] = new Vector3f();
         //check if the model has normals
         if(currentFace.vertexNormalIndizies.length()!=0)
@@ -50,11 +50,10 @@ public class BufferConstructor implements Runnable {
         //Get vertex coordinates of the first vertex of the triangle
         vertexArray[position++] = vertexList.get((int)currentFace.vertexIndizies.y);
         //check if the model has texture coordinates
-        if(currentFace.vertexTextureIndizies.length()!=0)
-            vertexArray[position++] = new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).x,
-                                          vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).y*-1.0f,
-                                          vertexTextureList.get((int)currentFace.vertexTextureIndizies.y).z);
-        else
+        if(currentFace.vertexTextureIndizies.length()!=0) {
+            vertex = vertexTextureList.get((int)currentFace.vertexTextureIndizies.y);
+            vertexArray[position++] = new Vector3f(vertex.x, vertex.y*-1.0f, vertex.z);
+        } else
             vertexArray[position++] = new Vector3f();
         //check if the model has normals
         if(currentFace.vertexNormalIndizies.length()!=0)
@@ -65,11 +64,10 @@ public class BufferConstructor implements Runnable {
         //Get vertex coordinates of the first vertex of the triangle
         vertexArray[position++] = vertexList.get((int)currentFace.vertexIndizies.z);
         //check if the model has texture coordinates
-        if(currentFace.vertexTextureIndizies.length()!=0)
-            vertexArray[position++] = new Vector3f(vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).x,
-                                          vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).y*-1.0f,
-                                          vertexTextureList.get((int)currentFace.vertexTextureIndizies.z).z);
-        else
+        if(currentFace.vertexTextureIndizies.length()!=0) {
+            vertex = vertexTextureList.get((int)currentFace.vertexTextureIndizies.z);
+            vertexArray[position++] = new Vector3f(vertex.x, vertex.y*-1.0f, vertex.z);
+        } else
             vertexArray[position++] = new Vector3f();
         //check if the model has normals
         if(currentFace.vertexNormalIndizies.length()!=0)
