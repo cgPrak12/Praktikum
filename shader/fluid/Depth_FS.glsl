@@ -26,5 +26,4 @@ void main(void) {
 	depth = vec4(pixelPos.xyz, length(pixelPos.xyz) / viewDistance);
 //	depth = vec4(length(pixelPos.xyz) / viewDistance);
 
-
 }

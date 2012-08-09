@@ -2,7 +2,6 @@
 
 uniform sampler2D depthTex;
 uniform float texSize;
-uniform vec3 camPos;
 
 in vec2 texCoord;
 out vec4 color;

@@ -27,56 +27,63 @@ public class FluidRenderer {
     private Texture  cubemap    = new Texture(GL_TEXTURE_CUBE_MAP, textureUnit++);
     
     // Depth
-    private ShaderProgram depthSP      = new ShaderProgram("./shader/fluid/Depth_VS.glsl",	   "./shader/fluid/Depth_FS.glsl");
-    private ShaderProgram depthHBlurSP = new ShaderProgram("./shader/fluid/DepthBlur_VS.glsl", "./shader/fluid/DepthHBlur_FS.glsl");
-    private ShaderProgram depthVBlurSP = new ShaderProgram("./shader/fluid/DepthBlur_VS.glsl", "./shader/fluid/DepthVBlur_FS.glsl");
+    private ShaderProgram depthSP      = new ShaderProgram("./shader/fluid/Depth_VS.glsl", "./shader/fluid/Depth_FS.glsl");
     private FrameBuffer depthFB 	   = new FrameBuffer();
-    private FrameBuffer depthHBlurFB   = new FrameBuffer();
-    private FrameBuffer depthVBlurFB   = new FrameBuffer();
     private FrameBuffer depthFBLQ 	   = new FrameBuffer();
-    private FrameBuffer depthHBlurFBLQ = new FrameBuffer();
-    private FrameBuffer depthVBlurFBLQ = new FrameBuffer();
     private Texture depthTex 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture depthHBlurTex 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture depthVBlurTex 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture depthTexLQ 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture depthHBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture depthVBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
    
     // Normals
-    private ShaderProgram normalSP      = new ShaderProgram("./shader/fluid/Normal_VS.glsl",	 "./shader/fluid/Normal_FS.glsl");
-    private ShaderProgram normalHBlurSP = new ShaderProgram("./shader/fluid/NormalBlur_VS.glsl", "./shader/fluid/NormalHBlur_FS.glsl");
-    private ShaderProgram normalVBlurSP = new ShaderProgram("./shader/fluid/NormalBlur_VS.glsl", "./shader/fluid/NormalVBlur_FS.glsl");
+    private ShaderProgram normalSP      = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Normal_FS.glsl");
     private FrameBuffer normalFB 		= new FrameBuffer();
-    private FrameBuffer normalHBlurFB 	= new FrameBuffer();
-    private FrameBuffer normalVBlurFB 	= new FrameBuffer();
     private FrameBuffer normalFBLQ 		= new FrameBuffer();
-    private FrameBuffer normalHBlurFBLQ	= new FrameBuffer();
-    private FrameBuffer normalVBlurFBLQ	= new FrameBuffer();
     private Texture normalTex 		    = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture normalHBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture normalVBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture normalTexLQ 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture normalHBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture normalVBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
 
     // Thickness
-    private ShaderProgram thicknessSP      = new ShaderProgram("./shader/fluid/Thickness_VS.glsl",	   "./shader/fluid/Thickness_FS.glsl");
-    private ShaderProgram thicknessHBlurSP = new ShaderProgram("./shader/fluid/ThicknessBlur_VS.glsl", "./shader/fluid/ThicknessHBlur_FS.glsl");
-    private ShaderProgram thicknessVBlurSP = new ShaderProgram("./shader/fluid/ThicknessBlur_VS.glsl", "./shader/fluid/ThicknessVBlur_FS.glsl");
+    private ShaderProgram thicknessSP      = new ShaderProgram("./shader/fluid/Thickness_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
 	private FrameBuffer thicknessFB 	   = new FrameBuffer();
-	private FrameBuffer thicknessHBlurFB   = new FrameBuffer();
-	private FrameBuffer thicknessVBlurFB   = new FrameBuffer();
+	private FrameBuffer thicknessFBLQ 	   = new FrameBuffer();
     private Texture thicknessTex 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture thicknessTexLQ 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
+
+    // Blur filter
+    private ShaderProgram blurSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Blur_FS.glsl");
+    	// depth
+    private FrameBuffer depthHBlurFB   = new FrameBuffer();
+    private FrameBuffer depthVBlurFB   = new FrameBuffer();
+    private FrameBuffer depthHBlurFBLQ = new FrameBuffer();
+    private FrameBuffer depthVBlurFBLQ = new FrameBuffer();
+    private Texture depthHBlurTex 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture depthVBlurTex 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture depthHBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture depthVBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    	// normals
+    private FrameBuffer normalHBlurFB 	= new FrameBuffer();
+    private FrameBuffer normalVBlurFB 	= new FrameBuffer();
+    private FrameBuffer normalHBlurFBLQ	= new FrameBuffer();
+    private FrameBuffer normalVBlurFBLQ	= new FrameBuffer();
+    private Texture normalHBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture normalVBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture normalHBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture normalVBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    	// thickness
+    private FrameBuffer thicknessHBlurFB   = new FrameBuffer();
+    private FrameBuffer thicknessVBlurFB   = new FrameBuffer();
+    private FrameBuffer thicknessHBlurFBLQ = new FrameBuffer();
+    private FrameBuffer thicknessVBlurFBLQ = new FrameBuffer();
     private Texture thicknessHBlurTex	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture thicknessVBlurTex 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
-
+    private Texture thicknessHBlurTexLQ	   = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture thicknessVBlurTexLQ	   = new Texture(GL_TEXTURE_2D, textureUnit++);
+    
     // Lighting TODO
-    private ShaderProgram lightingSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/Lighting_FS.glsl");
+    private ShaderProgram lightingSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Lighting_FS.glsl");
 	private FrameBuffer lightingFB   = new FrameBuffer();
     private Texture lightingTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-    private ShaderProgram cubeMapSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/CubeMap_FS.glsl");
+
+    private ShaderProgram cubeMapSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/CubeMap_FS.glsl");
     private FrameBuffer cubeMapFB   = new FrameBuffer();
     private Texture cubeMapTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
@@ -85,11 +92,13 @@ public class FluidRenderer {
     private Texture testPlaneTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
     
     // Interpolation between
-    private ShaderProgram interpolationSP = new ShaderProgram("./shader/fluid/Interpolation_VS.glsl", "./shader/fluid/Interpolation_FS.glsl");
+    private ShaderProgram interpolationSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Interpolation_FS.glsl");
     private FrameBuffer depthIntFB        = new FrameBuffer();
     private FrameBuffer normalIntFB       = new FrameBuffer();
+    private FrameBuffer thicknessIntFB    = new FrameBuffer();
     private Texture depthIntTex           = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture normalIntTex          = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture thicknessIntTex       = new Texture(GL_TEXTURE_2D, textureUnit++);
 
     /**
      * Initializes the ShaderPrograms, FrameBuffers, Textures and sets some GL_STATES,
@@ -110,21 +119,11 @@ public class FluidRenderer {
         floatBuffer.position(0);
         glPointParameter(GL_POINT_DISTANCE_ATTENUATION, floatBuffer);
         
-        // init depth
-    	init(depthSP,       depthFB, 	  depthFBLQ, 	  depthTex, 	 depthTexLQ, "depth", true);
-		init(depthHBlurSP,  depthHBlurFB, depthHBlurFBLQ, depthHBlurTex, depthHBlurTexLQ);
-		init(depthVBlurSP,  depthVBlurFB, depthVBlurFBLQ, depthVBlurTex, depthVBlurTexLQ);
-    	
-		// init normals TODO: LQ?
-		init(normalSP, 		normalFB, 	   normalFBLQ, 		normalTex, 		normalTexLQ);
-    	init(normalHBlurSP, normalHBlurFB, normalHBlurFBLQ, normalHBlurTex, normalHBlurTexLQ);
-    	init(normalVBlurSP, normalVBlurFB, normalVBlurFBLQ, normalVBlurTex, normalVBlurTexLQ);
-    	
-    	// init thickness TODO: LQ?
-    	init(thicknessSP, 	   thicknessFB, 	 thicknessTex);
-    	init(thicknessHBlurSP, thicknessHBlurFB, thicknessHBlurTex);
-    	init(thicknessVBlurSP, thicknessVBlurFB, thicknessVBlurTex);
-    	
+        // init depth, normal, thickness
+    	init(depthSP, depthFB, depthFBLQ, depthTex, depthTexLQ, "depth", true);
+		init(normalSP, normalFB, normalFBLQ, normalTex, normalTexLQ);
+    	init(thicknessSP, thicknessFB, thicknessFBLQ, thicknessTex, thicknessTexLQ);
+
     	// init lighting TODO: finish
     	init(lightingSP,  lightingFB,  lightingTex);
 
@@ -132,9 +131,16 @@ public class FluidRenderer {
     	init(testPlaneSP, testPlaneFB, testPlaneTex);
     	
     	// init interpolation TODO: correction
-    	init(interpolationSP, depthIntFB,  depthIntTex);
-    	init(interpolationSP, normalIntFB, normalIntTex);
+    	init(interpolationSP, depthIntFB,     depthIntTex);
+    	init(interpolationSP, normalIntFB,    normalIntTex);
+    	init(interpolationSP, thicknessIntFB, thicknessIntTex);
     	
+    	// init blur
+    	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB}, 
+    				 new Texture[]    {depthHBlurTex,   depthVBlurTex,   normalHBlurTex,   normalVBlurTex,   thicknessHBlurTex,   thicknessVBlurTex});
+    	init(blurSP, new FrameBuffer[]{depthHBlurFBLQ,  depthVBlurFBLQ,  normalHBlurFBLQ,  normalVBlurFBLQ,  thicknessHBlurFBLQ,  thicknessVBlurFBLQ}, 
+    				 new Texture[]    {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ}, true);
+
     	createCubeMap();
     	
 	} 
@@ -146,13 +152,32 @@ public class FluidRenderer {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 		
-		// TODO: select pathes
-		createDepth(2);
-		createNormals(5, 1.5f, false);
+		// depth
+		depth();
+		
+		// normals
+		normals();
+		
+		// thickness
 		thickness();
+		
+		// blur
+		blur(depthTexLQ, depthHBlurFB, depthVBlurFB, 1.0f);
+		blur(depthTexLQ, depthHBlurFBLQ, depthVBlurFBLQ, 1.0f);
+		blur(normalTexLQ, normalHBlurFB, normalVBlurFB, 1.0f);
+		blur(normalTexLQ, normalHBlurFBLQ, normalVBlurFBLQ, 1.0f);
+		blur(thicknessTexLQ, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
+		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
+		
+		// interpolation
+		interpolate(depthTex,     depthTexLQ,     depthIntFB);
+		interpolate(normalTex,    normalTexLQ,    normalIntFB);
+		interpolate(thicknessTex, thicknessTexLQ, thicknessIntFB);
+		
+		// lighting
 		lighting();
 		cubeMap();
-		createTestPlane();
+		testPlane();
 
 		// TODO this is DEBUG DRAW
 		drawTextureSP.use();
@@ -174,11 +199,16 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessTex);
 //		drawTextureSP.setUniform("image", thicknessHBlurTex);
 //		drawTextureSP.setUniform("image", thicknessVBlurTex);
+//		drawTextureSP.setUniform("image", thicknessTexLQ);
+//		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
+//		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
 //		drawTextureSP.setUniform("image", lightingTex);
-//		drawTextureSP.setUniform("image", cubeMapTex);
+		drawTextureSP.setUniform("image", cubeMapTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
 		screenQuad.draw();
+		
+		// TODO FINAL IMAGES
 	}
 	
 	/**
@@ -325,6 +355,21 @@ public class FluidRenderer {
 		fbLQ.drawBuffers();
     }
 	
+	private void init(ShaderProgram sp, FrameBuffer[] fb, Texture[] tex) {
+		init(sp, fb, tex, false);
+	}
+	
+	private void init(ShaderProgram sp, FrameBuffer[] fb, Texture[] tex, boolean low) {
+		for(int i = 0; i < fb.length; i++) {
+			fb[i].init(false, WIDTH/(low?2:1), HEIGHT/(low?2:1));
+			fb[i].addTexture(tex[i], GL_RGBA16F, GL_RGBA);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glBindFragDataLocation(sp.getId(), 0, "color");
+			fb[i].drawBuffers();
+		}
+    }
+	
 	/**
 	 * Starts a path by using a ShaderProgram, binding a FrameBuffer and
 	 * setting the clearColor.
@@ -363,86 +408,27 @@ public class FluidRenderer {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	
-	/**
-	 * Creates a clean depth texture.
-	 */
 	private void depth() {
-		createDepth(0);
-	}
-	
-	/**
-	 * Creates clean and blurred depth textures.
-	 * @param blurCount number of blur iterations
-	 */
-	private void createDepth(int blurCount) {
 		depthSP.use();
 		depthSP.setUniform("view", cam.getView());
 		depthSP.setUniform("viewProj", viewProj);
-		depthSP.setUniform("viewDistance",cam.getViewDistance());
+		depthSP.setUniform("viewDistance", cam.getViewDistance());
         depthSP.setUniform("camPos", cam.getCamPos());
    	    
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
 
-      /*
-        testWaterParticles.draw();
-        depthFrameBuffer.unbind();
-
-        blur(hBlurFrameBuffer,hBlurSP,vBlurFrameBuffer,vBlurSP, depthTexture, 0,false);
-        blur(low_h_BlurFrameBuffer,low_h_BlurSP,low_v_BlurFrameBuffer,low_v_BlurSP, depthTexture, 0,true);  
-   */
         bindFB(depthFB);
 	    testWaterParticles.draw();
 	    
     	bindFB(depthFBLQ);
     	testWaterParticles.draw();
 	    
-        for(int i = 0; i <= blurCount-1; i++) {
-        	depthHBlurSP.use();
-        	depthHBlurSP.setUniform("scene", i==0?depthTex:depthVBlurTex);
-
-			bindFB(depthHBlurFB);	    
-	    	screenQuad.draw();	
-    		depthHBlurSP.setUniform("scene", i==0?depthTexLQ:depthVBlurTexLQ);
-	    	bindFB(depthHBlurFBLQ);	    
-	    	screenQuad.draw();	
-	    	
-        	depthVBlurSP.use();
-        	depthVBlurSP.setUniform("scene", depthHBlurTex);
-        	
-        	bindFB(depthVBlurFB);
-        	screenQuad.draw();
-        	depthVBlurSP.setUniform("scene", depthHBlurTexLQ);
-	    	bindFB(depthVBlurFBLQ);
-	    	screenQuad.draw();
-		}        
-        
-    	interpolate(depthVBlurTex, depthVBlurTexLQ, depthIntFB);
-        
         endPath();
 	}
 	
-	/**
-	 * Creates a clean normal texture.
-	 */
-	private void normals() {
-		normals(0);
-	}
-	
-	/**
-	 * Creates clean and blurred normal textures.
-	 * @param blurCount number of blur iterations
-	 */
-	private void normals(int blurCount) {
-		createNormals(blurCount, 1.0f, false);
-	}
-	
-	/**
-	 * Creates clean and blurred normal textures. 
-	 * @param blurCount number of blur iterations
-	 * @param offsetValue blur factor
-	 */
-	private void createNormals(int blurCount, float offsetValue, boolean source) {
+	private void normals() { createNormals(false); }
+	private void createNormals(boolean source) {
 		startPath(normalSP);
 		normalSP.setUniform("depthTex", source?depthVBlurTex:depthTex);
 		normalSP.setUniform("texSize", (float)WIDTH);
@@ -450,50 +436,15 @@ public class FluidRenderer {
 
 		bindFB(normalFB);
 		screenQuad.draw();
-		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ);
+		
+//		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ);
 		bindFB(normalFBLQ);
 		screenQuad.draw();
 		
-		for(int i = 0; i <= blurCount-1; i++){
-			normalHBlurSP.use();
-			normalHBlurSP.setUniform("normalTex", i==0?normalTex:normalVBlurTex);
-			normalHBlurSP.setUniform("texSize", (float)WIDTH);
-			normalHBlurSP.setUniform("offsetValue", offsetValue);
-
-			bindFB(normalHBlurFB);
-			screenQuad.draw();
-			normalHBlurSP.setUniform("normalTex", i==0?normalTexLQ:normalVBlurTexLQ);
-			bindFB(normalHBlurFBLQ);
-			screenQuad.draw();
-			
-			normalVBlurSP.use(); 
-			normalVBlurSP.setUniform("normalTex", normalHBlurTex);
-			normalVBlurSP.setUniform("texSize", (float)WIDTH);
-			normalVBlurSP.setUniform("offsetValue", offsetValue);
-			
-			bindFB(normalVBlurFB);
-			screenQuad.draw();
-			normalVBlurSP.setUniform("normalTex", normalHBlurTexLQ);
-			bindFB(normalVBlurFBLQ);
-			screenQuad.draw();
-		}
-		interpolate(normalVBlurTex, normalVBlurTexLQ, normalIntFB);
-	        
 		endPath();
 	}
 
-	/** 
-	 * Creates a clean thickness textures.
-	 */
 	private void thickness() {
-		thickness(0);
-	}
-	
-	/**
-	 * Creates clean and blurred thickness textures.
-	 * @param blurCount number of blur iterations.
-	 */
-	private void thickness(int blurCount) {
 		
 	    startPath(thicknessSP, thicknessFB);
 	    thicknessSP.setUniform("viewProj", viewProj);
@@ -504,20 +455,9 @@ public class FluidRenderer {
         glDisable(GL_DEPTH_TEST);
 
         testWaterParticles.draw();
-        
-        for(int i = 0; i <= blurCount-1; i++){
-	        startPath(thicknessHBlurSP, thicknessHBlurFB);
-		    thicknessHBlurSP.setUniform("thickness", i==0?thicknessTex:thicknessVBlurTex);
-		    thicknessHBlurSP.setUniform("depth", depthTex);
-		    thicknessHBlurSP.setUniform("width", WIDTH);
-	        screenQuad.draw();
-	        
-	        startPath(thicknessVBlurSP, thicknessVBlurFB);
-	        thicknessVBlurSP.setUniform("thickness", thicknessHBlurTex);
-	        thicknessVBlurSP.setUniform("depth", depthTex);
-	        thicknessVBlurSP.setUniform("height", HEIGHT);
-	        screenQuad.draw();
-        }
+        bindFB(thicknessFBLQ);
+        testWaterParticles.draw();
+
         endPath();
     }
 	
@@ -526,7 +466,6 @@ public class FluidRenderer {
 	 * Creates some lighting.
 	 */
 	private void lighting() {
-        
         startPath(lightingSP, lightingFB);
         lightingSP.setUniform("view", cam.getView());
 	    lightingSP.setUniform("depthTex", depthTex);
@@ -562,7 +501,7 @@ public class FluidRenderer {
 	/** 
 	 * Draws a plane to the ground. 
 	 */
-	private void createTestPlane() {
+	private void testPlane() {
 		
 		startPath(testPlaneSP, testPlaneFB);
 	    testPlaneSP.setUniform("viewProj", viewProj);
@@ -605,59 +544,30 @@ public class FluidRenderer {
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
 	
-	private void blur(FrameBuffer hFB,ShaderProgram hSP,FrameBuffer vFB,ShaderProgram vSP, Texture scene, int counter, boolean low){
-		
-		hSP.use();
-		
-		hSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
-		hSP.setUniform("scene", scene);
-
-//   		GL30.glBindFragDataLocation(depthSP.getId(), 0, "color");
-		hFB.bind();
-		hFB.clearColor();
-    
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        
-        screenQuad.draw();
-        //testWaterParticles.draw();
-        hFB.unbind();
-// Vertical Blur
-		vSP.use();
-		
-		vSP.setUniform("viewProj",Util.mul(null, cam.getProjection(), cam.getView()));
-		if(low){
-		vSP.setUniform("scene", depthHBlurTexLQ);
-		}else{
-		vSP.setUniform("scene", depthHBlurTex);
+	private void blur(Texture tex, FrameBuffer hFB, FrameBuffer vFB, float offset) {
+		blur(new Texture[] { tex }, new FrameBuffer[] { hFB }, new FrameBuffer[] { vFB }, new float[] { offset });
+	}
+	
+	private void blur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
+		startPath(blurSP);
+		blurSP.setUniform("depth", depthTex);
+		runBlur(tex, hFB, vFB, offset);
+		endPath();
+	}
+	
+	private void runBlur(Texture[] tex, FrameBuffer[] hFB, FrameBuffer[] vFB, float[] offset) {
+		blurSP.setUniform("dir", 1.0f);
+		for(int i = 0; i < vFB.length; i++) {
+			blurSP.setUniform("tex", tex[i]);
+			bindFB(hFB[i]);
+			screenQuad.draw();
 		}
-		vFB.bind();
-		vFB.clearColor();
-    
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        
-        screenQuad.draw();
- 
-        vFB.unbind();
-		for(int i = 0; i < counter; i++) {
-			startPath(hSP, hFB);	    
-			if(low){
-				vSP.setUniform("scene", depthVBlurTexLQ);
-				}else{
-				vSP.setUniform("scene", depthVBlurTex);
-				}
-	    	screenQuad.draw();	
-	    	hFB.unbind();	        
-	        
-        	startPath(vSP, vFB);
-        	if(low){
-				vSP.setUniform("scene", depthHBlurTexLQ);
-				}else{
-				vSP.setUniform("scene", depthHBlurTex);
-				}
-        	screenQuad.draw();
-        	vFB.unbind();
+		
+		blurSP.setUniform("dir", 0.0f);
+		for(int i = 0; i < hFB.length; i++) {
+			blurSP.setUniform("tex", hFB[i].getTexture(0));
+			bindFB(vFB[i]);
+			screenQuad.draw();
 		}
 	}
 	
