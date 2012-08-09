@@ -78,14 +78,13 @@ public class FluidRenderer {
     private Texture thicknessVBlurTexLQ	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     
     // Lighting TODO
-    private ShaderProgram lightingSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Lighting_FS.glsl");
+    private ShaderProgram lightingSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/Lighting_FS.glsl");
 	private FrameBuffer lightingFB   = new FrameBuffer();
     private Texture lightingTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-
-    private ShaderProgram cubeMapSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/CubeMap_FS.glsl");
-    private FrameBuffer cubeMapFB   = new FrameBuffer();
-    private Texture cubeMapTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/CubeMap_FS.glsl");
+    private FrameBuffer finalImageFB   = new FrameBuffer();
+    private Texture finalImageTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
     private ShaderProgram testPlaneSP = new ShaderProgram("./shader/fluid/TestPlane_VS.glsl", "./shader/fluid/TestPlane_FS.glsl");
     private FrameBuffer testPlaneFB   = new FrameBuffer();
@@ -127,7 +126,7 @@ public class FluidRenderer {
     	// init lighting TODO: finish
     	init(lightingSP,  lightingFB,  lightingTex);
 
-    	init(cubeMapSP,   cubeMapFB,   cubeMapTex);
+    	init(finalImageSP,   finalImageFB,   finalImageTex);
     	init(testPlaneSP, testPlaneFB, testPlaneTex);
     	
     	// init interpolation TODO: correction
@@ -175,9 +174,9 @@ public class FluidRenderer {
 		interpolate(thicknessTex, thicknessTexLQ, thicknessIntFB);
 		
 		// lighting
-		lighting();
-		cubeMap();
 		testPlane();
+		lighting();
+		finalImage();
 
 		// TODO this is DEBUG DRAW
 		drawTextureSP.use();
@@ -203,7 +202,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
 //		drawTextureSP.setUniform("image", lightingTex);
-		drawTextureSP.setUniform("image", cubeMapTex);
+//		drawTextureSP.setUniform("image", cubeMapTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
 		screenQuad.draw();
@@ -483,16 +482,16 @@ public class FluidRenderer {
 	/**
 	 * Creates advanced lighting effects
 	 */
-	private void cubeMap() {
+	private void finalImage() {
 		
-		startPath(cubeMapSP, cubeMapFB);
-        cubeMapSP.setUniform("normalTex", normalVBlurTex);
-        cubeMapSP.setUniform("depthTex", depthTex);
-        cubeMapSP.setUniform("lightingTex", lightingTex);
-        cubeMapSP.setUniform("plane", testPlaneTex);
-        cubeMapSP.setUniform("thicknessTex", thicknessTex);
-        cubeMapSP.setUniform("cubeMap", cubemap);
-        cubeMapSP.setUniform("view", cam.getView());
+		startPath(finalImageSP, finalImageFB);
+        finalImageSP.setUniform("normalTex", normalVBlurTex);
+        finalImageSP.setUniform("depthTex", depthTex);
+        finalImageSP.setUniform("lightingTex", lightingTex);
+        finalImageSP.setUniform("plane", testPlaneTex);
+        finalImageSP.setUniform("thicknessTex", thicknessTex);
+        finalImageSP.setUniform("cubeMap", cubemap);
+        finalImageSP.setUniform("view", cam.getView());
         screenQuad.draw();
         
         endPath();
