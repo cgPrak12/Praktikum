@@ -69,7 +69,7 @@ public class TerrainMain {
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
-    private static float orthoScaleValue = 1f;
+    private static float orthoScaleValue = 15f;
     
     private static Matrix4f bias;
     

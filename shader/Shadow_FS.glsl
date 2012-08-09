@@ -31,13 +31,12 @@ void main(void)
 		
 	if(shadow < dist)
 	{
-		enlightenedColor = vec4(0,0,0,0);
+		enlightenedColor = vec4(shadow/dist);
 	}
 	else
 	{
 		enlightenedColor = vec4(1,1,1,1);
 
 	}
-	enlightenedColor = vec4(shadow/dist);
 }
 
