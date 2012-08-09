@@ -263,9 +263,23 @@ public class Particle {
         GL11.glPointSize(5);
         GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
         
+        
+
+        
         clEnqueueAcquireGLObjects(this.queue, this.old_pos, null, null);
         clEnqueueAcquireGLObjects(this.queue, this.heightmap, null, null);
         clEnqueueAcquireGLObjects(this.queue, this.normalmap, null, null);
+
+        // copy position buffer
+        CL10.clEnqueueCopyBuffer(this.queue,
+                old_pos, new_pos,
+                0, 0,
+                this.particles.capacity()*4, null, null);
+        // copy velocity buffer
+        CL10.clEnqueueCopyBuffer(this.queue,
+                old_velos, new_velos,
+                0, 0,
+                this.particles.capacity()*4, null, null);  
         
         this.kernel0.setArg(8, 1e-3f*millis);
         this.kernel0.setArg(9, (float)Math.random());
@@ -321,8 +335,16 @@ public class Particle {
         
         this.old_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, this.veloBuffer);
         //this.new_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, this.veloBuffer);
-        //this.new_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
         this.old_pos = clCreateFromGLBuffer(this.context, CL_MEM_READ_WRITE, vbid);
+
+        // double buffering: read buffer
+        this.new_velos = clCreateBuffer(this.context, CL_MEM_READ_WRITE,
+                this.veloBuffer.capacity()*4);          
+        this.new_pos = clCreateBuffer(this.context, CL_MEM_READ_WRITE,
+                this.particles.capacity()*4);
+
+        
+        
         
         //////////////////////////////////////////////////////////////////
         // OpenCL Particle Grid                                         //
@@ -389,7 +411,9 @@ public class Particle {
         this.kernel0.setArg(7,this.gridMaxParticles);
         this.kernel0.setArg(8, 0.0f); // dt, see draw()
         this.kernel0.setArg(9, 0.0f);
-
+        this.kernel0.setArg(10, this.new_pos);
+        this.kernel0.setArg(11, this.new_velos);
+                
         this.kernel2.setArg(0,this.old_pos);
         this.kernel2.setArg(1,this.gridCounters);
         this.kernel2.setArg(2,this.gridCells);

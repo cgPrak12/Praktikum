@@ -164,7 +164,9 @@ kernel void particle_sim
     int g_num_cells,
     int g_max_particles,
     float dt,
-    float random) 
+    float random,
+    global float4* pos_inbuf,
+    global float4* vel_inbuf) 
 {
     grid_t grid = { g_num_cells,
                     g_max_particles,
@@ -173,8 +175,8 @@ kernel void particle_sim
 
 
     int mygid = get_global_id(0);
-    float4 mypos = position[mygid];
-    float4 myvel = velos[mygid];
+    float4 mypos = pos_inbuf[mygid];
+    float4 myvel = vel_inbuf[mygid];
     float4 height = read_imagef(heightmap, sampler, mypos.s02);
     float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
 
@@ -216,8 +218,8 @@ kernel void particle_sim
 	                    ///////////////////////////////////////////////////////////
 	                    int other_gid = grid.cells[cid.cell_id+m];
 	                    if (other_gid == mygid) continue;
-	                    float4 other_pos = position[other_gid];
-	                    float4 other_vel = velos[other_gid];                    
+	                    float4 other_pos = pos_inbuf[other_gid];
+	                    float4 other_vel = vel_inbuf[other_gid];                    
 	                    float4 n = (other_pos - mypos);
 	                    float distance = length(n.s012);
 	                    if(distance < RADIUS*2)
