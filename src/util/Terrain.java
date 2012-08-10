@@ -42,7 +42,7 @@ public class Terrain
 		currentIDsSet = new int[MEM_BLOCKS_SET][2];
 		currentIDsGet = new int[MEM_BLOCKS_GET][2];
 		
-		initRandom();	
+		init();	
 	}
 	public Terrain(float initHeight) 	{ this(1024, initHeight); }
 	public Terrain() 					{ this(1024, 0.0f); }
