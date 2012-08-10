@@ -96,7 +96,23 @@ public class BlockUtil {
 			int z = new Integer(tmp[1]);
 			
 			Block newblock = new Block(x,z);
-				
+			
+			/* Sicherstellung, dass ausserhalb des Terrains nur dummys rausgegeben werden */
+			if(x < 0 || z < 0)
+			{
+				for(int i = 0; i < blockSize; i++)
+				{
+					for(int j = 0; j < blockSize; j++)
+					{
+						for(int k = 0; k < vertexInfos; k++)
+						{		
+							newblock.setInfo(i, j, k, 0.0f);
+						}		
+					}
+				}
+			}
+			
+			/* ansonsten */
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
