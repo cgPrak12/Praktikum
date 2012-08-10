@@ -10,10 +10,10 @@ import java.io.File;
 public class TerrainView {
 
 	// private values
-	private Block[][] myBl;
-	private Camera cam;
-	private int[] middle;
-	private Block dummy;
+	private static Block[][] myBl;
+	private static Camera cam;
+	private static int[] middle;
+	private static Block dummy;
 	
 	/**
 	 * constructor
@@ -66,7 +66,7 @@ public class TerrainView {
 	/**
 	 * update the whole blocks
 	 */
-	public void updateTerrainView()
+	public static void updateTerrainView()
 	{	
 		// hier muss der erste Block mit Fehlerbehandlung gesetzt werden, falls Camera auﬂerhalb
 		// einschr‰nkung der Camera oder spezielle Fehlerbehandlung hier
@@ -78,7 +78,7 @@ public class TerrainView {
 		{
 			for(int j=0; j<9; j++)
 			{
-				if(i!=4 && j!=4)
+				if(!(i==4 && j==4))
 				{
 					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
 					{

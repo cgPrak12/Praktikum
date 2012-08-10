@@ -6,6 +6,7 @@ import util.Camera;
 import util.Geometry;
 import util.GeometryFactory;
 import util.ShaderProgram;
+import util.TerrainView;
 import util.Util;
 
 /** Clip Map
@@ -233,25 +234,29 @@ public class ClipMap
 
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
-		{
+		{	
+//			TerrainView.updateTerrainView();
 			moveClip(0, 1);
 			tempZ %= 2;
 		}
 		// Positiv X --- Nach Links
 		if (tempX > 2)
 		{
+//			TerrainView.updateTerrainView();
 			moveClip(0, 0);
 			tempX %= 2;
 		}
 		// Negativ Z --- Nach Hinten
 		if (tempZ < -2)
 		{
+//			TerrainView.updateTerrainView();
 			moveClip(0, 3);
 			tempZ %= 2;
 		}
 		// Negativ X --- Nach Rechts
 		if (tempX < -2)
 		{
+//			TerrainView.updateTerrainView();
 			moveClip(0, 2);
 			tempX %= 2;
 		}
