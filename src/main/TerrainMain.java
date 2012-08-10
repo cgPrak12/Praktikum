@@ -141,7 +141,7 @@ public class TerrainMain
 			++frames;
 			if (frameTimeDelta > 1000)
 			{
-				System.out.println(1e3f * (float) frames / (float) frameTimeDelta + " FPS");
+//				System.out.println(1e3f * (float) frames / (float) frameTimeDelta + " FPS");
 				frameTimeDelta -= 1000;
 				frames = 0;
 			}
@@ -255,6 +255,10 @@ public class TerrainMain
 					else
 						glDisable(GL_CULL_FACE);
 					break;
+				case Keyboard.KEY_F4: clip.moveClipBy(1, 0); break;
+				case Keyboard.KEY_F5: clip.moveClipBy(0, 1); break;
+				case Keyboard.KEY_F6: clip.moveClipBy(-1, 0); break;
+				case Keyboard.KEY_F7: clip.moveClipBy(0, -1); break;
 				}
 			}
 		}

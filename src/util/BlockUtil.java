@@ -2,15 +2,12 @@ package util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Random;
 
 /**
  * Methoden um Bloecke auf die Festplatte zu schreiben oder von ihr zu lesen
@@ -40,24 +37,7 @@ public class BlockUtil {
 			{
 				file.createNewFile();
 			}
-			
-			// wenn ein Block sich ausserhalb des Terrains befindet
-			if(block.getID()[0] < 0 || block.getID()[1] < 0)
-			{
-				for(int i = 0; i < blockSize; i++)
-				{
-					for(int j = 0; j < blockSize; j++)
-					{
-						for(int k = 0; k < vertexInfos; k++)
-						{		
-							output.writeFloat(0.0f);
-						}		
-					}
-				}
-				return file;
-			}
-					
-			// wenn ein Block sich innerhalb des Terrains befindet
+							
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
@@ -65,9 +45,6 @@ public class BlockUtil {
 					for(int k = 0; k < vertexInfos; k++)
 					{	
 						output.writeFloat(block.getInfo(i, j, k));
-						
-						//prüfen ob nullen geschrieben werden
-						if(block.getInfo(i, j, 0)==0)System.out.println("mopped");
 					}		
 				}
 			}
@@ -102,36 +79,14 @@ public class BlockUtil {
 			int z = new Integer(tmp[1]);
 			
 			Block newBlock = new Block(x,z);
-
-			/* Sicherstellung, dass ausserhalb des Terrains nur dummys rausgegeben werden */
-			if(x < 0 || z < 0)
-			{
-				for(int i = 0; i < blockSize; i++)
-				{
-					for(int j = 0; j < blockSize; j++)
-					{
-						for(int k = 0; k < vertexInfos; k++)
-						{		
-						//	newBlock.setInfo(i, j, k, 0.0f);
-							newBlock.setInfo(i, j, k, 0.1f);
-						}		
-					}
-				}
-			}
 			
-			/* ansonsten */
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
 				{
 					for(int k = 0; k < vertexInfos; k++)
 					{		
-						
-//						float test= input.readFloat();
-//						if(test==0)System.out.println("Null");
-//						
 						newBlock.setInfo(i, j, k, input.readFloat());
-
 					}		
 				}
 			}		

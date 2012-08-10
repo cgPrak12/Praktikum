@@ -34,7 +34,7 @@ public class ClipMap
 	private float tempX; // Variable für Bewegungsschwellenwert
 	private float tempY; // Variable für Bewegungsschwellenwert
 	private float tempZ; // Variable für Bewegungsschwellenwert
-	
+
 	private int scaleSteps;
 	private int scaleFaktor;
 	private Vector2f initialCamPos;
@@ -50,7 +50,8 @@ public class ClipMap
 	private Geometry center; // Quadratisches Grid
 	private Geometry outer; // Füllgeometrie um Löcher am Rand zu "stopfen"
 
-	private float generalScale = 0.1f; // Skaliert die gesamte ClipMap um Faktor
+	private final float generalScale = 0.1f; // Skaliert die gesamte ClipMap um
+												// Faktor
 
 	/** Konstruktor Erstellt eine ClipMap aus den gegebenen Parametern
 	 * 
@@ -109,18 +110,16 @@ public class ClipMap
 
 	private void adjustCamera()
 	{
-		int camPosX = Math.abs((int)(cam.getCamPos().x/generalScale/2));
-		int camPosZ = Math.abs((int)(cam.getCamPos().z/generalScale/2));
-		int dirX = (int)cam.getCamPos().x < 0 ? 2 : 0;
-		int dirZ = (int)cam.getCamPos().z < 0 ? 3 : 1;
-		for(int i = 0; i <= camPosX; i++)
+		int camPosX = Math.abs((int) (cam.getCamPos().x / generalScale / 2));
+		int camPosZ = Math.abs((int) (cam.getCamPos().z / generalScale / 2));
+		int dirX = (int) cam.getCamPos().x < 0 ? 2 : 0;
+		int dirZ = (int) cam.getCamPos().z < 0 ? 3 : 1;
+		for (int i = 0; i <= camPosX; i++)
 		{
-			System.out.print(" x " + i);
 			moveClip(0, dirX);
 		}
-		for(int i = 0; i <= camPosZ; i++)
+		for (int i = 0; i <= camPosZ; i++)
 		{
-			System.out.println("z " + i);
 			moveClip(0, dirZ);
 		}
 	}
@@ -257,40 +256,46 @@ public class ClipMap
 	{
 
 		// Zähle Floats hoch, bis Schwellenwert erreicht ist
-		tempX += cam.getAlt().x / generalScale;
+		tempX += cam.getAlt().x / generalScale / scaleFaktor;
 		tempY += cam.getAlt().y;
-		tempZ += cam.getAlt().z / generalScale;
-		
-		if(tempY > 10) {
-			//updateHeight();
+		tempZ += cam.getAlt().z / generalScale / scaleFaktor;
+
+		if (tempY > 10)
+		{
+			updateHeight(true);
 			tempY %= 10;
 		}
-		
+		if (tempY < -10)
+		{
+			updateHeight(false);
+			tempY %= 10;
+		}
+
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
-		{	
-//			TerrainView.updateTerrainView();
+		{
+			// TerrainView.updateTerrainView();
 			moveClip(0, 1);
 			tempZ %= 2;
 		}
 		// Positiv X --- Nach Links
 		if (tempX > 2)
 		{
-//			TerrainView.updateTerrainView();
+			// TerrainView.updateTerrainView();
 			moveClip(0, 0);
 			tempX %= 2;
 		}
 		// Negativ Z --- Nach Hinten
 		if (tempZ < -2)
 		{
-//			TerrainView.updateTerrainView();
+			// TerrainView.updateTerrainView();
 			moveClip(0, 3);
 			tempZ %= 2;
 		}
 		// Negativ X --- Nach Rechts
 		if (tempX < -2)
 		{
-//			TerrainView.updateTerrainView();
+			// TerrainView.updateTerrainView();
 			moveClip(0, 2);
 			tempX %= 2;
 		}
@@ -310,38 +315,43 @@ public class ClipMap
 			// Zeichne ClipMap Ring
 			{
 				setScale(scaleFaktor * (float) pow(i));
-				createClip(scaleSteps + i);
+				createClip(i);
 				setLGrid(i);
 			}
 		}
 	}
 
-	private void updateHeight()
+	private void updateHeight(boolean mode)
 	{
-		this.stage--;
-		int dirX = initialCamPos.x > 0 ? 2 : 0;
-		int dirZ = initialCamPos.y > 0 ? 3 : 1;
-		
-		scaleFaktor *= 2;
-		
-		for(int i = 0; i < (int)(initialCamPos.x/scaleFaktor); i++)
+		if (mode)
 		{
-			moveClip(0, dirZ);
-		}
-		for(int i = 0; i < (int)(initialCamPos.y/scaleFaktor); i++)
+			if (scaleSteps < 3)
+			{
+				this.stage--;
+				scaleFaktor *= 2;
+				scaleSteps++;
+				moveClipBy(movement[0][0] / -4, movement[0][1] / -4);
+				System.out.println("Größe Movement" + movement[0][0] + " bei Auflösungslevel " + scaleSteps);
+			}
+		} else
 		{
-			moveClip(0, dirZ);
+			if (scaleSteps > 0)
+			{
+				this.stage++;
+				scaleFaktor /= 2;
+				scaleSteps--;
+				moveClipBy(movement[0][0] / 2, movement[0][1] / 2);
+				System.out.println("Größe Movement" + movement[0][0] + " bei Auflösungslevel " + scaleSteps);
+			}
 		}
-		
-		
-		scaleSteps++;
+
 	}
 
 	/** Verschiebt die ClipMap abhängig vom Kamerastandpunkt
 	 * 
 	 * @param i Ebene der aktuellen ClipMap
 	 * @param dir Richtung in die geschoben werden soll */
-	private void moveClip(int i, int dir)
+	public void moveClip(int i, int dir)
 	{
 		if (dir == 0 || dir == 1) // Unterscheidung der Bewegungsrichtung: pos X
 									// & pos Y
@@ -449,6 +459,24 @@ public class ClipMap
 			setProgram();
 			bottomRight.draw();
 			break;
+		}
+	}
+
+	/** Bewegt die ClipMap um die angegebenen Parameter in X und Z Richtung
+	 * @param x Bewegung in X
+	 * @param z Bewegung in Z */
+	public void moveClipBy(int x, int z)
+	{
+		int dirX = x < 0 ? 2 : 0;
+		int dirZ = z < 0 ? 3 : 1;
+
+		for (int i = 0; i < Math.abs(x); i++)
+		{
+			moveClip(0, dirX);
+		}
+		for (int i = 0; i < Math.abs(z); i++)
+		{
+			moveClip(0, dirZ);
 		}
 	}
 
