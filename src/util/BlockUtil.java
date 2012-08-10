@@ -10,6 +10,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Random;
+
+/**
+ * Methoden um Bloecke auf die Festplatte zu schreiben oder von ihr zu lesen
+ * 
+ * @author daniel, lukas, mareike
+ */
 
 public class BlockUtil {
 
@@ -48,8 +55,7 @@ public class BlockUtil {
 						}		
 					}
 				}
-				fos.write(bos.toByteArray());
-				
+				fos.write(bos.toByteArray());			
 				return file;
 			}
 					
@@ -87,7 +93,9 @@ public class BlockUtil {
 		try( FileInputStream fis = new FileInputStream(blockData); 
 			 ByteArrayInputStream bis = new ByteArrayInputStream(bytes);	
 			 DataInputStream input = new DataInputStream(new BufferedInputStream(bis)))
-		{				
+		{			
+			fis.read(bytes);
+			
 			String fileName = blockData.getName();
 			String[] tmp;
 			String delimiter = "_";
@@ -95,8 +103,8 @@ public class BlockUtil {
 			int x = new Integer(tmp[0]);
 			int z = new Integer(tmp[1]);
 			
-			Block newblock = new Block(x,z);
-			
+			Block newBlock = new Block(x,z);
+
 			/* Sicherstellung, dass ausserhalb des Terrains nur dummys rausgegeben werden */
 			if(x < 0 || z < 0)
 			{
@@ -106,7 +114,7 @@ public class BlockUtil {
 					{
 						for(int k = 0; k < vertexInfos; k++)
 						{		
-							newblock.setInfo(i, j, k, 0.0f);
+							newBlock.setInfo(i, j, k, 0.0f);
 						}		
 					}
 				}
@@ -119,12 +127,12 @@ public class BlockUtil {
 				{
 					for(int k = 0; k < vertexInfos; k++)
 					{		
-						newblock.setInfo(i, j, k, input.readFloat());
+						newBlock.setInfo(i, j, k, input.readFloat());
 					}		
 				}
 			}
-			fis.read(bytes);
-			return newblock;
+			
+			return newBlock;
 		}
 		catch (IOException e2)
 		{
@@ -146,9 +154,10 @@ public class BlockUtil {
 	}
 	
 	/**
+	 * Greift auf den Block zu, in der sich die Kamera aktuell befindet
 	 * 
-	 * @param cam
-	 * @return
+	 * @param cam		Kamera
+	 * @return block
 	 */
 	public static Block getBlock(Camera cam)
 	{
@@ -169,4 +178,6 @@ public class BlockUtil {
 	{
 		return readBlockData(x / 256, z / 256);
 	}
+	
+
 }
