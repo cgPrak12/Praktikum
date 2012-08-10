@@ -61,11 +61,11 @@ public class TerrainMain {
     private static float ingameTimePerSecond = 1.0f;
     
     //tone mapping
-    private static float exposure    = 0.7f;
-    private static float bloomFactor = 0.2f;
-    private static Vector4f brightnessFactor  = new Vector4f(0.8f, 0.8f, 0.8f, 1.0f);
+    private static float exposure    = 1.0f;
+    private static float bloomFactor = 0.4f;
+    private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     
-    private static Vector3f sunDirection = new Vector3f(0, 10f, 10);
+    private static Vector3f sunDirection = new Vector3f(30f, 30f, 30f);
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
@@ -208,18 +208,21 @@ public class TerrainMain {
             
         	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
         	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+        	
         	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(10f, null), Util.translationZ(10f, null), Util.translationY(5f, null));
         	Matrix4f modelIT1 = Util.transposeInverse(modelMatrix1, null);
+        	
         	Matrix4f shadowMatrix = Util.mul(null, shadowCam.getProjection(), shadowCam.getView());
         	
+        	//Main_VS
         	fboSP.setUniform("model", 	 	 modelMatrix);
         	fboSP.setUniform("modelIT",  	 modelIT);
         	fboSP.setUniform("viewProj", 	 Util.mul(null, cam.getProjection(), cam.getView()));
             fboSP.setUniform("shadowMatrix", shadowMatrix);
         	fboSP.setUniform("camPos",   	 cam.getCamPos());
-            fboSP.setUniform("view", cam.getView());
-            fboSP.setUniform("camFar", cam.getFar());
-            fboSP.setUniform("lightPosition", sunDirection);
+            fboSP.setUniform("view", 		 cam.getView());
+            fboSP.setUniform("camFar", 		 cam.getFar());
+            //Main_FS
             fboSP.setUniform("normalTexture", normalQuaderTexture);
             fboSP.setUniform("specularTexture", specularQuaderTexture);
             fboSP.setUniform("textureImage", quaderTexture);
@@ -229,20 +232,22 @@ public class TerrainMain {
         	
             testCube.draw();
             
+            //2nd test cube
             fboSP.setUniform("model", modelMatrix1);
             fboSP.setUniform("modelIT", modelIT1);
 
             testCube1.draw();
             
-        	fboSP.setUniform("modelIT", floorQuadMatrix); //Util.transposeInverse(floorQuadMatrix, null));
 			
 			//sun cube
             fboSP.setUniform("model", sunMatrix);
             fboSP.setUniform("modelIT", Util.transposeInverse(sunMatrix, null));
-            fboSP.setUniform("shadowMatrix", shadowMatrix);
+//            fboSP.setUniform("shadowMatrix", shadowMatrix);
             
             sunCube.draw();
             
+            
+            //floor quad
             fboSP.setUniform("model", floorQuadMatrix);
             fboSP.setUniform("modelIT", floorQuadMatrix);
             floorQuad.draw();
@@ -251,21 +256,24 @@ public class TerrainMain {
         	
         	
         	//test cube (shadow map)
+glCullFace(GL_FRONT);
         	shadowSP.use();
         	shadowSP.setUniform("model", 	modelMatrix);
         	shadowSP.setUniform("modelIT",  modelIT);
         	shadowSP.setUniform("viewProj", shadowMatrix);
         	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
-       	
+    	
         	shadowShader.bind();
         	shadowShader.clear();
-   	
+   
         	testCube.draw();
-        	
-            fboSP.setUniform("model", modelMatrix1);
-            fboSP.setUniform("modelIT", modelIT1);
 
+        	shadowSP.setUniform("model", modelMatrix1);
+        	shadowSP.setUniform("modelIT", modelIT1);
             testCube1.draw();
+glCullFace(GL_BACK);
+            
+            
         	shadowSP.setUniform("model",    floorQuadMatrix);
         	shadowSP.setUniform("modelIT",  floorQuadMatrix);
         	shadowSP.setUniform("viewProj", shadowMatrix);
@@ -275,7 +283,9 @@ public class TerrainMain {
         	
         	shadowShader.finish();
 
-        	//shader.DrawTexture(shader.getDiffuseTexture());
+        	
+        	
+// shader.DrawTexture(shader.getNormalTexture());
         	if (shadows) {
             	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection, shadowCam);
         	}
@@ -362,7 +372,7 @@ public class TerrainMain {
 			case 5:
 				fbo = screenMan.getBrightness(enlightenedFBO, brightnessFactor); break;
 			case 6:
-				fbo = screenMan.getShadowMap(shadowShader.getWorldTexture()); break;
+//				fbo = screenMan.getShadowMix(shadowShader.getWorldTexture()); break;
 
 		}		
 		return fbo;
