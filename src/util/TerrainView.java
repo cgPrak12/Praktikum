@@ -72,32 +72,35 @@ public class TerrainView {
 		// einschränkung der Camera oder spezielle Fehlerbehandlung hier
 		int diffX = (BlockUtil.getBlock(cam)).getID()[0] - middle[0];
 		int diffY = (BlockUtil.getBlock(cam)).getID()[1] - middle[1];
-		myBl[4][4] =  BlockUtil.getBlock(cam);
 
-		for(int i=0; i<9; i++)
-		{
-			for(int j=0; j<9; j++)
+		if(!(diffX ==0 && diffY == 0)){
+			
+			myBl[4][4] =  BlockUtil.getBlock(cam);
+			for(int i=0; i<9; i++)
 			{
-				if(!(i==4 && j==4))
+				for(int j=0; j<9; j++)
 				{
-					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
+					if(!(i==4 && j==4))
 					{
-						
-						if(!((middle[0]-4+i)<0 || (middle[1]-4+j)<0 || (middle[0]-4+i)>(Terrain.getSize()/256)
-								|| (middle[1]-4+j)>(Terrain.getSize()/256)))
-						{	
-							String file = (myBl[i][j].getID()[0] + diffX) 
-					         + "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
-							myBl[i][j] = BlockUtil.readBlockData(new File(file));
+						if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
+						{
+							
+							if(!((middle[0]-4+i)<0 || (middle[1]-4+j)<0 || (middle[0]-4+i)>(Terrain.getSize()/256)
+									|| (middle[1]-4+j)>(Terrain.getSize()/256)))
+							{	
+								String file = (myBl[i][j].getID()[0] + diffX) 
+						         + "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
+								myBl[i][j] = BlockUtil.readBlockData(new File(file));
+							}
+							else
+							{
+								myBl[i][j] = dummy;
+							}
 						}
 						else
 						{
-							myBl[i][j] = dummy;
+							myBl[i][j] = myBl[i+diffX][j+diffY];
 						}
-					}
-					else
-					{
-						myBl[i][j] = myBl[i+diffX][j+diffY];
 					}
 				}
 			}

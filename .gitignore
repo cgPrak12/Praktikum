@@ -14,3 +14,6 @@ manifest.mf
 .manifest
 .classpath
 *.bf
+.classpath
+.project
+1_2_.bf
