@@ -290,6 +290,7 @@ public class FluidRenderer {
 	private void depth() {
 		depthSP.use();
 		depthSP.setUniform("view", cam.getView());
+		depthSP.setUniform("proj", cam.getProjection());
 		depthSP.setUniform("viewProj", viewProj);
 		depthSP.setUniform("viewDistance", cam.getViewDistance());
         depthSP.setUniform("camPos", cam.getCamPos());
@@ -349,11 +350,10 @@ public class FluidRenderer {
 	private void lighting() {
         startPath(lightingSP, lightingFB);
         lightingSP.setUniform("view", cam.getView());
-	    lightingSP.setUniform("depthTex", depthVBlurTex);   // TODO Sorry Kristin, ich habe das mal in geblurrten geändert, musst du evtl. anders machen!
+	    lightingSP.setUniform("depthTex", depthVBlurTex);
 	    lightingSP.setUniform("normalTex", normalVBlurTex);
 	    lightingSP.setUniform("thicknessTex", thicknessTex);
         lightingSP.setUniform("cubeMap", cubemap);
-        lightingSP.setUniform("plane", testPlaneTex);
         lightingSP.setUniform("lightPosW", lightPos);
         screenQuad.draw();
         
