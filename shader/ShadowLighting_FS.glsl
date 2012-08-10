@@ -15,7 +15,7 @@ uniform sampler2D worldTex;
 uniform sampler2D diffuseTex;
 uniform sampler2D specularTex;
 uniform sampler2D shadowTex;
-uniform sampler2D shadowCoordsTex;
+// uniform sampler2D shadowCoordsTex;
 
 uniform mat4 lView;
 uniform mat4 lProj;

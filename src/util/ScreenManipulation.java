@@ -446,6 +446,7 @@ public class ScreenManipulation {
 		spoShadowPhong.setUniform("diffuseTex", shader.getDiffuseTexture());
 		spoShadowPhong.setUniform("specularTex", shader.getSpecTexture());
 		spoShadowPhong.setUniform("shadowTex", shadowShader.getTexture());
+//		spoShadowPhong.setUniform("shadowTex", getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getTexture(), sunDirection).getTexture(0));
 		spoShadowPhong.setUniform("shadowCoordsTex", shader.getShadowTexture());
 		spoShadowPhong.setUniform("camPos",     shadowCam.getCamPos());
 		spoShadowPhong.setUniform("sunDir",	 	sunDirection);
