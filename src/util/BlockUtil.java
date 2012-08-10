@@ -130,8 +130,7 @@ public class BlockUtil {
 						newBlock.setInfo(i, j, k, input.readFloat());
 					}		
 				}
-			}
-			
+			}		
 			return newBlock;
 		}
 		catch (IOException e2)
