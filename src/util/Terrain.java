@@ -6,7 +6,7 @@ public class Terrain
 	private static final int MEM_BLOCKS_GET = 4;
 	
 	private String[][] blocks;
-	private static int size;
+	private int size;
 	private float initialHeight;
 	
 	private int[][] currentIDsSet;
@@ -71,8 +71,6 @@ public class Terrain
 				{
 					for(int l = 0; l < 4; l++)
 					{
-//						if(count++ % factor == 0)
-//							System.out.print("....");
 						int xPos = i * 4 + k;
 						int zPos = j * 4 + l;
 						Block block = new Block(xPos, zPos);
@@ -94,7 +92,6 @@ public class Terrain
 						// Fuellen der Bloecke mit Initialhoehe
 						for(int m = 0; m < 256; m++)
 						{
-							
 							for(int n = 0; n < 256; n++)
 							{
 								if(count++ % (factor * 16384) == 0)
@@ -132,8 +129,6 @@ public class Terrain
 				{
 					for(int l = 0; l < 4; l++)
 					{
-//						if(count++ % factor == 0)
-//							System.out.print("....");
 						int xPos = i * 4 + k;
 						int zPos = j * 4 + l;
 						Block block = new Block(xPos, zPos);
@@ -155,7 +150,6 @@ public class Terrain
 						// Fuellen der Bloecke mit Initialhoehe
 						for(int m = 0; m < 256; m++)
 						{
-							
 							for(int n = 0; n < 256; n++)
 							{
 								if(count++ % (factor * 16384) == 0)
@@ -220,8 +214,7 @@ public class Terrain
 
 			Block myBlock = currentBlocksSet[n];
 			myBlock.setInfo(blockX, blockZ, pos, value);
-			BlockUtil.writeBlockData(myBlock);
-			
+//			BlockUtil.writeBlockData(myBlock);
 			return true;
 		}
 		return false;
@@ -269,7 +262,7 @@ public class Terrain
 			}
 		}
 		
-		Block myBlock = currentBlocksSet[n];
+		Block myBlock = currentBlocksGet[n];
 		return myBlock.getInfo(blockX, blockZ, pos);
 	}
 	
@@ -288,7 +281,7 @@ public class Terrain
 	/**
 	 * @return the size
 	 */
-	public static int getSize() {
+	public int getSize() {
 		return size;
 	}
 	
@@ -299,15 +292,21 @@ public class Terrain
 	 */
 	private void updateBlocksSet(int x, int z)
 	{
+		for(int i = 0; i < MEM_BLOCKS_SET; i++)
+		{
+			BlockUtil.writeBlockData(currentBlocksSet[i]);
+		}
+		
 		int idX = x / 256;
 		int idZ = z / 256;
+		int dim = size / 256;
 		
 		for(int i = 0; i < MEM_BLOCKS_SET; i++)
 		{
-			int getX = (idX + i) % (size / 256);
-			int getZ = (idZ + (idX + i) / (size / 256)) % (size / 256);
+			int getX = (idX + i) % dim;
+			int getZ = (idZ + (idX + i) / (size / 256)) % dim;
 			currentBlocksSet[i] = BlockUtil.readBlockData(getX, getZ);
-			currentIDsSet[i][0] = getX; currentIDsSet[i][1] = getZ;  
+			currentIDsSet[i][0] = getX; currentIDsSet[i][1] = getZ;
 		}
 	}
 	
@@ -320,15 +319,16 @@ public class Terrain
 	{
 		int idX = x / 256;
 		int idZ = z / 256;
+		int dim = size / 256;
 		int count = 0;
 		
 		for(int i = 0; i * i < MEM_BLOCKS_GET; i++)
 		{
 			for(int j = 0; j * j < MEM_BLOCKS_GET; j++)
 			{
-				currentBlocksGet[count] = BlockUtil.readBlockData(idX + i, (idZ + j) % (size / 256));
+				currentBlocksGet[count] = BlockUtil.readBlockData(idX + i, (idZ + j) % dim);
 				currentIDsGet[count][0] = idX + i;
-				currentIDsGet[count][1] = (idZ + j) % (size / 256);
+				currentIDsGet[count][1] = (idZ + j) % dim;
 				count++;
 			}
 		}
