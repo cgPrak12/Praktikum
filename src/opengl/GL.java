@@ -251,6 +251,11 @@ public class GL {
     public static final int GL_NEAREST_MIPMAP_LINEAR = GL11.GL_NEAREST_MIPMAP_LINEAR;
     
     /**
+     * GL11.GL_NONE
+     */
+    public static final int GL_NONE = GL11.GL_NONE;
+    
+    /**
      * GL11.GL_ONE
      */
     public static final int GL_ONE = GL11.GL_ONE;

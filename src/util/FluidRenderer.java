@@ -597,6 +597,15 @@ public class FluidRenderer {
 			screenQuad.draw();
 		}
 	}
+	private void enableAttachments(FrameBuffer framebuffer, boolean ...attachments) {
+		// framebuffer has to be binded before!
+		int i = 0;
+		int[] attachmentIds = new int[attachments.length];
+		for(boolean attachment:attachments) 
+			attachmentIds[i++] = attachment?GL_COLOR_ATTACHMENT0+i-1:GL_NONE;
+		
+			
+	}
 	
 	private void interpolate(Texture high, Texture low, FrameBuffer fb){
 		interpolationSP.use();
