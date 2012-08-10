@@ -6,7 +6,6 @@ import util.Camera;
 import util.Geometry;
 import util.GeometryFactory;
 import util.ShaderProgram;
-import util.TerrainView;
 import util.Util;
 
 /** Clip Map

@@ -22,6 +22,8 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import terrain.ClipMap;
+import terrain.Terrain;
+import terrain.TerrainView;
 import util.*;
 
 /** @author nico3000 */

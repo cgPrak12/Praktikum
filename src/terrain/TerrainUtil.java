@@ -1,4 +1,4 @@
-package util;
+package terrain;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -6,6 +6,8 @@ import java.util.Random;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Vector3f;
+
+import util.Util;
 
 /**
  * 

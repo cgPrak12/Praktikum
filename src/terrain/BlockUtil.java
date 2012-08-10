@@ -1,4 +1,4 @@
-package util;
+package terrain;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
+
+import util.Camera;
 
 /**
  * Methoden um Bloecke auf die Festplatte zu schreiben oder von ihr zu lesen

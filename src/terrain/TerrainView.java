@@ -1,6 +1,8 @@
-package util;
+package terrain;
 
 import java.io.File;
+
+import util.Camera;
 
 /**
  * this class take care of the blocks which are in use

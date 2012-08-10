@@ -1,4 +1,4 @@
-package util;
+package terrain;
 
 import java.io.Serializable;
 
