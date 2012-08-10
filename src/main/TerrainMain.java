@@ -144,8 +144,8 @@ public class TerrainMain {
         Util.mul(floorQuadMatrix, Util.translationY(-1, null), Util.scale(20, null), Util.rotationX(-Util.PI_DIV2, null)); 
 
         
-//        ShadowShader shadowShader = new ShadowShader();
-        DeferredShader shadowShader = new DeferredShader();        
+        ShadowShader shadowShader = new ShadowShader();
+        //DeferredShader shadowShader = new DeferredShader();        
         shadowShader.init(14);
         shadowShader.registerShaderProgram(shadowSP);
         
@@ -274,7 +274,7 @@ public class TerrainMain {
         	floorQuad.draw();
         	
         	shadowShader.finish();
-
+        	
         	//shader.DrawTexture(shader.getDiffuseTexture());
         	if (shadows) {
             	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection, shadowCam);
@@ -323,7 +323,7 @@ public class TerrainMain {
 	 * @param shader deferred shader
 	 * @return frame buffer containing the screen 
 	 */
-	private static FrameBuffer getQuadScreen(int[] splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
+	private static FrameBuffer getQuadScreen(int[] splitScreenValue, DeferredShader shader, ShadowShader shadowShader) {
 	
 		FrameBuffer fbo0 = new FrameBuffer();
 		FrameBuffer fbo1 = new FrameBuffer();
@@ -343,7 +343,7 @@ public class TerrainMain {
 	 * @param shader deferred shader
 	 * @return frame buffer with the screen
 	 */
-	private static FrameBuffer getScreen(int splitScreenValue, DeferredShader shader, DeferredShader shadowShader) {
+	private static FrameBuffer getScreen(int splitScreenValue, DeferredShader shader, ShadowShader shadowShader) {
 		
 		FrameBuffer fbo = new FrameBuffer();
 		FrameBuffer enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
@@ -362,7 +362,7 @@ public class TerrainMain {
 			case 5:
 				fbo = screenMan.getBrightness(enlightenedFBO, brightnessFactor); break;
 			case 6:
-				fbo = screenMan.getShadowMap(shadowShader.getWorldTexture()); break;
+				//fbo = screenMan.getShadowMix(shadowShader.getWorldTexture()); break;
 
 		}		
 		return fbo;

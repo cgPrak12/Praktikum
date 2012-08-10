@@ -1,6 +1,7 @@
 package util;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 
 import opengl.GL;
@@ -46,7 +47,13 @@ public class ShadowShader {
 		frameBuffer.init(true, width, height);
 		
 		texShaderPosition = new Texture(TEXTURE, unitOffset + 0);
-    	frameBuffer.addTexture(texShaderPosition, GL30.GL_RGBA32F, GL11.GL_RGBA);
+		
+		//clamping
+		texShaderPosition.bind();
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+    	GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+    	
+    	frameBuffer.addTexture(texShaderPosition, GL30.GL_RGBA32F, RGBA);
     	frameBuffer.drawBuffers();
 	}
 	
