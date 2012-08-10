@@ -1,9 +1,25 @@
 package util;
 
-import opengl.GL;
-import static opengl.GL.*;
+import static opengl.GL.GL_FRAGMENT_SHADER;
+import static opengl.GL.GL_VERTEX_SHADER;
+import static opengl.GL.glAttachShader;
+import static opengl.GL.glBindAttribLocation;
+import static opengl.GL.glCompileShader;
+import static opengl.GL.glCreateProgram;
+import static opengl.GL.glCreateShader;
+import static opengl.GL.glGetProgramInfoLog;
+import static opengl.GL.glGetShaderInfoLog;
+import static opengl.GL.glGetUniformLocation;
+import static opengl.GL.glLinkProgram;
+import static opengl.GL.glShaderSource;
+import static opengl.GL.glUniform1i;
+import static opengl.GL.glUniformMatrix4;
+import static opengl.GL.glUseProgram;
+
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 /**
  *
@@ -42,6 +58,16 @@ public class ShaderProgram {
             System.err.println(varName);
         }
             
+    }
+    
+    public void setUniform(String varName, Vector3f vec) {
+    	int loc = glGetUniformLocation(this.id, varName);
+    	if(loc != -1) {
+    		GL20.glUniform3f(loc, vec.x, vec.y, vec.z);
+    	} else {
+            System.err.println(varName);
+        }
+    	
     }
     
     /**

@@ -166,22 +166,23 @@ float4 nW_pres(float4 r, float h)
 float lW_visc(float4 r, float h)
 {
     float norm_r = length(r);
+    if(norm_r == h) return 0;
     return (45.0/(PI*pow(h,5)))*(1-(norm_r/h));
 }
 
 
 
 #define VELDAMP 0.6
-#define NORMAL_VELDAMP 0.0001
+#define NORMAL_VELDAMP 0.0000001
 #define MASS 0.02
 #define K_CONSTANT 1.5
 #define H_CONSTANT 2*RADIUS
 #define MU_CONSTANT 3.5*1.003*10e-3
-#define GRAVITY -0.00002405
-#define REST_DENS 0.099829
-#define SURFACE_TENS 0.00728
+#define GRAVITY -0.000005
+#define REST_DENS 998.29
+#define SURFACE_TENS 0.728
 #define F_SURFACEDAMP 1
-#define PRESSUREDAMP 0.00009
+#define PRESSUREDAMP 0.0085
 #define VESCOSITYDAMP 1
 
 //////////////////////////////////////////////////////////
@@ -241,7 +242,7 @@ kernel void particle_sim
 					float4 other_pos = position[other_gid];
                     float4 other_vel = velos[other_gid];
                     
-					if(length(mypos.s0123-other_pos.s0123) <= H_CONSTANT)
+					if(length((float4)(mypos.s012,0)-(float4)(other_pos.s012,0)) <= H_CONSTANT)
 					{
                     	
                     	float other_massdens = valuebuf[other_gid].s0;
@@ -250,16 +251,16 @@ kernel void particle_sim
 
                    		f_pressure += (my_pressure + other_pressure) / (2*other_massdens)  
                         	  		* MASS
-                        	  		* nW_pres(mypos.s0123-other_pos.s0123,H_CONSTANT);
+                        	  		* nW_pres((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),H_CONSTANT);
 
 
                   		f_viscos += MU_CONSTANT * ((other_vel.s0123-myvel.s0123) / other_massdens)
                         		  * MASS
                         	 	  * lW_visc(mypos.s0123-other_pos.s0123,H_CONSTANT);
                         	 	  
-                        gcolor_field = (MASS / other_massdens) * nW(mypos.s0123-other_pos.s0123,H_CONSTANT);
+                        gcolor_field = (MASS / other_massdens) * nW((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),H_CONSTANT);
                         
-                        lcolor_field = (MASS / other_massdens) * lW(mypos.s0123-other_pos.s0123,H_CONSTANT);
+                        lcolor_field = (MASS / other_massdens) * lW((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),H_CONSTANT);
                     }
                     
                	   
@@ -268,7 +269,7 @@ kernel void particle_sim
         }
     }
     
-    float threshold = 0.05;
+    float threshold = 0.1;
     float gradient_length = length(gcolor_field);
     
     if(gradient_length >= threshold) 
@@ -289,20 +290,33 @@ kernel void particle_sim
 	float4 f_acc = f_sum / my_massdens * dt + f_gravity;
     
 	myvel = myvel + f_acc*dt;
-    myvel *= VELDAMP;
-    
-    mypos = mypos + myvel*dt;
+    //myvel *= VELDAMP;
     
     
     
-   if(mypos.s1 <= height.s0 + RADIUS)
+    
+   if(mypos.s1 <= height.s0 + RADIUS +0.001)
    {
-    	mypos.s1= height.s0 + RADIUS;
-    	myvel += normalize((float4)(normal.s0,normal.s1,normal.s2 ,0)) * NORMAL_VELDAMP;
-
- 
+   
+   		mypos.s1 = height.s0 + RADIUS +0.001;
+    	float d = length(height - mypos);
+    	//d = d < 0 ? -d : d;
+    	//myvel.y = -0.5 * myvel.y;
+    	myvel += d*normal*0.00002;
+    	
+    	
+		float cr = 0.0000000001;
+		//f_acc = f_acc -(1+cr *(d/(dt*length(myvel))))*(myvel*normalize(normal))*normalize(normal);
+    	
+		myvel += (myvel-(1+cr *(d/(dt*length(myvel))))*(myvel*normalize(normal))*normalize(normal))*0.00004;
+ 		//myvel.s0 = normal.s0 *
+ 		myvel *= 0.795;
+ 		mypos += myvel*0.01;
+   } else {
+   		//myvel.y += f_gravity.y;
+   		mypos += myvel*0.01;
+   	
    }
-
     position[mygid] = mypos;
     velos[mygid] = myvel;
 
@@ -375,14 +389,14 @@ kernel void massdensity_sim
                     float4 other_pos = position[other_gid];
                     if(length(mypos.s012-other_pos.s012) <= H_CONSTANT)
                     {
-                    	sum_neighbours += MASS*W(mypos.s0123-other_pos.s0123,H_CONSTANT);
+                    	sum_neighbours += MASS*W((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),H_CONSTANT);
 					}
 
                 }
             }
         }
     }
-    float mass_density = sum_neighbours;
+    float mass_density = sum_neighbours ;
     float pressure = K_CONSTANT *( mass_density - REST_DENS);
     
     valuebuf[mygid] = (float2)(mass_density, pressure);
