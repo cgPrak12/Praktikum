@@ -52,6 +52,7 @@ public class TerrainView {
 					if(idI+i-4>0 && idJ+j-4>0 && idI+i-4<(Terrain.getSize()/256) && idJ+j-4<(Terrain.getSize()/256))
 					{
 						myBl[i][j] = BlockUtil.readBlockData(new File((idI+i-4)+"_"+(idJ+j-4)+"_.bf"));
+						//System.out.println(myBl[i][j]);
 					}
 					else
 					{
@@ -118,6 +119,7 @@ public class TerrainView {
 					System.out.println("error");
 				}
 				heightMap[x][z]= myBl[bx][bz].getInfo(x%256, z%256, 0);
+				System.out.println(heightMap[x][z]);
 			}
 		}
 		return heightMap;

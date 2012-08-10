@@ -70,13 +70,14 @@ public class TerrainMain
 
 			clip = new ClipMap(254, 8, program, cam);
 			
-			Terrain terrain = new Terrain(1200);
+			Terrain terrain = new Terrain(1024);
 			TerrainView tv = new TerrainView(cam);
 			
 			float[][] heightMap = tv.getHeightMap();
 			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length*heightMap.length);
 			for(int i = 0; i < heightMap.length; i++) {
 				fbuffer.put(heightMap[i]);
+			
 			}
 			fbuffer.flip();
 //			tex = Texture.generateTexture(".\\earth_height.jpg", 1);

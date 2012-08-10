@@ -59,7 +59,7 @@ public class BlockUtil {
 				for(int j = 0; j < blockSize; j++)
 				{
 					for(int k = 0; k < vertexInfos; k++)
-					{		
+					{	
 						output.writeFloat(block.getInfo(i, j, k));
 					}		
 				}
@@ -104,6 +104,7 @@ public class BlockUtil {
 					for(int k = 0; k < vertexInfos; k++)
 					{		
 						newblock.setInfo(i, j, k, input.readFloat());
+					//	System.out.println(newblock);
 					}		
 				}
 			}

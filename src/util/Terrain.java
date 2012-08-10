@@ -45,6 +45,8 @@ public class Terrain
 		initRandom();	
 	}
 	public Terrain(float initHeight) 	{ this(1024, initHeight); }
+	
+	
 	public Terrain() 					{ this(1024, 0.0f); }
 	
 	/**
@@ -160,7 +162,7 @@ public class Terrain
 							{
 								if(count++ % (factor * 16384) == 0)
 									System.out.print(".");
-								block.setInfo(m, n, 0, (float) Math.random());
+								block.setInfo(m, n, 0, (float) Math.random()*100);
 							}
 						}
 						
@@ -170,7 +172,6 @@ public class Terrain
 				}
 			}
 		}
-		System.out.println();
 	}
 	
 	/**
