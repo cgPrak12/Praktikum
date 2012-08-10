@@ -11,7 +11,7 @@ public final class Camera
 	private final Vector3f upDir = new Vector3f(0, 1, 0);
 	private final Vector3f sideDir = new Vector3f(1, 0, 0);
 
-	private final Vector3f camPos = new Vector3f(0, 20, 0);
+	private final Vector3f camPos = new Vector3f(5, 20, 5);
 	private final Matrix4f view = new Matrix4f();
 	private final Matrix4f projection = new Matrix4f();
 	private boolean perspective = true;

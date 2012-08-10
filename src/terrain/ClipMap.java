@@ -1,12 +1,12 @@
 package terrain;
 
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 
 import util.Camera;
 import util.Geometry;
 import util.GeometryFactory;
 import util.ShaderProgram;
-import util.TerrainView;
 import util.Util;
 
 /** Clip Map
@@ -32,7 +32,12 @@ public class ClipMap
 	private int[][] movement; // Array das Bewegungstranslation speichert
 	private boolean[][] alignment; // Array das Lage der Clipmap angibt
 	private float tempX; // Variable für Bewegungsschwellenwert
+	private float tempY; // Variable für Bewegungsschwellenwert
 	private float tempZ; // Variable für Bewegungsschwellenwert
+	
+	private int scaleSteps;
+	private int scaleFaktor;
+	private Vector2f initialCamPos;
 
 	// Cached Geometries
 	private Geometry mxm; // Quadratisches Grid
@@ -72,6 +77,8 @@ public class ClipMap
 		translation = new Matrix4f();
 		movement = new int[stage][2];
 		alignment = new boolean[stage][4];
+		scaleFaktor = 1;
+		scaleSteps = 0;
 		for (int i = 0; i < alignment.length; i++)
 		{
 			alignment[i][0] = false;
@@ -79,7 +86,9 @@ public class ClipMap
 			alignment[i][2] = true;
 			alignment[i][3] = false;
 		}
-
+		initialCamPos = new Vector2f();
+		initialCamPos.x = cam.getCamPos().x;
+		initialCamPos.y = cam.getCamPos().z;
 		// Initialisierung der vorgeladenen Geometrien
 		mxm = GeometryFactory.createGrid(gridsize + 1, gridsize + 1);
 		mxn = GeometryFactory.createMxNGrid(middlesize + 1, gridsize + 1);
@@ -95,6 +104,25 @@ public class ClipMap
 		// Anpassung der Höhe und Texturkoordinaten
 		updateSize();
 		updateHeightScale();
+		adjustCamera();
+	}
+
+	private void adjustCamera()
+	{
+		int camPosX = Math.abs((int)(cam.getCamPos().x/generalScale/2));
+		int camPosZ = Math.abs((int)(cam.getCamPos().z/generalScale/2));
+		int dirX = (int)cam.getCamPos().x < 0 ? 2 : 0;
+		int dirZ = (int)cam.getCamPos().z < 0 ? 3 : 1;
+		for(int i = 0; i <= camPosX; i++)
+		{
+			System.out.print(" x " + i);
+			moveClip(0, dirX);
+		}
+		for(int i = 0; i <= camPosZ; i++)
+		{
+			System.out.println("z " + i);
+			moveClip(0, dirZ);
+		}
 	}
 
 	/** Updatet des Shaderprogramm mit der neuen Translationsmatrix */
@@ -230,8 +258,14 @@ public class ClipMap
 
 		// Zähle Floats hoch, bis Schwellenwert erreicht ist
 		tempX += cam.getAlt().x / generalScale;
+		tempY += cam.getAlt().y;
 		tempZ += cam.getAlt().z / generalScale;
-
+		
+		if(tempY > 10) {
+			updateHeight();
+			tempY %= 10;
+		}
+		
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
 		{	
@@ -268,18 +302,39 @@ public class ClipMap
 				Util.mul(translation,
 						Util.translationX(2 * (-gridsize - middlesize) + middlesize + movement[0][0], null),
 						Util.translationZ(-2 * gridsize + movement[0][1], null));
-				setScale(1);
+				setScale(scaleFaktor);
 				setProgram();
 				center.draw();
 				outer.draw();
 			} else
 			// Zeichne ClipMap Ring
 			{
-				setScale((float) pow(i));
-				createClip(i);
+				setScale(scaleFaktor * (float) pow(i));
+				createClip(scaleSteps + i);
 				setLGrid(i);
 			}
 		}
+	}
+
+	private void updateHeight()
+	{
+		this.stage--;
+		int dirX = initialCamPos.x > 0 ? 2 : 0;
+		int dirZ = initialCamPos.y > 0 ? 3 : 1;
+		
+		scaleFaktor *= 2;
+		
+		for(int i = 0; i < (int)(initialCamPos.x/scaleFaktor); i++)
+		{
+			moveClip(0, dirZ);
+		}
+		for(int i = 0; i < (int)(initialCamPos.y/scaleFaktor); i++)
+		{
+			moveClip(0, dirZ);
+		}
+		
+		
+		scaleSteps++;
 	}
 
 	/** Verschiebt die ClipMap abhängig vom Kamerastandpunkt

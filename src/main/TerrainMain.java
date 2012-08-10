@@ -79,7 +79,6 @@ public class TerrainMain
 				fbuffer.put(heightMap[i]);
 			}
 			fbuffer.flip();
-//			tex = Texture.generateTexture(".\\earth_height.jpg", 1);
 			tex = new Texture(GL_TEXTURE_2D, 1);
 			tex.bind();
 			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, heightMap.length, heightMap[0].length, 0, GL11.GL_RED, GL_FLOAT, fbuffer);
