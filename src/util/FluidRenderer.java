@@ -190,7 +190,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessTex);
 //		drawTextureSP.setUniform("image", thicknessHBlurTex);
 //		drawTextureSP.setUniform("image", thicknessVBlurTex);
-		drawTextureSP.setUniform("image", thicknessTexLQ);
+//		drawTextureSP.setUniform("image", thicknessTexLQ);
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
 //		drawTextureSP.setUniform("image", lightingTex);
@@ -259,7 +259,7 @@ public class FluidRenderer {
 	
 	private void init(ShaderProgram sp, FrameBuffer[] fb, Texture[] tex, boolean low) {
 		for(int i = 0; i < fb.length; i++) {
-			fb[i].init(false, WIDTH/(low?4:1), HEIGHT/(low?4:1));
+			fb[i].init(false, WIDTH/(low?2:1), HEIGHT/(low?2:1));
 			fb[i].addTexture(tex[i], GL_RGBA16F, GL_RGBA);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
