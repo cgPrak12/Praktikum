@@ -153,11 +153,11 @@ public class FluidRenderer {
 		thickness();
 		
 		// blur
-		blur(depthTexLQ, depthHBlurFB, depthVBlurFB, 1.0f);
+		blur(depthTex, depthHBlurFB, depthVBlurFB, 1.0f);
 		blur(depthTexLQ, depthHBlurFBLQ, depthVBlurFBLQ, 1.0f);
 		blur(normalTex, normalHBlurFB, normalVBlurFB, 1.0f);
 		blur(normalTexLQ, normalHBlurFBLQ, normalVBlurFBLQ, 1.0f);
-		blur(thicknessTexLQ, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
+		blur(thicknessTex, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
 		
 		// interpolation
