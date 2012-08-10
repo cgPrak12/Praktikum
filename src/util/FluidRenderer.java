@@ -410,6 +410,7 @@ public class FluidRenderer {
 	private void depth() {
 		depthSP.use();
 		depthSP.setUniform("view", cam.getView());
+		depthSP.setUniform("proj", cam.getProjection());
 		depthSP.setUniform("viewProj", viewProj);
 		depthSP.setUniform("viewDistance", cam.getViewDistance());
         depthSP.setUniform("camPos", cam.getCamPos());
@@ -468,10 +469,9 @@ public class FluidRenderer {
         startPath(lightingSP, lightingFB);
         lightingSP.setUniform("view", cam.getView());
 	    lightingSP.setUniform("depthTex", depthTex);
-	    lightingSP.setUniform("normalTex", normalVBlurTex);
+	    lightingSP.setUniform("normalTex", normalTex);
 	    lightingSP.setUniform("thicknessTex", thicknessTex);
         lightingSP.setUniform("cubeMap", cubemap);
-        lightingSP.setUniform("plane", testPlaneTex);
         lightingSP.setUniform("lightPosW", lightPos);
         screenQuad.draw();
         

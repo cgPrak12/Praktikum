@@ -7,7 +7,6 @@ uniform sampler2D depthTex;
 uniform sampler2D normalTex;
 uniform sampler2D thicknessTex;
 uniform samplerCube cubeMap;
-uniform sampler2D plane;
 uniform vec3 lightPosW;
 
 out vec3 color;
@@ -24,9 +23,9 @@ const float es     = 16.0;
 
 void main(void) {
 	
-	if(texture(thicknessTex, texCoords).z == 0 && texture(plane, texCoords).x == 0) discard;
+	if(texture(thicknessTex, texCoords).z == 0) discard;
 	
-	vec3 position = normalize(texture(depthTex, texCoords).xyz);
+	vec3 position = texture(depthTex, texCoords).xyz;
 	vec3 normal = normalize(texture(normalTex, texCoords).xyz);
 	float thickness = texture(thicknessTex, texCoords).z;
 	
@@ -56,9 +55,12 @@ void main(void) {
 // ***************************			  
 // CubeMap
 
-	vec3 reflectedW = vec3(inverse(view) * vec4(reflected, 0.0)).xyz;
-	reflectedW.y += 0.2;
+	vec3 reflectPos = normalize(reflect(position, normal));
+	vec3 reflectedW = normalize((inverse(view) * vec4(reflectPos, 0.0)).xyz);
 	vec3 cubeColor = texture(cubeMap, reflectedW).xyz;
+	
+	color = cubeColor;//normalize(normal);
+	return;
 
 // ***************************			  
 // Fresnel
@@ -68,18 +70,16 @@ void main(void) {
 
 
 //	color = vec3(fresnel);
-//	color = cubeColor;
+	color = cubeColor;
 //	color = vec3(1 - dot(pos2eye, normal));
+//	color = phong + fresnel * cubeColor;
 
-	color = phong;
+//	color = phong;
 
 	vec3 waterColor =  0.3 * fresnel * cubeColor + 0.7 * phong;
 	
 //	color = fresnel * cubeColor;
-	
-	vec3 planeColor = texture(plane, texCoords).xyz;
 
-//	color = min(1.0, thickness+0.3) * waterColor + max(0.0, (1.0-thickness-0.3)) * planeColor;
 
 
 
