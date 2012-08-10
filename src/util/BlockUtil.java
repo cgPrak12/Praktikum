@@ -86,7 +86,7 @@ public class BlockUtil {
 		
 		try( FileInputStream fis = new FileInputStream(blockData); 
 			 ByteArrayInputStream bis = new ByteArrayInputStream(bytes);	
-			 DataInputStream input = new DataInputStream(new BufferedInputStream(bis)) )
+			 DataInputStream input = new DataInputStream(new BufferedInputStream(bis)))
 		{				
 			String fileName = blockData.getName();
 			String[] tmp;

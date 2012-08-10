@@ -13,6 +13,7 @@ public class TerrainView {
 	private Block[][] myBl;
 	private Camera cam;
 	private int[] middle;
+	private Block dummy;
 	
 	/**
 	 * constructor
@@ -22,6 +23,10 @@ public class TerrainView {
 	{		
 		myBl = new Block[9][9];
 		cam =  c;
+		
+		// dummy block erstellen
+		dummy = BlockUtil.readBlockData(BlockUtil.writeBlockData(new Block(-1,-1)));
+		
 		init();
 	}
 	
@@ -30,49 +35,65 @@ public class TerrainView {
 	 */
 	private void init()
 	{
+
 		myBl[4][4] = BlockUtil.getBlock(cam);
 		middle = myBl[4][4].getID();
 		
-		int idI = middle[0]-1;
-		int idJ = middle[1]-1;
-		
-		//hier fehlt noch die Fehlerbehandlung am Rand
-		//dummy-Block wenn man am/über dem Rand ist 
+	
+		int idI = middle[0];
+		int idJ = middle[1];
+	
 		for(int i=0; i<9; i++)
 		{
 			for(int j=0; j<9; j++)
 			{
-				if(i!=4 && j!=4){
-					myBl[i][j] = BlockUtil.readBlockData(new File((idI+i)+"_"+(idJ+j)+"_.bf"));
+				if(i!=4 && j!=4)
+				{
+					if(idI+i-4>0 && idJ+j-4>0 && idI+i-4<(Terrain.getSize()/256) && idJ+j-4<(Terrain.getSize()/256))
+					{
+						myBl[i][j] = BlockUtil.readBlockData(new File((idI+i-4)+"_"+(idJ+j-4)+"_.bf"));
+					}
+					else
+					{
+						myBl[i][j] = dummy;
+					}
 				}
 			}
 		}
 	}
+
 	
 	/**
 	 * update the whole blocks
 	 */
 	public void updateTerrainView()
-	{		
+	{	
+		// hier muss der erste Block mit Fehlerbehandlung gesetzt werden, falls Camera außerhalb
+		// einschränkung der Camera oder spezielle Fehlerbehandlung hier
 		int diffX = (BlockUtil.getBlock(cam)).getID()[0] - middle[0];
 		int diffY = (BlockUtil.getBlock(cam)).getID()[1] - middle[1];
-		
-		if(Math.abs(diffX) > 2 || Math.abs(diffX) > 2)
-		{
-			init();
-		}
-		else
-		{
-			for(int i=0; i<9; i++)
-			{
-				for(int j=0; j<9; j++)
-				{
+		myBl[4][4] =  BlockUtil.getBlock(cam);
 
+		for(int i=0; i<9; i++)
+		{
+			for(int j=0; j<9; j++)
+			{
+				if(i!=4 && j!=4)
+				{
 					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
 					{
-						String file = (myBl[i][j].getID()[0] + diffX) 
-								         + "_" + (myBl[i][j].getID()[0] + diffX) + "_.bf";
-						myBl[i][j] = BlockUtil.readBlockData(new File(file));
+						
+						if(!((middle[0]-4+i)<0 || (middle[1]-4+j)<0 || (middle[0]-4+i)>(Terrain.getSize()/256)
+								|| (middle[1]-4+j)>(Terrain.getSize()/256)))
+						{	
+							String file = (myBl[i][j].getID()[0] + diffX) 
+					         + "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
+							myBl[i][j] = BlockUtil.readBlockData(new File(file));
+						}
+						else
+						{
+							myBl[i][j] = dummy;
+						}
 					}
 					else
 					{

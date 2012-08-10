@@ -70,7 +70,7 @@ public class TerrainMain
 
 			clip = new ClipMap(254, 8, program, cam);
 			
-			Terrain terrain = new Terrain(5000);
+			Terrain terrain = new Terrain(1200);
 			TerrainView tv = new TerrainView(cam);
 			
 			float[][] heightMap = tv.getHeightMap();

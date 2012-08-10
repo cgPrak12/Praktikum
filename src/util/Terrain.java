@@ -6,7 +6,7 @@ public class Terrain
 	private static final int MEM_BLOCKS_GET = 4;
 	
 	private String[][] blocks;
-	private int size;
+	private static int size;
 	private float initialHeight;
 	
 	private int[][] currentIDsSet;
@@ -283,6 +283,13 @@ public class Terrain
 	public void add(int x, int z, int pos, float dValue)
 	{
 		set(x, z, pos, get(x, z, pos) + dValue);
+	}
+	
+	/**
+	 * @return the size
+	 */
+	public static int getSize() {
+		return size;
 	}
 	
 	/**
