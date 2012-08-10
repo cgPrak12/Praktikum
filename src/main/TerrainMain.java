@@ -1,3 +1,6 @@
+//-Djava.library.path=C:\Users\Floh1111\Desktop\Computergrafik\lwjgl-2.8.3\native\windows
+//-Djava.library.path=/home/floh1111/Uni/Computergrafik/Übungsblätter/blatt2/2.2/lwjgl-2.8.3/native/linux/
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
