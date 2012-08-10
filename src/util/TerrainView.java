@@ -47,7 +47,7 @@ public class TerrainView {
 		{
 			for(int j=0; j<9; j++)
 			{
-				if(i!=4 && j!=4)
+				if(!(i==4 && j==4))
 				{
 					if(idI+i-4>0 && idJ+j-4>0 && idI+i-4<(Terrain.getSize()/256) && idJ+j-4<(Terrain.getSize()/256))
 					{
@@ -107,17 +107,19 @@ public class TerrainView {
 	public float[][] getHeightMap(){
 		
 		float[][] heightMap = new float[9*256][9*256];
-		
 		for(int x=0; x<heightMap.length; x++){
 			for(int z=0; z<heightMap.length; z++){
 				
 				int bx = (int)x/256;
 				int bz = (int)z/256;
-				
+
+				if(myBl[bx][bz] == null)
+				{
+					System.out.println("error");
+				}
 				heightMap[x][z]= myBl[bx][bz].getInfo(x%256, z%256, 0);
 			}
 		}
-		
 		return heightMap;
 	}
 	
