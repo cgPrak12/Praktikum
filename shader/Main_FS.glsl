@@ -3,7 +3,7 @@
 uniform sampler2D normalTexture;
 uniform sampler2D specularTexture;
 uniform sampler2D textureImage;
-
+uniform sampler2D bumpTexture;
 in vec4 positionWC;
 in vec4 normalWC;
 in vec4 tangentWC;
@@ -18,6 +18,7 @@ out vec4 color;
 out vec3 spec;
 out vec3 skyColor;
 out vec4 shadowCoord;
+out vec3 bumpColor;
 
 void main(void) {
    float laenge = length (normalWC.xyz);
@@ -45,4 +46,5 @@ void main(void) {
    spec = texture(specularTexture, fragmentTexCoords).rgb ;
    skyColor = length(normalAbs) * vec3(1);
    shadowCoord = shadowCoordWC;
+   bumpColor = texture( bumpTexture, fragmentTexCoords).rgb;
 }

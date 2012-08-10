@@ -11,8 +11,8 @@ uniform vec3 eyePosition;
 const float k_d = 2000;
 const vec3 maxIntensity  = vec3(1.0, 1.0, 0.9);
 const float k_a = 0.3;
-const float k_s = 0.1;
-const float es = 10.0;
+const float k_s = 0.01;
+const float es = 8.0;
 
 in vec2 texCoord;
 in vec3 positionWC;
@@ -39,7 +39,7 @@ vec3 getSpecular(vec3 pos, vec3 normal, vec3 c_s, vec3 maxIntensity, vec3 lightP
 
 void main(void)
 {
-	vec3 normal = 2 * texture(normalTexture, texCoord).rgb - vec3(1);
+	vec3 normal = texture(normalTexture, texCoord).rgb;
 	
 	vec3 c_d =  texture(diffuseTexture,  texCoord).rgb;
 	vec3 c_a =  c_d;
