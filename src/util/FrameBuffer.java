@@ -103,8 +103,8 @@ public class FrameBuffer {
 	     texture.bind();
 	    
 	     // add filters
-	     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  // Fluid Renderer needs GL_LINEAR!
+	     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  // Fluid Renderer needs GL_LINEAR!
 	    
 	     // set texture information
 	     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, this.width, this.height, 0, format, GL_FLOAT, (FloatBuffer) null);
