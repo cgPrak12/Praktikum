@@ -182,8 +182,8 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", normalVBlurTexLQ);
 //		drawTextureSP.setUniform("image", normalIntTex);
 //		drawTextureSP.setUniform("image", thicknessTex);
-		drawTextureSP.setUniform("image", thicknessHBlurTex);
-//		drawTextureSP.setUniform("image", thicknessVBlurTex);
+//		drawTextureSP.setUniform("image", thicknessHBlurTex);
+		drawTextureSP.setUniform("image", thicknessVBlurTex);
 //		drawTextureSP.setUniform("image", thicknessTexLQ);
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
@@ -533,7 +533,7 @@ public class FluidRenderer {
 	private void initBlur() {
 		Texture[] blurTextures = {depthHBlurTex, depthVBlurTex, normalHBlurTex, normalVBlurTex, thicknessHBlurTex, thicknessVBlurTex};
 		Texture[] blurTexturesLQ = {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ};
-		String[] names = {"depthBlur", "depthBlur", "normalBlur", "normalBlur", "thicknessBlur", "thicknessBlur"};
+		String[] names = {"depthBlur", "normalBlur", "thicknessBlur"};
 
 		for(int i = 0; i < names.length; i++) {
 			glBindFragDataLocation(blurSP.getId(), i, names[i]);
@@ -569,6 +569,7 @@ public class FluidRenderer {
 			blurSP.setUniform("dir", 1.0f);
 		
 			bindFB(blurFB);
+			enableAttachments(new boolean[]{true, false, true, false, true, false});
 			// draw depth to 0, 
 			screenQuad.draw();
 			
@@ -578,6 +579,7 @@ public class FluidRenderer {
 				blurSP.setUniform("thickness", blurFBLQ.getTexture(5));
 			}
 			bindFB(blurFBLQ);
+			enableAttachments(new boolean[]{false, true, false, true, false, true});
 			// same again 
 			screenQuad.draw();
 		
@@ -597,14 +599,19 @@ public class FluidRenderer {
 			screenQuad.draw();
 		}
 	}
-	private void enableAttachments(FrameBuffer framebuffer, boolean ...attachments) {
+	private void enableAttachments(boolean ...attachments) {
 		// framebuffer has to be binded before!
 		int i = 0;
 		int[] attachmentIds = new int[attachments.length];
 		for(boolean attachment:attachments) 
 			attachmentIds[i++] = attachment?GL_COLOR_ATTACHMENT0+i-1:GL_NONE;
-		
-			
+		java.nio.IntBuffer buffer = BufferUtils.createIntBuffer(attachments.length);
+		for(int attachment:attachmentIds)
+			System.out.print(attachment+",");
+		System.out.println();
+		buffer.put(attachmentIds);
+		buffer.position(0);
+		glDrawBuffers(buffer);
 	}
 	
 	private void interpolate(Texture high, Texture low, FrameBuffer fb){
