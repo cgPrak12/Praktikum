@@ -2,6 +2,9 @@
 
 in vec2 positionMC;
 
+uniform model;
+uniform viewproj;
+
 out vec2 texCoord;
 
 void main(void)

@@ -13,3 +13,5 @@ manifest.mf
 .project
 .manifest
 .classpath
+*.bf
+src/util/TestCase.java

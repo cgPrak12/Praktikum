@@ -3,194 +3,624 @@ package util;
 import static opengl.GL.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Vector3f;
 
-/**
- * Stellt Methoden zur Erzeugung von Geometrie bereit.
- * @author Sascha Kolodzey, Nico Marniok
- */
-public class GeometryFactory {
-    public static Geometry getGrid(String heightmap) {
-        float heightfield[][][] = Util.getImageContents(heightmap);
-        int maxX = heightfield[0].length;
-        int maxZ = heightfield.length;
-        
-        int vertexSize = 6;
-        FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize * maxX * maxZ);
-        for(int z=0; z < maxZ; ++z) {
-            for(int x=0; x < maxX; ++x) {
-                vertices.put(1e-2f * (float)x); // 1e-2 = 1 * 10 ^ -2 = 0.01
-                vertices.put(0.75f*heightfield[z][x][0]);
-                vertices.put(1e-2f * (float)z);
-                
-                vertices.put(0);
-                vertices.put(0);
-                vertices.put(0);
-            }
-        }
-        
-        IntBuffer indices = BufferUtils.createIntBuffer(3 * 2 * (maxX - 1) * (maxZ - 1));
-        for(int z=0; z < maxZ - 1; ++z) {
-            for(int x=0; x < maxX - 1; ++x) {
-                indices.put(z * maxX + x);
-                indices.put((z + 1) * maxX + x + 1);
-                indices.put(z * maxX + x + 1);
-                
-                indices.put(z * maxX + x);
-                indices.put((z + 1) * maxX + x);
-                indices.put((z + 1) * maxX + x + 1);
-            }
-        }
-        
-        indices.position(0);
-        for(int i=0; i < indices.capacity();) {
-            int index0 = indices.get(i++);
-            int index1 = indices.get(i++);
-            int index2 = indices.get(i++);
-            
-            vertices.position(vertexSize * index0);
-            Vector3f p0 = new Vector3f();
-            p0.load(vertices);
-            vertices.position(vertexSize * index1);
-            Vector3f p1 = new Vector3f();
-            p1.load(vertices);
-            vertices.position(vertexSize * index2);
-            Vector3f p2 = new Vector3f();
-            p2.load(vertices);
-            
-            //System.out.println(p0 + " " + p1 + " " + p2);
-            
-            Vector3f a = Vector3f.sub(p1, p0, null);
-            Vector3f b = Vector3f.sub(p2, p0, null);
-            Vector3f normal = Vector3f.cross(a, b, null);
-            normal.normalise();
-            
-            vertices.position(vertexSize * index0 + 3);
-            normal.store(vertices);
-        }
-        
-        vertices.position(0);
-        indices.position(0);
-        Geometry geo = new Geometry();
-        geo.setIndices(indices, GL_TRIANGLES);
-        geo.setVertices(vertices);
-        return geo;
-    }
-    
-    
-    
-    
-        public static Geometry genTerrain(float[][][] terra) {
-        	
-        	int vertexSize = 7;
-        	int maxX = terra.length;
-        	int maxZ = terra[0].length; 	
-        	
-           	FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize*maxX*maxZ);
+/** Stellt Methoden zur Erzeugung von Geometrie bereit.
+ * 
+ * @author Sascha Kolodzey, Nico Marniok */
+public class GeometryFactory
+{
+	/** Erzeugt ein Viereck in der xy-Ebene. (4 Indizes)
+	 * 
+	 * @return VertexArrayObject ID */
 
-        	
-        	
-           	// Gen Vbuffer
-           	for(int z=0; z < maxZ; ++z) {
-                for(int x=0; x < maxX; ++x) {
-                	vertices.put(1e-2f * (float)x);
-                	vertices.put(terra[x][z][0]);
-                	vertices.put(1e-2f * (float)z);
-                	
-                	vertices.put(0);	// norm.x
-                	vertices.put(0);	// norm.y
-                	vertices.put(0);	// norm.z
-                	vertices.put(terra[x][z][4]);
+	public static Geometry createScreenQuad()
+	{
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
 
-                }                	    
-           	}
-           	
-           	
-           	// Gen IndexBuffer
-            IntBuffer indices = BufferUtils.createIntBuffer(3 * 2 * (maxX - 1) * (maxZ - 1));
-            for(int z=0; z < maxZ - 1; ++z) {
-                for(int x=0; x < maxX - 1; ++x) {
-                    indices.put(z * maxX + x);
-                    indices.put((z + 1) * maxX + x + 1);
-                    
-                    indices.put(z * maxX + x + 1);
-                    
-                    indices.put(z * maxX + x);
-                    indices.put((z + 1) * maxX + x);
-                    indices.put((z + 1) * maxX + x + 1);
-                }
-            }
-            
-            // Gen norms
-            indices.position(0);
-            for(int i=0; i < indices.capacity();) {
-                int index0 = indices.get(i++);
-                int index1 = indices.get(i++);
-                int index2 = indices.get(i++);
-                
-                vertices.position(vertexSize * index0);
-                Vector3f p0 = new Vector3f();
-                p0.load(vertices);
-                vertices.position(vertexSize * index1);
-                Vector3f p1 = new Vector3f();
-                p1.load(vertices);
-                vertices.position(vertexSize * index2);
-                Vector3f p2 = new Vector3f();
-                p2.load(vertices);
-                
-                Vector3f a = Vector3f.sub(p1, p0, null);
-                Vector3f b = Vector3f.sub(p2, p0, null);
-                Vector3f normal = Vector3f.cross(a, b, null);
-                normal.normalise();
-                
-                vertices.position(vertexSize * index0 + 3);
-                normal.store(vertices);
-            }
-           	
-           	
-           	
-           	
-            vertices.position(0);
-            indices.position(0);
-            Geometry geo = new Geometry();
-            geo.setIndices(indices, GL_TRIANGLES);
-            geo.setVertices(vertices);
-            return geo;	
-        }
- 
-        /**
-         * Erzeugt ein Vierexk in der xy-Ebene. (4 Indizes)
-         * @return VertexArrayObject ID
-         */
-        public static Geometry createScreenQuad() {        
-            int vaid = glGenVertexArrays();
-            glBindVertexArray(vaid);        
-            
-            // vertexbuffer
-            FloatBuffer vertexData = BufferUtils.createFloatBuffer(8);
-            vertexData.put(new float[] {
-                -1.0f, -1.0f,
-                +1.0f, -1.0f,
-                -1.0f, +1.0f,
-                +1.0f, +1.0f,
-            });
-            vertexData.position(0);
-            
-            // indexbuffer
-            IntBuffer indexData = BufferUtils.createIntBuffer(4);
-            indexData.put(new int[] { 0, 1, 2, 3, });
-            indexData.position(0);
-            
-            Geometry geo = new Geometry();
-            geo.setIndices(indexData, GL_TRIANGLE_STRIP);
-            geo.setVertices(vertexData);
-            geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-            return geo;
-        }
-        	
-        	
-        
-   
+		// vertexbuffer
+		FloatBuffer vertexData = BufferUtils.createFloatBuffer(8);
+		vertexData.put(new float[]
+		{ -1.0f, -1.0f, +1.0f, -1.0f, -1.0f, +1.0f, +1.0f, +1.0f, });
+		vertexData.position(0);
+
+		// indexbuffer
+		IntBuffer indexData = BufferUtils.createIntBuffer(4);
+		indexData.put(new int[]
+		{ 0, 1, 2, 3, });
+		indexData.position(0);
+
+		Geometry geo = new Geometry();
+		geo.setIndices(indexData, GL_TRIANGLE_STRIP);
+		geo.setVertices(vertexData);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		return geo;
+	}
+
+	/** Erzeugt ein MxNGrid in der XZ-Ebene
+	 * 
+	 * @param m breite
+	 * @param n l�nge
+	 * @return Grid : Geometry */
+	public static Geometry createMxNGrid(int m, int n)
+	{
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		// VertexBufferArray erstellen
+		float[] vertices = new float[5 * m * n];
+		int count = 0;
+
+		for (int y = 0; y < n; y++)
+		{
+			for (int x = 0; x < m; x++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.35f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.35f;
+			}
+		}
+
+		// IndexBufferArray erstellen
+		int[] indices = new int[((m - 1) * 2 + 3) * (n - 1)];
+
+		count = 0;
+
+		for (int i = 0; i < n - 1; i++)
+		{
+			for (int j = 0; j < m; j++)
+			{
+
+				indices[count++] = i * (m) + j + m;
+				indices[count++] = i * (m) + j;
+
+			}
+			indices[count++] = -1;
+
+		}
+
+		// Buffer erzeugen
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		// Geometry erzeugen und setzen
+		Geometry geo = new Geometry();
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
+		return geo;
+
+	}
+
+	/** Erzeugt ein Grid in der XZ-Ebene
+	 * 
+	 * @param m breite
+	 * @param n l�nge
+	 * @return Grid : Geometry */
+	public static Geometry createGrid(int x, int y)
+	{
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[5 * x * y];
+		int count = 0;
+
+		for (int j = 0; j < y; j++)
+		{
+			for (int i = 0; i < x; i++)
+			{
+				vertices[count++] = i;
+				vertices[count++] = j;
+				vertices[count++] = 0.8f;
+				vertices[count++] = 0.7f;
+				vertices[count++] = 0.4f;
+			}
+		}
+
+		int[] indices = new int[6 * x * y];
+		count = 0;
+		for (int i = 0; i < (y - 1); i++)
+		{
+			for (int j = 0; j < (x - 1); j++)
+			{
+				indices[count++] = i + j * (x); // 0 + 0*10 = 0
+				indices[count++] = i + (j + 1) * (x); // 0+1*10 = 10
+				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11
+
+				indices[count++] = i + j * (x); // 0 + 0*10 = 0
+				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11
+				indices[count++] = i + j * (x) + 1; // 0 + 0*10+1 = 1
+			}
+		}
+
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		Geometry geo = new Geometry();
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLES);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
+		return geo;
+	}
+
+	/** Erzeugt ein Grid in der XZ-Ebene
+	 * 
+	 * @param m breite
+	 * @param n l�nge
+	 * @return Grid : Geometry */
+	public static Geometry createGridTex(int x, int y)
+	{
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[6 * x * y];
+		int count = 0;
+
+		for (int i = 0; i < x; i++)
+		{
+			for (int j = 0; j < y; j++)
+			{
+				vertices[count++] = i;
+				vertices[count++] = j;
+				vertices[count++] = ((float) 1 / (float) x) * (float) i;
+				vertices[count++] = ((float) 1 / (float) y) * (float) j;
+			}
+		}
+
+		int[] indices = new int[6 * x * y];
+		count = 0;
+		for (int i = 0; i < (y - 1); i++)
+		{
+			for (int j = 0; j < (x - 1); j++)
+			{
+				indices[count++] = i + j * (x); // 0 + 0*10 = 0
+				indices[count++] = i + (j + 1) * (x); // 0+1*10 = 10
+				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11
+
+				indices[count++] = i + j * (x); // 0 + 0*10 = 0
+				indices[count++] = i + 1 + (j + 1) * (x); // 1+1*10 = 11
+				indices[count++] = i + j * (x) + 1; // 0 + 0*10 = 0
+			}
+		}
+
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		Geometry geo = new Geometry();
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLES);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_TEX, 2, 2 * 4);
+
+		return geo;
+	}
+
+	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben rechts"
+	 * 
+	 * @param length L�nge einer Kante
+	 * @return TopRightL Geometrie */
+
+	public static Geometry createTopRight(int length)
+	{
+
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		// Vertex und Index Arrays mit passender Gr��e erzeugen
+		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2) * 10];
+		int count = 0;
+
+		// VertexBufferArray beschreiben
+		for (int x = 0; x < length; x++)
+		{
+			for (int y = 0; y < 2; y++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.7f;
+			}
+		}
+
+		for (int x = length - 2; x < length; x++)
+		{
+			for (int y = 2; y < length; y++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.7f;
+			}
+		}
+
+		// IndexBufferArray beschreiben als TRIANGLE_STRIP
+
+		int icount = 0;
+		for (int i = 0; i < 2 * length; i += 2)
+		{
+			indices[icount++] = i + 1;
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+		indices[icount++] = 2 * length;
+		indices[icount++] = 2 * length - 3;
+		indices[icount++] = 3 * length - 2;
+		indices[icount++] = 2 * length - 1;
+
+		indices[icount++] = -1;
+		for (int j = 0; j < length - 3; j++)
+		{
+			for (int i = 1; i >= 0; i--)
+			{
+				indices[icount++] = 2 * length + i + j;
+			}
+			for (int i = 1; i >= 0; i--)
+			{
+				indices[icount++] = 3 * length + i + j - 2;
+			}
+			indices[icount++] = -1;
+		}
+
+		// Buffer erstellen
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		// Geometry erzeugen
+		Geometry geo = new Geometry();
+
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
+		return geo;
+	}
+
+	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten rechts"
+	 * 
+	 * @param length L�nge "einer" Kante
+	 * @return BottomRechtsL Geometrie */
+
+	public static Geometry createBottomRight(int length)
+	{
+
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2) * 10];
+		int count = 0;
+
+		for (int x = 0; x < length; x++)
+		{
+			for (int y = 0; y < 2; y++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.7f;
+			}
+		}
+
+		for (int x = 0; x < 2; x++)
+		{
+			for (int y = 2; y < length; y++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.7f;
+			}
+		}
+
+		int icount = 0;
+		for (int i = 0; i < 2 * length; i += 2)
+		{
+			indices[icount++] = i + 1;
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+		indices[icount++] = 2 * length;
+		indices[icount++] = 1;
+		indices[icount++] = 3 * length - 2;
+		indices[icount++] = 3;
+
+		indices[icount++] = -1;
+		for (int j = 0; j < length - 3; j++)
+		{
+			for (int i = 1; i >= 0; i--)
+			{
+				indices[icount++] = 2 * length + i + j;
+			}
+			for (int i = 1; i >= 0; i--)
+			{
+				indices[icount++] = 3 * length + i + j - 2;
+			}
+			indices[icount++] = -1;
+		}
+
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		Geometry geo = new Geometry();
+
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
+		return geo;
+	}
+
+	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben links"
+	 * 
+	 * @param length L�nge einer Kante
+	 * @return TopLeftL Geometrie */
+	public static Geometry createTopLeft(int length)
+	{
+
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		int[] indices = new int[(length - 2) * 5 + 2 * length + 1];
+		int count = 0;
+
+		for (int x = 0; x < length; x++)
+		{
+			for (int y = 0; y < 2; y++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.7f;
+			}
+		}
+
+		for (int x = length - 2; x < length; x++)
+		{
+			for (int y = -1; y > -length + 1; y--)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.7f;
+			}
+		}
+
+		int icount = 0;
+		for (int i = 0; i < 2 * length; i += 2)
+		{
+			indices[icount++] = i + 1;
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+
+		indices[icount++] = 2 * length - 4;
+		indices[icount++] = 2 * length;
+		indices[icount++] = 2 * length - 2;
+		indices[icount++] = 3 * length - 2;
+
+		indices[icount++] = -1;
+		for (int j = 0; j < length - 3; j++)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				indices[icount++] = 2 * length + i + j;
+			}
+			for (int i = 0; i < 2; i++)
+			{
+				indices[icount++] = 3 * length + i + j - 2;
+			}
+			indices[icount++] = -1;
+		}
+
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		Geometry geo = new Geometry();
+
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
+		return geo;
+	}
+
+	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten links"
+	 * 
+	 * @param length L�nge einer Kante
+	 * @return BottomLeftL Geometrie */
+
+	public static Geometry createBottomLeft(int length)
+	{
+
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		int[] indices = new int[(length - 2) * 5 + 2 * length + 1];
+		int count = 0;
+
+		for (int x = 0; x < length; x++)
+		{
+			for (int y = 0; y < 2; y++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.7f;
+			}
+		}
+
+		for (int x = 0; x < 2; x++)
+		{
+			for (int y = -1; y > -length + 1; y--)
+			{
+				vertices[count++] = y;
+				vertices[count++] = x;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.5f;
+				vertices[count++] = 0.7f;
+			}
+		}
+
+		int icount = 0;
+		for (int i = 0; i < 2 * length; i += 2)
+		{
+			indices[icount++] = i + 1;
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+
+		indices[icount++] = 0;
+		indices[icount++] = 2 * length;
+		indices[icount++] = 2;
+		indices[icount++] = 3 * length - 2;
+
+		indices[icount++] = -1;
+		for (int j = 0; j < length - 3; j++)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				indices[icount++] = 2 * length + i + j;
+			}
+			for (int i = 0; i < 2; i++)
+			{
+				indices[icount++] = 3 * length + i + j - 2;
+			}
+			indices[icount++] = -1;
+		}
+
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		Geometry geo = new Geometry();
+
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
+		return geo;
+	}
+
+	public static Geometry outerTriangle(int length)
+	{
+
+		int vaid = glGenVertexArrays();
+		glBindVertexArray(vaid);
+
+		float[] vertices = new float[4 * length * 2];
+		int[] indices = new int[4 * length + 4];
+		int count = 0;
+
+		for (int y = 0; y < length; y += length - 1)
+		{
+			for (int i = 0; i < length; i++)
+			{
+				vertices[count++] = i;
+				vertices[count++] = y;
+			}
+		}
+
+		for (int y = 0; y < length; y += length - 1)
+		{
+			for (int i = 0; i < length; i++)
+			{
+				vertices[count++] = y;
+				vertices[count++] = i;
+			}
+		}
+
+		// Indices
+		int icount = 0;
+
+		// 1
+		for (int i = 0; i < length; i++)
+		{
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+		// 2
+		for (int i = 3 * length; i < 4 * length; i++)
+		{
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+		// 3
+		for (int i = 2 * length - 1; i >= length; i--)
+		{
+			indices[icount++] = i;
+		}
+		indices[icount++] = -1;
+		// 4
+		for (int i = 3 * length - 1; i >= 2 * length; i--)
+		{
+			indices[icount++] = i;
+		}
+
+		FloatBuffer fbu = BufferUtils.createFloatBuffer(vertices.length);
+		IntBuffer ibu = BufferUtils.createIntBuffer(indices.length);
+		fbu.put(vertices);
+		fbu.flip();
+		ibu.put(indices);
+		ibu.flip();
+
+		Geometry geo = new Geometry();
+
+		geo.setVertices(fbu);
+		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
+		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
+
+		return geo;
+	}
+
 }
