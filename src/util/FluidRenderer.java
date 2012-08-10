@@ -179,7 +179,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", depthTexLQ);
 //		drawTextureSP.setUniform("image", depthHBlurTexLQ);
 //		drawTextureSP.setUniform("image", depthVBlurTexLQ);
-		drawTextureSP.setUniform("image", depthIntTex);
+//		drawTextureSP.setUniform("image", depthIntTex);
 //		drawTextureSP.setUniform("image", normalTex);
 //		drawTextureSP.setUniform("image", normalHBlurTex);
 //		drawTextureSP.setUniform("image", normalVBlurTex);
@@ -190,7 +190,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessTex);
 //		drawTextureSP.setUniform("image", thicknessHBlurTex);
 //		drawTextureSP.setUniform("image", thicknessVBlurTex);
-//		drawTextureSP.setUniform("image", thicknessTexLQ);
+		drawTextureSP.setUniform("image", thicknessTexLQ);
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
 //		drawTextureSP.setUniform("image", lightingTex);
@@ -333,13 +333,14 @@ public class FluidRenderer {
 	    startPath(thicknessSP, thicknessFB);
 	    thicknessSP.setUniform("viewProj", viewProj);
 	    thicknessSP.setUniform("camera", cam.getCamPos());
-
+	    thicknessSP.setUniform("size", 1.0f);
         glBlendFunc(GL_ONE, GL_ONE);
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
 
         testWaterParticles.draw();
         bindFB(thicknessFBLQ);
+        thicknessSP.setUniform("size", 2.0f);
         testWaterParticles.draw();
 
         endPath();
