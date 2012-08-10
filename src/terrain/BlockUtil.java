@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Random;
 
 import util.Camera;
 
@@ -180,6 +179,4 @@ public class BlockUtil {
 	{
 		return readBlockData(x / 256, z / 256);
 	}
-	
-
 }

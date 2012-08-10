@@ -23,6 +23,7 @@ public class Block implements Serializable {
 	{
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
+//			System.out.printf("BLOCK: gives you %f at [%d][%d][%d]\n", vertexInfo[x][z][pos], x, z, pos);
 			return vertexInfo[x][z][pos];
 		}
 		else
@@ -42,6 +43,7 @@ public class Block implements Serializable {
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
 				vertexInfo[x][z][pos] = info;
+//				System.out.printf("BLOCK: wrote %f at [%d][%d][%d]\n", info, x, z, pos);
 		}
 	}
 	
