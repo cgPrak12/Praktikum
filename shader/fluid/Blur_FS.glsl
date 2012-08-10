@@ -40,7 +40,7 @@ void main(void) {
 		newRelVecCoord += offset;
 	}
 	
-	depthBlur = sumNewDepth;
-	normalBlur = sumNewNormal;
-	thicknessBlur = sumNewThickness;
+	depthBlur = vec4(1,0,0,0);//sumNewDepth;
+	normalBlur = vec4(0,1,0,0);//sumNewNormal;
+	thicknessBlur = vec4(0,0,1,0);//sumNewThickness;
 }

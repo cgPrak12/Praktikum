@@ -175,7 +175,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", depthVBlurTexLQ);
 //		drawTextureSP.setUniform("image", depthIntTex);
 //		drawTextureSP.setUniform("image", normalTex);
-//		drawTextureSP.setUniform("image", normalHBlurTex);
+		drawTextureSP.setUniform("image", normalHBlurTex);
 //		drawTextureSP.setUniform("image", normalVBlurTex);
 //		drawTextureSP.setUniform("image", normalTexLQ);
 //		drawTextureSP.setUniform("image", normalHBlurTexLQ);
@@ -183,7 +183,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", normalIntTex);
 //		drawTextureSP.setUniform("image", thicknessTex);
 //		drawTextureSP.setUniform("image", thicknessHBlurTex);
-		drawTextureSP.setUniform("image", thicknessVBlurTex);
+//		drawTextureSP.setUniform("image", thicknessVBlurTex);
 //		drawTextureSP.setUniform("image", thicknessTexLQ);
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
@@ -533,11 +533,9 @@ public class FluidRenderer {
 	private void initBlur() {
 		Texture[] blurTextures = {depthHBlurTex, depthVBlurTex, normalHBlurTex, normalVBlurTex, thicknessHBlurTex, thicknessVBlurTex};
 		Texture[] blurTexturesLQ = {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ};
-		String[] names = {"depthBlur", "normalBlur", "thicknessBlur"};
+		String[] names = {"depthBlur", "depthBlur2", "normalBlur", "normalBlur2", "thicknessBlur", "thicknessBlur2"};
 
-		for(int i = 0; i < names.length; i++) {
-			glBindFragDataLocation(blurSP.getId(), i, names[i]);
-		}
+
 		
 		blurFB.init(false, WIDTH, HEIGHT);
 		for(Texture tex: blurTextures) {
@@ -550,6 +548,16 @@ public class FluidRenderer {
 			addBlurTexture(blurFBLQ, tex);
 		}
 		blurFBLQ.drawBuffers();
+		
+		bindFB(blurFB);
+		for(int i = 0; i < names.length; i++) {
+			glBindFragDataLocation(blurSP.getId(), i, names[i]);
+		}
+		bindFB(blurFBLQ);
+		for(int i = 0; i < names.length; i++) {
+			glBindFragDataLocation(blurSP.getId(), i, names[i]);
+		}
+		endPath();
 	}
 	
 	private void addBlurTexture(FrameBuffer fb, Texture tex) {
@@ -572,7 +580,7 @@ public class FluidRenderer {
 			enableAttachments(new boolean[]{true, false, true, false, true, false});
 			// draw depth to 0, 
 			screenQuad.draw();
-			
+		/*	
 			if(i!=0) {
 				blurSP.setUniform("depth", blurFBLQ.getTexture(1));
 				blurSP.setUniform("normal", blurFBLQ.getTexture(3));
@@ -588,6 +596,8 @@ public class FluidRenderer {
 			blurSP.setUniform("normal", blurFB.getTexture(2));
 			blurSP.setUniform("thickness", blurFB.getTexture(4));
 			bindFB(blurFB);
+
+			enableAttachments(new boolean[]{true, false, true, false, true, false});
 			// draw depth to 1, normal to 3, thickness to 5
 			screenQuad.draw();
 
@@ -595,22 +605,21 @@ public class FluidRenderer {
 			blurSP.setUniform("normal", blurFBLQ.getTexture(2));
 			blurSP.setUniform("thickness", blurFBLQ.getTexture(4));
 			bindFB(blurFBLQ);
+			enableAttachments(new boolean[]{false, true, false, true, false, true});
 			// same again
-			screenQuad.draw();
+			screenQuad.draw();*/
 		}
 	}
 	private void enableAttachments(boolean ...attachments) {
 		// framebuffer has to be binded before!
 		int i = 0;
-		int[] attachmentIds = new int[attachments.length];
-		for(boolean attachment:attachments) 
-			attachmentIds[i++] = attachment?GL_COLOR_ATTACHMENT0+i-1:GL_NONE;
 		java.nio.IntBuffer buffer = BufferUtils.createIntBuffer(attachments.length);
-		for(int attachment:attachmentIds)
-			System.out.print(attachment+",");
+		for(boolean attachment:attachments) { 
+			if(attachment){ buffer.put(GL_COLOR_ATTACHMENT0+i); System.out.print(GL_COLOR_ATTACHMENT0+i);} i++;
+		}
 		System.out.println();
-		buffer.put(attachmentIds);
-		buffer.position(0);
+		
+		buffer.flip();
 		glDrawBuffers(buffer);
 	}
 	
