@@ -140,12 +140,11 @@ public class TerrainMain {
         Matrix4f floorQuadMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
-//        shadowCam.changeProjection();
+        shadowCam.changeProjection();
         Util.mul(floorQuadMatrix, Util.translationY(-1, null), Util.scale(20, null), Util.rotationX(-Util.PI_DIV2, null)); 
 
         
         ShadowShader shadowShader = new ShadowShader();
-        //DeferredShader shadowShader = new DeferredShader();        
         shadowShader.init(14);
         shadowShader.registerShaderProgram(shadowSP);
         
@@ -262,8 +261,8 @@ public class TerrainMain {
    	
         	testCube.draw();
         	
-            fboSP.setUniform("model", modelMatrix1);
-            fboSP.setUniform("modelIT", modelIT1);
+            shadowSP.setUniform("model", modelMatrix1);
+            shadowSP.setUniform("modelIT", modelIT1);
 
             testCube1.draw();
         	shadowSP.setUniform("model",    floorQuadMatrix);
@@ -275,6 +274,7 @@ public class TerrainMain {
         	
         	shadowShader.finish();
         	
+//        	shader.DrawTexture(shadowShader.getTexture());
         	//shader.DrawTexture(shader.getDiffuseTexture());
         	if (shadows) {
             	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection, shadowCam);

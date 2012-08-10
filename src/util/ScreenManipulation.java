@@ -429,6 +429,15 @@ public class ScreenManipulation {
 		return fboShadow;
 	}
 	
+	/**
+	 * Generates enlightened Framebuffer with shadows
+	 * @param shader shader with user view
+	 * @param shadowShader shader with camera depth view
+	 * @param camPos camera position of view
+	 * @param sunDirection direction of the sun
+	 * @param shadowCam camera for shadows
+	 * @return FrameBuffer with light and shadows
+	 */
 	public FrameBuffer getShadowLighting(DeferredShader shader, ShadowShader shadowShader, Vector3f camPos, Vector3f sunDirection, Camera shadowCam) {				
 		fboShadowPhong.bind();
 		spoShadowPhong.use();
@@ -463,7 +472,7 @@ public class ScreenManipulation {
 		spoHalf.delete();
 		spoQuad.delete();
 		spoShadow.delete();
-//		spoShadowPhong.delete();
+		spoShadowPhong.delete();
 	}
 
 	/**
