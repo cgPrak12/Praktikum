@@ -96,6 +96,8 @@ public class Particle {
     private CLMem gridCounters;
     /** holds the cell's particles global_ids */
     private CLMem gridCells;
+    /**  */
+    private CLMem gridInfo;
     
     private IntBuffer gridCounterBuf;
     
@@ -222,10 +224,10 @@ public class Particle {
     	particles = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	particles.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
-    		particles.put(0.45f+(float)(Math.random())*0.03f);
+    		particles.put(0.25f+(float)(Math.random())*0.5f);
     		particles.put(0.1f+(float)i*0.001f);
-    		particles.put(0.18f+(float)(Math.random())*0.03f);
-    		particles.put((float)Math.random()*0.1f);
+    		particles.put(0.25f+(float)(Math.random())*0.5f);
+    		particles.put(1f);
     	}
     	particles.position(0);
     	
@@ -233,7 +235,7 @@ public class Particle {
     	veloBuffer.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
                 veloBuffer.put(0);
-    		veloBuffer.put(0.1f*(float)Math.random());
+    		veloBuffer.put(-0.000001f*(float)Math.random());
                 veloBuffer.put(0);
                 veloBuffer.put(0);
     	}
@@ -298,23 +300,23 @@ public class Particle {
         clEnqueueReleaseGLObjects(this.queue, this.normalmap, null, null);
         
         
-//        CL10.clEnqueueReadBuffer(queue, this.gridCounters, 1, 0, gridCounterBuf,
-//                null,null);
+        CL10.clEnqueueReadBuffer(queue, this.gridCounters, 1, 0, gridCounterBuf,
+                null,null);
         clFinish(this.queue);
-//
-//        int b;
-//        int sum = 0;
-//
-//        for (int i = 0; i < gridCounterBuf.capacity();i++)
-//        {
-//            b = gridCounterBuf.get(i);
-//            if (b > 0){
-//                System.out.print(b+" ");
-//                
-//            }
-//            sum += b;
-//        }
-//        System.out.println("Summe = " + sum);
+
+        int b;
+        int sum = 0;
+
+        for (int i = 0; i < gridCounterBuf.capacity();i++)
+        {
+            b = gridCounterBuf.get(i);
+            if (b > 0){
+                //System.out.print(b+" ");
+                
+            }
+            sum += b;
+        }
+        System.out.println("Summe = " + sum);
         
         /**
         GL.glActiveTexture(GL.GL_TEXTURE0 + 0);
@@ -359,6 +361,33 @@ public class Particle {
 
         this.gridCounterBuf = BufferUtils.createIntBuffer((int)spatialGridSize);
 
+        // create grid info
+        FloatBuffer gib = BufferUtils.createFloatBuffer(8);
+        
+        float particleRadius = 0.006f;
+        float spaceX = 0.0f;
+        float spaceY = 0.0f;
+        float spaceZ = 0.0f;
+        float spaceLength = 1.0f;
+        float gridLength = 40f;//(int)(spaceLength/(2*particleRadius))+1;
+        float gridMaxp = this.gridMaxParticles;
+        
+        gib.put(particleRadius);
+        gib.put(spaceX);
+        gib.put(spaceY);
+        gib.put(spaceZ);
+        gib.put(spaceLength);
+        gib.put(gridLength);
+        gib.put(gridMaxp);
+        gib.position(0);
+       
+        this.gridInfo = clCreateBuffer(this.context,
+                CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+                gib);
+        
+        
+        
+        
         
         
         //this.particles = null;
@@ -413,12 +442,14 @@ public class Particle {
         this.kernel0.setArg(9, 0.0f);
         this.kernel0.setArg(10, this.new_pos);
         this.kernel0.setArg(11, this.new_velos);
-                
+        this.kernel0.setArg(12,this.gridInfo);
+        
         this.kernel2.setArg(0,this.old_pos);
         this.kernel2.setArg(1,this.gridCounters);
         this.kernel2.setArg(2,this.gridCells);
         this.kernel2.setArg(3,this.gridLen);
         this.kernel2.setArg(4,this.gridMaxParticles);
+        this.kernel2.setArg(5,this.gridInfo);
     }
     
     /**

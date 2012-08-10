@@ -150,6 +150,73 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 #define COLLISION_DAMPING -0.00001;
 #define COLLIDE_DAMPING 0.0002;
 
+// gridinfo defines
+#define SPACE_PARTICLE_RADIUS 0 
+#define SPACE_X 1
+#define SPACE_Y 2
+#define SPACE_Z 3
+#define SPACE_LENGTH 4
+#define GRID_LENGTH 5
+#define GRID_MAXP 6
+
+//////////////////////////////////////////////////////////
+// Dynamic Grid                                         //
+//////////////////////////////////////////////////////////
+typedef struct
+{
+    float4 s;
+    float slen;
+    float glen;
+    float gmax;
+    global int *counter;
+    global int *cells;
+} dgrid_t;
+
+int dg_cell_id(dgrid_t *g, float4 pos, int4 dpos)
+{
+    // calculate pos in cube between (0,0,0) and (1,1,1)
+    // => scale and translate
+    float4 cube_pos = (pos - g->s) / g->slen;
+    
+    float glen = g->glen;
+    int4 gp = (int4)((int)(cube_pos.s0*glen),
+                     (int)(cube_pos.s1*glen),
+                     (int)(cube_pos.s2*glen),0);
+    gp = gp + dpos;
+
+    if (gp.s0 < 0 || gp.s0 >= glen ||
+        gp.s1 < 0 || gp.s1 >= glen ||
+        gp.s2 < 0 || gp.s2 >= glen)
+    {
+        return -1;
+    }   
+    
+    int counter_id =    (gp.s0)
+                + ((gp.s1)
+                + (gp.s2)*glen)*glen;
+
+    return counter_id;
+}
+
+
+void dg_add_particle(dgrid_t *g, float4 pos)
+{
+    int cid = dg_cell_id(g, pos, (int4)(0));
+    if (cid != -1)
+    {
+        // valid id
+        int mp = g->gmax;
+        int old_num = atomic_inc(g->counter+cid);
+        if (old_num < mp) 
+        {
+            g->cells[cid*mp+old_num] = get_global_id(0);
+        }
+    }
+
+
+
+}
+
 //////////////////////////////////////////////////////////
 // Particle Kernel                                      //
 //////////////////////////////////////////////////////////
@@ -166,13 +233,21 @@ kernel void particle_sim
     float dt,
     float random,
     global float4* pos_inbuf,
-    global float4* vel_inbuf) 
+    global float4* vel_inbuf,
+    global float* info) 
 {
     grid_t grid = { g_num_cells,
                     g_max_particles,
                     g_counter,
                     g_cells};
 
+    // dynamic grid
+    dgrid_t g = {   (float4)(info[SPACE_X],info[SPACE_Y],info[SPACE_Z],0),
+                    info[SPACE_LENGTH],
+                    info[GRID_LENGTH],
+                    info[GRID_MAXP],
+                    g_counter,
+                    g_cells};
 
     int mygid = get_global_id(0);
     float4 mypos = pos_inbuf[mygid];
@@ -211,24 +286,22 @@ kernel void particle_sim
 	    for(int i=-1; i<=1; i++){
 	        for(int j=-1; j<=1; j++){
 	            for(int k=-1; k<=1; k++){
-	                cell_id_t cid = g_get_cell_id(&grid, mypos.s012, (int3)(i,j,k));
-	                if (cid.cnt_id == -1) continue;
-	                int num = grid.counter[cid.cnt_id];
-	                num = num > grid.max_p ? grid.max_p : num;
+//	                  cell_id_t cid = g_get_cell_id(&grid, mypos.s012, (int3)(i,j,k));
+//                        if (cid.cnt_id == -1) continue;
+	                int cellid = dg_cell_id(&g, mypos, (int4)(i,j,k,0));
+	                int num = g.counter[cellid];
+	                num = num > g.gmax ? g.gmax : num;
 	                
 
 	                for (int m = 0; m < num; m++) {
 
 	                    ///////////////////////////////////////////////////////////
-	                    int other_gid = grid.cells[cid.cell_id+m];
+	                    int other_gid = g.cells[cellid*(int)g.gmax+m];
 	                    if (other_gid == mygid) continue;
 	                    float4 other_pos = pos_inbuf[other_gid];
 	                    float4 other_vel = vel_inbuf[other_gid];                    
 	                    float4 n = (other_pos - mypos);
 	                    float distance = length(n.s012);
-
- //                           if (j == -1 && distance < RADIUS*4)
- //                               leqneighs++;
 
 	                    if(distance < RADIUS*2)
 	                    {
@@ -252,8 +325,8 @@ kernel void particle_sim
     }
     barrier(CLK_GLOBAL_MEM_FENCE);
     
-
 	myvel+=collide_velo;
+
   //      if (leqneighs > 3) myvel.s1 = 0.0;
     mypos.s012 += myvel.s012*3;
 
@@ -268,7 +341,7 @@ kernel void particle_sim
 	//if(length(myvel)<0.001&&mypos.s1>well_height+0.01) {mypos.s3=0;}//{mypos.s3-=0.02;}
 	if(length(myvel)<0.00001&&mypos.s1>0.03) {mypos.s3=0;}//{mypos.s3-=0.02;}
 	//if(mypos.s1<=die_height+0.005) {mypos.s3=0;}//{mypos.s3-=0.02;}
-	mypos.s3-=0.00001;
+	//mypos.s3-=0.00001;
 	
 	if(mypos.s3<=0) {
 		mypos=(float4)(well.s0+random*0.001,well_height,well.s1+random*0.001,1.0f);
@@ -295,6 +368,10 @@ kernel void gridclear_sim
     g_counter[get_global_id(0)] = 0;
 }
 
+
+
+
+
 //////////////////////////////////////////////////////////
 // Add particles to grid Kernel                         //
 //////////////////////////////////////////////////////////
@@ -304,17 +381,26 @@ kernel void gridadd_sim
     global int* g_counter,
     global int* g_cells,
     int g_num_cells,
-    int g_max_particles) 
+    int g_max_particles,
+    global float* info) 
 {
     grid_t grid = { g_num_cells,
                     g_max_particles,
                     g_counter,
                     g_cells};
 
+    // dynamic grid
+    dgrid_t g = {   (float4)(info[SPACE_X],info[SPACE_Y],info[SPACE_Z],0),
+                    info[SPACE_LENGTH],
+                    info[GRID_LENGTH],
+                    info[GRID_MAXP],
+                    g_counter,
+                    g_cells};
 
     int mygid = get_global_id(0);
     float4 mypos = position[mygid];
 
     // add particle to counter and cell grid
-    g_add_particle(&grid, mypos.s012);   
+    //g_add_particle(&grid, mypos.s012);   
+    dg_add_particle(&g, mypos);   
 }	
