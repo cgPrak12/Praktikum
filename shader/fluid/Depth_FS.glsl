@@ -3,8 +3,10 @@ uniform mat4 view;
 uniform vec3 camPos;
 uniform float viewDistance;
 
+
 in vec4 positionWC;
 in vec2 gl_PointCoord;
+in float pointSize;
 
 out vec4 depth;
 
@@ -17,20 +19,12 @@ void main(void) {
 	float r2 = dot(n.xy, n.xy);
 	if (r2 > 1.0) discard; 			// kill pixels outside circle
 
-	n.z = 0.15 * sqrt(1.0 - r2);
-	vec4 pos = (view * positionWC);
-	pos = pos / pos.w;
-	vec4 pixelPos = vec4(pos.xyz + n*0.5, 1.0);
-	vec4 positionWC1 = view * positionWC;
-	
 
-	// original
-	depth = vec4(pixelPos.xyz, distance(-pixelPos.xyz, camPos) / viewDistance); 
-	depth = vec4(positionWC.xyz, distance(-pixelPos.xyz, camPos) / viewDistance); 
-	// position in xyz, "easy" depth in w !
-	//depth = vec4(positionWC.xyz, -pixelPos.z);
-	
-	// debug (depth in xyzw, -pixelPos.z in xyzw)
-	//depth = vec4(distance(-pixelPos.xyz, camPos) / viewDistance);
-	depth = vec4(length(-pixelPos.z));
+	n.z = -dot(n.xy, n.xy);
+	vec4 pos = (view * positionWC);
+
+	vec4 pixelPos = vec4(pos.xyz + n , 1.0);
+
+	depth = vec4(pixelPos.xyz, length(pixelPos.xyz) / viewDistance);
+
 }

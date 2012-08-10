@@ -24,7 +24,7 @@ public class TerrainMain {
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
-    private static final Camera cam = new Camera(); 
+    private static final Camera cam = new Camera();
     
     // animation params
 //    private static float ingameTime = 0;
@@ -68,7 +68,8 @@ public class TerrainMain {
         shader.init();
         shader.registerShaderProgram(fboSP);
         
-        FluidRenderer fluidRenderer = new FluidRenderer(cam);
+        Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
+        FluidRenderer fluidRenderer = new FluidRenderer(cam, lightPos);
         
         Geometry testCube = GeometryFactory.createCube();
        
@@ -85,7 +86,6 @@ public class TerrainMain {
                 frameTimeDelta -= 1000;
                 frames = 0;
             }
-            
             // input and animation
             handleInput(millis);
             animate(millis);
