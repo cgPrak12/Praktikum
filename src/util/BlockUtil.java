@@ -42,24 +42,6 @@ public class BlockUtil {
 				file.createNewFile();
 			}
 			
-			// wenn ein Block sich ausserhalb des Terrains befindet
-			if(block.getID()[0] < 0 || block.getID()[1] < 0)
-			{
-				for(int i = 0; i < blockSize; i++)
-				{
-					for(int j = 0; j < blockSize; j++)
-					{
-						for(int k = 0; k < vertexInfos; k++)
-						{		
-							output.writeFloat(0.0f);
-						}		
-					}
-				}
-				fos.write(bos.toByteArray());			
-				return file;
-			}
-					
-			// wenn ein Block sich innerhalb des Terrains befindet
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
@@ -105,22 +87,6 @@ public class BlockUtil {
 			
 			Block newBlock = new Block(x,z);
 
-			/* Sicherstellung, dass ausserhalb des Terrains nur dummys rausgegeben werden */
-			if(x < 0 || z < 0)
-			{
-				for(int i = 0; i < blockSize; i++)
-				{
-					for(int j = 0; j < blockSize; j++)
-					{
-						for(int k = 0; k < vertexInfos; k++)
-						{		
-							newBlock.setInfo(i, j, k, 0.0f);
-						}		
-					}
-				}
-			}
-			
-			/* ansonsten */
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
