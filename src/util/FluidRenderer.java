@@ -13,7 +13,7 @@ import org.lwjgl.util.vector.Vector3f;
  * @author S. Hoeffner, K. Schmidt, A. Werner
  */
 public class FluidRenderer {
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024 * 8);
+	private Geometry testWaterParticles;// = GeometryFactory.createTestParticles(1024 * 8);
 	private int 	 textureUnit = 0;
 	private Camera   cam;
 	private Vector3f lightPos;
@@ -90,9 +90,8 @@ public class FluidRenderer {
     private FrameBuffer testPlaneFB   = new FrameBuffer();
     private Texture testPlaneTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
     
-    public FluidRenderer(Camera camTmp, Vector3f light) {
+    public FluidRenderer(Camera camTmp) {
     	cam = camTmp;
-    	lightPos = light;
     	
     	// init shaderPrograms, frameBuffers, ...
     	glPointSize(GL_POINT_SIZE);
@@ -125,9 +124,11 @@ public class FluidRenderer {
     	
 	} 
 	
-	public void render() {
+	public Texture render(Vector3f light, Geometry particles, Texture world) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
+		lightPos = light;
+		testWaterParticles = particles;
 		
 		// depth
 		depth();
@@ -151,31 +152,8 @@ public class FluidRenderer {
 		lighting();
 		finalImage();
 
-		drawTextureSP.use();
+		return finalImageTex;
 		
-//		drawTextureSP.setUniform("image", depthTex);
-//		drawTextureSP.setUniform("image", depthHBlurTex);
-//		drawTextureSP.setUniform("image", depthVBlurTex);
-//		drawTextureSP.setUniform("image", depthTexLQ);
-//		drawTextureSP.setUniform("image", depthHBlurTexLQ);
-//		drawTextureSP.setUniform("image", depthVBlurTexLQ);
-//		drawTextureSP.setUniform("image", normalTex);
-//		drawTextureSP.setUniform("image", normalHBlurTex);
-//		drawTextureSP.setUniform("image", normalVBlurTex);
-//		drawTextureSP.setUniform("image", normalTexLQ);
-//		drawTextureSP.setUniform("image", normalHBlurTexLQ);
-//		drawTextureSP.setUniform("image", normalVBlurTexLQ);
-//		drawTextureSP.setUniform("image", thicknessTex);
-//		drawTextureSP.setUniform("image", thicknessHBlurTex);
-//		drawTextureSP.setUniform("image", thicknessVBlurTex);
-//		drawTextureSP.setUniform("image", thicknessTexLQ);
-//		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
-//		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
-//		drawTextureSP.setUniform("image", lightingTex);
-//		drawTextureSP.setUniform("image", finalImageTex);
-//		drawTextureSP.setUniform("image", testPlaneTex);
-		
-		screenQuad.draw();
 	}
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex) {
