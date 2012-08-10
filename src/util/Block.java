@@ -23,10 +23,14 @@ public class Block implements Serializable {
 	{
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
+			
+//			if(vertexInfo[x][z][pos] == 0){
+//			System.out.println("Null");}
 			return vertexInfo[x][z][pos];
 		}
 		else
 		{
+			System.out.println("return ist 0");
 			return 0.0f;
 		}			
 	}
@@ -42,8 +46,12 @@ public class Block implements Serializable {
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
 				vertexInfo[x][z][pos] = info;
-			 //   System.out.println(vertexInfo[x][z][pos]);
+				
+		//	 if(vertexInfo[x][z][pos]==0){  System.out.println("HIER: "+vertexInfo[x][z][pos]);
+			 
+			// }
 		}
+		
 	}
 	
 	/**

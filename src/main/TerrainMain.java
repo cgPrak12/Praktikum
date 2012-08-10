@@ -68,19 +68,34 @@ public class TerrainMain
 			program = new ShaderProgram(".\\shader\\Test_Vs.glsl", ".\\shader\\Test_Fs.glsl");
 			program.use();
 
-			clip = new ClipMap(254, 8, program, cam);
+			clip = new ClipMap(30, 8, program, cam);
 			
 			Terrain terrain = new Terrain(1024);
 			TerrainView tv = new TerrainView(cam);
 			
 			float[][] heightMap = tv.getHeightMap();
+			
+//			int zero =0;
+//			
+//			for(int x=0; x<heightMap.length;x++){
+//				for (int y=0; y<heightMap.length; y++){
+//					if(heightMap[x][y]==0)System.out.println("x:"+x+ " y:"+y+"  "+zero++);
+//				}
+//			}
+//			for(float[] i : heightMap){
+//				for(float j :i){
+//					if (j==0)System.out.println("+++++" +zero++);
+//				}
+//			}
+			
+			
+			
 			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length*heightMap.length);
 			for(int i = 0; i < heightMap.length; i++) {
 				fbuffer.put(heightMap[i]);
 			
 			}
 			fbuffer.flip();
-//			tex = Texture.generateTexture(".\\earth_height.jpg", 1);
 			tex = new Texture(GL_TEXTURE_2D, 1);
 			tex.bind();
 			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, heightMap.length, heightMap[0].length, 0, GL11.GL_RED, GL_FLOAT, fbuffer);

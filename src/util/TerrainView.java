@@ -73,32 +73,35 @@ public class TerrainView {
 		// einschränkung der Camera oder spezielle Fehlerbehandlung hier
 		int diffX = (BlockUtil.getBlock(cam)).getID()[0] - middle[0];
 		int diffY = (BlockUtil.getBlock(cam)).getID()[1] - middle[1];
-		myBl[4][4] =  BlockUtil.getBlock(cam);
 
-		for(int i=0; i<9; i++)
-		{
-			for(int j=0; j<9; j++)
+		if(!(diffX ==0 && diffY == 0)){
+			
+			myBl[4][4] =  BlockUtil.getBlock(cam);
+			for(int i=0; i<9; i++)
 			{
-				if(!(i==4 && j==4))
+				for(int j=0; j<9; j++)
 				{
-					if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
+					if(!(i==4 && j==4))
 					{
-						
-						if(!((middle[0]-4+i)<0 || (middle[1]-4+j)<0 || (middle[0]-4+i)>(Terrain.getSize()/256)
-								|| (middle[1]-4+j)>(Terrain.getSize()/256)))
-						{	
-							String file = (myBl[i][j].getID()[0] + diffX) 
-					         + "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
-							myBl[i][j] = BlockUtil.readBlockData(new File(file));
+						if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
+						{
+							
+							if(!((middle[0]-4+i)<0 || (middle[1]-4+j)<0 || (middle[0]-4+i)>(Terrain.getSize()/256)
+									|| (middle[1]-4+j)>(Terrain.getSize()/256)))
+							{	
+								String file = (myBl[i][j].getID()[0] + diffX) 
+						         + "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
+								myBl[i][j] = BlockUtil.readBlockData(new File(file));
+							}
+							else
+							{
+								myBl[i][j] = dummy;
+							}
 						}
 						else
 						{
-							myBl[i][j] = dummy;
+							myBl[i][j] = myBl[i+diffX][j+diffY];
 						}
-					}
-					else
-					{
-						myBl[i][j] = myBl[i+diffX][j+diffY];
 					}
 				}
 			}
@@ -109,7 +112,7 @@ public class TerrainView {
 		
 		float[][] heightMap = new float[9*256][9*256];
 		for(int x=0; x<heightMap.length; x++){
-			for(int z=0; z<heightMap.length; z++){
+			for(int z=0; z<heightMap[0].length; z++){
 				
 				int bx = (int)x/256;
 				int bz = (int)z/256;
@@ -118,10 +121,21 @@ public class TerrainView {
 				{
 					System.out.println("error");
 				}
-				heightMap[x][z]= myBl[bx][bz].getInfo(x%256, z%256, 0);
-				System.out.println(heightMap[x][z]);
-			}
+				
+				
+
+				
+				
+				heightMap[x][z] = myBl[bx][bz].getInfo(x%256, z%256, 0);
+			}	
 		}
+//		int zero =0;
+//		for(int h=0; h<heightMap.length;h++){
+//			for (int l=0; l<heightMap.length; l++){
+//				if(heightMap[h][l]==0)System.out.println("x:"+h+ " z:"+l+"  "+zero++);
+//			}
+//		}
+			
 		return heightMap;
 	}
 	

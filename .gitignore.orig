@@ -14,6 +14,9 @@ manifest.mf
 .manifest
 .classpath
 *.bf
+<<<<<<< HEAD
 .classpath
 .project
 1_2_.bf
+=======
+>>>>>>> 834a7c95ccbe714c86b9e70e0f23076be8225a6c

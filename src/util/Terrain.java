@@ -102,6 +102,7 @@ public class Terrain
 								if(count++ % (factor * 16384) == 0)
 									System.out.print(".");
 								block.setInfo(m, n, 0, initialHeight);
+						//		block.setInfo(m, n, 0, 0.1f);
 							}
 						}
 						
@@ -162,7 +163,7 @@ public class Terrain
 							{
 								if(count++ % (factor * 16384) == 0)
 									System.out.print(".");
-								block.setInfo(m, n, 0, (float) Math.random()*100);
+								block.setInfo(m, n, 0, 0.1f);
 							}
 						}
 						
