@@ -61,11 +61,11 @@ public class TerrainMain {
     private static float ingameTimePerSecond = 1.0f;
     
     //tone mapping
-    private static float exposure    = 1.0f;
-    private static float bloomFactor = 0.4f;
+    private static float exposure    = 0.8f;
+    private static float bloomFactor = 0.6f;
     private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     
-    private static Vector3f sunDirection = new Vector3f(30f, 30f, 30f);
+    private static Vector3f sunDirection = new Vector3f(49f, 49f, 49f);
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     

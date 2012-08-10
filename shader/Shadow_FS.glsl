@@ -36,7 +36,6 @@ void main(void)
 	else
 	{
 		enlightenedColor = vec4(1,1,1,1);
-
 	}
 }
 

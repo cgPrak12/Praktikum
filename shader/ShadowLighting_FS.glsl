@@ -55,7 +55,7 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 	//diffuse
 	finalColor += sunIntensity * k_dif * c_d * max(dot(normalize(sunDir), normalize(normal)), 0.0);
 	
-	//specular
+	//specular, if c_s = 0 don't bother with pow function
 	if (c_s != 0.0)
 	{
 		finalColor += sunIntensity * k_spec * c_s * max(pow(dot(halfvec, normal), es), 0.0);
@@ -100,7 +100,7 @@ void main(void)
 		
 	if(shadow < dist)
 	{
-		enlightenedColor = vec4(calcLighting(positionWC.xyz, normalize(normal), 0.2*diff, vec3(0), ambi.rgb), 1.0);
+		enlightenedColor = vec4(calcLighting(positionWC.xyz, normalize(normal), vec3(0), vec3(0), ambi.rgb), 1.0);
 	}
 	else
 	{

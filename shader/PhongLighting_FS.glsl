@@ -22,10 +22,11 @@ in vec2 texCoord;
 
 out vec4 enlightenedColor;
 
-const float k_a = 0.5; // 0.05;
-const float k_spec = 0.3; // 0.3;
-const float k_dif = 0.2; // 0.06;
-const float es = 16.0;
+//lighting constants
+const float k_a = 0.2; 
+const float k_spec = 0.3; 
+const float k_dif = 0.7; 
+const float es = 5.0;
 const float sunIntensity = 1.0;
 
 //const vec3 sunDir = vec3(1.0, 0.0, 0.0);
@@ -64,20 +65,7 @@ void main(void)
 	
 	vec3 normal = texture(normalTex, texCoord).xyz;	
 		
-	// if(length(normal) < 0.1)
-	// {
-		// enlightenedColor = vec4(0.9,0.95,1.0,1);
-	// }
-	// else
-	// {
-		// float strength = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-		// vec4 enlightenedColor = mix(downColor, upColor, strength);
-		// if(length(normal) == 0.0) 
-		// {
-			// enlightenedColor = vec4(0);
-		// }
-		// else
-		// {
+
 			vec3 positionWC = texture(worldTex, texCoord).xyz;
 			
 			//ambient light
@@ -92,10 +80,5 @@ void main(void)
 			
 			enlightenedColor = vec4(calcLighting(positionWC, normal, diff, spec, ambi.rgb), 1.0);
 			
-			// enlightenedColor = vec4(dot(normal, vec3(0,1,0)));
-			// enlightenedColor = vec4(1);
-		// }
-	
-	// }
 	
 }
