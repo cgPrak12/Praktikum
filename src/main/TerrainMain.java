@@ -255,7 +255,7 @@ public class TerrainMain {
         	
         	
         	//test cube (shadow map)
-glCullFace(GL_FRONT);
+        	glCullFace(GL_FRONT);
         	shadowSP.use();
         	shadowSP.setUniform("model", 	modelMatrix);
         	shadowSP.setUniform("modelIT",  modelIT);
