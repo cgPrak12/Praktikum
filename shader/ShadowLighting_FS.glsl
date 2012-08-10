@@ -28,8 +28,8 @@ in vec2 texCoord;
 out vec4 enlightenedColor;
 
 //lighting constants
-const float k_a = 0.05; 
-const float k_spec = 0.5; 
+const float k_a = 0.2; 
+const float k_spec = 0.3; 
 const float k_dif = 0.7; 
 const float es = 5.0;
 const float sunIntensity = 1.0;
@@ -53,7 +53,7 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 	finalColor += (k_a * c_a);
 	
 	//diffuse
-	finalColor += sunIntensity * k_dif * c_d * max(dot(normalize(camPos - pos), normalize(normal)), 0.0);
+	finalColor += sunIntensity * k_dif * c_d * max(dot(normalize(sunDir), normalize(normal)), 0.0);
 	
 	//specular
 	if (c_s != 0.0)
@@ -72,7 +72,7 @@ void main(void)
 	vec4 positionWC = texture(worldTex, texCoord);
 		
 	//ambient light
-	float strength = 0.5 + 0.5 * dot(normal, sunDir);
+	float strength = 0.5 + 0.5 * dot(normal, normalize(sunDir));
 	vec4 ambi = mix(downColor, upColor, strength);
 		
 	//diffuse and specular
@@ -100,7 +100,7 @@ void main(void)
 		
 	if(shadow < dist)
 	{
-		enlightenedColor = vec4(calcLighting(positionWC.xyz, normalize(normal), 0.3*diff, vec3(0), ambi.rgb), 1.0);
+		enlightenedColor = vec4(calcLighting(positionWC.xyz, normalize(normal), 0.2*diff, vec3(0), ambi.rgb), 1.0);
 	}
 	else
 	{
