@@ -26,10 +26,33 @@ import java.util.*;
  * @author nico3000
  */
 public class TerrainMain {
+    /**
+     * Terrain variables
+     */
+    // terrain
+    private static util.Terrain terra;
+    
+    // geometries
+    private static Geometry terrainGeometry;
+    
+    // model matrices
+    private static final Matrix4f terrainModelMatrix = new Matrix4f();    
+    private static final Matrix4f terrainModelITMatrix = new Matrix4f();    
+
+    /**
+     * Blender Importer variables
+     */
+    //Map to simulate a terrain with different types of ground
+    private static int[][] map = new int[10][10];
+    
+    /**
+     * Standard variables
+     */
     // current configurations
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
+    private static float param = 0.0f;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -38,10 +61,6 @@ public class TerrainMain {
     // animation params
     private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
-    
-    //Map to simulate a terrain with different types of ground
-    private static int[][] map = new int[500][500];
-
 
     private static int sum(int[] values) {
         int result = 0;
@@ -94,7 +113,12 @@ public class TerrainMain {
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-                                    
+            glPointSize(2.0f);
+            
+            terra = new util.Terrain(0f, 1024, 1024, 4);
+            terra.genTerrain(10);
+            terrainGeometry = GeometryFactory.genTerrain(terra.getTerra());
+            
             render();
             OpenCL.destroy();
             destroy();
@@ -111,8 +135,9 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        ShaderProgram shaderProgram = new ShaderProgram("./shader/Models_VS.glsl", "./shader/Models_FS.glsl");
-
+        ShaderProgram shaderProgramModels = new ShaderProgram("./shader/Models_VS.glsl", "./shader/Models_FS.glsl");
+        ShaderProgram shaderProgramTerrain = new ShaderProgram("shader/Terrain_VS.glsl", "shader/Terrain_FS.glsl");
+        
         //Current time in millis
     	long timeInMillis = System.currentTimeMillis();
         
@@ -144,14 +169,14 @@ public class TerrainMain {
             //clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            Matrix4f scale = new Matrix4f().scale(new Vector3f(1.0f, 1.0f, 1.0f));
+            Matrix4f scale = new Matrix4f().scale(new Vector3f(0.04f, 0.04f, 0.04f));
             Matrix4f model = new Matrix4f();
             Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 
-            shaderProgram.use();
+            shaderProgramModels.use();
             
-            for(int i=0; i<map.length; i+=30) {
-                for(int j=0; j<map.length; j+=30) {
+            for(int i=0; i<map.length; i+=1) {
+                for(int j=0; j<map.length; j+=1) {
                     Matrix4f translate = new Matrix4f();
                     translate.m00 = 1;
                     translate.m11 = 1;
@@ -173,35 +198,42 @@ public class TerrainMain {
                     if(modelPartListIterator!=null) {
                         while(modelPartListIterator.hasNext()) {
                             ModelPart modelPart = modelPartListIterator.next();
-                            shaderProgram.setUniform("scale", scale);
-                            shaderProgram.setUniform("translate", translate);
+                            shaderProgramModels.setUniform("scale", scale);
+                            shaderProgramModels.setUniform("translate", translate);
                             
-                            shaderProgram.setUniform("model", model);
+                            shaderProgramModels.setUniform("model", model);
 //                            shaderProgram.setUniform("modelIT", new Matrix4f());
-                            shaderProgram.setUniform("viewProj", viewProj);   
+                            shaderProgramModels.setUniform("viewProj", viewProj);   
                             
-                            shaderProgram.setUniform("k_a", modelPart.material.ambientRef);
-                            shaderProgram.setUniform("k_dif", modelPart.material.diffuseRef);
-                            shaderProgram.setUniform("k_spec", modelPart.material.specularRef);
-                            shaderProgram.setUniform("k_diss", modelPart.material.dissolveFact);
+                            shaderProgramModels.setUniform("k_a", modelPart.material.ambientRef);
+                            shaderProgramModels.setUniform("k_dif", modelPart.material.diffuseRef);
+                            shaderProgramModels.setUniform("k_spec", modelPart.material.specularRef);
+                            shaderProgramModels.setUniform("k_diss", modelPart.material.dissolveFact);
                         
                             if(modelPart.material.textureDiffuseRefColorMap!=null)
-                                shaderProgram.setUniform("diffuseTex", modelPart.material.textureDiffuseRefColorMap);
+                                shaderProgramModels.setUniform("diffuseTex", modelPart.material.textureDiffuseRefColorMap);
                             if(modelPart.material.textureDissolveFactColorMap!=null)
-                                shaderProgram.setUniform("dissolveTex", modelPart.material.textureDissolveFactColorMap);
+                                shaderProgramModels.setUniform("dissolveTex", modelPart.material.textureDissolveFactColorMap);
                             if(modelPart.material.textureSpecularRefColorMap!=null)
-                                shaderProgram.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);
+                                shaderProgramModels.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);
                         
                             modelPart.geometry.draw();
                         }
                     }
                 }
             }
+            
+            shaderProgramTerrain.use();
+            shaderProgramTerrain.setUniform("viewProj", viewProj);
+            shaderProgramTerrain.setUniform("model", terrainModelMatrix);
+            shaderProgramTerrain.setUniform("modelIT", terrainModelITMatrix);
+//            shaderProgram.setUniform("param", terrainParamLoc);
+            terrainGeometry.draw();
             // present screen
             Display.update();
             Display.sync(60);
         }
-        shaderProgram.delete();
+        shaderProgramModels.delete();
     }
     
     /**

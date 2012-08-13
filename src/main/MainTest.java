@@ -15,18 +15,9 @@ import util.*;
  *
  * @author NMARNIOK
  */
-public class MainTest {
-    // shader programs
-    private static int terrainProgram;
-    
+public class MainTest {    
     // terrain
     private static util.Terrain terra;
-    
-    // uniform locations
-    private static int terrainViewProjLoc;
-    private static int terrainModelLoc;
-    private static int terrainModelITLoc;
-    private static int terrainParamLoc;
     
     // geometries
     private static Geometry terrainGeometry;
