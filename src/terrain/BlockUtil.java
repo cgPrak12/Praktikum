@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import util.Camera;
 
 /**
  * Methoden um Bloecke auf die Festplatte zu schreiben oder von ihr zu lesen

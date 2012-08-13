@@ -93,10 +93,10 @@ public class Terrain
 		}
 		System.out.println();
 		
-		for(int i = 0; i < MEM_BLOCKS; i++)
-		{
-			System.out.printf("MEM[%d] : Block (%d,  %d)\n", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
-		}
+//		for(int i = 0; i < MEM_BLOCKS; i++)
+//		{
+//			System.out.printf("MEM[%d] : Block (%d,  %d)\n", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
+//		}
 	}
 	
 	public void initRandom()
@@ -155,10 +155,10 @@ public class Terrain
 		}
 		System.out.println();
 		
-		for(int i = 0; i < MEM_BLOCKS; i++)
-		{
-			System.out.printf("MEM[%d] : Block (%d,  %d)", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
-		}
+//		for(int i = 0; i < MEM_BLOCKS; i++)
+//		{
+//			System.out.printf("MEM[%d] : Block (%d,  %d)", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
+//		}
 	}
 	
 	/**
@@ -210,7 +210,7 @@ public class Terrain
 //			System.out.println("SET: (" + test + "), value was " + currentBlocks[n].getInfo(blockX, blockZ, pos));
 						
 			currentBlocks[n].setInfo(blockX, blockZ, pos, value);
-//			System.out.println("SET: (" + test + "), value now " + currentBlocks[n].getInfo(blockX, blockZ, pos));
+//			System.out.println("SET: (" + test + "), value now " + currentBlocks[n].getInfo(blockX, blockZ, pos) + "\n");
 			return true;
 		}
 		return false;
@@ -263,9 +263,9 @@ public class Terrain
 			}
 		}
 
-//		System.out.printf("GET: looking in MEM[%d] : Block (%d, %d)", n, currentBlocks[n].getID()[0], currentBlocks[n].getID()[1]); 
+//		System.out.printf("GET: looking in MEM[%d] : Block (%d, %d)\n", n, currentBlocks[n].getID()[0], currentBlocks[n].getID()[1]); 
 //		System.out.printf("GET: getting %f at (%d, %d, %d) in block (%d, %d) at (%d, %d, %d)\n", currentBlocks[n].getInfo(blockX, blockZ, pos), x, z, pos, idX, idZ, blockX, blockZ, pos);
-//		System.out.println("GET: (" + test + ")");
+//		System.out.println("GET: (" + test + ")\n");
 		
 		return currentBlocks[n].getInfo(blockX, blockZ, pos);
 	}
@@ -296,10 +296,15 @@ public class Terrain
 	 */
 	private void updateBlocks(int x, int z)
 	{
-		System.out.println("updating blocks");
+		for(int i = 0; i < MEM_BLOCKS; i++)
+		{
+			BlockUtil.writeBlockData(currentBlocks[i]);
+		}
+		
 		int dim = size / 256;
-		int idX = dim + x / 256 - 1;
-		int idZ = dim + z / 256 - 1;
+		int idX = dim + x / 256;
+		int idZ = dim + z / 256;
+//		System.out.printf("updating blocks for (%d,%d), should be in block(%d,%d)\n", x, z, idX % dim, idZ % dim);
 		int count = 0;
 		
 		for(int i = 0; i * i < MEM_BLOCKS; i++)
@@ -313,10 +318,10 @@ public class Terrain
 			}
 		}
 		
-		for(int i = 0; i < MEM_BLOCKS; i++)
-		{
-			System.out.printf("MEM[%d] : Block (%d,  %d)\n", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
-		}
+//		for(int i = 0; i < MEM_BLOCKS; i++)
+//		{
+//			System.out.printf("MEM[%d] : Block (%d,  %d)\n", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
+//		}
 	}
 	
 	/**
