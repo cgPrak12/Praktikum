@@ -62,11 +62,10 @@ public class BlockUtil {
 	 * Liest eine blockfile Datei ein und schreibt deren Inhalt in einen neuen Block
 	 * 
 	 * @param blockdata		einzulesende .bf Datei
-	 * @return newblock		aus der Datei erzeugter Block
+	 * @return newblock		aus der Datei ausgelesener Block
 	 */
 	public static Block readBlockData(File blockData)
 	{
-		
 		try(DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(blockData))))
 		{					
 			String fileName = blockData.getName();
@@ -126,8 +125,8 @@ public class BlockUtil {
 	/**
 	 * Greift auf einen Block im Terrain zu
 	 * 
-	 * @param x		X-pos im Terrain
-	 * @param z		Z-pos im Terrain
+	 * @param x		x-Position im Terrain
+	 * @param z		z-Position im Terrain
 	 * @return block
 	 */
 	public static Block getBlock(int x, int z)
