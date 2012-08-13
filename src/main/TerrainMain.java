@@ -273,7 +273,7 @@ public class TerrainMain {
             
             
             //skydome 
-            fboSP.setUniform("model", skyDomeMatrix);
+			fboSP.setUniform("model", skyDomeMatrix);
             fboSP.setUniform("modelIT", skyDomeMatrix);
             fboSP.setUniform("normalTexture",blackTexture );
             fboSP.setUniform("specularTexture", blackTexture);

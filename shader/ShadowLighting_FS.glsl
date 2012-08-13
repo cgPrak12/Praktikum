@@ -77,7 +77,7 @@ void main(void)
 		
 	//ambient light
 	//float strength = 0.5 + 0.5 * dot(normal, normalize(sunDir));
-	float strength = 1;
+	strength = 1;
 	vec4 ambi = mix(downColor, upColor, strength);
 		
 	//diffuse and specular
@@ -129,9 +129,8 @@ void main(void)
 	float skyDraw = sign(texture(skyTexture, texCoord).x);
 	color = mix(vec4(diff* k_a,1), color , cosa);
 	
-    enlightenedColor =  skyDraw *color
-    + vec4(((1 - skyDraw) * diff), 0f );
-	//enlightenedColor +=  vec4(( (1-skyDraw) * diff) ,0.0 ) ;
+   	 enlightenedColor =  skyDraw *color;
+	enlightenedColor +=  vec4(( (1-skyDraw) * diff) ,0.0 ) ;
 	
 	
 }
