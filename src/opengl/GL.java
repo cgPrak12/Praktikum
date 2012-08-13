@@ -17,12 +17,12 @@ public class GL {
     /**
      * Breite des OpenGL Fensters
      */
-    public static final int WIDTH = 800;
+    public static final int WIDTH = 1280;
     
     /**
      * Hoehe des OpenGL Fensters
      */
-    public static final int HEIGHT = 800;
+    public static final int HEIGHT = 1024;
     
     /**
      * Primitive Restart Index
@@ -37,7 +37,7 @@ public class GL {
             Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
             boolean supported = true;
             try {
-                Display.create(new PixelFormat(), new ContextAttribs(3, 3).withProfileCore(true));
+                Display.create(new PixelFormat(), new ContextAttribs(3, 2).withProfileCore(true));
             } catch (LWJGLException e) {
                 Display.create();
                 supported = false;
@@ -165,36 +165,6 @@ public class GL {
     public static final int GL_LINE = GL11.GL_LINE;
     
     /**
-     * GL11.GL_LINEAR
-     */
-    public static final int GL_LINEAR = GL11.GL_LINEAR;
-    
-    /**
-     * GL11.GL_LINEAR_MIPMAP_LINEAR
-     */
-    public static final int GL_LINEAR_MIPMAP_LINEAR = GL11.GL_LINEAR_MIPMAP_LINEAR;
-    
-    /**
-     * GL11.GL_LINEAR_MIPMAP_NEAREST
-     */
-    public static final int GL_LINEAR_MIPMAP_NEAREST = GL11.GL_LINEAR_MIPMAP_NEAREST;
-    
-    /**
-     * GL11.GL_NEAREST
-     */
-    public static final int GL_NEAREST = GL11.GL_NEAREST;
-    
-    /**
-     * GL11.GL_NEAREST_MIPMAP_NEAREST
-     */
-    public static final int GL_NEAREST_MIPMAP_NEAREST = GL11.GL_NEAREST_MIPMAP_NEAREST;
-    
-    /**
-     * GL11.GL_NEAREST_MIPMAP_LINEAR
-     */
-    public static final int GL_NEAREST_MIPMAP_LINEAR = GL11.GL_NEAREST_MIPMAP_LINEAR;
-    
-    /**
      * GL11.GL_ONE
      */
     public static final int GL_ONE = GL11.GL_ONE;
@@ -245,51 +215,6 @@ public class GL {
     public static final int GL_RENDERER = GL11.GL_RENDERER;    
     
     /**
-     * GL11.GL_R
-     */
-    public static final int GL_R = GL11.GL_R;  
-    
-    /**
-     * GL30.GL_R8
-     */
-    public static final int GL_R8 = GL30.GL_R8;    
-    
-    /**
-     * GL11.GL_RED
-     */
-    public static final int GL_RED = GL11.GL_RED;  
-    
-    /**
-     * GL30.GL_RG
-     */
-    public static final int GL_RG = GL30.GL_RG;   
-    
-    /**
-     * GL30.GL_RG
-     */
-    public static final int GL_RG8 = GL30.GL_RG8;  
-    
-    /**
-     * GL11.GL_RGB
-     */
-    public static final int GL_RGB = GL11.GL_RGB;  
-    
-    /**
-     * GL11.GL_RGB
-     */
-    public static final int GL_RGB8 = GL11.GL_RGB8;
-    
-    /**
-     * GL11.GL_RGBA
-     */
-    public static final int GL_RGBA = GL11.GL_RGBA;
-    
-    /**
-     * GL11.GL_RGBA8
-     */
-    public static final int GL_RGBA8 = GL11.GL_RGBA8;
-    
-    /**
      * GL20.GL_SHADING_LANGUAGE_VERSION
      */
     public static final int GL_SHADING_LANGUAGE_VERSION = GL20.GL_SHADING_LANGUAGE_VERSION;    
@@ -303,51 +228,6 @@ public class GL {
      * GL11.GL_STENCIL_BUFFER_BIT
      */
     public static final int GL_STENCIL_BUFFER_BIT = GL11.GL_STENCIL_BUFFER_BIT;
-    
-    /**
-     * GL11.GL_TEXTURE_1D;
-     */
-    public static final int GL_TEXTURE_1D = GL11.GL_TEXTURE_1D;
-    
-    /**
-     * GL11.GL_TEXTURE_2D;
-     */
-    public static final int GL_TEXTURE_2D = GL11.GL_TEXTURE_2D;
-    
-    /**
-     * GL12.GL_TEXTURE_3D;
-     */
-    public static final int GL_TEXTURE_3D = GL12.GL_TEXTURE_3D;
-    
-    /**
-     * GL11.GL_TEXTURE_MIN_FILTER
-     */
-    public static final int GL_TEXTURE_MIN_FILTER = GL11.GL_TEXTURE_MIN_FILTER;
-    
-    /**
-     * GL11.GL_TEXTURE_MAG_FILTER
-     */
-    public static final int GL_TEXTURE_MAG_FILTER = GL11.GL_TEXTURE_MAG_FILTER;
-    
-    /**
-     * GL12.GL_TEXTURE_WRAP_R
-     */
-    public static final int GL_TEXTURE_WRAP_R = GL12.GL_TEXTURE_WRAP_R;
-    
-    /**
-     * GL11.GL_TEXTURE_WRAP_S
-     */
-    public static final int GL_TEXTURE_WRAP_S = GL11.GL_TEXTURE_WRAP_S;
-    
-    /**
-     * GL11.GL_TEXTURE_WRAP_T
-     */
-    public static final int GL_TEXTURE_WRAP_T = GL11.GL_TEXTURE_WRAP_T;
-    
-    /**
-     * GL13.GL_TEXTURE0
-     */
-    public static final int GL_TEXTURE0 = GL13.GL_TEXTURE0; 
     
     /**
      * GL11.GL_TRIANGLE_STRIP
@@ -385,16 +265,6 @@ public class GL {
     public static final int GL_ZERO = GL11.GL_ZERO;
 
     /**
-     * OpenGL 1.3
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glActiveTexture.xml">glActiveTexture</a>
-     * @param texture 
-     */
-    public static void glActiveTexture(int texture) {
-        GL13.glActiveTexture(texture);
-        GL.checkError("glActiveTexture");
-    }
-    
-    /**
      * OpenGL 2.0
      * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glAttachShader.xml">glAttachShader</a>
      * @param program
@@ -426,17 +296,6 @@ public class GL {
     public static void glBindBuffer(int target, int buffer) {
         GL15.glBindBuffer(target, buffer);
         GL.checkError("glBindBuffer");
-    }
-    
-    /**
-     * OpenGL 1.1
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glBindTexture.xml">glBindTexture</a>
-     * @param target
-     * @param texture 
-     */
-    public static void glBindTexture(int target, int texture) {
-        GL11.glBindTexture(target, texture);
-        GL.checkError("glBindTexture");
     }
     
     /**
@@ -648,27 +507,6 @@ public class GL {
     
     /**
      * OpenGL 3.0
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glGenerateMipmap.xml">glGenerateMipmap</a>
-     * @param target 
-     */
-    public static void glGenerateMipmap(int target) {
-        GL30.glGenerateMipmap(target);
-        GL.checkError("glGenerateMipmap");
-    }
-    
-    /**
-     * OpenGL 1.1
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glGenTextures.xml">glGenTextures</a>
-     * @return 
-     */
-    public static int glGenTextures() {
-        int texture = GL11.glGenTextures();
-        GL.checkError("glGenTextures");
-        return texture;
-    }
-    
-    /**
-     * OpenGL 3.0
      * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glGenVertexArrays.xml">glGenVertexArrays</a>
      * @return 
      */
@@ -736,7 +574,7 @@ public class GL {
         int location = GL20.glGetUniformLocation(program, name);
         GL.checkError("glGetUniformLocation");
         if(location == -1) {
-          //  System.err.println("WARNUNG: Uniform location von " + name + " ist -1! (Diese Meldung ist ein Service Ihres CG-Teams ;)");
+            System.err.println("WARNUNG: Uniform location von " + name + " ist -1! (Diese Meldung ist ein Service Ihres CG-Teams ;)");
         }
         return location;
     }
@@ -804,60 +642,21 @@ public class GL {
     }
     
     /**
-     * OpenGL 1.1
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glTexImage2D.xml">glTexImage2D</a>
-     * @param target
-     * @param level
-     * @param internalFormat
-     * @param width
-     * @param height
-     * @param border
-     * @param format
-     * @param type
-     * @param pixels 
-     */
-    public static void glTexImage2D(int target, int level, int internalFormat, int width, int height, int border, int format, int type, FloatBuffer pixels) {
-        GL11.glTexImage2D(target, level, internalFormat, width, height, border, format, type, pixels);
-        GL.checkError("glTexImage2D");
-    }
-    
-    /**
-     * OpenGL 1.1
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glTexParameter.xml">glTexParameter</a>
-     * @param target
-     * @param pname
-     * @param param 
-     */
-    public static void glTexParameteri(int target, int pname, int param) {
-        GL11.glTexParameteri(target, pname, param);
-        GL.checkError("glTexParameteri");
-    }
-    
-    /**
      * OpenGL 2.0
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniform.xml">glUniform</a>
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniform1f.xml">glUniform1f</a>
      * @param location
      * @param v0
+     * @param v1
+     * @param v2 
      */
     public static void glUniform1f(int location, float v0) {
         GL20.glUniform1f(location, v0);
-        GL.checkError("glUniform");
+        GL.checkError("glUniform1f");
     }
     
     /**
      * OpenGL 2.0
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniform.xml">glUniform</a>
-     * @param location
-     * @param v0 
-     */
-    public static void glUniform1i(int location, int v0) {
-        GL20.glUniform1i(location, v0);
-        GL.checkError("glUniform");
-    }
-    
-    /**
-     * OpenGL 2.0
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniform.xml">glUniform</a>
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniform3f.xml">glUniform3f</a>
      * @param location
      * @param v0
      * @param v1
@@ -865,19 +664,19 @@ public class GL {
      */
     public static void glUniform3f(int location, float v0, float v1, float v2) {
         GL20.glUniform3f(location, v0, v1, v2);
-        GL.checkError("glUniform");
+        GL.checkError("glUniform3f");
     }
     
     /**
      * OpenGL 2.0
-     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniform.xml">glUniform</a>
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniformMatrix4.xml">glUniformMatrix4</a>
      * @param location
      * @param transpose
      * @param matrices 
      */
     public static void glUniformMatrix4(int location, boolean transpose, FloatBuffer matrices) {
         GL20.glUniformMatrix4(location, transpose, matrices);
-        GL.checkError("glUniform");
+        GL.checkError("glUniform3f");
     }
     
     /**
