@@ -157,6 +157,7 @@ public class ShaderProgram {
         glBindAttribLocation(this.id, ATTR_COLOR2, "vertexColor2");
         glBindAttribLocation(this.id, ATTR_TEX, "vertexTexCoords");
         glBindAttribLocation(this.id, ATTR_INSTANCE, "instancedData");
+        glBindAttribLocation(this.id, ATTR_MATERIAL, "material");
         
         glLinkProgram(this.id);        
         

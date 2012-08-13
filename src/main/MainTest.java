@@ -9,10 +9,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
-import util.Camera;
-import util.Geometry;
-import util.GeometryFactory;
-import util.Util;
+import util.*;
 
 /**
  *
@@ -54,13 +51,6 @@ public class MainTest {
     public static void main(String argv[]) {
         try {
             init();
-            
-            terrainProgram = Util.createShaderProgram("shader/Terrain_VS.glsl", "shader/Terrain_FS.glsl");
-            terrainViewProjLoc = glGetUniformLocation(terrainProgram, "viewProj");
-            terrainModelLoc = glGetUniformLocation(terrainProgram, "model");
-            terrainModelITLoc = glGetUniformLocation(terrainProgram, "modelIT");
-            terrainParamLoc = glGetUniformLocation(terrainProgram, "param");
-                   
                       	
             terra = new util.Terrain(0f, 512, 512, 4);
             terra.genTerrain(10);
@@ -85,6 +75,8 @@ public class MainTest {
         long now, millis;
         long last = System.currentTimeMillis();
         
+        ShaderProgram shaderProgram = new ShaderProgram("shader/Terrain_VS.glsl", "shader/Terrain_FS.glsl");
+        
         while(bContinue && !Display.isCloseRequested()) {
             now = System.currentTimeMillis();
             millis = now - last;
@@ -94,12 +86,12 @@ public class MainTest {
             
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            glUseProgram(terrainProgram);
-            matrix2uniform(viewProjMatrix, terrainViewProjLoc);
-            
-            matrix2uniform(terrainModelMatrix, terrainModelLoc);
-            matrix2uniform(terrainModelITMatrix, terrainModelITLoc);
-            glUniform1f(terrainParamLoc, param);
+            shaderProgram.use();
+            shaderProgram.setUniform("viewProj", viewProjMatrix);
+            shaderProgram.setUniform("model", terrainModelMatrix);
+            shaderProgram.setUniform("modelIT", terrainModelITMatrix);
+//            shaderProgram.setUniform("param", terrainParamLoc);
+                    
             terrainGeometry.draw();
             
             Display.update();

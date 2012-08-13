@@ -1040,49 +1040,6 @@ public class Util {
 			dSStep(minX, middleX, middleZ, maxZ, random, dSMap, rough/2);
 		}
 	}
-
-	/**
-	 * Erzeugt ein ShaderProgram aus einem Vertex- und Fragmentshader.
-	 * @param vs Pfad zum Vertexshader
-	 * @param fs Pfad zum Fragmentshader
-	 * @return ShaderProgram ID
-	 */
-	public static int createShaderProgram(String vs, String fs) {
-		int programID = glCreateProgram();
-
-		int vsID = glCreateShader(GL_VERTEX_SHADER);
-		int fsID = glCreateShader(GL_FRAGMENT_SHADER);
-
-		glAttachShader(programID, vsID);
-		glAttachShader(programID, fsID);
-
-		String vertexShaderContents = Util.getFileContents(vs);
-		String fragmentShaderContents = Util.getFileContents(fs);
-
-		glShaderSource(vsID, vertexShaderContents);
-		glShaderSource(fsID, fragmentShaderContents);
-
-		glCompileShader(vsID);
-		glCompileShader(fsID);
-
-		String log;
-		log = glGetShaderInfoLog(vsID, 1024);
-		System.out.print(log);
-		log = glGetShaderInfoLog(fsID, 1024);
-		System.out.print(log);
-
-		glBindAttribLocation(programID, ShaderProgram.ATTR_POS, "positionMC");
-		glBindAttribLocation(programID, ShaderProgram.ATTR_NORMAL, "normalMC");        
-		glBindAttribLocation(programID, ShaderProgram.ATTR_COLOR, "vertexColor");
-		glBindAttribLocation(programID, ShaderProgram.ATTR_MATERIAL, "material");
-
-		glLinkProgram(programID);        
-
-		log = glGetProgramInfoLog(programID, 1024);
-		System.out.print(log);
-
-		return programID;
-	}  
     
     public static Util.ImageContents loadImage(String imageFile) {
         File file = new File(imageFile);
