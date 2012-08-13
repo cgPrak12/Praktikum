@@ -18,6 +18,7 @@ public final class Camera
 	private float altX;
 	private float altY;
 	private float altZ;
+	private int size;
 
 	/** Default Constructor. */
 	public Camera()
@@ -53,7 +54,7 @@ public final class Camera
 		altX = fb * viewDir.x + lr * sideDir.x;
 		altY = fb * viewDir.y + lr * sideDir.y + ud;
 		altZ = fb * viewDir.z + lr * sideDir.z;
-		camPos.x += altX;
+		if(camPos.x += altX <= 0 || camPos.x += altX >= (float)Math.sqrt(size))) camPos.x += altX;
 		camPos.y += altY;
 		camPos.z += altZ;
 	}
@@ -114,6 +115,10 @@ public final class Camera
 	public Vector3f getViewDir()
 	{
 		return viewDir;
+	}
+	
+	public void setSize(int size) {
+		this.size = size;
 	}
 
 }
