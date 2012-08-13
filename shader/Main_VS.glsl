@@ -11,6 +11,7 @@ uniform mat4 shadowMatrix;
 in vec3 positionMC;
 in vec3 normalMC;
 in vec4 vertexColor;
+in vec3 tangentMC;
 in vec2 texCoords;
 
 out vec4 positionWC;
@@ -23,13 +24,11 @@ out vec4 shadowCoordWC;
 void main(void) { 
    positionWC = model * vec4(positionMC, 1.0);
    shadowCoordWC = shadowMatrix * positionWC;
-   
-   depth = (view * positionWC).z / camFar * (-1);
-   
+   depth = ((view*positionWC).z/15) * (-1); 
+
    gl_Position = viewProj * positionWC;
    normalWC = modelIT * vec4(normalMC, 0.0);
    fragmentTexCoords = texCoords;
    positionWC.w = distance(positionWC.xyz, camPos);
-   tangentWC = normalize(modelIT * vec4(cross(normalMC, positionMC) , 1.0));
-
+   tangentWC = modelIT * vec4(tangentMC, 0);
 }

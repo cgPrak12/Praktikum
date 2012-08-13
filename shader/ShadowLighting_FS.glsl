@@ -15,6 +15,8 @@ uniform sampler2D worldTex;
 uniform sampler2D diffuseTex;
 uniform sampler2D specularTex;
 uniform sampler2D shadowTex;
+uniform sampler2D bumpTexture;
+uniform sampler2D skyTexture;
 // uniform sampler2D shadowCoordsTex;
 
 uniform mat4 lView;
@@ -29,10 +31,10 @@ out vec4 enlightenedColor;
 
 //lighting constants
 const float k_a = 0.2; 
-const float k_spec = 0.3; 
+const float k_spec = 0.2; 
 const float k_dif = 0.7; 
 const float es = 5.0;
-const float sunIntensity = 1.0;
+ float sunIntensity = 1.0;
 
 /**
  * Calculate lightning with Blinn-Phong.
@@ -45,7 +47,7 @@ const float sunIntensity = 1.0;
  */
 vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 {
-	vec3 finalColor = vec3(0.0, 0.0, 0.0);
+	vec3 finalColor = vec3(0f);
 	vec3 view = normalize(camPos - pos);
 	vec3 halfvec = normalize(-view + normalize(sunDir));
 	
@@ -70,19 +72,34 @@ void main(void)
 	vec3 normal = texture(normalTex, texCoord).xyz;	
 		
 	vec4 positionWC = texture(worldTex, texCoord);
+	
+	
 		
 	//ambient light
-	float strength = 0.5 + 0.5 * dot(normal, normalize(sunDir));
+	//float strength = 0.5 + 0.5 * dot(normal, normalize(sunDir));
+	float strength = 1;
 	vec4 ambi = mix(downColor, upColor, strength);
 		
 	//diffuse and specular
 	vec3 diff = texture(diffuseTex, texCoord).rgb;
 	vec3 spec = texture(specularTex, texCoord).rgb;
-		
+	
+	
+	//Sonnenuntergang bzw. Aufgang
+	float cosa  =  length(dot(normalize(sunDir),vec3(0,1,0)));
+    sunIntensity = cosa;
+	
+	//no light for bottom
+	if (sunDir.y < 0)
+	{
+		enlightenedColor = vec4(diff*k_a,1);
+		return;
+	}
+	
 	// *** shadow ***
 	vec4 shadowCoord = lProj * lView * vec4(positionWC.xyz, 1);
 	shadowCoord /= shadowCoord.w;
-
+	
 	float sum = 0; 
 	int count = 0;
 
@@ -97,15 +114,26 @@ void main(void)
 	float shadow = sum / count;
 	
 	float dist = distance(positionWC.xyz, sunDir);
-		
-	if(shadow < dist)
+	vec3 position = positionWC.xyz + 0.9 * texture(bumpTexture, texCoord).r * normal.xyz;
+	
+	vec4 color;
+	if(shadow < dist && shadow > 0)
 	{
-		enlightenedColor = vec4(calcLighting(positionWC.xyz, normalize(normal), vec3(0), vec3(0), ambi.rgb), 1.0);
+		color = vec4(calcLighting(position, normalize(normal), vec3(0), vec3(0), ambi.rgb), 1.0);
 	}
 	else
 	{
-		enlightenedColor = vec4(calcLighting(positionWC.xyz, normal, diff, spec, ambi.rgb), 1.0);
+		color = vec4(calcLighting(position, normal, diff, spec, ambi.rgb), 1.0);
 	}
+	
+	float skyDraw = sign(texture(skyTexture, texCoord).x);
+	color = mix(vec4(diff* k_a,1), color , cosa);
+	
+    enlightenedColor =  skyDraw *color
+    + vec4(((1 - skyDraw) * diff), 0f );
+	//enlightenedColor +=  vec4(( (1-skyDraw) * diff) ,0.0 ) ;
+	
+	
 }
 
 

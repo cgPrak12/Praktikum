@@ -266,7 +266,7 @@ public class MenuDialog extends JDialog {
 		
 		// Checkboxes
 		{
-			JCheckBox chckbxLightRotation = new JCheckBox("Light Rotation");
+			JCheckBox chckbxLightRotation = new JCheckBox("Animation");
 			chckbxLightRotation.setIconTextGap(10);
 			GridBagConstraints gbc_chckbxLightRotation = new GridBagConstraints();
 			gbc_chckbxLightRotation.anchor = GridBagConstraints.NORTH;
@@ -372,6 +372,17 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxGodRays.gridx = 2;
 			gbc_chckbxGodRays.gridy = 11;
 			graphSettingsPanel.add(chckbxGodRays, gbc_chckbxGodRays);
+			chckbxGodRays.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			    	boolean temp;
+			    	if (e.getStateChange() == 1)
+			    		temp = true;
+			    	else
+			    		temp = false;
+			        main.TerrainMain.setGodRays(temp);
+			    }
+			});
+			chckbxGodRays.setSelected(main.TerrainMain.isGodRays());
 		}
 		{
 			JSeparator separator = new JSeparator();

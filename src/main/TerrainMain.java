@@ -1,6 +1,8 @@
 package main;
 
 import static opengl.GL.*;
+
+import java.awt.peer.LightweightPeer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,21 +23,25 @@ import window.MenuDialog;
  * @author nico3000
  */
 public class TerrainMain {
+	// uniform locations
+    private static int modelLoc;
+    
+    
 	// textures
     private static Texture normalQuaderTexture;
     private static Texture quaderTexture;
-    private static Texture diffuseQuaderTexture;
+//    private static Texture diffuseQuaderTexture;
     private static Texture specularQuaderTexture;
     private static Texture bumpQuaderTexture;
     private static Texture skydomeTexture;
     private static Texture sunTexture;
-    private static Texture FBTexture2;
-    private static Texture FBTexture1;
+//    private static Texture FBTexture2;
+//    private static Texture FBTexture1;
     private static Texture skyCloudTexture;
-    private static Texture noiseTexture;
-    private static Texture groundTexture;
+//    private static Texture noiseTexture;
+//    private static Texture groundTexture;
     private static Texture blackTexture;
-    private static Texture whiteTexture;
+//    private static Texture whiteTexture;
     
     // current configurations
     private static boolean bContinue = true;
@@ -46,10 +52,11 @@ public class TerrainMain {
     private static boolean wireframe = true;
     
     private static boolean tonemapping =  true;
-    private static boolean rotatelight = false;
+    private static boolean rotatelight = true;
     private static boolean bloomBlend = false;
     private static boolean bloom = true;
     private static boolean shadows = true;
+    private static boolean godRays = true;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -65,7 +72,8 @@ public class TerrainMain {
     private static float bloomFactor = 0.6f;
     private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     
-    private static Vector3f sunDirection = new Vector3f(49f, 49f, 49f);
+    private static Vector3f sunDirection = new Vector3f(47.0f, 20f, 0f);
+    private static Vector3f sunDirectionStart = new Vector3f(0f, 0f, 0f);
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
@@ -75,6 +83,14 @@ public class TerrainMain {
     
     private static ShaderProgram fboSP;
     private static ShaderProgram shadowSP;
+    
+    //matrix
+    private static Matrix4f cloudModelMatrix = new Matrix4f();
+    private static Matrix4f sunMatrix = new Matrix4f();
+    private static Matrix4f sunTilt = new Matrix4f();
+    private static Matrix4f sunTranslation = new Matrix4f();
+    private static Matrix4f sunRotation = new Matrix4f();
+    
     
     public static void main(String[] argv) {
         try {
@@ -89,23 +105,27 @@ public class TerrainMain {
             //texturen
             normalQuaderTexture   = Texture.generateTexture("./res/stone_wall_normal_map.jpg",0 );
             quaderTexture         = Texture.generateTexture("./res/stone_wall.jpg",1 );
-            diffuseQuaderTexture  = Texture.generateTexture("./res/stone_wall.jpg",2 );
+//            diffuseQuaderTexture  = Texture.generateTexture("./res/stone_wall.jpg",2 );
             specularQuaderTexture = Texture.generateTexture("./res/stone_wall_specular.jpg",3 );
             bumpQuaderTexture     = Texture.generateTexture("./res/stone_wall_bump.jpg",4 );
            
             skydomeTexture         = Texture.generateTexture("./res/sky_2.jpg",5 );
             sunTexture			   = Texture.generateTexture("./res/sun.jpg",6);
             skyCloudTexture        = Texture.generateTexture("./res/sky_sw.jpg",9 );
-            noiseTexture 		   = Texture.generateTexture("./res/noise.png",10);
-            groundTexture 		   = Texture.generateTexture("./res/ground.jpg",11);
+//            noiseTexture 		   = Texture.generateTexture("./res/noise.png",10);
+//            groundTexture 		   = Texture.generateTexture("./res/ground.jpg",11);
             blackTexture		   = Texture.generateTexture("./res/blackTex.jpg",12);
-            whiteTexture		   = Texture.generateTexture("./res/blackTex.jpg",13);
+//            whiteTexture		   = Texture.generateTexture("./res/blackTex.jpg",13);
             
             
             //initialize ScreenManipulation with all the used Shaders
             screenMan.init("./shader/ScreenQuad_VS.glsl", "./shader/Blur_FS.glsl",
             "./shader/Brightness_FS.glsl", "./shader/Bloom_FS.glsl", "./shader/ToneMapping_FS.glsl",
             "./shader/PhongLighting_FS.glsl", 29, GL.WIDTH, GL.HEIGHT);
+            
+            //movement 
+            Util.rotationX((float)Math.toRadians(-45.0), sunTilt);
+            Util.translationX(48.0f, sunTranslation);
             
             render();
             OpenCL.destroy();
@@ -138,10 +158,11 @@ public class TerrainMain {
         //fboSP = new ShaderProgram("./shader/MainShadow_VS.glsl", "./shader/MainShadow_FS.glsl");
         
         Matrix4f floorQuadMatrix = new Matrix4f();
+        Matrix4f skyDomeMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
         shadowCam.changeProjection();
-        Util.mul(floorQuadMatrix, Util.translationY(-1, null), Util.scale(20, null), Util.rotationX(-Util.PI_DIV2, null)); 
+        Util.mul(floorQuadMatrix, Util.translationY(0, null), Util.scale(50, null), Util.rotationX(-Util.PI_DIV2, null)); 
 
         
         ShadowShader shadowShader = new ShadowShader();
@@ -151,13 +172,19 @@ public class TerrainMain {
         DeferredShader shader = new DeferredShader();
         shader.init(40);
         shader.registerShaderProgram(fboSP);
+        modelLoc = glGetUniformLocation(fboSP.getId(), "model");
+        
         
         Geometry testCube = GeometryFactory.createCube();
         Geometry testCube1 = GeometryFactory.createCube();
         Geometry floorQuad = GeometryFactory.createWhiteScreenQuad();
-        Geometry sunCube = GeometryFactory.createCube();
+        Geometry sunCube = GeometryFactory.createQuad();
         
-        Matrix4f sunMatrix = new Matrix4f();
+        //Skydome
+        Geometry skyDome  = GeometryFactory.createSkyDome(50, 50, 50);
+        Geometry skyCloud  = GeometryFactory.createSkyDome(45, 50, 50);
+        //Sonne
+        
         
         //enlighted fbo
         FrameBuffer enlightenedFBO = new FrameBuffer();
@@ -167,6 +194,16 @@ public class TerrainMain {
         FrameBuffer shadowFBO = new FrameBuffer();
         shadowFBO.init(false, GL.WIDTH, GL.HEIGHT);
         
+        //static Matrix calculation
+    	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
+    	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+    	
+    	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(10f, null), Util.translationZ(10f, null), Util.translationY(5f, null));
+    	Matrix4f modelIT1 = Util.transposeInverse(modelMatrix1, null);
+    	
+    	//dynamic matrices
+    	Matrix4f shadowMatrix = new Matrix4f();
+        
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -175,10 +212,12 @@ public class TerrainMain {
             frameTimeDelta += millis;
             ++frames;
             
-            shadowCam.setCamDir(sunDirection.negate(null));
-            shadowCam.setCamPos(new Vector3f(sunDirection.x, sunDirection.y, sunDirection.z));
             
-            Util.mul(sunMatrix, Util.translation(new Vector3f(sunDirection.x, sunDirection.y, sunDirection.z), null));
+            shadowCam.setCamDir(sunDirection.negate(null));
+            shadowCam.setCamPos(sunDirection);
+            
+            animate(millis);
+           
             
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
@@ -202,17 +241,12 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
+            
+            Util.mul(shadowMatrix, shadowCam.getProjection(), shadowCam.getView());
+
             //test cube
             fboSP.use();
-            
-        	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
-        	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-        	
-        	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(10f, null), Util.translationZ(10f, null), Util.translationY(5f, null));
-        	Matrix4f modelIT1 = Util.transposeInverse(modelMatrix1, null);
-        	
-        	Matrix4f shadowMatrix = Util.mul(null, shadowCam.getProjection(), shadowCam.getView());
-        	
+
         	//Main_VS
         	fboSP.setUniform("model", 	 	 modelMatrix);
         	fboSP.setUniform("modelIT",  	 modelIT);
@@ -220,7 +254,7 @@ public class TerrainMain {
             fboSP.setUniform("shadowMatrix", shadowMatrix);
         	fboSP.setUniform("camPos",   	 cam.getCamPos());
             fboSP.setUniform("view", 		 cam.getView());
-            fboSP.setUniform("camFar", 		 cam.getFar());
+            fboSP.setUniform("bumpTexture", bumpQuaderTexture);
             //Main_FS
             fboSP.setUniform("normalTexture", normalQuaderTexture);
             fboSP.setUniform("specularTexture", specularQuaderTexture);
@@ -237,23 +271,42 @@ public class TerrainMain {
 
             testCube1.draw();
             
-			
+            
+            //skydome 
+            fboSP.setUniform("model", skyDomeMatrix);
+            fboSP.setUniform("modelIT", skyDomeMatrix);
+            fboSP.setUniform("normalTexture",blackTexture );
+            fboSP.setUniform("specularTexture", blackTexture);
+            
+            glEnable(GL_BLEND);
+            fboSP.setUniform("textureImage", skydomeTexture);
+            skyDome.draw();
+            
+            //Wolken
+            fboSP.setUniform("textureImage", skyCloudTexture);
+            matrix2uniform(cloudModelMatrix, modelLoc);
+            skyCloud.draw();
+            
+            
+            
 			//sun cube
             fboSP.setUniform("model", sunMatrix);
             fboSP.setUniform("modelIT", Util.transposeInverse(sunMatrix, null));
-//            fboSP.setUniform("shadowMatrix", shadowMatrix);
-            
+            fboSP.setUniform("textureImage", sunTexture);
             sunCube.draw();
+            glDisable(GL_BLEND);
             
-            
+            fboSP.setUniform("normalTexture", normalQuaderTexture);
             //floor quad
             fboSP.setUniform("model", floorQuadMatrix);
             fboSP.setUniform("modelIT", floorQuadMatrix);
+            fboSP.setUniform("textureImage", quaderTexture);
             floorQuad.draw();
             
         	shader.finish();
         	
-        	
+        	//shader.DrawTexture(shader.getNormalTexture());
+
         	//test cube (shadow map)
         	glCullFace(GL_FRONT);
         	shadowSP.use();
@@ -276,7 +329,7 @@ public class TerrainMain {
         	shadowSP.setUniform("model",    floorQuadMatrix);
         	shadowSP.setUniform("modelIT",  floorQuadMatrix);
         	shadowSP.setUniform("viewProj", shadowMatrix);
-        	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
+        	//shadowSP.setUniform("camPos",   shadowCam.getCamPos());
         	
         	floorQuad.draw();
         	
@@ -287,9 +340,14 @@ public class TerrainMain {
             	enlightenedFBO = screenMan.getShadowLighting(shader, shadowShader, cam.getCamPos(), sunDirection, shadowCam);
         	}
         	else {
-        		enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+        		//enlightenedFBO = screenMan.getLighting(shader, cam.getCamPos(), sunDirection);
+        		enlightenedFBO = screenMan.getMaglight(shader, cam.getCamPos(), sunDirection);
         	}
-        	        	
+
+        	if (godRays) {
+            	enlightenedFBO = screenMan.getGodRay(shader.getSkyTexture(), enlightenedFBO.getTexture(0), Util.mul(null, cam.getProjection(), cam.getView()), sunDirection );
+        	}
+        	
 //        	shader.DrawTexture(screenMan.getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getWorldTexture(), sunDirection).getTexture(0));
         	if (splitScreen) {
         		fbo = getQuadScreen(splitScreenVal, shader, shadowShader);
@@ -314,6 +372,7 @@ public class TerrainMain {
         	} 
         	
         	shader.DrawTexture(fbo.getTexture(0));
+        	//shader.DrawTexture(shader.getBumpTexture());
         	
             // present screen
             Display.update();
@@ -497,11 +556,30 @@ public class TerrainMain {
         //if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) bContinue = false;
     }
     
-    /**
+    public static boolean isGodRays() {
+		return godRays;
+	}
+
+	public static void setGodRays(boolean godRays) {
+		TerrainMain.godRays = godRays;
+	}
+
+	/**
      * Aktualisiert Model Matrizen der Erde und des Mondes.
      * @param millis Millisekunden, die seit dem letzten Aufruf vergangen sind.
      */
     private static void animate(long millis) {
+    	if(rotatelight) {
+    		//sonne drehen
+       	 	ingameTime += ingameTimePerSecond * 1e-3f * (float)millis;
+       	 	Util.rotationY((0.05f)*Util.PI_MUL2 * ingameTime, sunRotation);
+            Util.mul(sunMatrix,sunTilt, sunRotation, sunTranslation, Util.scale(5.0f, null));
+            //licht drehen
+            Util.transformCoord(Util.mul(null,sunTilt, sunRotation, sunTranslation), sunDirectionStart, sunDirection);
+        }
+    	
+    	 //drehen der Wolken
+         Util.rotationY((0.005f)*Util.PI_MUL2 * ingameTime,cloudModelMatrix);
 
     }  
 
@@ -595,4 +673,10 @@ public class TerrainMain {
 	public static void setShadows(boolean shadows) {
 		TerrainMain.shadows = shadows;
 	}
+
+    private static void matrix2uniform(Matrix4f matrix, int uniform) {
+        matrix.store(Util.MAT_BUFFER);
+        Util.MAT_BUFFER.position(0);
+        glUniformMatrix4(uniform, false, Util.MAT_BUFFER);
+    }
 }

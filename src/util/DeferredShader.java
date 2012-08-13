@@ -39,6 +39,7 @@ public class DeferredShader {
 	private Texture skyColor;
 	private Texture texSun;
 	private Texture texShadow;
+	private Texture texBump;
     
     public DeferredShader() {
     }
@@ -61,6 +62,7 @@ public class DeferredShader {
     	texSpec        = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +3);
     	skyColor       = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +4);
     	texShadow = 	 new Texture(GL11.GL_TEXTURE_2D,  unitOffset +5);
+    	texBump = 	 new Texture(GL11.GL_TEXTURE_2D,  unitOffset +6);
     	
     	frameBuffer.addTexture(texPosition, GL30.GL_RGBA32F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texNormal, GL30.GL_RGBA32F, GL11.GL_RGBA);
@@ -68,6 +70,7 @@ public class DeferredShader {
     	frameBuffer.addTexture(texSpec, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	frameBuffer.addTexture(skyColor, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texShadow, GL30.GL_RGBA32F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texBump, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	
     	frameBuffer.drawBuffers();
     }
@@ -78,7 +81,7 @@ public class DeferredShader {
     
     public void registerShaderProgram(ShaderProgram shaderProgram) {
     	shaderProgram.use();
-        frameBuffer.BindFragDataLocations(shaderProgram, "position", "normal", "color", "spec", "skyColor"/*, "texSun"*/,"shadowCoord");        
+        frameBuffer.BindFragDataLocations(shaderProgram, "position", "normal", "color", "spec", "skyColor","shadowCoord","bumpColor");        
     }
     
     public void clear() {
@@ -113,6 +116,11 @@ public class DeferredShader {
     public Texture getShadowTexture() {
     	return frameBuffer.getTexture(5);
     }
+    
+    public Texture getBumpTexture() {
+    	return frameBuffer.getTexture(6);
+    }
+    
     public void DrawTexture(Texture tex) {
         drawTextureSP.use();
         drawTextureSP.setUniform("image", tex);
