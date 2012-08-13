@@ -68,9 +68,8 @@ public class BlockUtil {
 	public static Block readBlockData(File blockData)
 	{
 		
-		try( FileInputStream fis = new FileInputStream(blockData); 
-			 	
-			 DataInputStream input = new DataInputStream(new BufferedInputStream(fis)))
+		try( FileInputStream fis = new FileInputStream(blockData); 			 	
+			 DataInputStream input = new DataInputStream(new BufferedInputStream(fis)) )
 		{			
 			
 			String fileName = blockData.getName();
