@@ -27,9 +27,44 @@ public class Geometry {
     private int instanceStride;
     private int instanceCount;
     private int instanceAttributeSize;
-    private final List<VertexAttribute> attributes = new LinkedList<>();
+    private final List<VertexAttribute> attributes = new LinkedList<VertexAttribute>();
+    
+    // simulation
+    private Texture heightTex;
+    private Texture normalTex;
 
-
+    /**
+     * Setzt die Normalen-Textur
+     * @param normalTex Texture mit Normalen der Geometrie
+     */
+    public void setNormalTex(Texture normalTex) {
+        this.normalTex = normalTex;
+    }
+  
+    /**
+     * Gibt die Normalen-Textur dieser Geometrie
+     * @ return Normalen-Textur
+     */
+    public Texture getNormalTex() {
+        return normalTex;
+    }
+    
+    /**
+     * Setzt die Height-Textur
+     * @param heightTex Texture mit Hoehe der Geometrie
+     */
+    public void setHeightTex(Texture heightTex) {
+        this.heightTex = heightTex;
+    }
+    
+    /**
+     * Gibt die Height-Textur dieser Geometrie
+     * @ return Height-Textur
+     */
+    public Texture getHeightTex() {
+        return heightTex;
+    }
+    
     /**
      * Setzt den IntBuffer, der die Indexdaten dieser Geometrie beinhaltet und
      * die zugehoerige Topologie.
@@ -109,6 +144,9 @@ public class Geometry {
         this.ibid = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.ibid);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, this.indexValueBuffer, GL_STATIC_DRAW);
+        
+        glEnable(GL_PRIMITIVE_RESTART);
+        glPrimitiveRestartIndex(-1);
         
         int stride = 0;
         for(VertexAttribute attr : attributes) {

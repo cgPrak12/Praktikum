@@ -21,6 +21,10 @@ public class ShaderProgram {
         glUseProgram(this.id);
     }            
     
+    public int getID(){
+    	return this.id;
+    }
+    
     /**
      * Hilfsmethode, um eine Matrix in eine Uniform zu schreiben. Das
      * zugehoerige Programmobjekt muss aktiv sein.
@@ -35,7 +39,10 @@ public class ShaderProgram {
             Util.MAT_BUFFER.position(0);
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
+        } else {
+            System.err.println(varName);
         }
+            
     }
     
     /**

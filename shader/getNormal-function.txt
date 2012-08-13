@@ -1,0 +1,68 @@
+float3 getNormal(image2d_t, float2);
+
+kernel void particle_sim(
+global float4* position, 
+global float4* velos,
+image2d_t heightmap,
+image2d_t normalmap) 
+{
+    local float4 sharedMem[LOCAL_MEM_SIZE];
+	
+    float4 myPos = position[get_global_id(0)];
+    float4 myVelo = velos[get_global_id(0)];
+	
+    float4 height = read_imagef(heightmap, sampler, myPos.s02);
+    float4 normal = read_imagef(normalmap, sampler, myPos.s02);
+	
+    float random = xor128()*0.00000000001;
+
+    float3 norm = getNormal(heightmap,myPos.s02);
+    float3 dVelo = (float3)(0);  
+    if(myPos.s1 < height.s0+0.001) {
+        myPos.s1 = height.s0+0.001;
+        dVelo = norm*0.0001;
+        myVelo += (float4)(dVelo,1);
+        myVelo *= 0.995;
+
+        // bounce in norm-direction...
+        //myVelo = (float4)(normalize(norm),1)*0.01;
+    }
+    else {
+        // y-axis accelaration (falling rain)
+        dVelo.s1 = GRAVITY;   
+    myVelo += (float4)(dVelo,1);
+    }
+
+    position[get_global_id(0)] = (float4)(myPos.s012 + myVelo.s012,1 );
+    velos[get_global_id(0)] = myVelo;
+}
+
+
+float3 getNormal(image2d_t heightmap, float2 pos)
+{
+	int2 dim = get_image_dim(heightmap);
+	float dx = 1.0/(float)dim.x;
+	float dy = 1.0/(float)dim.y;
+
+
+	float h = read_imagef(heightmap,sampler,pos).s0;
+	float3 hvec = (float3)(pos.s0,h,pos.s1);
+
+	float v01 = read_imagef(heightmap,sampler,pos+(float2)(-dx,0.0)).s0;
+	float v10 = read_imagef(heightmap,sampler,pos+(float2)(0.0,-dy)).s0;
+	float v12 = read_imagef(heightmap,sampler,pos+(float2)(0.0,dy)).s0;
+	float v21 = read_imagef(heightmap,sampler,pos+(float2)(+dx,0.0)).s0;
+
+    	float3 v1 = (float3)(-dx, v01, 0.0)-hvec; 
+    	float3 v4 = (float3)(0.0, v10, -dy)-hvec; 
+    	float3 v2 = (float3)(0.0, v12, dy)-hvec; 
+    	float3 v3 = (float3)(dx,  v21,  0.0)-hvec; 
+
+	float3 c1 = cross(v1,v2);
+	float3 c2 = cross(v2,v3);
+	float3 c3 = cross(v3,v4);
+	float3 c4 = cross(v4,v1);
+
+	return normalize(c1+c2+c3+c4);
+}
+

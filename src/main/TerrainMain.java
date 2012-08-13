@@ -1,15 +1,19 @@
 package main;
 
-import static opengl.GL.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import opengl.GL;
+import static opengl.GL.*;
 import opengl.OpenCL;
+import opengl.OpenCL.Device_Type;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 import util.*;
 
 /**
@@ -30,13 +34,20 @@ public class TerrainMain {
 //    private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
     
-    private static ShaderProgram fboSP;
+
+//    private static ShaderProgram fboSP;
+
+    // particles
+    private static Particle particles;
+    
+    // simulation 
+    private static ShaderProgram simShader;
     
     public static void main(String[] argv) {
         try {
             init();
             OpenCL.init();
-            glEnable(GL_CULL_FACE);
+            glDisable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
@@ -62,18 +73,35 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
-       
-        DeferredShader shader = new DeferredShader();
-        shader.init();
-        shader.registerShaderProgram(fboSP);
-        
+//<<<<<<< HEAD
+//        fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
+//       
+//        DeferredShader shader = new DeferredShader();
+//        shader.init();
+//        shader.registerShaderProgram(fboSP);
+//        
         Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
         FluidRenderer fluidRenderer = new FluidRenderer(cam);
+//        
+        Geometry screenQuad = GeometryFactory.createScreenQuad();
+//        Geometry testWaterParticles = GeometryFactory.createTestParticles(1024*13);
+//       
+//=======
+        //DeferredShader shader = new DeferredShader();
+        //Texture tex = Texture.generateTexture("asteroid.jpg", 0);
         
-        Geometry testCube = GeometryFactory.createCube();
-        Geometry testWaterParticles = GeometryFactory.createTestParticles(1024*13);
-       
+        // create a new shader program
+        simShader = new ShaderProgram("shader/simulation_vs.glsl",
+                            "shader/simulation_fs.glsl");
+        ShaderProgram drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
+        //Geometry quad = GeometryFactory.createTerrain(100,100,2);
+        
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
+        Texture normalTex = terrain.getNormalTex();
+        Texture heightTex = terrain.getHeightTex();
+        
+        particles = new Particle(2048, Device_Type.GPU, Display.getDrawable());
+        particles.createData(heightTex.getId(), normalTex.getId());
         
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -94,30 +122,48 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
+//<<<<<<< HEAD
             
-            fboSP.use();
-            Matrix4f modelMatrix = new Matrix4f();
-            Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-            fboSP.setUniform("model", modelMatrix);
-            fboSP.setUniform("modelIT", modelIT);
-            fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-            fboSP.setUniform("camPos", cam.getCamPos());
-            
-            shader.bind();
-            shader.clear();
-            
+//            fboSP.use();
+//            Matrix4f modelMatrix = new Matrix4f();
+//            Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+//            fboSP.setUniform("model", modelMatrix);
+//            fboSP.setUniform("modelIT", modelIT);
+//            fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
+//            fboSP.setUniform("camPos", cam.getCamPos());
+//            
+//            shader.bind();
+//            shader.clear();
+//            
 //            testCube.draw();
-        	
-            shader.finish();
+//        	
+//            shader.finish();
 //            shader.DrawTexture(shader.getWorldTexture());
             
             
 
+            //shader.prepareRendering();
             
+            //shader.DrawTexture(tex);
+            simShader.use();
+            simShader.setUniform("proj", cam.getProjection());
+            simShader.setUniform("view", cam.getView());
+            simShader.setUniform("normalTex", normalTex);
+            simShader.setUniform("heightTex", heightTex);
+            
+            //System.out.println(cam.getView());
+            //System.out.println(cam.getProjection());
+
+            terrain.draw();
+            
+            particles.getShaderProgram().use();
+            particles.draw(cam, millis);
             // TODO: postfx
             
             // WATER
-            shader.DrawTexture(fluidRenderer.render(lightPos, testWaterParticles, shader.getWorldTexture()));
+    		drawTextureSP.use();        
+    		drawTextureSP.setUniform("image", fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles()));
+    		screenQuad.draw();  
             
             // TODO: combine images
             
@@ -125,7 +171,11 @@ public class TerrainMain {
             Display.update();
             Display.sync(60);
         }
-        shader.delete();
+        //shader.delete();
+        //tex.delete();
+        
+        simShader.delete();
+        OpenCL.destroy();
     }
     
     /**
@@ -133,8 +183,8 @@ public class TerrainMain {
      * @param millis Millisekunden seit dem letzten Aufruf
      */
     public static void handleInput(long millis) {
-        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
-        float camSpeed  = 5e-3f;
+        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 0.1f : 1.0f)*(float)millis;
+        float camSpeed = 5e-3f;
         
         while(Keyboard.next()) {
             if(Keyboard.getEventKeyState()) {
@@ -176,6 +226,7 @@ public class TerrainMain {
             }
         }
         
+        moveSpeed = moveSpeed * 0.25f;
         cam.move(moveSpeed * moveDir.z, moveSpeed * moveDir.x, moveSpeed * moveDir.y);
         
         while(Mouse.next()) {
