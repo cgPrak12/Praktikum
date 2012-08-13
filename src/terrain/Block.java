@@ -1,4 +1,4 @@
-package terrain;
+package util;
 
 import java.io.Serializable;
 
@@ -23,11 +23,14 @@ public class Block implements Serializable {
 	{
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
-//			System.out.printf("BLOCK: gives you %f at [%d][%d][%d]\n", vertexInfo[x][z][pos], x, z, pos);
+			
+//			if(vertexInfo[x][z][pos] == 0){
+//			System.out.println("Null");}
 			return vertexInfo[x][z][pos];
 		}
 		else
 		{
+			System.out.println("return ist 0");
 			return 0.0f;
 		}			
 	}
@@ -43,28 +46,32 @@ public class Block implements Serializable {
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
 				vertexInfo[x][z][pos] = info;
-//				System.out.printf("BLOCK: wrote %f at [%d][%d][%d]\n", info, x, z, pos);
+				
+		//	 if(vertexInfo[x][z][pos]==0){  System.out.println("HIER: "+vertexInfo[x][z][pos]);
+			 
+			// }
 		}
+		
 	}
 	
 	/**
 	 * Liefert die HeightMap eines Blocks
 	 * @return HeightMap
 	 */
-	public float[][] getHeightMap()
-	{
-		int x = vertexInfo.length;
-		int z = vertexInfo[0].length;
-		float[][] result = new float[x][z];
-		for(int i = 0; i < x; i++)
-		{
-			for(int j = 0; j < z; j++)
-			{
-				result[i][j] = vertexInfo[i][j][0];
-			}
-		}
-		return result;
-	}
+//	public float[][] getHeightMap()
+//	{
+//		int x = vertexInfo.length;
+//		int z = vertexInfo[0].length;
+//		float[][] result = new float[x][z];
+//		for(int i = 0; i < x; i++)
+//		{
+//			for(int j = 0; j < z; j++)
+//			{
+//				result[i][j] = vertexInfo[i][j][0];
+//			}
+//		}
+//		return result;
+//	}
 	
 	public int getX()	{	return posX;	}
 	

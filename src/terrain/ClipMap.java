@@ -1,6 +1,7 @@
 package terrain;
 
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 
 import util.Camera;
 import util.Geometry;
@@ -31,7 +32,12 @@ public class ClipMap
 	private int[][] movement; // Array das Bewegungstranslation speichert
 	private boolean[][] alignment; // Array das Lage der Clipmap angibt
 	private float tempX; // Variable für Bewegungsschwellenwert
+	private float tempY; // Variable für Bewegungsschwellenwert
 	private float tempZ; // Variable für Bewegungsschwellenwert
+
+	private int scaleSteps;
+	private int scaleFaktor;
+	private Vector2f initialCamPos;
 
 	// Cached Geometries
 	private Geometry mxm; // Quadratisches Grid
@@ -44,7 +50,8 @@ public class ClipMap
 	private Geometry center; // Quadratisches Grid
 	private Geometry outer; // Füllgeometrie um Löcher am Rand zu "stopfen"
 
-	private float generalScale = 0.1f; // Skaliert die gesamte ClipMap um Faktor
+	private final float generalScale = 0.1f; // Skaliert die gesamte ClipMap um
+												// Faktor
 
 	/** Konstruktor Erstellt eine ClipMap aus den gegebenen Parametern
 	 * 
@@ -71,6 +78,8 @@ public class ClipMap
 		translation = new Matrix4f();
 		movement = new int[stage][2];
 		alignment = new boolean[stage][4];
+		scaleFaktor = 1;
+		scaleSteps = 0;
 		for (int i = 0; i < alignment.length; i++)
 		{
 			alignment[i][0] = false;
@@ -78,7 +87,9 @@ public class ClipMap
 			alignment[i][2] = true;
 			alignment[i][3] = false;
 		}
-
+		initialCamPos = new Vector2f();
+		initialCamPos.x = cam.getCamPos().x;
+		initialCamPos.y = cam.getCamPos().z;
 		// Initialisierung der vorgeladenen Geometrien
 		mxm = GeometryFactory.createGrid(gridsize + 1, gridsize + 1);
 		mxn = GeometryFactory.createMxNGrid(middlesize + 1, gridsize + 1);
@@ -94,6 +105,23 @@ public class ClipMap
 		// Anpassung der Höhe und Texturkoordinaten
 		updateSize();
 		updateHeightScale();
+		adjustCamera();
+	}
+
+	private void adjustCamera()
+	{
+		int camPosX = Math.abs((int) (cam.getCamPos().x / generalScale / 2));
+		int camPosZ = Math.abs((int) (cam.getCamPos().z / generalScale / 2));
+		int dirX = (int) cam.getCamPos().x < 0 ? 2 : 0;
+		int dirZ = (int) cam.getCamPos().z < 0 ? 3 : 1;
+		for (int i = 0; i <= camPosX; i++)
+		{
+			moveClip(0, dirX);
+		}
+		for (int i = 0; i <= camPosZ; i++)
+		{
+			moveClip(0, dirZ);
+		}
 	}
 
 	/** Updatet des Shaderprogramm mit der neuen Translationsmatrix */
@@ -228,34 +256,46 @@ public class ClipMap
 	{
 
 		// Zähle Floats hoch, bis Schwellenwert erreicht ist
-		tempX += cam.getAlt().x / generalScale;
-		tempZ += cam.getAlt().z / generalScale;
+		tempX += cam.getAlt().x / generalScale / scaleFaktor;
+		tempY += cam.getAlt().y;
+		tempZ += cam.getAlt().z / generalScale / scaleFaktor;
+
+		if (tempY > 10)
+		{
+			updateHeight(true);
+			tempY %= 10;
+		}
+		if (tempY < -10)
+		{
+			updateHeight(false);
+			tempY %= 10;
+		}
 
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
-		{	
-//			TerrainView.updateTerrainView();
+		{
+			// TerrainView.updateTerrainView();
 			moveClip(0, 1);
 			tempZ %= 2;
 		}
 		// Positiv X --- Nach Links
 		if (tempX > 2)
 		{
-//			TerrainView.updateTerrainView();
+			// TerrainView.updateTerrainView();
 			moveClip(0, 0);
 			tempX %= 2;
 		}
 		// Negativ Z --- Nach Hinten
 		if (tempZ < -2)
 		{
-//			TerrainView.updateTerrainView();
+			// TerrainView.updateTerrainView();
 			moveClip(0, 3);
 			tempZ %= 2;
 		}
 		// Negativ X --- Nach Rechts
 		if (tempX < -2)
 		{
-//			TerrainView.updateTerrainView();
+			// TerrainView.updateTerrainView();
 			moveClip(0, 2);
 			tempX %= 2;
 		}
@@ -267,25 +307,51 @@ public class ClipMap
 				Util.mul(translation,
 						Util.translationX(2 * (-gridsize - middlesize) + middlesize + movement[0][0], null),
 						Util.translationZ(-2 * gridsize + movement[0][1], null));
-				setScale(1);
+				setScale(scaleFaktor);
 				setProgram();
 				center.draw();
 				outer.draw();
 			} else
 			// Zeichne ClipMap Ring
 			{
-				setScale((float) pow(i));
+				setScale(scaleFaktor * (float) pow(i));
 				createClip(i);
 				setLGrid(i);
 			}
 		}
 	}
 
+	private void updateHeight(boolean mode)
+	{
+		if (mode)
+		{
+			if (scaleSteps < 3)
+			{
+				this.stage--;
+				scaleFaktor *= 2;
+				scaleSteps++;
+				moveClipBy(movement[0][0] / -4, movement[0][1] / -4);
+				System.out.println("Größe Movement" + movement[0][0] + " bei Auflösungslevel " + scaleSteps);
+			}
+		} else
+		{
+			if (scaleSteps > 0)
+			{
+				this.stage++;
+				scaleFaktor /= 2;
+				scaleSteps--;
+				moveClipBy(movement[0][0] / 2, movement[0][1] / 2);
+				System.out.println("Größe Movement" + movement[0][0] + " bei Auflösungslevel " + scaleSteps);
+			}
+		}
+
+	}
+
 	/** Verschiebt die ClipMap abhängig vom Kamerastandpunkt
 	 * 
 	 * @param i Ebene der aktuellen ClipMap
 	 * @param dir Richtung in die geschoben werden soll */
-	private void moveClip(int i, int dir)
+	public void moveClip(int i, int dir)
 	{
 		if (dir == 0 || dir == 1) // Unterscheidung der Bewegungsrichtung: pos X
 									// & pos Y
@@ -393,6 +459,24 @@ public class ClipMap
 			setProgram();
 			bottomRight.draw();
 			break;
+		}
+	}
+
+	/** Bewegt die ClipMap um die angegebenen Parameter in X und Z Richtung
+	 * @param x Bewegung in X
+	 * @param z Bewegung in Z */
+	public void moveClipBy(int x, int z)
+	{
+		int dirX = x < 0 ? 2 : 0;
+		int dirZ = z < 0 ? 3 : 1;
+
+		for (int i = 0; i < Math.abs(x); i++)
+		{
+			moveClip(0, dirX);
+		}
+		for (int i = 0; i < Math.abs(z); i++)
+		{
+			moveClip(0, dirZ);
 		}
 	}
 

@@ -54,6 +54,7 @@ public class TerrainView {
 					if(idI+i-4>0 && idJ+j-4>0 && idI+i-4<(Terrain.getSize()/256) && idJ+j-4<(Terrain.getSize()/256))
 					{
 						myBl[i][j] = BlockUtil.readBlockData(new File((idI+i-4)+"_"+(idJ+j-4)+"_.bf"));
+						//System.out.println(myBl[i][j]);
 					}
 					else
 					{
@@ -113,7 +114,7 @@ public class TerrainView {
 		
 		float[][] heightMap = new float[9*256][9*256];
 		for(int x=0; x<heightMap.length; x++){
-			for(int z=0; z<heightMap.length; z++){
+			for(int z=0; z<heightMap[0].length; z++){
 				
 				int bx = (int)x/256;
 				int bz = (int)z/256;
@@ -122,9 +123,21 @@ public class TerrainView {
 				{
 					System.out.println("error");
 				}
-				heightMap[x][z]= myBl[bx][bz].getInfo(x%256, z%256, 0);
-			}
+				
+				
+
+				
+				
+				heightMap[x][z] = myBl[bx][bz].getInfo(x%256, z%256, 0);
+			}	
 		}
+//		int zero =0;
+//		for(int h=0; h<heightMap.length;h++){
+//			for (int l=0; l<heightMap.length; l++){
+//				if(heightMap[h][l]==0)System.out.println("x:"+h+ " z:"+l+"  "+zero++);
+//			}
+//		}
+			
 		return heightMap;
 	}
 	

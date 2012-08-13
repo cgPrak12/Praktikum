@@ -552,6 +552,13 @@ public class GeometryFactory
 		return geo;
 	}
 
+	/**
+	 * Erzeugt die outer Triangles die am Rand jedes Rings liegen um 
+	 * Geometrielücken zu vermeiden
+	 * 
+	 * @param length Länge eined Rings
+	 * @return outerTriangle Geometry
+	 */
 	public static Geometry outerTriangle(int length)
 	{
 

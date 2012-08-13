@@ -1,17 +1,13 @@
-package terrain;
+package util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import util.Camera;
 
 /**
  * Methoden um Bloecke auf die Festplatte zu schreiben oder von ihr zu lesen
@@ -35,43 +31,23 @@ public class BlockUtil {
 		File file = new File(block.getID()[0] + "_" + block.getID()[1] + "_.bf");
 						
 		try( FileOutputStream fos = new FileOutputStream(file);
-			 ByteArrayOutputStream bos = new ByteArrayOutputStream(blockSize * blockSize * vertexInfos * 4);
-			 DataOutputStream output = new DataOutputStream(new BufferedOutputStream(bos)) )
+			 DataOutputStream output = new DataOutputStream(new BufferedOutputStream(fos)) )
 		{
 			if(!file.exists())
 			{
 				file.createNewFile();
 			}
-			
-			// wenn ein Block sich ausserhalb des Terrains befindet
-			if(block.getID()[0] < 0 || block.getID()[1] < 0)
-			{
-				for(int i = 0; i < blockSize; i++)
-				{
-					for(int j = 0; j < blockSize; j++)
-					{
-						for(int k = 0; k < vertexInfos; k++)
-						{		
-							output.writeFloat(0.0f);
-						}		
-					}
-				}
-				fos.write(bos.toByteArray());			
-				return file;
-			}
-					
-			// wenn ein Block sich innerhalb des Terrains befindet
+							
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
 				{
 					for(int k = 0; k < vertexInfos; k++)
-					{		
+					{	
 						output.writeFloat(block.getInfo(i, j, k));
 					}		
 				}
 			}
-			fos.write(bos.toByteArray());						
 			return file;
 		}
 		catch (IOException e1)
@@ -89,13 +65,11 @@ public class BlockUtil {
 	 */
 	public static Block readBlockData(File blockData)
 	{
-		byte[] bytes = new byte[blockSize * blockSize * vertexInfos * 4];
 		
 		try( FileInputStream fis = new FileInputStream(blockData); 
-			 ByteArrayInputStream bis = new ByteArrayInputStream(bytes);	
-			 DataInputStream input = new DataInputStream(new BufferedInputStream(bis)))
+			 	
+			 DataInputStream input = new DataInputStream(new BufferedInputStream(fis)))
 		{			
-			fis.read(bytes);
 			
 			String fileName = blockData.getName();
 			String[] tmp;
@@ -105,23 +79,7 @@ public class BlockUtil {
 			int z = new Integer(tmp[1]);
 			
 			Block newBlock = new Block(x,z);
-
-			/* Sicherstellung, dass ausserhalb des Terrains nur dummys rausgegeben werden */
-			if(x < 0 || z < 0)
-			{
-				for(int i = 0; i < blockSize; i++)
-				{
-					for(int j = 0; j < blockSize; j++)
-					{
-						for(int k = 0; k < vertexInfos; k++)
-						{		
-							newBlock.setInfo(i, j, k, 0.0f);
-						}		
-					}
-				}
-			}
 			
-			/* ansonsten */
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
@@ -131,8 +89,7 @@ public class BlockUtil {
 						newBlock.setInfo(i, j, k, input.readFloat());
 					}		
 				}
-			}
-			
+			}		
 			return newBlock;
 		}
 		catch (IOException e2)
@@ -179,4 +136,6 @@ public class BlockUtil {
 	{
 		return readBlockData(x / 256, z / 256);
 	}
+	
+
 }
