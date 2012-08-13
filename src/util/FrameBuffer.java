@@ -84,6 +84,7 @@ public class FrameBuffer {
     
     public void unbind() {
     	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    	glViewport(0, 0, WIDTH, HEIGHT);
     }
     
     public void BindFragDataLocations(ShaderProgram program, String ...fsOutVarNames) {

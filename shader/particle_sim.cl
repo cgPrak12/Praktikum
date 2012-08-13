@@ -234,7 +234,8 @@ kernel void particle_sim
     float random,
     global float4* pos_inbuf,
     global float4* vel_inbuf,
-    global float* info) 
+    global float* info,
+    global float4* start_pos) 
 {
     grid_t grid = { g_num_cells,
                     g_max_particles,
@@ -253,7 +254,6 @@ kernel void particle_sim
     float4 mypos = pos_inbuf[mygid];
     float4 myvel = vel_inbuf[mygid];
     float4 height = read_imagef(heightmap, sampler, mypos.s02);
-    float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
 
 
     //////////////////////////////////////////////////////////
@@ -265,6 +265,7 @@ kernel void particle_sim
     
     if(mypos.s1 <= height.s0+RADIUS)
     {
+        float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
         mypos.s1 = height.s0+RADIUS;
         dVelo = (float4)(normal.s012*GROUND_NORM_DAMPING,0);
         myvel += dVelo + (float4)(normal.s0,0,normal.s2,0)*GROUND_NORM_DAMPING*2;
@@ -344,9 +345,9 @@ kernel void particle_sim
 	//mypos.s3-=0.00001;
 	
 	if(mypos.s3<=0) {
-		mypos=(float4)(well.s0+random*0.001,well_height,well.s1+random*0.001,1.0f);
+		mypos=start_pos[mygid];
 		//myvel=(float4)(-random*0.0001f,random*0.0001f,random*0.0001f,0);
-		myvel = (float4)(-0.0006,0.0003,0.00001*random+0.0001f,0);
+		myvel = (float4)(0,0,0.0001,0);
 	}
 	
 

@@ -198,7 +198,7 @@ public class FluidRenderer {
 		testPlane();
 		lighting();
 //		finalImage();
-
+		glViewport(0, 0, WIDTH, HEIGHT);
 //		drawTextureSP.use();
 		
 //		drawTextureSP.setUniform("image", depthTex);
@@ -226,7 +226,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
 //		screenQuad.draw();
-
+		
 		return lightingTex;
 
 		
@@ -317,6 +317,7 @@ public class FluidRenderer {
 	
 	private void endPath() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
 	}
 	
 	private void depth() {

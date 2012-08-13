@@ -38,7 +38,7 @@ public class TerrainMain {
     private static Particle particles;
     
     // simulation 
-    private static ShaderProgram simShader;
+//    private static ShaderProgram simShader;
 
     // fluid rendering + simulation
     private static Geometry screenQuad;
@@ -78,7 +78,7 @@ public class TerrainMain {
         screenQuad = GeometryFactory.createScreenQuad();
         
         // create new shader programs
-        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
+//        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
         drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
         
         // create Fluid Rendererer
@@ -114,11 +114,12 @@ public class TerrainMain {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             // prepare simulation: draw terrain to world
-            simShader.use();
-            simShader.setUniform("proj", cam.getProjection());
-            simShader.setUniform("view", cam.getView());
-            simShader.setUniform("normalTex", normalTex);
-            simShader.setUniform("heightTex", heightTex);
+//            simShader.use();
+//            simShader.setUniform("proj", cam.getProjection());
+//            simShader.setUniform("view", cam.getView());
+//            simShader.setUniform("normalTex", normalTex);
+//            simShader.setUniform("heightTex", heightTex);
+
 //            terrain.draw();
             
             // simulate particles
@@ -134,7 +135,7 @@ public class TerrainMain {
             Display.update();
             Display.sync(60);
         }
-        simShader.delete();
+//        simShader.delete();
         OpenCL.destroy();
     }
     
