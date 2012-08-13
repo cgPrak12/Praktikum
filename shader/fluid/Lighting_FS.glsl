@@ -105,5 +105,5 @@ void main(void) {
 //	color = vec3(thickness) * phong + 0.3*cubeColor;//waterColor;
 
 	vec3 planeColor = texture(plane, texCoords).xyz;
-	color = 0 * black * 0.2*(1.0 - max(0, dot(pos2eye, normal))) + 0 *(1-thickness) * planeColor + thickness * black * phong + 0.4 * black * vec3(pow(cubeColor.x,2), pow(cubeColor.y,2), pow(cubeColor.z,2)); 
+	color = 0 * black * 0.2*(1.0 - max(0, dot(pos2eye, normal))) + (1-thickness) * planeColor + thickness * black * phong;// + 0.4 * black * vec3(pow(cubeColor.x,2), pow(cubeColor.y,2), pow(cubeColor.z,2)); 
 }
