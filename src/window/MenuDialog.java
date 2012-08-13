@@ -108,7 +108,7 @@ public class MenuDialog extends JDialog {
 		
 		GridBagLayout gbl_contentPanel = new GridBagLayout();
 		gbl_contentPanel.columnWidths = new int[]{36, 50, 200, 54, 0};
-		gbl_contentPanel.rowHeights = new int[]{36, 23, 23, 23, 31, 23, 2, 23, 23, 2, 0, 0, 0, 23, 0, 23, 0, 0, 0};
+		gbl_contentPanel.rowHeights = new int[]{36, 23, 23, 23, 31, 23, 2, 23, 23, 23, 23, 23, 23, 2, 23, 23, 0, 0, 0};
 		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		
@@ -344,14 +344,25 @@ public class MenuDialog extends JDialog {
 			chckbxBloom.setSelected(main.TerrainMain.isBloom());
 		}
 		{
-			JCheckBox chckbxGlareFading = new JCheckBox("Glare Fading");
-			chckbxGlareFading.setIconTextGap(10);
+			JCheckBox chckbxAmbientOcclusion = new JCheckBox("Ambient Occlusion");
+			chckbxAmbientOcclusion.setIconTextGap(10);
 			GridBagConstraints gbc_chckbxGlareFading = new GridBagConstraints();
 			gbc_chckbxGlareFading.anchor = GridBagConstraints.WEST;
 			gbc_chckbxGlareFading.insets = new Insets(0, 0, 5, 5);
 			gbc_chckbxGlareFading.gridx = 2;
 			gbc_chckbxGlareFading.gridy = 9;
-			graphSettingsPanel.add(chckbxGlareFading, gbc_chckbxGlareFading);
+			graphSettingsPanel.add(chckbxAmbientOcclusion, gbc_chckbxGlareFading);
+			chckbxAmbientOcclusion.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			    	boolean temp;
+			    	if (e.getStateChange() == 1)
+			    		temp = true;
+			    	else
+			    		temp = false;
+			        main.TerrainMain.setAmbientocclusion(temp);
+			    }
+			});
+			chckbxAmbientOcclusion.setSelected(main.TerrainMain.isAmbientocclusion());
 		}
 		{
 			JCheckBox chckbxNormalMapping = new JCheckBox("Normal Mapping");
@@ -362,6 +373,17 @@ public class MenuDialog extends JDialog {
 			gbc_chckbxNormalMapping.gridx = 2;
 			gbc_chckbxNormalMapping.gridy = 10;
 			graphSettingsPanel.add(chckbxNormalMapping, gbc_chckbxNormalMapping);
+			chckbxNormalMapping.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			    	boolean temp;
+			    	if (e.getStateChange() == 1)
+			    		temp = true;
+			    	else
+			    		temp = false;
+			        main.TerrainMain.setNormalmapping(temp);
+			    }
+			});
+			chckbxNormalMapping.setSelected(main.TerrainMain.isNormalmapping());
 		}
 		{
 			JCheckBox chckbxGodRays = new JCheckBox("God Rays");
@@ -385,69 +407,13 @@ public class MenuDialog extends JDialog {
 			chckbxGodRays.setSelected(main.TerrainMain.isGodRays());
 		}
 		{
-			JSeparator separator = new JSeparator();
-			GridBagConstraints gbc_separator = new GridBagConstraints();
-			gbc_separator.anchor = GridBagConstraints.NORTH;
-			gbc_separator.fill = GridBagConstraints.HORIZONTAL;
-			gbc_separator.insets = new Insets(0, 0, 5, 5);
-			gbc_separator.gridx = 2;
-			gbc_separator.gridy = 12;
-			graphSettingsPanel.add(separator, gbc_separator);
-		}
-		
-		{
-			JCheckBox chckbxCulling = new JCheckBox("Culling");
-			chckbxCulling.setIconTextGap(10);
-			GridBagConstraints gbc_chckbxCulling = new GridBagConstraints();
-			gbc_chckbxCulling.anchor = GridBagConstraints.NORTH;
-			gbc_chckbxCulling.fill = GridBagConstraints.HORIZONTAL;
-			gbc_chckbxCulling.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxCulling.gridx = 2;
-			gbc_chckbxCulling.gridy = 13;
-			graphSettingsPanel.add(chckbxCulling, gbc_chckbxCulling);
-			chckbxCulling.addItemListener(new ItemListener() {
-			    public void itemStateChanged(ItemEvent e) {
-			    	boolean temp;
-			    	if (e.getStateChange() == 1)
-			    		temp = true;
-			    	else
-			    		temp = false;
-			        main.TerrainMain.setCulling(temp);
-			    }
-			});
-			chckbxCulling.setSelected(main.TerrainMain.isCulling());
-		}
-		
-		{
-			JCheckBox chckbxWireFrame = new JCheckBox("Wire Frame");
-			chckbxWireFrame.setIconTextGap(10);
-			GridBagConstraints gbc_chckbxWireFrame = new GridBagConstraints();
-			gbc_chckbxWireFrame.anchor = GridBagConstraints.NORTH;
-			gbc_chckbxWireFrame.fill = GridBagConstraints.HORIZONTAL;
-			gbc_chckbxWireFrame.insets = new Insets(0, 0, 5, 5);
-			gbc_chckbxWireFrame.gridx = 2;
-			gbc_chckbxWireFrame.gridy = 14;
-			graphSettingsPanel.add(chckbxWireFrame, gbc_chckbxWireFrame);
-			chckbxWireFrame.addItemListener(new ItemListener() {
-			    public void itemStateChanged(ItemEvent e) {
-			    	boolean temp;
-			    	if (e.getStateChange() == 1)
-			    		temp = true;
-			    	else
-			    		temp = false;
-			        main.TerrainMain.setWireframe(temp);
-			    }
-			});
-			chckbxWireFrame.setSelected(main.TerrainMain.isWireframe());
-		}
-		{
 			JCheckBox chckbxShadows = new JCheckBox("Shadows");
 			chckbxShadows.setIconTextGap(10);
 			GridBagConstraints gbc_chckbxShadows = new GridBagConstraints();
 			gbc_chckbxShadows.anchor = GridBagConstraints.WEST;
 			gbc_chckbxShadows.insets = new Insets(0, 0, 5, 5);
 			gbc_chckbxShadows.gridx = 2;
-			gbc_chckbxShadows.gridy = 15;
+			gbc_chckbxShadows.gridy = 12;
 			graphSettingsPanel.add(chckbxShadows, gbc_chckbxShadows);
 			chckbxShadows.addItemListener(new ItemListener() {
 			    public void itemStateChanged(ItemEvent e) {
@@ -460,6 +426,61 @@ public class MenuDialog extends JDialog {
 			    }
 			});
 			chckbxShadows.setSelected(main.TerrainMain.isShadows());
+		}
+		
+		{
+			JSeparator separator = new JSeparator();
+			GridBagConstraints gbc_separator = new GridBagConstraints();
+			gbc_separator.anchor = GridBagConstraints.NORTH;
+			gbc_separator.fill = GridBagConstraints.HORIZONTAL;
+			gbc_separator.insets = new Insets(0, 0, 5, 5);
+			gbc_separator.gridx = 2;
+			gbc_separator.gridy = 13;
+			graphSettingsPanel.add(separator, gbc_separator);
+		}		
+		{
+			JCheckBox chckbxCulling = new JCheckBox("Culling");
+			chckbxCulling.setIconTextGap(10);
+			GridBagConstraints gbc_chckbxCulling = new GridBagConstraints();
+			gbc_chckbxCulling.anchor = GridBagConstraints.NORTH;
+			gbc_chckbxCulling.fill = GridBagConstraints.HORIZONTAL;
+			gbc_chckbxCulling.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxCulling.gridx = 2;
+			gbc_chckbxCulling.gridy = 14;
+			graphSettingsPanel.add(chckbxCulling, gbc_chckbxCulling);
+			chckbxCulling.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			    	boolean temp;
+			    	if (e.getStateChange() == 1)
+			    		temp = true;
+			    	else
+			    		temp = false;
+			        main.TerrainMain.setCulling(temp);
+			    }
+			});
+			chckbxCulling.setSelected(main.TerrainMain.isCulling());
+		}		
+		{
+			JCheckBox chckbxWireFrame = new JCheckBox("Wire Frame");
+			chckbxWireFrame.setIconTextGap(10);
+			GridBagConstraints gbc_chckbxWireFrame = new GridBagConstraints();
+			gbc_chckbxWireFrame.anchor = GridBagConstraints.NORTH;
+			gbc_chckbxWireFrame.fill = GridBagConstraints.HORIZONTAL;
+			gbc_chckbxWireFrame.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxWireFrame.gridx = 2;
+			gbc_chckbxWireFrame.gridy = 15;
+			graphSettingsPanel.add(chckbxWireFrame, gbc_chckbxWireFrame);
+			chckbxWireFrame.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			    	boolean temp;
+			    	if (e.getStateChange() == 1)
+			    		temp = true;
+			    	else
+			    		temp = false;
+			        main.TerrainMain.setWireframe(temp);
+			    }
+			});
+			chckbxWireFrame.setSelected(main.TerrainMain.isWireframe());
 		}
 		
 		{

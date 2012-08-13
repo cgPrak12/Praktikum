@@ -9,5 +9,5 @@ out vec4 finalColor;
 
 void main(void)
 {
-	finalColor = texture( diffuseTexture, texCoord).xyzw - texture(ssaoTexture, texCoord).xyzw;
+	finalColor = texture( diffuseTexture, texCoord) - texture(ssaoTexture, texCoord);	
 }

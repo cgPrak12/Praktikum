@@ -32,15 +32,19 @@ void main(void) {
    		normalAbs = vec3(0);
    }
    
+   float depth2 = depth;
+   if (depth2 > 1)
+   { depth2=1;}
+   
    vec3 tangent   = normalize(vec3(tangentWC));
    vec3 binormal  = cross(tangent,normalAbs);
-   vec3 mapNormal = 2 * texture(normalTexture, fragmentTexCoords).rgb - vec3(1);
+   vec3 mapNormal = 2*texture(normalTexture, fragmentTexCoords).rgb-vec3(1);
    
    //Tiefeninformation in der W komponente der normale
    normal = vec4(  mapNormal.z * normalAbs 
    				 + mapNormal.y * binormal 
-				 + mapNormal.x * tangent , depth);
-   // normal = vec4(normalAbs,0);
+				 + mapNormal.x * tangent , (depth2));
+   //normal = vec4(depth2,0,0,0);			 
    color = texture(textureImage, fragmentTexCoords);
    position = positionWC;
    spec = texture(specularTexture, fragmentTexCoords).rgb ;

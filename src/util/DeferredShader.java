@@ -37,7 +37,6 @@ public class DeferredShader {
 	private Texture texVertexColor;
 	private Texture texSpec;
 	private Texture skyColor;
-	private Texture texSun;
 	private Texture texShadow;
 	private Texture texBump;
     
@@ -57,8 +56,8 @@ public class DeferredShader {
     	GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
     	GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
     	
-    	texVertexColor = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +1);
-    	texNormal 	   = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +2);
+    	texNormal 	   = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +1);
+    	texVertexColor = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +2);
     	texSpec        = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +3);
     	skyColor       = new Texture(GL11.GL_TEXTURE_2D,  unitOffset +4);
     	texShadow = 	 new Texture(GL11.GL_TEXTURE_2D,  unitOffset +5);
@@ -66,7 +65,7 @@ public class DeferredShader {
     	
     	frameBuffer.addTexture(texPosition, GL30.GL_RGBA32F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texNormal, GL30.GL_RGBA32F, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texVertexColor, GL11.GL_RGBA16, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texVertexColor, GL30.GL_RGBA32F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texSpec, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	frameBuffer.addTexture(skyColor, GL30.GL_RGBA16F, GL11.GL_RGBA);
     	frameBuffer.addTexture(texShadow, GL30.GL_RGBA32F, GL11.GL_RGBA);

@@ -35,6 +35,7 @@ public class ScreenManipulation {
 	private static FrameBuffer fboLighting;
 	private static FrameBuffer fboAO;
 	private static FrameBuffer fbossaoCombine;
+	private static FrameBuffer fbossao;
 	private static FrameBuffer fboBlur_hori;
 	private static FrameBuffer fboBlur_verti;
 	
@@ -51,10 +52,10 @@ public class ScreenManipulation {
 	private static ShaderProgram spoShadow;
 	private static ShaderProgram spoShadowPhong;
 	
-    private static ShaderProgram GodRaysSP;
-    private static ShaderProgram LightingSP;
-    private static ShaderProgram AOSP;
-    private static ShaderProgram ssaoCombine;
+    private static ShaderProgram spoGodRays;
+    private static ShaderProgram spoLighting;
+    private static ShaderProgram spoAO;
+    private static ShaderProgram spoSSAOCombine;
     private static ShaderProgram Blur_hori_SP;
     private static ShaderProgram Blur_verti_SP;
 
@@ -144,45 +145,48 @@ public class ScreenManipulation {
         
         fboBlur20 = new FrameBuffer();
 		fboBlur20.init(false, width, height);
-        fboBlur20.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 16), GL30.GL_RGBA16F, GL_RGBA);
+        fboBlur20.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 14), GL30.GL_RGBA16F, GL_RGBA);
               
         fboQuad = new FrameBuffer();
         fboQuad.init(false, width, height);
-        fboQuad.addTexture(new Texture(GL_TEXTURE_2D, 14), GL30.GL_RGBA16F, GL_RGBA);
+        fboQuad.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 15), GL30.GL_RGBA16F, GL_RGBA);
         
         fboShadow = new FrameBuffer();
         fboShadow.init(false, 2048, 2048);
-        fboShadow.addTexture(new Texture(GL_TEXTURE_2D, 15), GL30.GL_RGBA32F, GL_RGBA);
+        fboShadow.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 16), GL30.GL_RGBA32F, GL_RGBA);
         
         fboShadowPhong = new FrameBuffer();
         fboShadowPhong.init(false, width, height);
-        fboShadowPhong.addTexture(new Texture(GL_TEXTURE_2D, 16), GL30.GL_RGBA16F, GL_RGBA);
+        fboShadowPhong.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 17), GL30.GL_RGBA16F, GL_RGBA);
            	
              
     	fboGodRays = new FrameBuffer();
     	fboGodRays.init(false, width, height);
-    	fboGodRays.addTexture(new Texture(GL_TEXTURE_2D, 18), GL30.GL_RGBA16F, GL_RGBA);
+    	fboGodRays.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 18), GL30.GL_RGBA16F, GL_RGBA);
         
     	fboLighting = new FrameBuffer();
     	fboLighting.init(false, width, height);
-    	fboLighting.addTexture(new Texture(GL_TEXTURE_2D, 19), GL30.GL_RGBA16F, GL_RGBA);
+    	fboLighting.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 19), GL30.GL_RGBA16F, GL_RGBA);
         
     	fboAO = new FrameBuffer();
     	fboAO.init(false, width, height);
-    	fboAO.addTexture(new Texture(GL_TEXTURE_2D, 20), GL30.GL_RGBA16F, GL_RGBA);
+    	fboAO.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 20), GL30.GL_RGBA16F, GL_RGBA);
         
     	fbossaoCombine = new FrameBuffer();
     	fbossaoCombine.init(false, width, height);
-        fbossaoCombine.addTexture(new Texture(GL_TEXTURE_2D, 21), GL30.GL_RGBA16F, GL_RGBA);
+        fbossaoCombine.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 21), GL30.GL_RGBA16F, GL_RGBA);
         
         fboBlur_hori = new FrameBuffer();
         fboBlur_hori.init(false, width, height);
-        fboBlur_hori.addTexture(new Texture(GL_TEXTURE_2D, 22), GL30.GL_RGBA16F, GL_RGBA);
+        fboBlur_hori.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 22), GL30.GL_RGBA16F, GL_RGBA);
         
         fboBlur_verti = new FrameBuffer();
         fboBlur_verti.init(false, width, height);
-        fboBlur_verti.addTexture(new Texture(GL_TEXTURE_2D, 23), GL30.GL_RGBA16F, GL_RGBA);
+        fboBlur_verti.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 23), GL30.GL_RGBA16F, GL_RGBA);
 
+        fbossao = new FrameBuffer();
+    	fbossao.init(false, width, height);
+        fbossao.addTexture(new Texture(GL_TEXTURE_2D, unitOffset + 24), GL30.GL_RGBA16F, GL_RGBA);
         
         //initialize all the FragmentShaderPrograms
 		spoBlur = new ShaderProgram(vertexShader, fragmentShaderBlur);
@@ -195,10 +199,10 @@ public class ScreenManipulation {
 		spoShadow = new ShaderProgram(vertexShader, "./shader/Shadow_FS.glsl");
 		spoShadowPhong = new ShaderProgram(vertexShader, "./shader/ShadowLighting_FS.glsl");
 		
-   		GodRaysSP = new ShaderProgram(vertexShader, "./shader/GodRayFS.glsl");
-		LightingSP = new ShaderProgram(vertexShader, "./shader/Normal_FS.glsl");
-		AOSP = new ShaderProgram(vertexShader, "./shader/AmbientOcclusion2_FS.glsl");
-		ssaoCombine = new ShaderProgram(vertexShader, "./shader/SSAO_Combine.glsl");
+   		spoGodRays = new ShaderProgram(vertexShader, "./shader/GodRayFS.glsl");
+		spoLighting = new ShaderProgram(vertexShader, "./shader/Normal_FS.glsl");
+		spoAO = new ShaderProgram(vertexShader, "./shader/AmbientOcclusion2_FS.glsl");
+		spoSSAOCombine = new ShaderProgram(vertexShader, "./shader/SSAO_Combine.glsl");
 		Blur_hori_SP = new ShaderProgram(vertexShader, "./shader/Blur_hori_FS.glsl");
 		Blur_verti_SP = new ShaderProgram(vertexShader, "./shader/Blur_verti_FS.glsl");
 
@@ -496,7 +500,6 @@ public class ScreenManipulation {
 		spoShadowPhong.setUniform("diffuseTex", shader.getDiffuseTexture());
 		spoShadowPhong.setUniform("specularTex", shader.getSpecTexture());
 		spoShadowPhong.setUniform("shadowTex", shadowShader.getTexture());
-//		spoShadowPhong.setUniform("shadowTex", getShadowMix(shader.getWorldTexture(), shader.getShadowTexture(), shadowShader.getTexture(), sunDirection).getTexture(0));
 		spoShadowPhong.setUniform("shadowCoordsTex", shader.getShadowTexture());
 		spoShadowPhong.setUniform("camPos",     shadowCam.getCamPos());
 		spoShadowPhong.setUniform("sunDir",	 	sunDirection);
@@ -516,11 +519,11 @@ public class ScreenManipulation {
 	{
 		fboGodRays.bind();
 		
-		GodRaysSP.use();
-		GodRaysSP.setUniform("diffuseTexture", diffuseTexture);
-    	GodRaysSP.setUniform("viewProj",viewProj);
-		GodRaysSP.setUniform("lightPosition", lightpos);
-		GodRaysSP.setUniform("skyTexture", skyTexture);
+		spoGodRays.use();
+		spoGodRays.setUniform("diffuseTexture", diffuseTexture);
+    	spoGodRays.setUniform("viewProj",viewProj);
+		spoGodRays.setUniform("lightPosition", lightpos);
+		spoGodRays.setUniform("skyTexture", skyTexture);
 		
 		this.screenQuad.draw();
 		fboGodRays.unbind();
@@ -532,20 +535,47 @@ public class ScreenManipulation {
 	{
 		fboLighting.bind();
 		
-		LightingSP.use();
-        LightingSP.setUniform("normalTexture",  shader.getNormalTexture());
-        LightingSP.setUniform("diffuseTexture",  shader.getDiffuseTexture());
-        LightingSP.setUniform("specularTexture", shader.getSpecTexture());
-        LightingSP.setUniform("worldTexture", shader.getWorldTexture());
-        LightingSP.setUniform("eyePosition", eyePos);
-        LightingSP.setUniform("bumpTexture", shader.getBumpTexture());
-        LightingSP.setUniform("skyTexture", shader.getSkyTexture());
-        LightingSP.setUniform("lightPosition1", lightpos);
+		spoLighting.use();
+        spoLighting.setUniform("normalTexture",  shader.getNormalTexture());
+        spoLighting.setUniform("diffuseTexture",  shader.getDiffuseTexture());
+        spoLighting.setUniform("specularTexture", shader.getSpecTexture());
+        spoLighting.setUniform("worldTexture", shader.getWorldTexture());
+        spoLighting.setUniform("eyePosition", eyePos);
+        spoLighting.setUniform("bumpTexture", shader.getBumpTexture());
+        spoLighting.setUniform("skyTexture", shader.getSkyTexture());
+        spoLighting.setUniform("lightPosition1", lightpos);
 		
 		this.screenQuad.draw();
 		fboLighting.unbind();
 		
 		return fboLighting;
+	}
+	
+	public FrameBuffer getAO_Step1(Texture noiseTexture, Texture normalTexture)
+	{
+		fboAO.bind();
+		
+		spoAO.use();
+		spoAO.setUniform("normalTexture",  normalTexture);
+		spoAO.setUniform("noiseTexture",   noiseTexture);
+		
+		this.screenQuad.draw();
+		fboAO.unbind();
+		return getBlur53(fboAO);
+	}
+	
+	public FrameBuffer getAmbientOcclusion(Texture noiseTexture, Texture normalTexture, Texture diffuseTexture)
+	{			
+		fbossao = getAO_Step1(noiseTexture,  normalTexture);
+		
+		fbossao.bind();
+		spoSSAOCombine.use();
+		spoSSAOCombine.setUniform("ssaoTexture", fbossao.getTexture(0));
+		spoSSAOCombine.setUniform("diffuseTexture", diffuseTexture);
+		this.screenQuad.draw();
+		fbossao.unbind();
+		return fbossao;
+		
 	}
 	
 	/**
@@ -561,6 +591,13 @@ public class ScreenManipulation {
 		spoQuad.delete();
 		spoShadow.delete();
 		spoShadowPhong.delete();
+
+	    spoGodRays.delete();
+	    spoLighting.delete();
+	    spoAO.delete();
+	    spoSSAOCombine.delete();
+	    Blur_hori_SP.delete();
+	    Blur_verti_SP.delete();
 	}
 
 	/**
