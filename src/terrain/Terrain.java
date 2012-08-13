@@ -143,7 +143,7 @@ public class Terrain
 							{
 								if(countDot++ % (factor * 16384) == 0)
 									System.out.print(".");
-								block.setInfo(m, n, 0, (float) Math.random());
+								block.setInfo(m, n, 0, (float) (0.1f * xPos*zPos));
 							}
 						}
 						

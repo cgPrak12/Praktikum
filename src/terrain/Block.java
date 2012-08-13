@@ -43,6 +43,7 @@ public class Block implements Serializable {
 	 */
 	public void setInfo(int x, int z, int pos, float info)
 	{
+	
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
 				vertexInfo[x][z][pos] = info;
