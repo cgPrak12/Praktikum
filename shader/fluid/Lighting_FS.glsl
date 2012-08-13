@@ -41,7 +41,7 @@ void main(void) {
 	vec4 thicknessInt = /*texture2D(thicknessTex, texCoords);/*/depth*texture2D(thicknessTex, texCoords)+ (1-depth)*texture2D(thicknessTexLQ, texCoords);
 
 	float black = 1;
-	if(texture(thicknessTexNB, texCoords).z == 0) black = 0;
+//	if(texture(thicknessTexNB, texCoords).z == 0) black = 0;
 	
 	vec3 position = depthInt.xyz;
 	vec3 normal = normalize(normalInt.xyz);
@@ -105,5 +105,5 @@ void main(void) {
 //	color = vec3(thickness) * phong + 0.3*cubeColor;//waterColor;
 
 	vec3 planeColor = texture(plane, texCoords).xyz;
-	color = 0 * black * 0.2*(1.0 - max(0, dot(pos2eye, normal))) + 0 *(1-thickness) * planeColor + (0.5+thickness) * black * phong + 0.4 * black * vec3(pow(cubeColor.x,2), pow(cubeColor.y,2), pow(cubeColor.z,2)); 
+	color = 0 * black * 0.2*(1.0 - max(0, dot(pos2eye, normal))) + 0 *(1-thickness) * planeColor + thickness * black * phong + 0.4 * black * vec3(pow(cubeColor.x,2), pow(cubeColor.y,2), pow(cubeColor.z,2)); 
 }
