@@ -69,9 +69,10 @@ public class TerrainMain {
         shader.registerShaderProgram(fboSP);
         
         Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
-        FluidRenderer fluidRenderer = new FluidRenderer(cam, lightPos);
+        FluidRenderer fluidRenderer = new FluidRenderer(cam);
         
         Geometry testCube = GeometryFactory.createCube();
+        Geometry testWaterParticles = GeometryFactory.createTestParticles(1024*13);
        
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -116,7 +117,7 @@ public class TerrainMain {
             // TODO: postfx
             
             // WATER
-            fluidRenderer.render();
+            shader.DrawTexture(fluidRenderer.render(lightPos, testWaterParticles, shader.getWorldTexture()));
             
             // TODO: combine images
             

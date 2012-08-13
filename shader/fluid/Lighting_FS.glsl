@@ -41,7 +41,7 @@ void main(void) {
 	vec4 thicknessInt = /*texture2D(thicknessTex, texCoords);/*/depth*texture2D(thicknessTex, texCoords)+ (1-depth)*texture2D(thicknessTexLQ, texCoords);
 
 	float black = 1;
-	if(depth == 0) black = 0;
+	if(texture(thicknessTexNB, texCoords).z == 0) black = 0;
 	
 	vec3 position = depthInt.xyz;
 	vec3 normal = normalize(normalInt.xyz);

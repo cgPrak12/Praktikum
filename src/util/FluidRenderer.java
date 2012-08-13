@@ -13,7 +13,9 @@ import org.lwjgl.util.vector.Vector3f;
  * @author S. Hoeffner, K. Schmidt, A. Werner
  */
 public class FluidRenderer {
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(100000);
+
+	private Geometry testWaterParticles;
+
 	private int 	 textureUnit = 0;
 	private Camera   cam;
 	private Vector3f lightPos;
@@ -113,18 +115,8 @@ public class FluidRenderer {
     private FrameBuffer testPlaneFB   = new FrameBuffer();
     private Texture testPlaneTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
     
-    // Interpolation between
-    private ShaderProgram interpolationSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Interpolation_FS.glsl");
-    private FrameBuffer depthIntFB        = new FrameBuffer();
-    private FrameBuffer normalIntFB       = new FrameBuffer();
-    private FrameBuffer thicknessIntFB    = new FrameBuffer();
-    private Texture depthIntTex           = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture normalIntTex          = new Texture(GL_TEXTURE_2D, textureUnit++);
-    private Texture thicknessIntTex       = new Texture(GL_TEXTURE_2D, textureUnit++);
-
-    public FluidRenderer(Camera camTmp, Vector3f light) {
+    public FluidRenderer(Camera camTmp) {
     	cam = camTmp;
-    	lightPos = light;
     	
     	// init shaderPrograms, frameBuffers, ...
     	glPointSize(GL_POINT_SIZE);
@@ -149,11 +141,6 @@ public class FluidRenderer {
     	init(finalImageSP, finalImageFB, finalImageTex, "color", false, false, GL_RGBA8);
     	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", false, false, GL_RGBA8);
     	
-    	// init interpolation
-    	init(interpolationSP, depthIntFB,     depthIntTex);
-    	init(interpolationSP, normalIntFB,    normalIntTex);
-    	init(interpolationSP, thicknessIntFB, thicknessIntTex);
-    	
     	// init blur
     	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB, normal2HBlurFB, normal2VBlurFB}, 
     				 new Texture[]    {depthHBlurTex,   depthVBlurTex,   normalHBlurTex,   normalVBlurTex,   thicknessHBlurTex,   thicknessVBlurTex, normal2HBlurTex, normal2VBlurTex});
@@ -164,9 +151,11 @@ public class FluidRenderer {
     	
 	} 
 	
-	public void render() {
+	public Texture render(Vector3f light, Geometry particles, Texture world) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
+		lightPos = light;
+		testWaterParticles = particles;
 		
 		// depth
 		depth();
@@ -190,18 +179,12 @@ public class FluidRenderer {
 		blur(thicknessTex, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
 		
-		// interpolation
-		interpolate(depthVBlurTex, depthVBlurTexLQ, depthIntFB);
-		interpolate(normalVBlurTex, normalVBlurTexLQ, normalIntFB);
-		interpolate(thicknessVBlurTex, thicknessVBlurTexLQ, thicknessIntFB); // möglicherweise tun's hier auch die normale 
-																			 // und die normal große geblurrte Texture, dann 
-																			 // könnte man sich den gesamten LQ-Kram sparen
 		// lighting
 		testPlane();
 		lighting();
-		finalImage();
+//		finalImage();
 
-		drawTextureSP.use();
+//		drawTextureSP.use();
 		
 //		drawTextureSP.setUniform("image", depthTex);
 //		drawTextureSP.setUniform("image", depthHBlurTex);
@@ -223,11 +206,15 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessTexLQ);
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
-		drawTextureSP.setUniform("image", lightingTex);
+//		drawTextureSP.setUniform("image", lightingTex);
 //		drawTextureSP.setUniform("image", finalImageTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
-		screenQuad.draw();
+//		screenQuad.draw();
+
+		return lightingTex;
+
+		
 	}
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex) {
@@ -247,7 +234,7 @@ public class FluidRenderer {
 	}
 
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex, String attachmentName, boolean depthTest, boolean low, int internalFormat) {
-		fb.init(depthTest, WIDTH/(low?4:1), HEIGHT/(low?4:1));
+		fb.init(depthTest, WIDTH/(low?2:1), HEIGHT/(low?2:1));
     	fb.addTexture(tex, internalFormat, GL_RGBA);
     	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -289,7 +276,7 @@ public class FluidRenderer {
 	
 	private void init(ShaderProgram sp, FrameBuffer[] fb, Texture[] tex, boolean low) {
 		for(int i = 0; i < fb.length; i++) {
-			fb[i].init(false, WIDTH/(low?4:1), HEIGHT/(low?4:1));
+			fb[i].init(false, WIDTH/(low?2:1), HEIGHT/(low?2:1));
 			fb[i].addTexture(tex[i], GL_RGBA16F, GL_RGBA);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -406,13 +393,14 @@ public class FluidRenderer {
 	    startPath(thicknessSP, thicknessFB);
 	    thicknessSP.setUniform("viewProj", viewProj);
 	    thicknessSP.setUniform("camera", cam.getCamPos());
-
+	    thicknessSP.setUniform("size", 1.0f);
         glBlendFunc(GL_ONE, GL_ONE);
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
 
         testWaterParticles.draw();
         bindFB(thicknessFBLQ);
+        thicknessSP.setUniform("size", 2.0f);
         testWaterParticles.draw();
 
         endPath();
@@ -520,15 +508,4 @@ public class FluidRenderer {
 		}
 	}
 	
-	// TODO Interpolation - evtl. depth neu skalieren?
-	private void interpolate(Texture high, Texture low, FrameBuffer fb){
-		startPath(interpolationSP, fb);
-		interpolationSP.setUniform("highTex", high);
-		interpolationSP.setUniform("lowTex", low);
-		interpolationSP.setUniform("depthTex", depthTex);
-
-        screenQuad.draw();
-        
-        endPath();
-	}
 }
