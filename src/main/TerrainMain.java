@@ -66,7 +66,7 @@ public class TerrainMain
 			glEnable(GL_PRIMITIVE_RESTART);
 			glPrimitiveRestartIndex(-1);
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-			program = new ShaderProgram(".\\shader\\Test_Vs.glsl", ".\\shader\\Test_Fs.glsl");
+			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Test_Fs.glsl");
 			program.use();
 
 			clip = new ClipMap(30, 8, program, cam);
@@ -106,7 +106,7 @@ public class TerrainMain
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
 			program.setUniform("elevation", tex);
-			tex = Texture.generateTexture(".\\earth.jpg", 2);
+			tex = Texture.generateTexture("./earth.jpg", 2);
 			tex.bind();
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);

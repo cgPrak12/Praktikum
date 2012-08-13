@@ -39,7 +39,24 @@ public class BlockUtil {
 			{
 				file.createNewFile();
 			}
-							
+						
+			// wenn Block ausserhalb des Terrains ist
+			if(block.getX() < 0 || block.getZ() < 0)
+			{
+				for(int i = 0; i < blockSize; i++)
+				{
+					for(int j = 0; j < blockSize; j++)
+					{
+						for(int k = 0; k < vertexInfos; k++)
+						{	
+							output.writeFloat(0.0f);
+						}		
+					}
+				}
+				return file;
+			}
+			
+			// wenn Block innerhalb des Terrains ist
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
@@ -69,9 +86,8 @@ public class BlockUtil {
 	public static Block readBlockData(File blockData)
 	{
 		
-		try( FileInputStream fis = new FileInputStream(blockData); 
-			 	
-			 DataInputStream input = new DataInputStream(new BufferedInputStream(fis)))
+		try( FileInputStream fis = new FileInputStream(blockData); 			 	
+			 DataInputStream input = new DataInputStream(new BufferedInputStream(fis)) )
 		{			
 			
 			String fileName = blockData.getName();
