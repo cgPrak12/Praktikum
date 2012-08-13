@@ -22,6 +22,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import terrain.ClipMap;
+import terrain.TerrainView;
 import util.*;
 
 /** @author nico3000 */
@@ -70,7 +71,7 @@ public class TerrainMain
 
 			clip = new ClipMap(30, 8, program, cam);
 			
-			Terrain terrain = new Terrain(1024);
+			terrain.Terrain terrain = new terrain.Terrain(1024);
 			TerrainView tv = new TerrainView(cam);
 			
 			float[][] heightMap = tv.getHeightMap();
