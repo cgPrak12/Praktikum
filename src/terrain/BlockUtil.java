@@ -32,8 +32,7 @@ public class BlockUtil {
 	{				
 		File file = new File(block.getX() + "_" + block.getZ() + "_.bf");
 						
-		try(	FileOutputStream fos = new FileOutputStream(file);
-				DataOutputStream output = new DataOutputStream(new BufferedOutputStream(fos))	)
+		try(DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))))
 		{
 			if(!file.exists())
 			{
@@ -68,8 +67,7 @@ public class BlockUtil {
 	public static Block readBlockData(File blockData)
 	{
 		
-		try(	FileInputStream fis = new FileInputStream(blockData); 
-				DataInputStream input = new DataInputStream(new BufferedInputStream(fis))	)
+		try(DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(blockData))))
 		{					
 			String fileName = blockData.getName();
 			String[] tmp;
