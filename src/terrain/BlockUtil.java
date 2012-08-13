@@ -97,7 +97,7 @@ public class BlockUtil {
 	}
 	
 	/**
-	 * Liest ein Blockfile aus, dessen ID mit der gegeben uebereinstimmt
+	 * Liest ein Blockfile ( x_z_.bf ) aus, dessen ID mit der gegeben uebereinstimmt
 	 * 
 	 * @param x		X_0_.bf
 	 * @param z		0_Z_.bf
