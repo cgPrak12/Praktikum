@@ -13,7 +13,7 @@ void main(void) {
 	positionWC = vec4(positionMC,1);
 
 	gl_Position = viewProj * positionWC;
-	pointSize =(100/(1 + length(positionMC - camPos))*(1/size));
+	pointSize =(50/(1 + length(positionMC - camPos))*(1/size));
     
 	gl_PointSize = pointSize;
 }

@@ -22,7 +22,7 @@ void main(void) {
 
 	n.z = -dot(n.xy, n.xy);
 	vec4 pos = (view * positionWC);
-	float scale = 1;//pointSize * 0.5 / 10.0;
+	float scale = pointSize * 0.5 / 200;
 	vec4 pixelPos = vec4(pos.xyz + scale*n , 1.0);
 
 	depth = vec4(pixelPos.xyz, length(pixelPos.xyz) / viewDistance);

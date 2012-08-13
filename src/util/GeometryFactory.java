@@ -75,10 +75,19 @@ public class GeometryFactory {
     
     public static Geometry createTestParticles(int num) {
     	FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(num*3);
+    	float amp = 0.9f;
+    	double freq = 5;//1/(double)num;
+    	int d = (int)Math.sqrt(num);
     	for(int i = 0; i < num; i++) {
-    		vertexBuffer.put(((float)Math.random()-0.5f) * 3.0f);
-    		vertexBuffer.put((float)Math.random()*0.4f);
-    		vertexBuffer.put(((float)Math.random()-0.5f) * 3.0f);
+    		vertexBuffer.put((float)Math.random() * 3.0f - 1.5f);
+    		vertexBuffer.put((float)Math.random() * 0.4f);
+    		vertexBuffer.put((float)Math.random() * 3.0f - 1.5f);
+    		
+    		/*for(int j = 0; j < d; ++j) {
+        		vertexBuffer.put(-2 + 4*i/(float)d);
+        		vertexBuffer.put(amp*(float)((Math.sin(freq * i) * Math.cos(freq * j))));
+        		vertexBuffer.put(-2 + 4*j/(float)d);
+    		}*/
     	}
     	vertexBuffer.position(0);
     	

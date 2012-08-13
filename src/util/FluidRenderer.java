@@ -13,7 +13,7 @@ import org.lwjgl.util.vector.Vector3f;
  * @author S. Hoeffner, K. Schmidt, A. Werner
  */
 public class FluidRenderer {
-	private Geometry testWaterParticles = GeometryFactory.createTestParticles(1024 * 8);
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(100000);
 	private int 	 textureUnit = 0;
 	private Camera   cam;
 	private Vector3f lightPos;
@@ -32,13 +32,27 @@ public class FluidRenderer {
     private FrameBuffer depthFBLQ 	   = new FrameBuffer();
     private Texture depthTex 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture depthTexLQ 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
-   
+
+    // Depth2
+    private ShaderProgram depth2SP     = new ShaderProgram("./shader/fluid/Depth_VS.glsl", "./shader/fluid/Depth2_FS.glsl");
+    private FrameBuffer depth2FB 	   = new FrameBuffer();
+    private FrameBuffer depth2FBLQ 	   = new FrameBuffer();
+    private Texture depth2Tex 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture depth2TexLQ 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
+
     // Normals
     private ShaderProgram normalSP      = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Normal_FS.glsl");
     private FrameBuffer normalFB 		= new FrameBuffer();
     private FrameBuffer normalFBLQ 		= new FrameBuffer();
     private Texture normalTex 		    = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture normalTexLQ 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
+
+    // Normals2
+    private ShaderProgram normal2SP      = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Normal_FS.glsl");
+    private FrameBuffer normal2FB 		= new FrameBuffer();
+    private FrameBuffer normal2FBLQ 		= new FrameBuffer();
+    private Texture normal2Tex 		    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture normal2TexLQ 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
 
     // Thickness
     private ShaderProgram thicknessSP      = new ShaderProgram("./shader/fluid/Thickness_VS.glsl", "./shader/fluid/Thickness_FS.glsl");
@@ -67,7 +81,16 @@ public class FluidRenderer {
     private Texture normalVBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture normalHBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture normalVBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
-    	// thickness
+	// normals2
+    private FrameBuffer normal2HBlurFB 	= new FrameBuffer();
+    private FrameBuffer normal2VBlurFB 	= new FrameBuffer();
+    private FrameBuffer normal2HBlurFBLQ	= new FrameBuffer();
+    private FrameBuffer normal2VBlurFBLQ	= new FrameBuffer();
+    private Texture normal2HBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture normal2VBlurTex 	    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture normal2HBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture normal2VBlurTexLQ    = new Texture(GL_TEXTURE_2D, textureUnit++);
+    // thickness
     private FrameBuffer thicknessHBlurFB   = new FrameBuffer();
     private FrameBuffer thicknessVBlurFB   = new FrameBuffer();
     private FrameBuffer thicknessHBlurFBLQ = new FrameBuffer();
@@ -116,7 +139,9 @@ public class FluidRenderer {
         // init depth, normal, thickness
         
     	init(depthSP, depthFB, depthFBLQ, depthTex, depthTexLQ, "depth", true);
+    	init(depth2SP, depth2FB, depth2FBLQ, depth2Tex, depth2TexLQ, "depth", true);
 		init(normalSP, normalFB, normalFBLQ, normalTex, normalTexLQ);
+		init(normal2SP, normal2FB, normal2FBLQ, normal2Tex, normal2TexLQ);
     	init(thicknessSP, thicknessFB, thicknessFBLQ, thicknessTex, thicknessTexLQ);
 
     	// init lighting
@@ -130,8 +155,8 @@ public class FluidRenderer {
     	init(interpolationSP, thicknessIntFB, thicknessIntTex);
     	
     	// init blur
-    	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB}, 
-    				 new Texture[]    {depthHBlurTex,   depthVBlurTex,   normalHBlurTex,   normalVBlurTex,   thicknessHBlurTex,   thicknessVBlurTex});
+    	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB, normal2HBlurFB, normal2VBlurFB}, 
+    				 new Texture[]    {depthHBlurTex,   depthVBlurTex,   normalHBlurTex,   normalVBlurTex,   thicknessHBlurTex,   thicknessVBlurTex, normal2HBlurTex, normal2VBlurTex});
     	init(blurSP, new FrameBuffer[]{depthHBlurFBLQ,  depthVBlurFBLQ,  normalHBlurFBLQ,  normalVBlurFBLQ,  thicknessHBlurFBLQ,  thicknessVBlurFBLQ}, 
     				 new Texture[]    {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ}, true);
 
@@ -145,19 +170,24 @@ public class FluidRenderer {
 		
 		// depth
 		depth();
+		depth2();
 		
 		// normals
 		normals(); // Wenn normals(true), dann werden die Normalen mit der geblurrten depth berechnet. Aufpassen!
+		normals2();
 		
 		// thickness
 		thickness();
 		
 		// blur
-		blur(depthTexLQ, depthHBlurFB, depthVBlurFB, 1.0f);
+		blur(depthTex, depthHBlurFB, depthVBlurFB, 1.0f);
 		blur(depthTexLQ, depthHBlurFBLQ, depthVBlurFBLQ, 1.0f);
 		blur(normalTex, normalHBlurFB, normalVBlurFB, 1.0f);
+		blur(normal2Tex, normal2HBlurFB, normal2VBlurFB, 1.0f);
+//		blur(normalVBlurTex, normalHBlurFB, normalVBlurFB, 1.0f);
+//		blur(normalVBlurTex, normalHBlurFB, normalVBlurFB, 1.0f);
 		blur(normalTexLQ, normalHBlurFBLQ, normalVBlurFBLQ, 1.0f);
-		blur(thicknessTexLQ, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
+		blur(thicknessTex, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
 		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
 		
 		// interpolation
@@ -193,7 +223,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", thicknessTexLQ);
 //		drawTextureSP.setUniform("image", thicknessHBlurTexLQ);
 //		drawTextureSP.setUniform("image", thicknessVBlurTexLQ);
-//		drawTextureSP.setUniform("image", lightingTex);
+		drawTextureSP.setUniform("image", lightingTex);
 //		drawTextureSP.setUniform("image", finalImageTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
@@ -312,6 +342,31 @@ public class FluidRenderer {
         endPath();
 	}
 	
+	private void depth2() {
+		depth2SP.use();
+		depth2SP.setUniform("view", cam.getView());
+		depth2SP.setUniform("proj", cam.getProjection());
+		depth2SP.setUniform("viewProj", viewProj);
+		depth2SP.setUniform("viewDistance", cam.getViewDistance());
+        depth2SP.setUniform("camPos", cam.getCamPos());
+        depth2SP.setUniform("size",1.0f);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+
+        bindFB(depth2FB);
+	    testWaterParticles.draw();
+	    
+	    depth2SP.setUniform("size",2.0f);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+
+    	bindFB(depth2FBLQ);
+    	
+    	testWaterParticles.draw();
+	    
+        endPath();
+	}
+	
 	private void normals() { normals(false); }
 	private void normals(boolean source) {
 		startPath(normalSP);
@@ -324,6 +379,23 @@ public class FluidRenderer {
 		
 //		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ); // TODO probieren, ob diese Zeile doch rein muss
 		bindFB(normalFBLQ);
+		screenQuad.draw();
+		
+		endPath();
+	}
+
+	private void normals2() { normals2(false); }
+	private void normals2(boolean source) {
+		startPath(normal2SP);
+		normal2SP.setUniform("depthTex", source?depth2Tex:depth2Tex);
+		normal2SP.setUniform("texSize", (float)WIDTH);
+		normal2SP.setUniform("camPos", cam.getCamPos());
+
+		bindFB(normal2FB);
+		screenQuad.draw();
+		
+//		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ); // TODO probieren, ob diese Zeile doch rein muss
+		bindFB(normal2FBLQ);
 		screenQuad.draw();
 		
 		endPath();
@@ -350,10 +422,22 @@ public class FluidRenderer {
         startPath(lightingSP, lightingFB);
         lightingSP.setUniform("view", cam.getView());
 	    lightingSP.setUniform("depthTex", depthVBlurTex);
+	    lightingSP.setUniform("depthTexLQ", depthVBlurTexLQ);
+	    lightingSP.setUniform("depth2Tex", depth2Tex);
 	    lightingSP.setUniform("normalTex", normalVBlurTex);
-	    lightingSP.setUniform("thicknessTex", thicknessTex);
+	    lightingSP.setUniform("normalTexLQ", normalVBlurTexLQ);
+	    lightingSP.setUniform("normal2Tex", normal2VBlurTex);
+	    lightingSP.setUniform("thicknessTexNB", thicknessTex);
+	    lightingSP.setUniform("thicknessTex", thicknessVBlurTex);
+	    lightingSP.setUniform("thicknessTexLQ", thicknessVBlurTexLQ);
         lightingSP.setUniform("cubeMap", cubemap);
+	    lightingSP.setUniform("plane", testPlaneTex);
         lightingSP.setUniform("lightPosW", lightPos);
+        lightingSP.setUniform("eye", cam.getCamPos());
+        Matrix4f iView = new Matrix4f();
+        iView.load(cam.getView());
+        iView.invert();
+        lightingSP.setUniform("iView", iView);
         screenQuad.draw();
         
         endPath();
