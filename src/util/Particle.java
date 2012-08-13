@@ -41,6 +41,7 @@ import static opengl.OpenCL.create;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Random;
 
 import opengl.GL;
 import opengl.OpenCL;
@@ -93,7 +94,7 @@ public class Particle {
     /** number cells per dimension spatial dimension */
     private int gridLen = 40;
     /** max number of particles per cell */
-    private int gridMaxParticles = 40;
+    private int gridMaxParticles = 20;
     /** holds the number of particles in a specific grid cell */
     private CLMem gridCounters;
     /** holds the cell's particles global_ids */
@@ -218,6 +219,10 @@ public class Particle {
         //specularTexture = Util.generateTexture("asteroid_spec.jpg");
     }
     
+    static float rand(Random r) {
+    	return r.nextInt() / (float)Integer.MAX_VALUE;
+    }
+    
     public void createData(int heightmap, int normalmap){
     	
         this.GLheightmapID = heightmap;
@@ -225,19 +230,22 @@ public class Particle {
         
     	particles = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	particles.position(0);
-    	for(int i=0; i<MAX_PARTICLES; i++){
-    		particles.put((float)(Math.random()));
-    		particles.put(0.1f+(float)i*0.001f);
-    		particles.put((float)(Math.random())*0.5f);
+    	//0.44843593, 0.019001158, 0.2570792
+    	Random r = new Random();
+    	for(int i=0; i < MAX_PARTICLES; i++){
+    		particles.put(0.44f + 0.1f*rand(r));//(float)(Math.random()));
+    		particles.put(rand(r) * 0.2f + 0.1f);//0.1f + (float)i*0.001f);
+    		particles.put(0.25f + 0.1f*rand(r));//(float)(Math.random())*0.5f);
     		particles.put(1f);
     	}
+    	
     	particles.position(0);
     	
     	veloBuffer = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	veloBuffer.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
                 veloBuffer.put(0);
-    		veloBuffer.put(0f);
+                veloBuffer.put(0f);
                 veloBuffer.put(0.0004f);
                 veloBuffer.put(0);
     	}
@@ -285,18 +293,18 @@ public class Particle {
                 0, 0,
                 this.particles.capacity()*4, null, null);  
         
-        this.kernel0.setArg(8, 1e-3f*millis);
+        this.kernel0.setArg(8, 0.5f);//1e-3f*millis);
         this.kernel0.setArg(9, (float)Math.random());
         
         // clear the grid
         clEnqueueNDRangeKernel(this.queue, kernel1, 1, null, 
                 BufferUtils.createPointerBuffer(1).put(0,gridLen*gridLen*gridLen), 
-                BufferUtils.createPointerBuffer(1).put(0,1), null, null);
+                null, null, null);
         // add particles to grid
         clEnqueueNDRangeKernel(this.queue, kernel2, 1, null, gwz, lwz, null, null);
         // calculate particle movement / interaction
         clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
-
+        
         clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
         clEnqueueReleaseGLObjects(this.queue, this.heightmap, null, null);
         clEnqueueReleaseGLObjects(this.queue, this.normalmap, null, null);
@@ -372,7 +380,7 @@ public class Particle {
         float spaceY = 0.0f;
         float spaceZ = 0.0f;
         float spaceLength = 1.0f;
-        float gridLength = 40f;//(int)(spaceLength/(2*particleRadius))+1;
+        float gridLength = this.gridLen;//(int)(spaceLength/(2*particleRadius))+1;
         float gridMaxp = this.gridMaxParticles;
         
         gib.put(particleRadius);

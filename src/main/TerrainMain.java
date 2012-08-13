@@ -11,6 +11,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -25,7 +26,7 @@ public class TerrainMain {
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
-    private static ShaderProgram drawTextureSP;
+    private static ShaderProgram drawTextureSP, simShader;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -78,7 +79,7 @@ public class TerrainMain {
         screenQuad = GeometryFactory.createScreenQuad();
         
         // create new shader programs
-//        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
+        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
         drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
         
         // create Fluid Rendererer
@@ -93,7 +94,8 @@ public class TerrainMain {
         // particle creation
         particles = new Particle(4096*4, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
-        
+        glDisable(GL11.GL_DEPTH_TEST);
+        //
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -119,11 +121,13 @@ public class TerrainMain {
 //            simShader.setUniform("view", cam.getView());
 //            simShader.setUniform("normalTex", normalTex);
 //            simShader.setUniform("heightTex", heightTex);
+//			  simShader.setUniform("eye", cam.getCamPos());
 
 //            terrain.draw();
-            
+           
             // simulate particles
             particles.getShaderProgram().use();
+            
             particles.draw(cam, millis);
             
             // render fluid

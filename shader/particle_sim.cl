@@ -4,8 +4,8 @@
 #define GRIDLEN 125
 
 #define DAMPING 0.25
-#define SPRING 1
-#define SHEAR 0.001
+#define SPRING 10
+#define SHEAR 0.12
 // Methode zur Berechnung der neuen Geschwindigkeit nach einer Kollision
 float4 collide(
 float4 n, 
@@ -237,6 +237,7 @@ kernel void particle_sim
     global float* info,
     global float4* start_pos) 
 {
+	
     grid_t grid = { g_num_cells,
                     g_max_particles,
                     g_counter,
@@ -282,6 +283,7 @@ kernel void particle_sim
     
     float4 collide_velo = 0;
     int leqneighs = 0;
+   
     if(mypos.s3>0.8){
      
 	    for(int i=-1; i<=1; i++){
@@ -310,11 +312,11 @@ kernel void particle_sim
 
 	                        //collide_velo+=normalize(n)*COLLISION_DAMPING;
 	                        collide_velo+=collide(other_pos-mypos, myvel , other_vel, distance)*COLLIDE_DAMPING;
-	                        if(mypos.s1 > other_pos.s1){
+	                        /*if(mypos.s1 > other_pos.s1){
                                     float d = mypos.s1 - other_pos.s1;
                                     myvel.s1 = 0.0;
                                     collide_velo.s1 = 0.0;
-	                        }
+	                        }*/
                             }
 	                    ///////////////////////////////////////////////////////////
 
@@ -324,7 +326,8 @@ kernel void particle_sim
 	    }
 
     }
-    barrier(CLK_GLOBAL_MEM_FENCE);
+    
+    //barrier(CLK_GLOBAL_MEM_FENCE);
     
 	myvel+=collide_velo;
 
@@ -339,9 +342,13 @@ kernel void particle_sim
 	//float die_height = read_imagef(heightmap, sampler, (float2)(0.6,0.4)).s0;
 	
 	if(mypos.s0<0||mypos.s0>1||mypos.s2<0||mypos.s2>1) {mypos.s3=0;}
+	
 	//if(length(myvel)<0.001&&mypos.s1>well_height+0.01) {mypos.s3=0;}//{mypos.s3-=0.02;}
+	
 	if(length(myvel)<0.00001&&mypos.s1>0.03) {mypos.s3=0;}//{mypos.s3-=0.02;}
+	
 	//if(mypos.s1<=die_height+0.005) {mypos.s3=0;}//{mypos.s3-=0.02;}
+	
 	//mypos.s3-=0.00001;
 	
 	if(mypos.s3<=0) {
@@ -353,8 +360,7 @@ kernel void particle_sim
 
     position[mygid] = mypos;
     velos[mygid] = myvel;
-
-
+    
 }
 
 
