@@ -115,6 +115,11 @@ public class ShaderProgram {
      * Attribut Index von instance
      */
     public static final int ATTR_INSTANCE = 5;
+
+    /**
+     * Attribut Index von vertexMaterial
+     */
+    public static final int ATTR_MATERIAL = 6;
     
     /**
      * Erzeugt ein ShaderProgram aus einem Vertex- und Fragmentshader.

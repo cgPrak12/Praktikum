@@ -127,6 +127,8 @@ public class Geometry {
             this.instanceData = null;
         }
         glBindVertexArray(0);
+        
+        
     }
     
     /**
