@@ -58,8 +58,9 @@ public final class Camera
 		camPos.y += altY;
 		camPos.z += altZ;
 		
-		if(camPos.x <= 0 || camPos.x > size) camPos.x -= altX;
-		if(camPos.z <= 0 || camPos.z > size) camPos.z -= altZ;
+		/* Hier könnte ihre Kamerabegrenzung stehen! */
+//		if(camPos.x <= 0 || camPos.x > size) camPos.x -= altX;
+//		if(camPos.z <= 0 || camPos.z > size) camPos.z -= altZ;
 	}
 
 	public Vector3f getAlt()
