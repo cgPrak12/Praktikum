@@ -29,6 +29,14 @@ public class TerrainView {
 		// dummy block erstellen
 		dummy = BlockUtil.readBlockData(BlockUtil.writeBlockData(new Block(-1,-1)));
 		
+//		for(int i = 0; i < 256; i++)
+//		{
+//			for(int j = 0; j < 256; j++)
+//			{
+//				dummy.setInfo(i, j, 0, 0.0f);
+//			}
+//		}
+		
 		init();
 	}
 	
@@ -51,7 +59,7 @@ public class TerrainView {
 			{
 				if(!(i==4 && j==4))
 				{
-					if(idI+i-4>0 && idJ+j-4>0 && idI+i-4<(Terrain.getSize()/256) && idJ+j-4<(Terrain.getSize()/256))
+					if(idI+i-4>=0 && idJ+j-4>=0 && idI+i-4<(Terrain.getSize()/256) && idJ+j-4<(Terrain.getSize()/256))
 					{
 						myBl[i][j] = BlockUtil.readBlockData(new File((idI+i-4)+"_"+(idJ+j-4)+"_.bf"));
 						//System.out.println(myBl[i][j]);

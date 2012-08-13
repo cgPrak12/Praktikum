@@ -71,7 +71,7 @@ public class TerrainMain
 
 			clip = new ClipMap(30, 8, program, cam);
 			
-			terrain.Terrain terrain = new terrain.Terrain(1024);
+			terrain.Terrain terrain = new terrain.Terrain(1024, true);
 			TerrainView tv = new TerrainView(cam);
 			
 			float[][] heightMap = tv.getHeightMap();
@@ -183,22 +183,22 @@ public class TerrainMain
 				switch (Keyboard.getEventKey())
 				{
 				case Keyboard.KEY_W:
-					moveDir.z += 1.0f;
+					moveDir.z += 10.0f;
 					break;
 				case Keyboard.KEY_S:
-					moveDir.z -= 1.0f;
+					moveDir.z -= 10.0f;
 					break;
 				case Keyboard.KEY_A:
-					moveDir.x += 1.0f;
+					moveDir.x += 10.0f;
 					break;
 				case Keyboard.KEY_D:
-					moveDir.x -= 1.0f;
+					moveDir.x -= 10.0f;
 					break;
 				case Keyboard.KEY_SPACE:
-					moveDir.y += 1.0f;
+					moveDir.y += 10.0f;
 					break;
 				case Keyboard.KEY_C:
-					moveDir.y -= 1.0f;
+					moveDir.y -= 10.0f;
 					break;
 				case Keyboard.KEY_ESCAPE:
 					bContinue = false;
@@ -209,22 +209,22 @@ public class TerrainMain
 				switch (Keyboard.getEventKey())
 				{
 				case Keyboard.KEY_W:
-					moveDir.z -= 1.0f;
+					moveDir.z -= 10.0f;
 					break;
 				case Keyboard.KEY_S:
-					moveDir.z += 1.0f;
+					moveDir.z += 10.0f;
 					break;
 				case Keyboard.KEY_A:
-					moveDir.x -= 1.0f;
+					moveDir.x -= 10.0f;
 					break;
 				case Keyboard.KEY_D:
 					moveDir.x += 1.0f;
 					break;
 				case Keyboard.KEY_SPACE:
-					moveDir.y -= 1.0f;
+					moveDir.y -= 10.0f;
 					break;
 				case Keyboard.KEY_C:
-					moveDir.y += 1.0f;
+					moveDir.y += 10.0f;
 					break;
 				case Keyboard.KEY_F1:
 					cam.changeProjection();
