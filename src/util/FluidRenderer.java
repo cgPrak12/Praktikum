@@ -14,7 +14,8 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class FluidRenderer {
 
-	private Geometry testWaterParticles;
+	private int particleNumber;
+	private int vaid;
 
 	private int 	 textureUnit = 0;
 	private Camera   cam;
@@ -151,11 +152,18 @@ public class FluidRenderer {
     	
 	} 
 	
-	public Texture render(Vector3f light, Geometry particles, Texture world) {
+    private void drawWater() {
+    	glBindVertexArray(vaid);
+        
+    	glDrawArrays(GL_POINTS, 0, particleNumber); 
+    }
+    
+	public Texture render(Vector3f light, int particleVertexArrayId, int number) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 		lightPos = light;
-		testWaterParticles = particles;
+		vaid = particleVertexArrayId;
+		particleNumber = number;
 		
 		// depth
 		depth();
@@ -307,7 +315,7 @@ public class FluidRenderer {
 	private void depth() {
 		depthSP.use();
 		depthSP.setUniform("view", cam.getView());
-		depthSP.setUniform("proj", cam.getProjection());
+//		depthSP.setUniform("proj", cam.getProjection());
 		depthSP.setUniform("viewProj", viewProj);
 		depthSP.setUniform("viewDistance", cam.getViewDistance());
         depthSP.setUniform("camPos", cam.getCamPos());
@@ -316,23 +324,23 @@ public class FluidRenderer {
         glEnable(GL_DEPTH_TEST);
 
         bindFB(depthFB);
-	    testWaterParticles.draw();
+	    drawWater();
 	    
-	    depthSP.setUniform("size",2.0f);
+	    depthSP.setUniform("size", 2.0f);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
 
     	bindFB(depthFBLQ);
     	
-    	testWaterParticles.draw();
-	    
+    	drawWater();
+    	
         endPath();
 	}
 	
 	private void depth2() {
 		depth2SP.use();
 		depth2SP.setUniform("view", cam.getView());
-		depth2SP.setUniform("proj", cam.getProjection());
+//		depth2SP.setUniform("proj", cam.getProjection());
 		depth2SP.setUniform("viewProj", viewProj);
 		depth2SP.setUniform("viewDistance", cam.getViewDistance());
         depth2SP.setUniform("camPos", cam.getCamPos());
@@ -341,7 +349,7 @@ public class FluidRenderer {
         glEnable(GL_DEPTH_TEST);
 
         bindFB(depth2FB);
-	    testWaterParticles.draw();
+        drawWater();
 	    
 	    depth2SP.setUniform("size",2.0f);
         glDisable(GL_BLEND);
@@ -349,7 +357,7 @@ public class FluidRenderer {
 
     	bindFB(depth2FBLQ);
     	
-    	testWaterParticles.draw();
+    	drawWater();
 	    
         endPath();
 	}
@@ -398,11 +406,11 @@ public class FluidRenderer {
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
 
-        testWaterParticles.draw();
+        drawWater();
         bindFB(thicknessFBLQ);
         thicknessSP.setUniform("size", 2.0f);
-        testWaterParticles.draw();
-
+        drawWater();
+        
         endPath();
     }
 

@@ -75,6 +75,7 @@ public class Particle {
     private CLKernel kernel0;
     private CLKernel kernel1;
     private CLKernel kernel2;
+//    private Geometry geo = new Geometry();
 	
 	private int MAX_PARTICLES;
     
@@ -262,8 +263,8 @@ public class Particle {
         
         glBindVertexArray(vaid);
         
-        GL11.glPointSize(5);
-        GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
+//        GL11.glPointSize(5);
+//        GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
         
         
 
@@ -300,23 +301,23 @@ public class Particle {
         clEnqueueReleaseGLObjects(this.queue, this.normalmap, null, null);
         
         
-        CL10.clEnqueueReadBuffer(queue, this.gridCounters, 1, 0, gridCounterBuf,
-                null,null);
+//        CL10.clEnqueueReadBuffer(queue, this.gridCounters, 1, 0, gridCounterBuf,
+//                null,null);
         clFinish(this.queue);
 
         int b;
         int sum = 0;
-
-        for (int i = 0; i < gridCounterBuf.capacity();i++)
-        {
-            b = gridCounterBuf.get(i);
-            if (b > 0){
-                //System.out.print(b+" ");
-                
-            }
-            sum += b;
-        }
-        System.out.println("Summe = " + sum);
+//
+//        for (int i = 0; i < gridCounterBuf.capacity();i++)
+//        {
+//            b = gridCounterBuf.get(i);
+//            if (b > 0){
+//                //System.out.print(b+" ");
+//                
+//            }
+//            sum += b;
+//        }
+//        System.out.println("Summe = " + sum);
         
         /**
         GL.glActiveTexture(GL.GL_TEXTURE0 + 0);
@@ -507,6 +508,15 @@ public class Particle {
         glVertexAttribPointer(ShaderProgram.ATTR_POS, 4, GL_FLOAT, false, 16, 0);
 
         glBindVertexArray(0);
+//        geo.setVertices(particles);
+//        geo.addVertexAttribute(ShaderProgram.ATTR_POS, 4, 0);
     }
 	
+    public int getVertexArray() {
+    	return vaid;
+    }
+    
+    public int getNumParticles() {
+    	return MAX_PARTICLES;
+    }
 }

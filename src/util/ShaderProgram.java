@@ -11,10 +11,10 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class ShaderProgram {
     private int id, vs, fs;
-    
+    private String vertexShader;
     public ShaderProgram(String vertexShader, String fragmentShader) {
         this.createShaderProgram(vertexShader, fragmentShader);
-     
+        this.vertexShader = vertexShader;
     }
     
     public void use() {
@@ -40,7 +40,7 @@ public class ShaderProgram {
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         } else {
-            System.err.println(varName);
+            System.err.println(varName +", " +this.id+", "+vertexShader);
         }
             
     }
