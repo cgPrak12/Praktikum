@@ -54,9 +54,12 @@ public final class Camera
 		altX = fb * viewDir.x + lr * sideDir.x;
 		altY = fb * viewDir.y + lr * sideDir.y + ud;
 		altZ = fb * viewDir.z + lr * sideDir.z;
-		if(camPos.x += altX <= 0 || camPos.x += altX >= (float)Math.sqrt(size))) camPos.x += altX;
+		camPos.x += altX;
 		camPos.y += altY;
 		camPos.z += altZ;
+		
+		if(camPos.x <= 0 || camPos.x > size) camPos.x -= altX;
+		if(camPos.z <= 0 || camPos.z > size) camPos.z -= altZ;
 	}
 
 	public Vector3f getAlt()
