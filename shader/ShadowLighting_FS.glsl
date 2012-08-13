@@ -77,7 +77,7 @@ void main(void)
 		
 	//ambient light
 	//float strength = 0.5 + 0.5 * dot(normal, normalize(sunDir));
-	strength = 1;
+	float strength = 1;
 	vec4 ambi = mix(downColor, upColor, strength);
 		
 	//diffuse and specular
