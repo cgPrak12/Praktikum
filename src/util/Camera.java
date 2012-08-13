@@ -57,7 +57,7 @@ public final class Camera
 		camPos.x += altX;
 		camPos.y += altY;
 		camPos.z += altZ;
-		
+		System.out.println("jojo");
 		/* Hier könnte ihre Kamerabegrenzung stehen! */
 //		if(camPos.x <= 0 || camPos.x > size) camPos.x -= altX;
 //		if(camPos.z <= 0 || camPos.z > size) camPos.z -= altZ;
