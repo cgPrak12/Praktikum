@@ -41,7 +41,7 @@ public class BlockUtil {
 			}
 						
 			// wenn Block ausserhalb des Terrains ist
-			if(block.getID()[0] < 0 || block.getID()[1] < 0)
+			if(block.getX() < 0 || block.getZ() < 0)
 			{
 				for(int i = 0; i < blockSize; i++)
 				{
