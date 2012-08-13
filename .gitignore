@@ -18,3 +18,4 @@ manifest.mf
 .project
 1_2_.bf
 src/util/TestCase.java
+src/terrain/TestCase.java
