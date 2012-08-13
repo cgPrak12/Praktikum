@@ -77,8 +77,6 @@ public class TerrainMain {
     
     private static float orthoScaleValue = 15f;
     
-    private static final ScreenManipulation screenMan = new ScreenManipulation();
-    
     private static ShaderProgram fboSP;
     private static ShaderProgram shadowSP;
     
@@ -193,6 +191,9 @@ public class TerrainMain {
     	
     	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(10f, null), Util.translationZ(10f, null), Util.translationY(5f, null));
     	Matrix4f modelIT1 = Util.transposeInverse(modelMatrix1, null);
+
+    	Matrix4f modelMatrix2 = Util.mul(null, Util.translationX(0.5f, null), Util.translationZ(0.5f, null), Util.translationY(1f, null));
+    	Matrix4f modelIT2 = Util.transposeInverse(modelMatrix2, null);
     	
     	//dynamic matrices
     	Matrix4f shadowMatrix = new Matrix4f();
