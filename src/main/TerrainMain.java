@@ -25,23 +25,24 @@ public class TerrainMain {
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
+    private static ShaderProgram drawTextureSP;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
     private static final Camera cam = new Camera();
     
     // animation params
-//    private static float ingameTime = 0;
     private static float ingameTimePerSecond = 1.0f;
-    
-
-//    private static ShaderProgram fboSP;
 
     // particles
     private static Particle particles;
     
     // simulation 
     private static ShaderProgram simShader;
+
+    // fluid rendering + simulation
+    private static Geometry screenQuad;
+    
     
     public static void main(String[] argv) {
         try {
@@ -73,34 +74,24 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-//<<<<<<< HEAD
-//        fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
-//       
-//        DeferredShader shader = new DeferredShader();
-//        shader.init();
-//        shader.registerShaderProgram(fboSP);
-//        
-        Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
+        // create screen quad
+        screenQuad = GeometryFactory.createScreenQuad();
+        
+        // create new shader programs
+        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
+        drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
+        
+        // create Fluid Rendererer
         FluidRenderer fluidRenderer = new FluidRenderer(cam);
-//        
-        Geometry screenQuad = GeometryFactory.createScreenQuad();
-//        Geometry testWaterParticles = GeometryFactory.createTestParticles(1024*13);
-//       
-//=======
-        //DeferredShader shader = new DeferredShader();
-        //Texture tex = Texture.generateTexture("asteroid.jpg", 0);
+        Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
         
-        // create a new shader program
-        simShader = new ShaderProgram("shader/simulation_vs.glsl",
-                            "shader/simulation_fs.glsl");
-        ShaderProgram drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
-        //Geometry quad = GeometryFactory.createTerrain(100,100,2);
-        
+        // simulation test terrain
         Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
-        particles = new Particle(2048, Device_Type.GPU, Display.getDrawable());
+        // particle creation
+        particles = new Particle(4096, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -122,58 +113,27 @@ public class TerrainMain {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-//<<<<<<< HEAD
-            
-//            fboSP.use();
-//            Matrix4f modelMatrix = new Matrix4f();
-//            Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
-//            fboSP.setUniform("model", modelMatrix);
-//            fboSP.setUniform("modelIT", modelIT);
-//            fboSP.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
-//            fboSP.setUniform("camPos", cam.getCamPos());
-//            
-//            shader.bind();
-//            shader.clear();
-//            
-//            testCube.draw();
-//        	
-//            shader.finish();
-//            shader.DrawTexture(shader.getWorldTexture());
-            
-            
-
-            //shader.prepareRendering();
-            
-            //shader.DrawTexture(tex);
+            // prepare simulation: draw terrain to world
             simShader.use();
             simShader.setUniform("proj", cam.getProjection());
             simShader.setUniform("view", cam.getView());
             simShader.setUniform("normalTex", normalTex);
             simShader.setUniform("heightTex", heightTex);
-            
-            //System.out.println(cam.getView());
-            //System.out.println(cam.getProjection());
-
             terrain.draw();
             
+            // simulate particles
             particles.getShaderProgram().use();
             particles.draw(cam, millis);
-            // TODO: postfx
             
-            // WATER
+            // render fluid
     		drawTextureSP.use();        
-    		drawTextureSP.setUniform("image", fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles()));
+    		drawTextureSP.setUniform("image", fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain));
     		screenQuad.draw();  
-            
-            // TODO: combine images
             
             // present screen
             Display.update();
             Display.sync(60);
         }
-        //shader.delete();
-        //tex.delete();
-        
         simShader.delete();
         OpenCL.destroy();
     }

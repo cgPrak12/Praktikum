@@ -17,6 +17,8 @@ public class FluidRenderer {
 	private float pointSize = 10.0f;
 	private int particleNumber;
 	private int vaid;
+	
+	private Geometry terrain;
 
 	private int 	 textureUnit = 0;
 	private Camera   cam;
@@ -159,12 +161,13 @@ public class FluidRenderer {
     	glDrawArrays(GL_POINTS, 0, particleNumber); 
     }
     
-	public Texture render(Vector3f light, int particleVertexArrayId, int number) {
+	public Texture render(Vector3f light, int particleVertexArrayId, int number, Geometry terrain) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 		lightPos = light;
 		vaid = particleVertexArrayId;
 		particleNumber = number;
+		this.terrain = terrain;
 		
 		// depth
 		depth();
@@ -457,7 +460,7 @@ public class FluidRenderer {
 		startPath(testPlaneSP, testPlaneFB);
 	    testPlaneSP.setUniform("viewProj", viewProj);
 	    testPlaneSP.setUniform("colorTex", planeTex);
-	    plane.draw();
+	    terrain.draw();
 	    
 	    endPath();
 	}
