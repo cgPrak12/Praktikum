@@ -86,12 +86,12 @@ public class TerrainMain {
         Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
         
         // simulation test terrain
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/04.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
         // particle creation
-        particles = new Particle(4096, Device_Type.GPU, Display.getDrawable());
+        particles = new Particle(4096*4, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         
         while(bContinue && !Display.isCloseRequested()) {
@@ -119,7 +119,7 @@ public class TerrainMain {
             simShader.setUniform("view", cam.getView());
             simShader.setUniform("normalTex", normalTex);
             simShader.setUniform("heightTex", heightTex);
-            terrain.draw();
+//            terrain.draw();
             
             // simulate particles
             particles.getShaderProgram().use();

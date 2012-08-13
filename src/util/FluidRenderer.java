@@ -19,6 +19,7 @@ public class FluidRenderer {
 	private int vaid;
 	
 	private Geometry terrain;
+	private Geometry testWaterParticles = GeometryFactory.createTestParticles(4096);
 
 	private int 	 textureUnit = 0;
 	private Camera   cam;
@@ -115,7 +116,8 @@ public class FluidRenderer {
     private FrameBuffer finalImageFB   = new FrameBuffer();
     private Texture finalImageTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/fluid/TestPlane_VS.glsl", "./shader/fluid/TestPlane_FS.glsl");
+//    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/fluid/TestPlane_VS.glsl", "./shader/fluid/TestPlane_FS.glsl");
+    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/simulation_vs.glsl", "./shader/simulation_fs.glsl");
     private FrameBuffer testPlaneFB   = new FrameBuffer();
     private Texture testPlaneTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
     
@@ -156,9 +158,10 @@ public class FluidRenderer {
 	} 
 	
     private void drawWater() {
+    	
     	glBindVertexArray(vaid);
-        
-    	glDrawArrays(GL_POINTS, 0, particleNumber); 
+    	glDrawArrays(GL_POINTS, 0, particleNumber);
+//    	testWaterParticles.draw();
     }
     
 	public Texture render(Vector3f light, int particleVertexArrayId, int number, Geometry terrain) {
@@ -438,6 +441,17 @@ public class FluidRenderer {
         iView.load(cam.getView());
         iView.invert();
         lightingSP.setUniform("iView", iView);
+        
+//        lightingSP.setUniform("view", cam.getView());
+//   		lightingSP.setUniform("normalL", normalVBlurTexLQ);
+//		lightingSP.setUniform("worldDepthPosL", depthVBlurTexLQ);
+//		lightingSP.setUniform("thicknessL", thicknessVBlurTexLQ);
+//		lightingSP.setUniform("normalH", normalVBlurTex);
+//		lightingSP.setUniform("worldDepthPosH", depthVBlurTex);
+//		lightingSP.setUniform("thicknessH", thicknessVBlurTex);
+//		lightingSP.setUniform("cubeMap", cubemap);
+//		lightingSP.setUniform("env", testPlaneTex);
+        
         screenQuad.draw();
         
         endPath();
@@ -458,8 +472,16 @@ public class FluidRenderer {
 	private void testPlane() {
 		
 		startPath(testPlaneSP, testPlaneFB);
-	    testPlaneSP.setUniform("viewProj", viewProj);
-	    testPlaneSP.setUniform("colorTex", planeTex);
+//	    testPlaneSP.setUniform("viewProj", viewProj);
+//	    testPlaneSP.setUniform("colorTex", planeTex);
+	    
+        Texture normalTex = terrain.getNormalTex();
+        Texture heightTex = terrain.getHeightTex();
+        testPlaneSP.setUniform("proj", cam.getProjection());
+        testPlaneSP.setUniform("view", cam.getView());
+        testPlaneSP.setUniform("normalTex", normalTex);
+        testPlaneSP.setUniform("heightTex", heightTex);
+        
 	    terrain.draw();
 	    
 	    endPath();
