@@ -47,7 +47,7 @@ const float es = 5.0;
  */
 vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a)
 {
-	vec3 finalColor = vec3(0.0, 0.0, 0.0);
+	vec3 finalColor = vec3(0f);
 	vec3 view = normalize(camPos - pos);
 	vec3 halfvec = normalize(-view + normalize(sunDir));
 	
@@ -76,8 +76,8 @@ void main(void)
 	
 		
 	//ambient light
-	float strength = 0.5 + 0.5 * dot(normal, normalize(sunDir));
-	strength = 1;
+	//float strength = 0.5 + 0.5 * dot(normal, normalize(sunDir));
+	float strength = 1;
 	vec4 ambi = mix(downColor, upColor, strength);
 		
 	//diffuse and specular
@@ -128,7 +128,8 @@ void main(void)
 	
 	float skyDraw = sign(texture(skyTexture, texCoord).x);
 	color = mix(vec4(diff* k_a,1), color , cosa);
-	enlightenedColor =  skyDraw *color;
+	
+   	 enlightenedColor =  skyDraw *color;
 	enlightenedColor +=  vec4(( (1-skyDraw) * diff) ,0.0 ) ;
 	
 	
