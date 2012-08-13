@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class FluidRenderer {
 
+	private float pointSize = 10.0f;
 	private int particleNumber;
 	private int vaid;
 
@@ -319,14 +320,14 @@ public class FluidRenderer {
 		depthSP.setUniform("viewProj", viewProj);
 		depthSP.setUniform("viewDistance", cam.getViewDistance());
         depthSP.setUniform("camPos", cam.getCamPos());
-        depthSP.setUniform("size",1.0f);
+        depthSP.setUniform("size", pointSize);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
 
         bindFB(depthFB);
 	    drawWater();
 	    
-	    depthSP.setUniform("size", 2.0f);
+	    depthSP.setUniform("size", 2.0f * pointSize);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
 
@@ -344,14 +345,14 @@ public class FluidRenderer {
 		depth2SP.setUniform("viewProj", viewProj);
 		depth2SP.setUniform("viewDistance", cam.getViewDistance());
         depth2SP.setUniform("camPos", cam.getCamPos());
-        depth2SP.setUniform("size",1.0f);
+        depth2SP.setUniform("size", pointSize);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
 
         bindFB(depth2FB);
         drawWater();
 	    
-	    depth2SP.setUniform("size",2.0f);
+	    depth2SP.setUniform("size",2.0f * pointSize);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
 
@@ -401,14 +402,14 @@ public class FluidRenderer {
 	    startPath(thicknessSP, thicknessFB);
 	    thicknessSP.setUniform("viewProj", viewProj);
 	    thicknessSP.setUniform("camera", cam.getCamPos());
-	    thicknessSP.setUniform("size", 1.0f);
+	    thicknessSP.setUniform("size", pointSize);
         glBlendFunc(GL_ONE, GL_ONE);
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
 
         drawWater();
         bindFB(thicknessFBLQ);
-        thicknessSP.setUniform("size", 2.0f);
+        thicknessSP.setUniform("size", 2.0f * pointSize);
         drawWater();
         
         endPath();
