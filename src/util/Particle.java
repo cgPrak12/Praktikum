@@ -83,6 +83,7 @@ public class Particle {
     
     //opencl buffer
     private CLMem old_pos, new_pos, old_velos, new_velos;
+    private CLMem start_pos;
     
     
     //////////////////////////////////////////////////////////////////
@@ -225,9 +226,9 @@ public class Particle {
     	particles = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	particles.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
-    		particles.put(0.25f+(float)(Math.random())*0.5f);
+    		particles.put((float)(Math.random()));
     		particles.put(0.1f+(float)i*0.001f);
-    		particles.put(0.25f+(float)(Math.random())*0.5f);
+    		particles.put((float)(Math.random())*0.5f);
     		particles.put(1f);
     	}
     	particles.position(0);
@@ -236,8 +237,8 @@ public class Particle {
     	veloBuffer.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
                 veloBuffer.put(0);
-    		veloBuffer.put(-0.000001f*(float)Math.random());
-                veloBuffer.put(0);
+    		veloBuffer.put(0f);
+                veloBuffer.put(0.0004f);
                 veloBuffer.put(0);
     	}
     	veloBuffer.position(0);
@@ -346,7 +347,8 @@ public class Particle {
         this.new_pos = clCreateBuffer(this.context, CL_MEM_READ_WRITE,
                 this.particles.capacity()*4);
 
-        
+        // particle start positions
+        this.start_pos = clCreateBuffer(this.context, CL10.CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, this.particles);
         
         
         //////////////////////////////////////////////////////////////////
@@ -444,6 +446,7 @@ public class Particle {
         this.kernel0.setArg(10, this.new_pos);
         this.kernel0.setArg(11, this.new_velos);
         this.kernel0.setArg(12,this.gridInfo);
+        this.kernel0.setArg(13, this.start_pos);
         
         this.kernel2.setArg(0,this.old_pos);
         this.kernel2.setArg(1,this.gridCounters);
