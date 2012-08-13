@@ -23,9 +23,6 @@ public class Block implements Serializable {
 	{
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
-			
-//			if(vertexInfo[x][z][pos] == 0){
-//			System.out.println("Null");}
 			return vertexInfo[x][z][pos];
 		}
 		else
@@ -47,37 +44,31 @@ public class Block implements Serializable {
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
 				vertexInfo[x][z][pos] = info;
-				
-		//	 if(vertexInfo[x][z][pos]==0){  System.out.println("HIER: "+vertexInfo[x][z][pos]);
-			 
-			// }
-		}
-		
+		}		
 	}
 	
 	/**
-	 * Liefert die HeightMap eines Blocks
-	 * @return HeightMap
+	 * Getter X
+	 * @return posX
 	 */
-//	public float[][] getHeightMap()
-//	{
-//		int x = vertexInfo.length;
-//		int z = vertexInfo[0].length;
-//		float[][] result = new float[x][z];
-//		for(int i = 0; i < x; i++)
-//		{
-//			for(int j = 0; j < z; j++)
-//			{
-//				result[i][j] = vertexInfo[i][j][0];
-//			}
-//		}
-//		return result;
-//	}
+	public int getX()	
+	{	
+		return posX;	
+	}
 	
-	public int getX()	{	return posX;	}
+	/**
+	 * Getter Z
+	 * @return posZ
+	 */
+	public int getZ()	
+	{	
+		return posZ;	
+	}	
 	
-	public int getZ()	{	return posZ;	}	
-	
+	/**
+	 * Getter Z
+	 * @return result	int Array mit posX und posZ
+	 */
 	public int[] getID()
 	{
 		int[] result = {posX, posZ};
