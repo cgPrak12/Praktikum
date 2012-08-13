@@ -71,8 +71,8 @@ public class TerrainView {
 	 */
 	public static void updateTerrainView()
 	{	
-		// hier muss der erste Block mit Fehlerbehandlung gesetzt werden, falls Camera außerhalb
-		// einschränkung der Camera oder spezielle Fehlerbehandlung hier
+		// hier muss der erste Block mit Fehlerbehandlung gesetzt werden, falls Camera auï¿½erhalb
+		// einschrï¿½nkung der Camera oder spezielle Fehlerbehandlung hier
 		int diffX = (BlockUtil.getBlock(cam)).getID()[0] - middle[0];
 		int diffY = (BlockUtil.getBlock(cam)).getID()[1] - middle[1];
 

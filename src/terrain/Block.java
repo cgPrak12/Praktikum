@@ -73,9 +73,15 @@ public class Block implements Serializable {
 //		return result;
 //	}
 	
-	public int getX()	{	return posX;	}
+	public int getX()	
+	{	
+		return posX;	
+	}
 	
-	public int getZ()	{	return posZ;	}	
+	public int getZ()	
+	{	
+		return posZ;	
+	}	
 	
 	public int[] getID()
 	{
