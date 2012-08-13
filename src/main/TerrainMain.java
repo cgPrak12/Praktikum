@@ -111,7 +111,7 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        ShaderProgram shaderProgram = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/FragmentLighting_FS.glsl");
+        ShaderProgram shaderProgram = new ShaderProgram("./shader/Models_VS.glsl", "./shader/Models_FS.glsl");
 
         //Current time in millis
     	long timeInMillis = System.currentTimeMillis();
