@@ -1,3 +1,22 @@
+////////////////////////////////////////////////////////////////////////////////
+/**
+ * Particle Kernels
+ * 
+ * This sourcefile contains kernels for the water simulation particle system:
+ * (1) gridclear_sim    clears the counter-grid by writing zeros        
+ * (2) griddadd_sim     adds each particle to the counter and cell grid
+ * (3) particle_sim     calculates the new velocity and position for each
+ *                      particle depending on current velocity, position
+ *                      and the particle's neighbouring particles.
+ *
+ * @date    2012-08-14
+ *
+ * @author  Andreas Rinas       <arinas@uos.de>
+ * @author  Artem Krukow        <akrukow@uos.de>
+ * @author  Benjamin Graf       <bgraf@uos.de>
+ * @author  Oliver Tschesche    <otschesc@uos.de>
+ */
+
 #define LOCAL_MEM_SIZE 64
 
 #define DAMPING 0.25
@@ -36,11 +55,16 @@ constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE| CLK_FILTER_LINEAR| CLK_
 // epsilon environment to find the minimum height
 constant float minEpsilon = 0.004f;
 
+////////////////////////////////////////////////////////////////////////////////
+// Geometric methods                                                          //
+////////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////
-// Geometric methods                                    //
-//////////////////////////////////////////////////////////
+/**
+ * Calculates the normal of a given point of a heightmap
+ * @param heightmap the heightmap to calculate from
+ * @param pos       the position of the calculated normal
+ * @return normal of given point in R^3
+ */
 float3 getNormal(image2d_t heightmap, float2 pos)
 {
     int2 dim = get_image_dim(heightmap);
@@ -69,13 +93,15 @@ float3 getNormal(image2d_t heightmap, float2 pos)
     return normalize(c1+c2+c3+c4);
 }
 
-
 #define GROUND_NORM_DAMPING 0.00004
 //#define GROUND_VELO_DAMPING 0.8
 #define GROUND_VELO_DAMPING 0.9
 #define COLLISION_DAMPING -0.00001;
 #define COLLIDE_DAMPING 0.0002;
 
+//////////////////////////////////////////////////////////
+// Dynamic Grid                                         //
+//////////////////////////////////////////////////////////
 // gridinfo defines
 #define SPACE_PARTICLE_RADIUS 0 
 #define SPACE_X 1
@@ -84,10 +110,6 @@ float3 getNormal(image2d_t heightmap, float2 pos)
 #define SPACE_LENGTH 4
 #define GRID_LENGTH 5
 #define GRID_MAXP 6
-
-//////////////////////////////////////////////////////////
-// Dynamic Grid                                         //
-//////////////////////////////////////////////////////////
 
 /** grid structure */
 typedef struct
@@ -184,9 +206,11 @@ kernel void particle_sim
     float radius = info[SPACE_PARTICLE_RADIUS];
 
 
+    //////////////////////////////////////////////////////////
+    // ground interaction                                   //
+    //////////////////////////////////////////////////////////
 
     float4 dVelo = (float4)(0);  
-    
     if(mypos.s1 <= height.s0+radius)
     {
         float4 normal = (float4)(getNormal(heightmap, mypos.s02),0);
@@ -206,9 +230,9 @@ kernel void particle_sim
    
     if(mypos.s3>0.8)
     {
-        for(int i=-1; i<=1; i++){
-            for(int j=-1; j<=1; j++){
-                for(int k=-1; k<=1; k++){
+        for(int i =- 1; i <= 1; i++) {
+            for(int j =- 1; j <= 1; j++) {
+                for(int k =- 1; k <= 1; k++) {
                     // read cells cellid in grid
                     int cellid = dg_cell_id(&g, mypos, (int4)(i,j,k,0));
                     if (cellid == -1)
@@ -254,7 +278,7 @@ kernel void particle_sim
     }
 
     //////////////////////////////////////////////////////////
-    // gravity and ground interaction                       //
+    // gravity                                              //
     //////////////////////////////////////////////////////////
     float4 gravity = (float4)(0,-0.00001,0,0);
     if (collided == 0)

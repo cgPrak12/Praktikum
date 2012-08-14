@@ -87,14 +87,14 @@ public class TerrainMain {
         Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
         
         // simulation test terrain
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/04.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
         // particle creation
-        particles = new Particle(4096*4, Device_Type.GPU, Display.getDrawable());
+        particles = new Particle(1024*4, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
-        glDisable(GL11.GL_DEPTH_TEST);
+        glEnable(GL11.GL_DEPTH_TEST);
         //
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -114,7 +114,6 @@ public class TerrainMain {
             
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
             // prepare simulation: draw terrain to world
 //            simShader.use();
 //            simShader.setUniform("proj", cam.getProjection());
