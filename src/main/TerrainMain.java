@@ -82,7 +82,7 @@ public class TerrainMain
             TerrainFactory.init();
             TerrainFactory.genTerrain(terra, 0);
 
-            terrainGeometry = GeometryFactory.genTerrain(terra);
+//            terrainGeometry = GeometryFactory.genTerrain(terra);
             
 			
 			TerrainView.init(terra, cam);
