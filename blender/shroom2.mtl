@@ -1,0 +1,35 @@
+# Blender MTL File: 'shroom2.blend'
+# Material Count: 3
+newmtl feet_shroomie2_Kopie.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\shroomie2 Kopie.jpg
+
+
+newmtl feet_shroomie_Kopie.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\shroomie Kopie.jpg
+
+
+newmtl head_shroomie_Kopie.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\shroomie Kopie.jpg
+
+

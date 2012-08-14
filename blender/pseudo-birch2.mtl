@@ -1,0 +1,37 @@
+# Blender MTL File: 'pseudo-birch2.blend'
+# Material Count: 3
+newmtl bark_6825.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\6825.jpg
+
+
+newmtl leaf.001_birch_branch3_dual_10241.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\birch_branch3_dual_10241.png
+map_d R:\\NT-Home\\blenderstuff\\textures\\birch_branch3_dual_10241.png
+
+
+newmtl leaf_birch_branch3_dual_10242.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\birch_branch3_dual_10242.png
+map_d R:\\NT-Home\\blenderstuff\\textures\\birch_branch3_dual_10242.png
+
+

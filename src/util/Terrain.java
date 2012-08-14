@@ -233,7 +233,7 @@ public class Terrain {
 		//		putMountain(mountainMap1, 1, 256, 256, 100);
 
 		//		putTest(riverMap,1,512,512,300);
-				this.terraform(1, 1, 0.1f);	
+				this.terraform(1, 1, 0.15f);	
 		//				this.testForm();
 //				setMaterialsFromHeight(0, maxX, 0, maxZ);
 //				this.putRiver(2, 100, 100, 800, 800, 0f);
