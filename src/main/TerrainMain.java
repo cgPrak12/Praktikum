@@ -128,23 +128,10 @@ public class TerrainMain {
         }
     }
     
-    public static void render() throws LWJGLException {
-        glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
-        
-        long last = System.currentTimeMillis();
-        long now, millis;
-        long frameTimeDelta = 0;
-        int frames = 0;
-        
-        ShaderProgram shaderProgramModels = new ShaderProgram("./shader/Models_VS.glsl", "./shader/Models_FS.glsl");
-        ShaderProgram shaderProgramTerrain = new ShaderProgram("shader/Terrain_VS.glsl", "shader/Terrain_FS.glsl");
-        
+    public static void generateModelMap() {
+        //load models
         //Current time in millis
     	long timeInMillis = System.currentTimeMillis();
-        
-//        List modelPartList3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.obj", "C:\\Users\\Floh1111\\Desktop\\OtherModels\\Palma 001.mtl", "");
-//        List modelPartList = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\uh60.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\uh60.mtl",  "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\uh60\\");
-//        List modelPartList3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\Bandit Heavy.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\Bandit Heavy.mtl",  "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\Bandit Heavy\\");
         List modelTallCactus = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\tall-cactus.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\tall-cactus.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
         List modelPalmTree = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
         List modelBirchTree = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\pseudo-birch2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\pseudo-birch2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
@@ -163,44 +150,28 @@ public class TerrainMain {
         List modelRock4 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock4.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock4.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
         List modelShroom = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shroom.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shroom.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
         List modelShroom2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shroom2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shroom2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelShrub2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shrub2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shrub2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        
+        List modelShrub2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shrub2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shrub2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");        
         System.out.println("Importing took "+(System.currentTimeMillis()-timeInMillis)+" milliseconds.");
+
+/*
+        0 default
+        1 meer
+        2 see und fluss
+        3 sand
+        4 erde
+        5 helles flachlandgras
+        6 höheres gras
+        7 stein
+        8 fels
+        9 leichter schnee
+        10 schwerer schnee*/
         
-        while(bContinue && !Display.isCloseRequested()) {
-            // time handling
-            now = System.currentTimeMillis();
-            millis = now - last;
-            last = now;
-            frameTimeDelta += millis;
-            ++frames;
-            if(frameTimeDelta > 1000) {
-                System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
-                frameTimeDelta -= 1000;
-                frames = 0;
-            }
-            
-            // input and animation
-            handleInput(millis);
-            animate(millis);
-            
-            //clear screen
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
-            Matrix4f scale = new Matrix4f().scale(new Vector3f(0.01f, 0.01f, 0.01f));
-            Matrix4f model = new Matrix4f();
-            Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
-
-            shaderProgramModels.use();
-
-            float terrainGrid[][][] = terra.getTerrainGrid().getBlock();
+        Object modelMap[][][];
+        
+        
+        float terrainGrid[][][] = terra.getTerrainGrid().getBlock();
             for(int x=0; x<terrainGrid.length; x+=50) {
                 for(int z=0; z<terrainGrid.length; z+=50) {
-/*                    System.out.println(terrainGrid[y][x][0]);
-                    System.out.println(terrainGrid[y][x][1]);
-                    System.out.println(terrainGrid[y][x][2]);
-                    System.out.println(terrainGrid[y][x][3]);*/
-//                    System.out.println(terrainGrid[y][x][4]);
                     Matrix4f translate = new Matrix4f();
                     translate.m00 = 1;
                     translate.m11 = 1;
@@ -209,18 +180,10 @@ public class TerrainMain {
                     translate.m30 = x/100.0f;
                     translate.m31 = terrainGrid[x][z][0];
                     translate.m32 = z/100.0f;
-/*
-                    0 default
-                    1 meer
-                    2 see und fluss
-                    3 sand
-                    4 erde
-                    5 helles flachlandgras
-                    6 höheres gras
-                    7 stein
-                    8 fels
-                    9 leichter schnee
-                    10 schwerer schnee*/
+                    
+                    modelMap[x][z][0] = translate;
+                    
+
                     
                     Iterator<ModelPart> modelPartListIterator = null;
                     if(terrainGrid[x][z][4]==3) {
@@ -286,6 +249,45 @@ public class TerrainMain {
                     }
                 }
             }
+        
+    }
+    
+    public static void render() throws LWJGLException {
+        glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
+        
+        long last = System.currentTimeMillis();
+        long now, millis;
+        long frameTimeDelta = 0;
+        int frames = 0;
+        
+        ShaderProgram shaderProgramModels = new ShaderProgram("./shader/Models_VS.glsl", "./shader/Models_FS.glsl");
+        ShaderProgram shaderProgramTerrain = new ShaderProgram("shader/Terrain_VS.glsl", "shader/Terrain_FS.glsl");
+        
+        while(bContinue && !Display.isCloseRequested()) {
+            // time handling
+            now = System.currentTimeMillis();
+            millis = now - last;
+            last = now;
+            frameTimeDelta += millis;
+            ++frames;
+            if(frameTimeDelta > 1000) {
+                System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
+                frameTimeDelta -= 1000;
+                frames = 0;
+            }
+            
+            // input and animation
+            handleInput(millis);
+            animate(millis);
+            
+            //clear screen
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            
+            Matrix4f scale = new Matrix4f().scale(new Vector3f(0.01f, 0.01f, 0.01f));
+            Matrix4f model = new Matrix4f();
+            Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
+
+            shaderProgramModels.use();
             
             shaderProgramTerrain.use();
             shaderProgramTerrain.setUniform("viewProj", viewProj);
