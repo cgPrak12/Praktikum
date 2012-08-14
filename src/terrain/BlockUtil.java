@@ -50,7 +50,6 @@ public class BlockUtil {
 				{
 					for(int k = 0; k < blockHeight; k++)
 					{		
-//						System.out.println(block.getInfo(i, j, 0));
 						output.writeFloat(block.getInfo(i, j, k));
 					}		
 				}

@@ -130,7 +130,6 @@ public class TerrainView
 				{
 					System.out.println("error");
 				}
-
 				heightMap[x][z] = myBl[bx][bz].getInfo(x % 256, z % 256, 0);
 			}
 		}
