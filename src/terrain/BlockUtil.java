@@ -29,16 +29,17 @@ public class BlockUtil {
 	 * @return file		geschriebene .bf Datei	
 	 */
 	public static File writeBlockData(Block block)
-	{				
-		File file = new File(block.getX() + "_" + block.getZ() + "_.bf");
-						
+	{	
+		String filePath = "Data" + File.separator + block.getX() + "_" + block.getZ() + "_.bf"; 
+		File file = new File(filePath);
+	
 		try(DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))))
 		{
 			if(!file.exists())
 			{
 				file.createNewFile();
-			}
-									
+			}	
+			
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
@@ -85,7 +86,6 @@ public class BlockUtil {
 					for(int k = 0; k < blockHeight; k++)
 					{		
 						newBlock.setInfo(i, j, k, input.readFloat());
-//						newBlock.setInfo(i, j, k, 0.1f);
 					}		
 				}
 			}	
