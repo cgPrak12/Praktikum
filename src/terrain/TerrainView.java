@@ -88,13 +88,15 @@ public class TerrainView {
 		if(!(diffX ==0 && diffY == 0)){
 			
 			myBl[4][4] =  BlockUtil.getBlock(cam);
+			middle = myBl[4][4].getID();
+			
 			for(int i=0; i<9; i++)
 			{
 				for(int j=0; j<9; j++)
 				{
 					if(!(i==4 && j==4))
 					{
-						if( i+diffX<0 || i+diffX>2 || j+diffY<0 || j+diffY>2)
+						if( i+diffX<0 || i+diffX>8 || j+diffY<0 || j+diffY>8)
 						{
 							
 							if((middle[0]-4+i)>=0 && (middle[1]-4+j)>=0 && (middle[0]-4+i)<(Terrain.getSize()/256)
