@@ -49,7 +49,7 @@ public class BlockUtil {
 				for(int j = 0; j < blockSize; j++)
 				{
 					for(int k = 0; k < blockHeight; k++)
-					{							
+					{		
 						output.writeFloat(block.getInfo(i, j, k));
 					}		
 				}
@@ -90,6 +90,7 @@ public class BlockUtil {
 					for(int k = 0; k < blockHeight; k++)
 					{		
 						newBlock.setInfo(i, j, k, input.readFloat());
+//						System.out.println(input.readFloat());
 					}		
 				}
 			}	

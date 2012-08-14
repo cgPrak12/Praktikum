@@ -116,7 +116,7 @@ public class TerrainFactory {
 	 */
 	public static void genTerrain(Terrain terra, int form){
 
-		terraform(terra, form, 6);
+		terraform(terra, form, 1);
 		flattenAllBiomes(terra, 10);
 		smooth(terra);
 		checkNormals(terra);
@@ -900,7 +900,7 @@ public class TerrainFactory {
 		boolean needsRoughing = true;
 		switch(macroStructure){
 		case 1:	Util.biLinIpol(terra, noiseMap, 0.05f, 1f);
-		Util.biLinIpol(terra, noiseMap, 0.1f, 0.505f);break;
+		Util.biLinIpol(terra, noiseMap, 0.1f, 0.505f); break;
 		case 2: Util.biLinIpol(terra, desertMap1, 1f, 0.4f);break;
 		case 3: Util.biLinIpol(terra, mountainMap1, 0.8f, 2f);break;
 		case 4: Util.biLinIpol(terra, mountainMap2, 1f, 0.4f);break;

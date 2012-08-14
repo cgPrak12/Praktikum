@@ -68,7 +68,7 @@ public class Terrain
 	
 	/* Konstruktoren mit Standardwerten */
 	public Terrain(int size, float initHeight)	{ this(size, initHeight, false); }	// overwrite = false
-	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } 	// initHeight = 0.0f
+	public Terrain(int size, boolean overwrite)	{ this(size, 1.0f, overwrite); } 	// initHeight = 0.0f
 	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       	// size = 1024
 	public Terrain() 							{ this(false); }                  	// overwrite = false
 	
@@ -172,6 +172,7 @@ public class Terrain
 			}
 			
 			// Blockindex ist in n gespeichert
+//			System.out.printf("SET: setting (%d,%d) at pos %d with %f in block (%d,%d)\n", x, z, pos, value, blockX, blockZ);
 			currentBlocks[n].setInfo(blockX, blockZ, pos, value);
 			return true;
 		}
@@ -253,6 +254,7 @@ public class Terrain
 		// Heap auf Festplatte schreiben
 		for(int i = 0; i < MEM_BLOCKS; i++)
 		{
+
 			BlockUtil.writeBlockData(currentBlocks[i]);
 		}
 		
