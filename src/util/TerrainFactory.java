@@ -149,7 +149,7 @@ public class TerrainFactory {
 
 		for(int x = minX; x<maxX; x++){
 			
-			if(x%10 == 0){ 
+			if(x%100 == 0){ 
 				System.out.println(x+" / "+maxX);
 			}
 			
@@ -306,6 +306,9 @@ public class TerrainFactory {
 		
 		// Gen Materials from height
 		for(int x=minX; x<maxX; x++){
+			if(x%100 == 0){ 
+				System.out.println(x+" / "+maxX);
+			}
 			for(int z=minZ; z<maxZ; z++){
 				compare = terra.get(x,z,0);
 				if(compare<0 *SCALE){
@@ -745,6 +748,10 @@ public class TerrainFactory {
 		//		float delta;
 		//		int idx;
 		for(int i=0;i<terra.getSize();i++){
+			
+			if(i%100 == 0){ 
+				System.out.println(i+" / "+terra.getSize());
+			}
 			for(int j=0;j<terra.getSize();j++){
 				lvl = -50;
 				switch(Math.round(terra.get(i, j, 4))){
