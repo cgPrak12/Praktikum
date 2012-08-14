@@ -112,105 +112,169 @@ public class TerrainFactory {
 	}
 	
 	/**
-		 * method for testing terrain generation.
-		 * @param form
-		 */
-		public static void genTerrain(Terrain terra, int form){
-			
-			terraform(terra, form, 1);
-			flattenAllBiomes(terra, 10);
-			smooth(terra);
-			checkNormals(terra);
+	 * method for testing terrain generation.
+	 * @param form
+	 */
+	public static void genTerrain(Terrain terra, int form){
 
-		}
+		terraform(terra, form, 1);
+		flattenAllBiomes(terra, 10);
+		smooth(terra);
+		checkNormals(terra);
 
-
+	}
+		
 	/**
-	 * check vertices in the whole map for their normals and writes them in position 1 - 3.
-	 */ 
+	 * calculates normals, edges and corners excluded!
+	 * @param terra
+	 */
 	public static void checkNormals(Terrain terra){
-		// List of triangles for a grid of vertices, one bigger on each side to account context
-		
-		System.out.println("Checking normals");
-		int vertexSize = 6;
-		
-		//Gen normalMap
-		   	    	
-		FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize*terra.getSize()*terra.getSize());
-
-		// Gen Vbuffer
-		for(int z=0; z < terra.getSize(); ++z) {
-			for(int x=0; x < terra.getSize(); ++x) {
-				vertices.put(1e-2f * (float)x);
-				vertices.put(terra.get(x, z, 0));
-				vertices.put(1e-2f * (float)z);
-				vertices.put(0);	// norm.x
-				vertices.put(0);	// norm.y
-				vertices.put(0);	// norm.z
-			}                	    
-		}
-		
-		System.out.println("Generating IndexBuffer");
-		// Gen IndexBuffer
-		IntBuffer indices = BufferUtils.createIntBuffer(3 * 2 * (terra.getSize() - 1) * (terra.getSize() - 1));
-		for(int z=0; z < terra.getSize() - 1; ++z) {
-			for(int x=0; x < terra.getSize() - 1; ++x) {
-				indices.put(z * terra.getSize() + x);
-				indices.put((z + 1) * terra.getSize() + x + 1);
-				indices.put(z * terra.getSize() + x + 1);
-
-				indices.put(z * terra.getSize() + x);
-				indices.put((z + 1) * terra.getSize() + x);
-				indices.put((z + 1) * terra.getSize() + x + 1);
-			}
-		}
 		
 		System.out.println("Calculating normals");
-		// Gen norms
-		indices.position(0);
-		for(int i=0; i < indices.capacity();) {
-			int index0 = indices.get(i++);
-			int index1 = indices.get(i++);
-			int index2 = indices.get(i++);
 
-			vertices.position(vertexSize * index0);
-			Vector3f p0 = new Vector3f();
-			p0.load(vertices);
-			vertices.position(vertexSize * index1);
-			Vector3f p1 = new Vector3f();
-			p1.load(vertices);
-			vertices.position(vertexSize * index2);
-			Vector3f p2 = new Vector3f();
-			p2.load(vertices);
+		int maxX = terra.getSize()-1;
+		int maxZ = terra.getSize()-1;
+		int minX = 1;
+		int minZ = 1;
 
-			Vector3f a = Vector3f.sub(p1, p0, null);
-			Vector3f b = Vector3f.sub(p2, p0, null);
-			Vector3f normal = Vector3f.cross(a, b, null);
-			normal.normalise();
+		Vector3f tmp1 = new Vector3f();
+		Vector3f tmp2 = new Vector3f();
+		Vector3f tmp3 = new Vector3f();
+		Vector3f topLeft = new Vector3f();
+		Vector3f topRight = new Vector3f();
+		Vector3f bottomLeft = new Vector3f();
+		Vector3f bottomRight = new Vector3f();
 
-			vertices.position(vertexSize * index0 + 3);
-			normal.store(vertices);
+
+
+		for(int x = minX; x<maxX; x++){
 			
-		}
-		vertices.position(0);
-		indices.position(0);
-		
-		System.out.println("Storing normals");
-		
-		for(int x=1; x<=terra.getSize(); x++){
-			for(int z=0; z<terra.getSize(); z++){
+			if(x%100 == 0){ 
+				System.out.println(x+" / "+maxX);
+			}
+			
+			for(int z = minZ; z<maxZ; z++){	
+				tmp1.set(1e-2f * x, terra.get(x, z, 0), 1e-2f * z);
+//				if (x != 0 && z != 0 && x !=  terra.getSize() && z != terra.getSize()){
+					tmp2.set(1e-2f * (x-1), terra.get(x-1, z, 0), 1e-2f * (z));	
+					tmp3.set(1e-2f * (x-1), terra.get(x-1, z-1, 0), 1e-2f * (z-1));	
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), topLeft);
+					topLeft.normalise();
 
-				vertices.position(4+(vertexSize*x*z));
+					tmp2.set(1e-2f * (x), terra.get(x, z-1, 0), 1e-2f * (z-1));	
+					tmp3.set(1e-2f * (x+1), terra.get(x+1, z-1, 0), 1e-2f * (z-1));	
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), topRight);
+					topRight.normalise();
 
-				terra.set(x-1,z,1, vertices.get());
-				terra.set(x-1,z,2, vertices.get());
-				terra.set(x-1,z,3, vertices.get());	   
-				
-			}        	
+					tmp2.set(1e-2f * (x), terra.get(x, z+1, 0), 1e-2f * (z+1));	
+					tmp3.set(1e-2f * (x-1), terra.get(x-1, z+1, 0), 1e-2f * (z+1));	
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), bottomLeft);
+					bottomLeft.normalise();
+
+					tmp2.set(1e-2f * (x+1), terra.get(x+1, z, 0), 1e-2f * (z));	
+					tmp3.set(1e-2f * (x+1), terra.get(x+1, z+1, 0), 1e-2f * (z+1));	
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), bottomRight);
+					bottomRight.normalise();
+
+					terra.set(x, z, 1, (topLeft.x+topRight.x+bottomLeft.x+bottomRight.x)/4f);
+					terra.set(x, z, 2, (topLeft.y+topRight.y+bottomLeft.y+bottomRight.y)/4f);
+					terra.set(x, z, 3, (topLeft.z+topRight.z+bottomLeft.z+bottomRight.z)/4f);
+//				}else{
+//					// do edges and corners... or not!
+//				}
+			}
 		}
 		System.out.println("Done");
 		System.out.println();
 	}
+
+//
+//	/**
+//	 * check vertices in the whole map for their normals and writes them in position 1 - 3.
+//	 */ 
+//	public static void checkNormals(Terrain terra){
+//		// List of triangles for a grid of vertices, one bigger on each side to account context
+//		
+//		System.out.println("Checking normals");
+//		int vertexSize = 6;
+//		
+//		//Gen normalMap
+//		   	    	
+//		FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize*terra.getSize()*terra.getSize());
+//
+//		// Gen Vbuffer
+//		for(int z=0; z < terra.getSize(); ++z) {
+//			for(int x=0; x < terra.getSize(); ++x) {
+//				vertices.put(1e-2f * (float)x);
+//				vertices.put(terra.get(x, z, 0));
+//				vertices.put(1e-2f * (float)z);
+//				vertices.put(0);	// norm.x
+//				vertices.put(0);	// norm.y
+//				vertices.put(0);	// norm.z
+//			}                	    
+//		}
+//		
+//		System.out.println("Generating IndexBuffer");
+//		// Gen IndexBuffer
+//		IntBuffer indices = BufferUtils.createIntBuffer(3 * 2 * (terra.getSize() - 1) * (terra.getSize() - 1));
+//		for(int z=0; z < terra.getSize() - 1; ++z) {
+//			for(int x=0; x < terra.getSize() - 1; ++x) {
+//				indices.put(z * terra.getSize() + x);
+//				indices.put((z + 1) * terra.getSize() + x + 1);
+//				indices.put(z * terra.getSize() + x + 1);
+//
+//				indices.put(z * terra.getSize() + x);
+//				indices.put((z + 1) * terra.getSize() + x);
+//				indices.put((z + 1) * terra.getSize() + x + 1);
+//			}
+//		}
+//		
+//		System.out.println("Calculating normals");
+//		// Gen norms
+//		indices.position(0);
+//		for(int i=0; i < indices.capacity();) {
+//			int index0 = indices.get(i++);
+//			int index1 = indices.get(i++);
+//			int index2 = indices.get(i++);
+//
+//			vertices.position(vertexSize * index0);
+//			Vector3f p0 = new Vector3f();
+//			p0.load(vertices);
+//			vertices.position(vertexSize * index1);
+//			Vector3f p1 = new Vector3f();
+//			p1.load(vertices);
+//			vertices.position(vertexSize * index2);
+//			Vector3f p2 = new Vector3f();
+//			p2.load(vertices);
+//
+//			Vector3f a = Vector3f.sub(p1, p0, null);
+//			Vector3f b = Vector3f.sub(p2, p0, null);
+//			Vector3f normal = Vector3f.cross(a, b, null);
+//			normal.normalise();
+//
+//			vertices.position(vertexSize * index0 + 3);
+//			normal.store(vertices);
+//			
+//		}
+//		vertices.position(0);
+//		indices.position(0);
+//		
+//		System.out.println("Storing normals");
+//		
+//		for(int x=1; x<=terra.getSize(); x++){
+//			for(int z=0; z<terra.getSize(); z++){
+//
+//				vertices.position(4+(vertexSize*x*z));
+//
+//				terra.set(x-1,z,1, vertices.get());
+//				terra.set(x-1,z,2, vertices.get());
+//				terra.set(x-1,z,3, vertices.get());	   
+//				
+//			}        	
+//		}
+//		System.out.println("Done");
+//		System.out.println();
+//	}
 
 	/**
 	 * smoothing of terra
@@ -242,6 +306,9 @@ public class TerrainFactory {
 		
 		// Gen Materials from height
 		for(int x=minX; x<maxX; x++){
+			if(x%100 == 0){ 
+				System.out.println(x+" / "+maxX);
+			}
 			for(int z=minZ; z<maxZ; z++){
 				compare = terra.get(x,z,0);
 				if(compare<0 *SCALE){
@@ -681,6 +748,10 @@ public class TerrainFactory {
 		//		float delta;
 		//		int idx;
 		for(int i=0;i<terra.getSize();i++){
+			
+			if(i%100 == 0){ 
+				System.out.println(i+" / "+terra.getSize());
+			}
 			for(int j=0;j<terra.getSize();j++){
 				lvl = -50;
 				switch(Math.round(terra.get(i, j, 4))){
@@ -810,7 +881,7 @@ public class TerrainFactory {
 	 */
 	public static void terraform(Terrain terra, int surfaceWrink, int macroStructure){
 
-		System.out.print("Terraforming");
+		System.out.println("Terraforming");
 
 		switch(macroStructure){
 		case 1:	Util.biLinIpol(terra, noiseMap, 0.05f, 1f);

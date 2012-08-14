@@ -43,7 +43,7 @@ public class Block implements Serializable {
 	
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
-				vertexInfo[x][z][pos] = info;
+			vertexInfo[x][z][pos] = info;
 		}		
 	}
 	
