@@ -77,7 +77,7 @@ public class TerrainMain
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Test_Fs.glsl");
 			program.use();
 
-            terra = new Terrain(1024, 0f);
+            terra = new Terrain(1024, 0f, false);
             TerrainFactory.init();
             TerrainFactory.genTerrain(terra, 8);
 
@@ -85,7 +85,7 @@ public class TerrainMain
             
 			clip = new ClipMap(terra, 30, 8, program, cam);
 			
-			terrain.Terrain terrain = new terrain.Terrain(1024);
+			terrain.Terrain terrain = new terrain.Terrain(1024, false);
 			TerrainView tv = new TerrainView(terra, cam);
 			
 			float[][] heightMap = tv.getHeightMap();
