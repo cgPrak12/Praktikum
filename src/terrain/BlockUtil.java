@@ -23,7 +23,8 @@ public class BlockUtil {
 	private static final int blockHeight = 5; 	/* vertexlayout length */
 	private static int blockCount = 0;			/* Anzahl geschriebener Block Objekte */
 	private static File DataInfo = null;		/* Datei die blockCount enthaelt */
-				
+	
+	
 	/**
 	 * Liest einen gegebenen Block ein und schreibt diesen in eine blockfile (.bf) Datei
 	 * 
@@ -111,7 +112,7 @@ public class BlockUtil {
 	 */
 	public static Block readBlockData(int x, int z)
 	{
-		return readBlockData(new File(x + "_" + z + "_.bf"));
+		return readBlockData(new File("Data",x + "_" + z + "_.bf"));
 	}
 	
 	/**
