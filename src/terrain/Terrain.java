@@ -19,11 +19,12 @@ public class Terrain
 	 */
 	public Terrain(int size, float initHeight, boolean overwrite)
 	{
-		boolean test = BlockUtil.test();
-		if(test && !overwrite)
+		boolean test = BlockUtil.DataInfoExist();
+		this.size = getLastPow2(size);
+		
+		if(test && !overwrite && this.size == BlockUtil.readDataInfo())
 		{
 			// Bloecke liegen bereits vor
-			this.size = BlockUtil.readTest();
 			this.initialHeight = initHeight;
 			int dim = size / 256;
 			blocks = new String[dim][dim];
@@ -59,15 +60,16 @@ public class Terrain
 			currentBlocks = new Block[MEM_BLOCKS];
 			currentIDs = new int[MEM_BLOCKS][2];
 			
-			BlockUtil.writeTest(size);
+			BlockUtil.writeDataInfo(size);
 			init();
 		}
 	}
 	
 	/* Konstruktoren mit Standardwerten */
-	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } // initHeight = 0.0f
-	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       // size = 1024
-	public Terrain() 							{ this(true); }                  // overwrite = true
+	public Terrain(int size, float initHeight)	{ this(size, initHeight, false); }	// overwrite = false
+	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } 	// initHeight = 0.0f
+	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       	// size = 1024
+	public Terrain() 							{ this(false); }                  	// overwrite = true
 	
 	/**
 	 * Setze alle Vertices initial auf die gleiche Hoehe
