@@ -9,6 +9,7 @@ in vec2 gl_PointCoord;
 in float pointSize;
 
 out vec4 depth;
+out vec4 depth2;
 
 void main(void) {
 
@@ -22,8 +23,10 @@ void main(void) {
 
 	n.z = -dot(n.xy, n.xy);
 	vec4 pos = (view * positionWC);
-	float scale = 1;//pointSize * 0.5 / 10.0;
-	vec4 pixelPos = vec4(pos.xyz + scale*n , 1.0);
-
-	depth = vec4(pixelPos.xyz, length(pixelPos.xyz) / viewDistance);
+	vec3 pixelPos = pos.xyz + n;
+	depth = vec4(pixelPos, length(pixelPos) / viewDistance);
+	
+	float scale = pointSize * 0.5 / 200.0;
+	vec3 pixelPos2 = pos.xyz + scale*n;
+	depth2 = vec4(pixelPos2, length(pixelPos2) / viewDistance);
 }

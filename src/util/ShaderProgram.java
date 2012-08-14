@@ -1,6 +1,9 @@
 package util;
 
 import static opengl.GL.*;
+
+import java.io.ObjectInputStream.GetField;
+
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -11,10 +14,11 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class ShaderProgram {
     private int id, vs, fs;
-    private String vertexShader;
+    private String vertexShader, fragmentShader;
     public ShaderProgram(String vertexShader, String fragmentShader) {
         this.createShaderProgram(vertexShader, fragmentShader);
         this.vertexShader = vertexShader;
+        this.fragmentShader = fragmentShader;
     }
     
     public void use() {
@@ -40,7 +44,7 @@ public class ShaderProgram {
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         } else {
-            System.err.println(varName +", " +this.id+", "+vertexShader);
+            System.err.println("Uniform: "+ varName +", ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
         }
             
     }

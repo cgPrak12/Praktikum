@@ -137,10 +137,10 @@ public class FluidRenderer {
         
         // init depth, normal, thickness
         
-    	init(depthSP, depthFB, depthFBLQ, depthTex, depthTexLQ, "depth", true);
-    	init(depth2SP, depth2FB, depth2FBLQ, depth2Tex, depth2TexLQ, "depth", true);
-		init(normalSP, normalFB, normalFBLQ, normalTex, normalTexLQ);
-		init(normal2SP, normal2FB, normal2FBLQ, normal2Tex, normal2TexLQ);
+    	init(depthFB, depthSP, new Texture[]{depthTex, depth2Tex}, new String[]{"depth", "depth2"}, false, true);
+    	init(depthFBLQ, depthSP, new Texture[]{depthTexLQ, depth2TexLQ}, new String[]{"depth", "depth2"}, false, true);
+		init(normalFB, normalSP, new Texture[]{normalTex, normal2Tex}, new String[]{"normal", "normal2"}, false, false);
+		init(normalFBLQ, normalSP, new Texture[]{normalTexLQ, normal2TexLQ}, new String[]{"normal", "normal2"}, false, false);
     	init(thicknessSP, thicknessFB, thicknessFBLQ, thicknessTex, thicknessTexLQ);
 
     	// init lighting
@@ -159,7 +159,6 @@ public class FluidRenderer {
 	} 
 	
     private void drawWater() {
-    	
     	glBindVertexArray(vaid);
     	glDrawArrays(GL_POINTS, 0, particleNumber);
 //    	testWaterParticles.draw();
@@ -176,11 +175,9 @@ public class FluidRenderer {
 		// depth
 		
 		depth();
-		depth2();
 		
 		// normals
 		normals(); // Wenn normals(true), dann werden die Normalen mit der geblurrten depth berechnet. Aufpassen!
-		normals2();
 		
 		// thickness
 		thickness();
@@ -201,9 +198,11 @@ public class FluidRenderer {
 		lighting();
 //		finalImage();
 		glViewport(0, 0, WIDTH, HEIGHT);
+		
 //		drawTextureSP.use();
 		
 //		drawTextureSP.setUniform("image", depthTex);
+//		drawTextureSP.setUniform("image", depth2Tex);
 //		drawTextureSP.setUniform("image", depthHBlurTex);
 //		drawTextureSP.setUniform("image", depthVBlurTex);
 //		drawTextureSP.setUniform("image", depthTexLQ);
@@ -211,6 +210,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", depthVBlurTexLQ);
 //		drawTextureSP.setUniform("image", depthIntTex);
 //		drawTextureSP.setUniform("image", normalTex);
+//		drawTextureSP.setUniform("image", normal2Tex);
 //		drawTextureSP.setUniform("image", normalHBlurTex);
 //		drawTextureSP.setUniform("image", normalVBlurTex);
 //		drawTextureSP.setUniform("image", normalTexLQ);
@@ -300,6 +300,23 @@ public class FluidRenderer {
 		}
     }
 	
+	private void init(FrameBuffer fb, ShaderProgram sp, Texture[] textures, String[] names, boolean low, boolean depthTest) {
+		fb.init(depthTest, WIDTH/(low?2:1), HEIGHT/(low?2:1));
+		for(Texture tex: textures) {
+			fb.addTexture(tex, GL_RGBA16F, GL_RGBA);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+		fb.drawBuffers();
+
+		bindFB(fb);
+		for(int i = 0; i < names.length; i++) {
+			glBindFragDataLocation(sp.getId(), i, names[i]);
+		}
+		
+		endPath();
+	}
+
 	private void startPath(ShaderProgram sp, FrameBuffer fb) {
 		sp.use();
 		fb.bind();
@@ -323,7 +340,6 @@ public class FluidRenderer {
 	private void depth() {
 		depthSP.use();
 		depthSP.setUniform("view", cam.getView());
-//		depthSP.setUniform("proj", cam.getProjection());
 		depthSP.setUniform("viewProj", viewProj);
 		depthSP.setUniform("viewDistance", cam.getViewDistance());
         depthSP.setUniform("camPos", cam.getCamPos());
@@ -339,34 +355,8 @@ public class FluidRenderer {
         glEnable(GL_DEPTH_TEST);
 
     	bindFB(depthFBLQ);
-    	
     	drawWater();
     	
-        endPath();
-	}
-	
-	private void depth2() {
-		depth2SP.use();
-		depth2SP.setUniform("view", cam.getView());
-//		depth2SP.setUniform("proj", cam.getProjection());
-		depth2SP.setUniform("viewProj", viewProj);
-		depth2SP.setUniform("viewDistance", cam.getViewDistance());
-        depth2SP.setUniform("camPos", cam.getCamPos());
-        depth2SP.setUniform("size", pointSize);
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-
-        bindFB(depth2FB);
-        drawWater();
-	    
-	    depth2SP.setUniform("size",2.0f * pointSize);
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-
-    	bindFB(depth2FBLQ);
-    	
-    	drawWater();
-	    
         endPath();
 	}
 	
@@ -374,31 +364,16 @@ public class FluidRenderer {
 	private void normals(boolean source) {
 		startPath(normalSP);
 		normalSP.setUniform("depthTex", source?depthVBlurTex:depthTex);
+		normalSP.setUniform("depth2Tex", depth2Tex);
 		normalSP.setUniform("texSize", (float)WIDTH);
 		normalSP.setUniform("camPos", cam.getCamPos());
 
 		bindFB(normalFB);
 		screenQuad.draw();
 		
-//		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ); // TODO probieren, ob diese Zeile doch rein muss
+		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ);
+		normalSP.setUniform("depth2Tex", depth2TexLQ);
 		bindFB(normalFBLQ);
-		screenQuad.draw();
-		
-		endPath();
-	}
-
-	private void normals2() { normals2(false); }
-	private void normals2(boolean source) {
-		startPath(normal2SP);
-		normal2SP.setUniform("depthTex", source?depth2Tex:depth2Tex);
-		normal2SP.setUniform("texSize", (float)WIDTH);
-		normal2SP.setUniform("camPos", cam.getCamPos());
-
-		bindFB(normal2FB);
-		screenQuad.draw();
-		
-//		normalSP.setUniform("depthTex", source?depthVBlurTexLQ:depthTexLQ); // TODO probieren, ob diese Zeile doch rein muss
-		bindFB(normal2FBLQ);
 		screenQuad.draw();
 		
 		endPath();
@@ -548,4 +523,21 @@ public class FluidRenderer {
 		}
 	}
 	
+	private void enableAttachments(FrameBuffer fb, boolean ...attachments) {
+		bindFB(fb);
+		enableAttachments(attachments);
+	}
+	
+	private void enableAttachments(boolean ...attachments) {
+		// framebuffer has to be binded before!
+		int i = 0;
+		java.nio.IntBuffer buffer = BufferUtils.createIntBuffer(attachments.length);
+		for(boolean attachment:attachments) { 
+			if(attachment){ buffer.put(GL_COLOR_ATTACHMENT0+i); System.out.print(GL_COLOR_ATTACHMENT0+i);} i++;
+		}
+		System.out.println();
+		
+		buffer.flip();
+		glDrawBuffers(buffer);
+	}
 }

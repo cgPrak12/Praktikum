@@ -142,7 +142,8 @@ public class TerrainMain {
             Display.update();
             Display.sync(60);
         }
-//        simShader.delete();
+        simShader.delete();
+        drawTextureSP.delete();
         OpenCL.destroy();
     }
     
