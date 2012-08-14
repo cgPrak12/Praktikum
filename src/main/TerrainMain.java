@@ -77,19 +77,19 @@ public class TerrainMain
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Test_Fs.glsl");
 			program.use();
 			
+			terra = new terrain.Terrain(1024,0f);
 			
-			Terrain terra = new Terrain(1024, 0);
             TerrainFactory.init();
-            TerrainFactory.genTerrain(terra, 1);
+            TerrainFactory.genTerrain(terra, 0);
 
-            terrainGeometry = GeometryFactory.genTerrain(terra);
+//            terrainGeometry = GeometryFactory.genTerrain(terra);
             
 			
 			TerrainView.init(terra, cam);
 			
 			clip = new ClipMap(30, 8, program, cam);
 
-			float[][] heightMap = TerrainView.getHeightMap();		
+			float[][] heightMap = TerrainView.getHeightMap();
 			
 			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length*heightMap.length);
 			for(int i = 0; i < heightMap.length; i++) {
