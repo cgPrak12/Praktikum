@@ -21,16 +21,19 @@ public class BlockUtil {
 
 	private static final int blockSize = 256; 	/* block length / width */
 	private static final int blockHeight = 5; 	/* vertexlayout length */
-	
+	private static int blockCount = 0;			/* Anzahl geschriebener Block Objekte */
+	private static File DataInfo = null;		/* Datei die blockCount enthaelt */
+				
 	/**
 	 * Liest einen gegebenen Block ein und schreibt diesen in eine blockfile (.bf) Datei
 	 * 
 	 * @param block		einzulesener Block
-	 * @return file		geschriebene .bf Datei	
+	 * @return file		auf Festplatte geschriebene .bf Datei	
 	 */
 	public static File writeBlockData(Block block)
 	{	
-		String filePath = "Data" + File.separator + block.getX() + "_" + block.getZ() + "_.bf"; 
+		/* construct file path */
+		String filePath = "." + File.separator + "Data" + File.separator + block.getX() + "_" + block.getZ() + "_.bf"; 
 		File file = new File(filePath);
 	
 		try(DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file))))
@@ -40,22 +43,23 @@ public class BlockUtil {
 				file.createNewFile();
 			}	
 			
+			/* write floats in outputstream */
 			for(int i = 0; i < blockSize; i++)
 			{
 				for(int j = 0; j < blockSize; j++)
 				{
 					for(int k = 0; k < blockHeight; k++)
-					{	
-						
+					{							
 						output.writeFloat(block.getInfo(i, j, k));
 					}		
 				}
 			}		
+			blockCount++;
 			return file;
 		}
-		catch (IOException e1)
+		catch (IOException e)
 		{
-			System.err.println(e1.getClass().getName() + " : " + e1.getMessage());
+			System.err.println(e.getClass().getName() + " : " + e.getMessage());
 			return null;
 		}
 	}
@@ -63,7 +67,7 @@ public class BlockUtil {
 	/**
 	 * Liest eine blockfile Datei ein und schreibt deren Inhalt in einen neuen Block
 	 * 
-	 * @param blockdata		einzulesende .bf Datei
+	 * @param blockdata		von Festplatte einzulesende .bf Datei
 	 * @return newblock		aus der Datei ausgelesener Block
 	 */
 	public static Block readBlockData(File blockData)
@@ -91,9 +95,9 @@ public class BlockUtil {
 			}	
 			return newBlock;
 		}
-		catch (IOException e2)
+		catch (IOException e)
 		{
-			System.err.println(e2.getClass().getName() + " : " + e2.getMessage());
+			System.err.println(e.getClass().getName() + " : " + e.getMessage());
 			return null;
 		}				
 	}
@@ -134,6 +138,74 @@ public class BlockUtil {
 	public static Block getBlock(int x, int z)
 	{
 		return readBlockData(x / 256, z / 256);
+	}
+	
+	/**
+	 * Prueft, ob DataInfo.dat existiert und liefert dementsprechend true oder false
+	 * 
+	 * @return boolean
+	 */
+	public static boolean DataInfoExist()
+	{	
+		try
+		{
+			if(DataInfo.exists())
+			{
+				System.out.println("DataInfo.dat does exists");
+				return true;
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("DataInfo.dat does not exists");
+			return false;
+		}
+		return false;
+	}
+	
+	/**
+	 * Schreibt die Anzahl an blockfiles aus dem Ordner Data in DataInfo.dat
+	 * 
+	 * @return
+	 */
+	public static File writeDataInfo()
+	{	
+		DataInfo = new File("DataInfo.dat");
+		
+		try(DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(DataInfo))))
+		{			
+			if(!DataInfo.exists())
+			{
+				DataInfo.createNewFile();
+			}	
+			
+			output.writeInt(blockCount);
+			
+			return DataInfo;		
+		}
+		catch (IOException e)
+		{
+			System.err.println(e.getClass().getName() + " : " + e.getMessage());
+			return null;
+		}
+	}
+	
+	/**
+	 * Liest die Anzahl an blockfiles aus
+	 * @return count	Anzahl blockfiles
+	 */
+	public static int readDataInfo()
+	{
+		try(DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(DataInfo))))
+		{
+			int count = input.readInt();
+			return count;
+		}
+		catch (IOException e)
+		{
+			System.err.println(e.getClass().getName() + " : " + e.getMessage());
+			return 0;
+		}	
 	}
 	
 }

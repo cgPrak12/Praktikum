@@ -64,7 +64,7 @@ public class MainTest {
             terrainParamLoc = glGetUniformLocation(terrainProgram, "param");
                    
                       	
-            terra = new Terrain(1024, 0f);
+            terra = new Terrain(1024, false);
             TerrainFactory.init();
             TerrainFactory.genTerrain(terra, 8);
 

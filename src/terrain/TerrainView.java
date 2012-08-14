@@ -103,8 +103,7 @@ public class TerrainView {
 									&& (middle[1]-4+j)<(terra.getSize()/256))
 							{	
 								System.out.println("Neuer Block wird gelesen");
-								String file = (myBl[i][j].getID()[0] + diffX) 
-						         + "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
+								String file = (myBl[i][j].getID()[0] + diffX) + "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
 								myBl[i][j] = BlockUtil.readBlockData(new File(file));
 							}
 							else
