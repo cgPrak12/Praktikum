@@ -1,5 +1,7 @@
 package terrain;
 
+import java.io.File;
+
 public class Terrain
 {
 	private static final int MEM_BLOCKS = 16;
@@ -20,18 +22,19 @@ public class Terrain
 	public Terrain(int size, float initHeight, boolean overwrite)
 	{
 		boolean test = BlockUtil.DataInfoExist();
-		if(test && !overwrite)
+		this.size = getLastPow2(size);
+		int dim = this.size / 256;
+		
+		if(test && !overwrite && dim * dim == (BlockUtil.readDataInfo()))
 		{
 			// Bloecke liegen bereits vor
-			this.size = BlockUtil.readDataInfo();
 			this.initialHeight = initHeight;
-			int dim = size / 256;
 			blocks = new String[dim][dim];
 			for(int i = 0; i < dim; i++)
 			{
 				for(int j = 0; j < dim; j++)
 				{
-					blocks[i][j] = i + "_" + j + "_.bf";
+					blocks[i][j] = "." + File.separator + "Data" + File.separator + i + "_" + j + "_.bf";
 				}
 			}
 			
@@ -65,9 +68,11 @@ public class Terrain
 	}
 	
 	/* Konstruktoren mit Standardwerten */
-	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } // initHeight = 0.0f
-	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       // size = 1024
-	public Terrain() 							{ this(true); }                  // overwrite = true
+	public Terrain(int size, float initHeight)	{ this(size, initHeight, true); }	// overwrite = false
+	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } 	// initHeight = 0.0f
+	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       	// size = 1024
+	public Terrain(int size)					{ this(size, true); }
+	public Terrain() 							{ this(true); }                  	// overwrite = true
 	
 	/**
 	 * Setze alle Vertices initial auf die gleiche Hoehe

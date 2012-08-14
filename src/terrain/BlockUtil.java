@@ -111,7 +111,7 @@ public class BlockUtil {
 	 */
 	public static Block readBlockData(int x, int z)
 	{
-		return readBlockData(new File("." + File.separator + "Data" + File.separator +  x + "_" + z + "_.bf"));
+		return readBlockData(new File("." + File.separator + "Data" + File.separator + x + "_" + z + "_.bf"));
 	}
 	
 	/**
@@ -146,12 +146,12 @@ public class BlockUtil {
 	 * @return boolean
 	 */
 	public static boolean DataInfoExist()
-	{	
+	{
+		DataInfo = new File("DataInfo.dat");
 		try
 		{
 			if(DataInfo.exists())
 			{
-
 				return true;
 			}
 		}

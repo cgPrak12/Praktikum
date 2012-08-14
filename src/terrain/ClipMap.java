@@ -257,45 +257,45 @@ public class ClipMap
 
 		// Zähle Floats hoch, bis Schwellenwert erreicht ist
 		tempX += cam.getAlt().x / generalScale / scaleFaktor;
-		tempY += cam.getAlt().y;
+//		tempY += cam.getAlt().y;
 		tempZ += cam.getAlt().z / generalScale / scaleFaktor;
 
-		if (tempY > 10)
-		{
-			updateHeight(true);
-			tempY %= 10;
-		}
-		if (tempY < -10)
-		{
-			updateHeight(false);
-			tempY %= 10;
-		}
+//		if (tempY > 10)
+//		{
+//			updateHeight(true);
+//			tempY %= 10;
+//		}
+//		if (tempY < -10)
+//		{
+//			updateHeight(false);
+//			tempY %= 10;
+//		}
 
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
 		{
-			TerrainView.updateTerrainView();
+//			TerrainView.updateTerrainView();
 			moveClip(0, 1);
 			tempZ %= 2;
 		}
 		// Positiv X --- Nach Links
 		if (tempX > 2)
 		{
-			TerrainView.updateTerrainView();
+//			TerrainView.updateTerrainView();
 			moveClip(0, 0);
 			tempX %= 2;
 		}
 		// Negativ Z --- Nach Hinten
 		if (tempZ < -2)
 		{
-			TerrainView.updateTerrainView();
+//			TerrainView.updateTerrainView();
 			moveClip(0, 3);
 			tempZ %= 2;
 		}
 		// Negativ X --- Nach Rechts
 		if (tempX < -2)
 		{
-			TerrainView.updateTerrainView();
+//			TerrainView.updateTerrainView();
 			moveClip(0, 2);
 			tempX %= 2;
 		}

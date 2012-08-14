@@ -41,7 +41,7 @@ public class TerrainMain
     
     
     // geometries
-    private static Geometry terrainGeometry;
+ //   private static Geometry terrainGeometry;
 
 	// control
 	private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -77,12 +77,11 @@ public class TerrainMain
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Test_Fs.glsl");
 			program.use();
 			
-			
-			Terrain terra = new Terrain(1024, false);
+			Terrain terra = new Terrain(1024);
             TerrainFactory.init();
-            TerrainFactory.genTerrain(terra, 1);
+            TerrainFactory.genTerrain(terra, 0);
 
-            terrainGeometry = GeometryFactory.genTerrain(terra);
+//            terrainGeometry = GeometryFactory.genTerrain(terra);
             
 			
 			TerrainView.init(terra, cam);
@@ -90,21 +89,6 @@ public class TerrainMain
 			clip = new ClipMap(30, 8, program, cam);
 
 			float[][] heightMap = TerrainView.getHeightMap();
-			
-//			int zero =0;
-//			
-//			for(int x=0; x<heightMap.length;x++){
-//				for (int y=0; y<heightMap.length; y++){
-//					if(heightMap[x][y]==0)System.out.println("x:"+x+ " y:"+y+"  "+zero++);
-//				}
-//			}
-//			for(float[] i : heightMap){
-//				for(float j :i){
-//					if (j==0)System.out.println("+++++" +zero++);
-//				}
-//			}
-			
-			
 			
 			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length*heightMap.length);
 			for(int i = 0; i < heightMap.length; i++) {
