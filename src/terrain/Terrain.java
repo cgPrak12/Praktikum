@@ -44,9 +44,7 @@ public class Terrain
 			{
 				for(int j = 0; j * j < MEM_BLOCKS; j++)
 				{
-					System.out.println("hey");
 					currentBlocks[count] = BlockUtil.readBlockData(i, j);
-					System.out.println("ho");
 					currentIDs[count][0] = i;
 					currentIDs[count][1] = j;
 					count++;
