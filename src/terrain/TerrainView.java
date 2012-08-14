@@ -156,7 +156,7 @@ public class TerrainView {
 	}
 	
 	/**
-	 * methode for getting the latest blocks as an float[][][] with sizes [2304][2304][5]
+	 * method for getting the latest blocks as an float[][][] with sizes [2304][2304][5]
 	 * @return float[][][]
 	 */
 	public float[][][] getArray(){
@@ -179,7 +179,7 @@ public class TerrainView {
 	}
 	
 	/**
-	 * methode gives the camPosX as related to the float[][][]
+	 * method gives the camPosX as related to the float[][][]
 	 * @return int 
 	 */
 	public int arrayCamPosX(){
@@ -188,7 +188,7 @@ public class TerrainView {
 	}
 	
 	/**
-	 * methode gives the camPosZ as related to the float[][][]
+	 * method gives the camPosZ as related to the float[][][]
 	 * @return
 	 */
 	public int arrayCamPosZ(){
