@@ -41,7 +41,7 @@ public class TerrainMain
     
     
     // geometries
-    private static Geometry terrainGeometry;
+ //   private static Geometry terrainGeometry;
 
 	// control
 	private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);

@@ -52,18 +52,15 @@ public class GeometryFactory
 		glBindVertexArray(vaid);
 
 		// VertexBufferArray erstellen
-		float[] vertices = new float[5 * m * n];
+		float[] vertices = new float[2 * m * n];
 		int count = 0;
 
 		for (int y = 0; y < n; y++)
 		{
 			for (int x = 0; x < m; x++)
 			{
-				vertices[count++] = y;
-				vertices[count++] = x;
-				vertices[count++] = 0.35f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.35f;
+				vertices[count++] = 1e-2f * y;
+				vertices[count++] =1e-2f *  x;
 			}
 		}
 
@@ -99,7 +96,6 @@ public class GeometryFactory
 		geo.setVertices(fbu);
 		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
 
 		return geo;
 
@@ -115,7 +111,7 @@ public class GeometryFactory
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		float[] vertices = new float[5 * x * y];
+		float[] vertices = new float[2 * x * y];
 		int count = 0;
 
 		for (int j = 0; j < y; j++)
@@ -232,7 +228,7 @@ public class GeometryFactory
 		glBindVertexArray(vaid);
 
 		// Vertex und Index Arrays mit passender Größe erzeugen
-		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		float[] vertices = new float[7 * length + 7 * (length - 1)];
 		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2) * 10];
 		int count = 0;
 
@@ -241,11 +237,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = y;
-				vertices[count++] = x;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.7f;
+				vertices[count++] = 1e-2f * y;
+				vertices[count++] = 1e-2f * x;
 			}
 		}
 
@@ -253,11 +246,8 @@ public class GeometryFactory
 		{
 			for (int y = 2; y < length; y++)
 			{
-				vertices[count++] = y;
-				vertices[count++] = x;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.7f;
+				vertices[count++] = 1e-2f * y;
+				vertices[count++] =1e-2f *  x;
 			}
 		}
 
@@ -303,7 +293,6 @@ public class GeometryFactory
 		geo.setVertices(fbu);
 		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
 
 		return geo;
 	}
@@ -319,7 +308,7 @@ public class GeometryFactory
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		float[] vertices = new float[7 * length + 7 * (length - 1)];
 		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2) * 10];
 		int count = 0;
 
@@ -327,11 +316,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = y;
-				vertices[count++] = x;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.7f;
+				vertices[count++] =1e-2f *  y;
+				vertices[count++] =1e-2f *  x;
 			}
 		}
 
@@ -339,11 +325,9 @@ public class GeometryFactory
 		{
 			for (int y = 2; y < length; y++)
 			{
-				vertices[count++] = y;
-				vertices[count++] = x;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.7f;
+				vertices[count++] = 1e-2f * y;
+				vertices[count++] = 1e-2f * x;
+
 			}
 		}
 
@@ -385,7 +369,6 @@ public class GeometryFactory
 		geo.setVertices(fbu);
 		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
 
 		return geo;
 	}
@@ -400,7 +383,7 @@ public class GeometryFactory
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		float[] vertices = new float[7 * length + 7 * (length - 1)];
 		int[] indices = new int[(length - 2) * 5 + 2 * length + 1];
 		int count = 0;
 
@@ -408,11 +391,9 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = y;
-				vertices[count++] = x;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.7f;
+				vertices[count++] = 1e-2f * y;
+				vertices[count++] = 1e-2f * x;
+
 			}
 		}
 
@@ -422,9 +403,7 @@ public class GeometryFactory
 			{
 				vertices[count++] = y;
 				vertices[count++] = x;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.7f;
+
 			}
 		}
 
@@ -467,7 +446,6 @@ public class GeometryFactory
 		geo.setVertices(fbu);
 		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
 
 		return geo;
 	}
@@ -483,7 +461,7 @@ public class GeometryFactory
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		float[] vertices = new float[10 * length + 10 * (length - 1)];
+		float[] vertices = new float[7 * length + 7 * (length - 1)];
 		int[] indices = new int[(length - 2) * 5 + 2 * length + 1];
 		int count = 0;
 
@@ -491,11 +469,9 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = y;
-				vertices[count++] = x;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.7f;
+				vertices[count++] = 1e-2f * y;
+				vertices[count++] = 1e-2f * x;
+				
 			}
 		}
 
@@ -503,11 +479,9 @@ public class GeometryFactory
 		{
 			for (int y = -1; y > -length + 1; y--)
 			{
-				vertices[count++] = y;
-				vertices[count++] = x;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.5f;
-				vertices[count++] = 0.7f;
+				vertices[count++] = 1e-2f * y;
+				vertices[count++] = 1e-2f * x;
+
 			}
 		}
 
@@ -550,7 +524,7 @@ public class GeometryFactory
 		geo.setVertices(fbu);
 		geo.setIndices(ibu, GL_TRIANGLE_STRIP);
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
 
 		return geo;
 	}
@@ -568,7 +542,7 @@ public class GeometryFactory
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		float[] vertices = new float[4 * length * 2];
+		float[] vertices = new float[4 * length *2];
 		int[] indices = new int[4 * length + 4];
 		int count = 0;
 
@@ -576,8 +550,8 @@ public class GeometryFactory
 		{
 			for (int i = 0; i < length; i++)
 			{
-				vertices[count++] = i;
-				vertices[count++] = y;
+				vertices[count++] = 1e-2f * i;
+				vertices[count++] = 1e-2f * y;
 			}
 		}
 
@@ -585,8 +559,8 @@ public class GeometryFactory
 		{
 			for (int i = 0; i < length; i++)
 			{
-				vertices[count++] = y;
-				vertices[count++] = i;
+				vertices[count++] = 1e-2f * y;
+				vertices[count++] = 1e-2f * i;
 			}
 		}
 
