@@ -1,9 +1,6 @@
 package util;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.Random;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -26,6 +23,7 @@ public class TerrainFactory {
 	private static float[][] desertMap1 = new float [32][32];
 	private static float[][] desertMap2 = new float [32][32];
 	private static float[][] gauss17 = new float[17][17];
+	private static float gauss17Sum = 0;
 	private static float[][] slopeMap = new float [32][32];
 	
 	private static Random random;
@@ -72,6 +70,7 @@ public class TerrainFactory {
 		for(int x=0; x < gauss17.length; ++x) {
 			for(int z=0; z < gauss17[0].length; ++z) {
 				gauss17[x][z] /= maxVal;
+				gauss17Sum += gauss17[x][z];
 			}
 		}
 		
@@ -117,7 +116,7 @@ public class TerrainFactory {
 	 */
 	public static void genTerrain(Terrain terra, int form){
 
-		terraform(terra, form, 1);
+		terraform(terra, form, 6);
 		flattenAllBiomes(terra, 10);
 		smooth(terra);
 		checkNormals(terra);
@@ -661,6 +660,8 @@ public class TerrainFactory {
 		//Draw Lines
 		float[][][] interPols = new float[bezierPts.length-1][bezierPts.length-1][2];
 		int iPolIndex;
+		float lvl;
+		int idxX, idxZ;
 		for(float var = 0; var<1.0001; var+=(negFreq/dist)){
 			iPolIndex = 0;
 			for(int linePos = 0; linePos< interPols.length; linePos++){
@@ -673,7 +674,20 @@ public class TerrainFactory {
 					interPols[iPolIndex][linePos][1] = Util.iPol(interPols[iPolIndex-1][linePos][1], interPols[iPolIndex-1][linePos+1][1], var);			 
 				}
 			}
-			putLake(terra, scale, depth, (int)Math.round(interPols[interPols.length-1][0][0]), (int)Math.round(interPols[interPols.length-1][0][1]));
+			
+			// Get new depth by substracting it from the averaged lvl from the point where the lake is put 
+			lvl = 0;
+			idxX = (int)Math.round(interPols[interPols.length-1][0][0]);
+			idxZ = (int)Math.round(interPols[interPols.length-1][0][1]);
+			for(int i = 0; i<gauss17.length;i++){
+				for(int j = 0; j<gauss17[0].length;j++){
+					lvl += (gauss17[i][j]*terra.get(idxX+i-8, idxZ+i-8, 0)); 
+				}
+			}
+			lvl /= gauss17Sum;
+			
+			// Calling lake function
+			putLake(terra, scale, lvl-depth, idxX, idxZ);
 		}
 		System.out.println("Done");
 		System.out.println();
@@ -878,11 +892,12 @@ public class TerrainFactory {
 	 * @param 3 -> Mountain 1
 	 * @param 4 -> Mountain 2
 	 * @param 5 -> Mountain 3
+	 * @param 6 -> Diamond Square HeightMap
 	 */
 	public static void terraform(Terrain terra, int surfaceWrink, int macroStructure){
 
 		System.out.println("Terraforming");
-
+		boolean needsRoughing = true;
 		switch(macroStructure){
 		case 1:	Util.biLinIpol(terra, noiseMap, 0.05f, 1f);
 		Util.biLinIpol(terra, noiseMap, 0.1f, 0.505f);break;
@@ -890,17 +905,31 @@ public class TerrainFactory {
 		case 3: Util.biLinIpol(terra, mountainMap1, 0.8f, 2f);break;
 		case 4: Util.biLinIpol(terra, mountainMap2, 1f, 0.4f);break;
 		case 5: Util.biLinIpol(terra, mountainMap3, 1f, 1f);break;
+		case 6:
+			int pow = 0;
+			while(Math.pow(2, pow)< terra.getSize()){
+				pow++;
+			}
+			float[][] dsMap = Util.diamondSquare(pow, (float) (surfaceWrink)/8f);
+			for(int i = 0; i<dsMap.length; i++){
+				for(int j = 0; j<dsMap.length; j++){
+					terra.set(i, j, 0, dsMap[i][j]);
+				}					
+			}
+			needsRoughing = false;
 		}
 
-		float freq=1f, amp=0.09f;
-		
-		for(int i=0; i<surfaceWrink; i++){
+		if (needsRoughing){
+			float freq = 1f, amp = 0.09f;
+			for (int i = 0; i < surfaceWrink; i++){
 
-			if(i>30) freq = 27f+(random.nextFloat()/2f);
+				if (i > 30)
+					freq = 27f + (random.nextFloat() / 2f);
 
-			Util.biLinIpol(terra, noiseMap, freq, amp);
-			freq*=(2+(random.nextFloat()/5f-0.2f));
-			amp/=(2+(random.nextFloat()/5f-0.2f));	
+				Util.biLinIpol(terra, noiseMap, freq, amp);
+				freq *= (2 + (random.nextFloat() / 5f - 0.2f));
+				amp /= (2 + (random.nextFloat() / 5f - 0.2f));
+			}
 		}
 		setMaterialsFromHeight(terra, 0,terra.getSize(),0,terra.getSize());
 		System.out.print("Done");
