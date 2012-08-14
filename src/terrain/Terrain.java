@@ -23,7 +23,7 @@ public class Terrain
 		this.size = getLastPow2(size);
 		int dim = this.size / 256;
 		
-		if(test && !overwrite && dim * dim == (BlockUtil.readDataInfo() + 1))
+		if(test && !overwrite && dim * dim == (BlockUtil.readDataInfo()))
 		{
 			// Bloecke liegen bereits vor
 			this.initialHeight = initHeight;
@@ -44,7 +44,9 @@ public class Terrain
 			{
 				for(int j = 0; j * j < MEM_BLOCKS; j++)
 				{
+					System.out.println("hey");
 					currentBlocks[count] = BlockUtil.readBlockData(i, j);
+					System.out.println("ho");
 					currentIDs[count][0] = i;
 					currentIDs[count][1] = j;
 					count++;
