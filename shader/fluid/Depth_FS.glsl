@@ -26,7 +26,8 @@ void main(void) {
 	vec3 pixelPos = pos.xyz + n;
 	depth = vec4(pixelPos, length(pixelPos) / viewDistance);
 	
-	float scale = pointSize * 0.5 / 200.0;
+	float scale = pointSize * 0.5 / 800.0;
 	vec3 pixelPos2 = pos.xyz + scale*n;
-	depth2 = vec4(pixelPos2, length(pixelPos2) / viewDistance);
+//	depth2 = vec4(pixelPos2, length(pixelPos2) / viewDistance);
+	depth2 = vec4(pos.xyz, length(pos.xyz) / viewDistance);
 }
