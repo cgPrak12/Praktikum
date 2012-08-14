@@ -21,12 +21,12 @@ public class Terrain
 	{
 		boolean test = BlockUtil.DataInfoExist();
 		this.size = getLastPow2(size);
+		int dim = this.size / 256;
 		
-		if(test && !overwrite && this.size == BlockUtil.readDataInfo())
+		if(test && !overwrite && dim * dim == (BlockUtil.readDataInfo() + 1))
 		{
 			// Bloecke liegen bereits vor
 			this.initialHeight = initHeight;
-			int dim = size / 256;
 			blocks = new String[dim][dim];
 			for(int i = 0; i < dim; i++)
 			{
@@ -60,8 +60,8 @@ public class Terrain
 			currentBlocks = new Block[MEM_BLOCKS];
 			currentIDs = new int[MEM_BLOCKS][2];
 			
-			BlockUtil.writeDataInfo(size);
 			init();
+			BlockUtil.writeDataInfo();
 		}
 	}
 	
