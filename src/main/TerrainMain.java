@@ -79,11 +79,13 @@ public class TerrainMain
 			
 			
 			
+			terra = new terrain.Terrain(1024,0f);
+
 			
             TerrainFactory.init();
-            TerrainFactory.genTerrain(terra, 1);
+            TerrainFactory.genTerrain(terra, 0);
 
-            terrainGeometry = GeometryFactory.genTerrain(terra);
+//            terrainGeometry = GeometryFactory.genTerrain(terra);
             
 			
 			TerrainView.init(terra, cam);
@@ -91,21 +93,6 @@ public class TerrainMain
 			clip = new ClipMap(30, 8, program, cam);
 
 			float[][] heightMap = TerrainView.getHeightMap();
-			
-//			int zero =0;
-//			
-//			for(int x=0; x<heightMap.length;x++){
-//				for (int y=0; y<heightMap.length; y++){
-//					if(heightMap[x][y]==0)System.out.println("x:"+x+ " y:"+y+"  "+zero++);
-//				}
-//			}
-//			for(float[] i : heightMap){
-//				for(float j :i){
-//					if (j==0)System.out.println("+++++" +zero++);
-//				}
-//			}
-			
-			
 			
 			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length*heightMap.length);
 			for(int i = 0; i < heightMap.length; i++) {
