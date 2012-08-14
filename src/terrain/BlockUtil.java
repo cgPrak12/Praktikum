@@ -23,8 +23,7 @@ public class BlockUtil {
 	private static final int blockHeight = 5; 	/* vertexlayout length */
 	private static int blockCount = 0;			/* Anzahl geschriebener Block Objekte */
 	private static File DataInfo = null;		/* Datei die blockCount enthaelt */
-	
-	
+				
 	/**
 	 * Liest einen gegebenen Block ein und schreibt diesen in eine blockfile (.bf) Datei
 	 * 
@@ -112,7 +111,7 @@ public class BlockUtil {
 	 */
 	public static Block readBlockData(int x, int z)
 	{
-		return readBlockData(new File("Data",x + "_" + z + "_.bf"));
+		return readBlockData(new File("." + File.separator + "Data" + File.separator + x + "_" + z + "_.bf"));
 	}
 	
 	/**
@@ -147,18 +146,19 @@ public class BlockUtil {
 	 * @return boolean
 	 */
 	public static boolean DataInfoExist()
-	{	
+	{
+		DataInfo = new File("DataInfo.dat");
 		try
 		{
 			if(DataInfo.exists())
 			{
-				System.out.println("DataInfo.dat does exists");
+				System.out.println("DataInfo.dat does exist");
 				return true;
 			}
 		}
 		catch (Exception e)
 		{
-			System.out.println("DataInfo.dat does not exists");
+			System.out.println("DataInfo.dat does not exist");
 			return false;
 		}
 		return false;
