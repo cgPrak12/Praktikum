@@ -116,7 +116,7 @@ public class TerrainFactory {
 	 */
 	public static void genTerrain(Terrain terra, int form){
 
-		terraform(terra, form, 6);
+		terraform(terra, form, 1);
 		flattenAllBiomes(terra, 10);
 		smooth(terra);
 		checkNormals(terra);

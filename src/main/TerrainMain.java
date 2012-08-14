@@ -35,14 +35,15 @@ public class TerrainMain
 	private static boolean culling = true;
 	private static boolean wireframe = true;
 	private static boolean movement = false;
+
+
+	// geometries
+	private static Geometry terrainGeometry;
 	
 	 // terrain
     private static terrain.Terrain terra;
     
     
-    // geometries
-    private static Geometry terrainGeometry;
-
 	// control
 	private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
 	private static final Camera cam = new Camera();
@@ -74,46 +75,67 @@ public class TerrainMain
 			glEnable(GL_PRIMITIVE_RESTART);
 			glPrimitiveRestartIndex(-1);
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Test_Fs.glsl");
+			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Terrain_Fs.glsl");
 			program.use();
 			
-			terra = new terrain.Terrain(1024,0f);
 			
-            TerrainFactory.init();
-            TerrainFactory.genTerrain(terra, 0);
+			
 
-//            terrainGeometry = GeometryFactory.genTerrain(terra);
-            
-			
+			terra = new terrain.Terrain(1024, 5f, true);
+
+			TerrainFactory.init();
+			TerrainFactory.genTerrain(terra, 1);
+
+			// terrainGeometry = GeometryFactory.genTerrain(terra);
+
 			TerrainView.init(terra, cam);
-			
+
 			clip = new ClipMap(30, 8, program, cam);
 
 			float[][] heightMap = TerrainView.getHeightMap();
-			
-			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length*heightMap.length);
-			for(int i = 0; i < heightMap.length; i++) {
+
+			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length * heightMap.length);
+			for (int i = 0; i < heightMap.length; i++)
+			{	
 				fbuffer.put(heightMap[i]);
-			
 			}
 			fbuffer.flip();
 			tex = new Texture(GL_TEXTURE_2D, 1);
 			tex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, heightMap.length, heightMap[0].length, 0, GL11.GL_RED, GL_FLOAT, fbuffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, heightMap.length, heightMap[0].length, 0, GL11.GL_RED,
+					GL_FLOAT, fbuffer);
+			program.setUniform("elevation", tex);
+			
+			
+			
+
+			for (int i = 0; i < terra.getSize(); i++)
+			{
+				for (int j = 0; j < terra.getSize(); j++)
+				{
+					fbuffer.put(terra.get(i, j, 4));
+					System.out.println(heightMap[i][j]);
+				}
+
+			}
+			fbuffer.flip();
+			tex = new Texture(GL_TEXTURE_2D, 2);
+			tex.bind();
+			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, terra.getSize(), terra.getSize(), 0, GL11.GL_RED,
+					GL_FLOAT, fbuffer);
+			program.setUniform("color", tex);
+			
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
-			program.setUniform("elevation", tex);
 			tex = Texture.generateTexture("./earth.jpg", 2);
 			tex.bind();
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-
-			program.setUniform("coloration", tex);
 
 			render();
 			OpenCL.destroy();
@@ -142,7 +164,8 @@ public class TerrainMain
 			++frames;
 			if (frameTimeDelta > 1000)
 			{
-//				System.out.println(1e3f * (float) frames / (float) frameTimeDelta + " FPS");
+				// System.out.println(1e3f * (float) frames / (float)
+				// frameTimeDelta + " FPS");
 				frameTimeDelta -= 1000;
 				frames = 0;
 			}
@@ -256,10 +279,18 @@ public class TerrainMain
 					else
 						glDisable(GL_CULL_FACE);
 					break;
-				case Keyboard.KEY_F4: clip.moveClipBy(1, 0); break;
-				case Keyboard.KEY_F5: clip.moveClipBy(0, 1); break;
-				case Keyboard.KEY_F6: clip.moveClipBy(-1, 0); break;
-				case Keyboard.KEY_F7: clip.moveClipBy(0, -1); break;
+				case Keyboard.KEY_F4:
+					clip.moveClipBy(1, 0);
+					break;
+				case Keyboard.KEY_F5:
+					clip.moveClipBy(0, 1);
+					break;
+				case Keyboard.KEY_F6:
+					clip.moveClipBy(-1, 0);
+					break;
+				case Keyboard.KEY_F7:
+					clip.moveClipBy(0, -1);
+					break;
 				}
 			}
 		}
