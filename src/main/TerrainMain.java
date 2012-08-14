@@ -307,34 +307,37 @@ public class TerrainMain {
         	//shader.DrawTexture(shader.getNormalTexture());
 
         	//test cube (shadow map)
-        	if(rotatelight) {
-	        	glCullFace(GL_FRONT);
-	        	shadowSP.use();
-	        	shadowSP.setUniform("model", 	modelMatrix);
-	        	shadowSP.setUniform("modelIT",  modelIT);
-	        	shadowSP.setUniform("viewProj", shadowMatrix);
-	        	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
-	    	
-	        	shadowShader.bind();
-	        	shadowShader.clear();
-	   
-	        	testCube.draw();
-	
-	            shadowSP.setUniform("model", modelMatrix1);
-	            shadowSP.setUniform("modelIT", modelIT1);
-	            testCube1.draw();
-				glCullFace(GL_BACK);
-	            
-	            
-	        	shadowSP.setUniform("model",    floorQuadMatrix);
-	        	shadowSP.setUniform("modelIT",  floorQuadMatrix);
-	        	shadowSP.setUniform("viewProj", shadowMatrix);
-	        	//shadowSP.setUniform("camPos",   shadowCam.getCamPos());
-	        	
-	        	floorQuad.draw();
-	        	
-	        	shadowShader.finish();
-        	}
+        	glCullFace(GL_FRONT);
+        	shadowSP.use();
+        	shadowSP.setUniform("model", 	modelMatrix);
+        	shadowSP.setUniform("modelIT",  modelIT);
+        	shadowSP.setUniform("viewProj", shadowMatrix);
+        	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
+    	
+        	shadowShader.bind();
+        	shadowShader.clear();
+   
+        	testCube.draw();
+
+            shadowSP.setUniform("model", modelMatrix1);
+            shadowSP.setUniform("modelIT", modelIT1);
+            testCube1.draw();
+            
+            fboSP.setUniform("model", modelMatrix2);
+            fboSP.setUniform("modelIT", modelIT2);
+            testCube2.draw();
+            
+			glCullFace(GL_BACK);
+            
+            
+        	shadowSP.setUniform("model",    floorQuadMatrix);
+        	shadowSP.setUniform("modelIT",  floorQuadMatrix);
+        	shadowSP.setUniform("viewProj", shadowMatrix);
+        	//shadowSP.setUniform("camPos",   shadowCam.getCamPos());
+        	
+        	floorQuad.draw();
+        	
+        	shadowShader.finish();
         	
         	
         	if (shadows) {
