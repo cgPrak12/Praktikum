@@ -170,15 +170,15 @@ public class TerrainMain {
             //clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            Matrix4f scale = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
+            Matrix4f scale = new Matrix4f().scale(new Vector3f(0.01f, 0.01f, 0.01f));
             Matrix4f model = new Matrix4f();
             Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 
             shaderProgramModels.use();
 
             float terrainGrid[][][] = terra.getTerrainGrid().getBlock();
-            for(int x=0; x<terrainGrid.length; x+=40) {
-                for(int z=0; z<terrainGrid.length; z+=40) {
+            for(int x=0; x<terrainGrid.length; x+=50) {
+                for(int z=0; z<terrainGrid.length; z+=50) {
 /*                    System.out.println(terrainGrid[y][x][0]);
                     System.out.println(terrainGrid[y][x][1]);
                     System.out.println(terrainGrid[y][x][2]);
@@ -206,11 +206,13 @@ public class TerrainMain {
                     10 schwerer schnee*/
                     
                     Iterator<ModelPart> modelPartListIterator = null;
-                    if(terrainGrid[x][z][4]==3)
+                    if(terrainGrid[x][z][4]==3) {
                         modelPartListIterator = modelPartList1.listIterator();
-                    else if(terrainGrid[x][z][4]==5)
+                        scale = new Matrix4f().scale(new Vector3f(0.01f, 0.01f, 0.01f));
+                    } else if(terrainGrid[x][z][4]==5) {
                         modelPartListIterator = modelPartList2.listIterator();
-                    else
+                        scale = new Matrix4f().scale(new Vector3f(0.02f, 0.02f, 0.02f));
+                    } else
                         modelPartListIterator = null;
                     if(modelPartListIterator!=null) {
                         while(modelPartListIterator.hasNext()) {
