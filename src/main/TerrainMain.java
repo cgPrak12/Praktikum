@@ -80,11 +80,10 @@ public class TerrainMain
 			terra = new terrain.Terrain(1024,0f);
 			
             TerrainFactory.init();
-            TerrainFactory.genTerrain(terra, 0);
+            TerrainFactory.genTerrain(terra, 1);
 
 //            terrainGeometry = GeometryFactory.genTerrain(terra);
             
-			
 			TerrainView.init(terra, cam);
 			
 			clip = new ClipMap(30, 8, program, cam);

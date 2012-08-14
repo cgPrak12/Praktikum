@@ -48,10 +48,10 @@ public class TerrainView
 					if (idI + i - 4 >= 0 && idJ + j - 4 >= 0 && idI + i - 4 < (terra.getSize() / 256)
 							&& idJ + j - 4 < (terra.getSize() / 256))
 					{
-						myBl[i][j] = BlockUtil.readBlockData(new File("." + File.separator + "Data" + File.separator
-								+ (idI + i - 4) + "_" + (idJ + j - 4) + "_.bf"));
-						// System.out.println(myBl[i][j]);
-					} else
+						myBl[i][j] = BlockUtil.readBlockData(new File("Data",(idI+i-4)+"_"+(idJ+j-4)+"_.bf"));
+						//System.out.println(myBl[i][j]);
+					}
+					else
 					{
 						myBl[i][j] = dummy;
 					}
@@ -94,10 +94,10 @@ public class TerrainView
 									&& (middle[1] - 4 + j) < (terra.getSize() / 256))
 							{
 								System.out.println("Neuer Block wird gelesen");
-								String file = ("." + File.separator + "Data" + File.separator + myBl[i][j].getID()[0] + diffX)
-										+ "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
-								myBl[i][j] = BlockUtil.readBlockData(new File(file));
-							} else
+								String file = (myBl[i][j].getID()[0] + diffX) + "_" + (myBl[i][j].getID()[1] + diffY) + "_.bf";
+								myBl[i][j] = BlockUtil.readBlockData(new File("Data",file));
+							}
+							else
 							{
 								System.out.println("Neuer dummy-Block wird gelesen");
 								myBl[i][j] = dummy;
