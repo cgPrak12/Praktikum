@@ -120,9 +120,7 @@ public class GeometryFactory
 			{
 				vertices[count++] = i;
 				vertices[count++] = j;
-				vertices[count++] = 0.8f;
-				vertices[count++] = 0.7f;
-				vertices[count++] = 0.4f;
+
 			}
 		}
 
@@ -154,7 +152,7 @@ public class GeometryFactory
 		geo.setVertices(fbu);
 		geo.setIndices(ibu, GL_TRIANGLES);
 		geo.addVertexAttribute(ShaderProgram.ATTR_POS, 2, 0);
-		geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 3, 8);
+
 
 		return geo;
 	}
