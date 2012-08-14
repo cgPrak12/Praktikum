@@ -36,12 +36,14 @@ public class TerrainMain
 	private static boolean wireframe = true;
 	private static boolean movement = false;
 
-	// terrain
-	private static terrain.Terrain terra;
 
 	// geometries
 	private static Geometry terrainGeometry;
-
+	
+	 // terrain
+    private static terrain.Terrain terra;
+    
+    
 	// control
 	private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
 	private static final Camera cam = new Camera();
@@ -75,6 +77,9 @@ public class TerrainMain
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Terrain_Fs.glsl");
 			program.use();
+			
+			
+			
 
 			terra = new terrain.Terrain(1024, 5f, true);
 
