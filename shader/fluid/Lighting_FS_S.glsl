@@ -57,5 +57,6 @@ void main(void) {
         //vec4 fluidColor = fluidDiff + reflectColor * getFresnel(1, 1.396, normalize(-pos), normal) + fluidSpec;
 
 //	color = vec4(t);
+//	color = fluidDiff + fluidSpec;
       color = mix(envColor, mix(fluidColor0, fluidColor, t), clamp(t, 0, 0.8));
 }

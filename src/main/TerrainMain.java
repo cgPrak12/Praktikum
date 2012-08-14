@@ -87,7 +87,7 @@ public class TerrainMain {
         Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
         
         // simulation test terrain
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/04.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/07.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
@@ -131,8 +131,11 @@ public class TerrainMain {
             particles.draw(cam, millis);
             
             // render fluid
+            Texture t = fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain);
     		drawTextureSP.use();        
-    		drawTextureSP.setUniform("image", fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain));
+    		drawTextureSP.setUniform("image", t);
+    		
+    		
     		screenQuad.draw();  
             
             // present screen

@@ -5,6 +5,7 @@ import static opengl.GL.*;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -173,6 +174,7 @@ public class FluidRenderer {
 		this.terrain = terrain;
 		
 		// depth
+		
 		depth();
 		depth2();
 		
@@ -228,8 +230,6 @@ public class FluidRenderer {
 //		screenQuad.draw();
 		
 		return lightingTex;
-
-		
 	}
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex) {
@@ -423,8 +423,11 @@ public class FluidRenderer {
     }
 
 	private void lighting() {
+		
         startPath(lightingSP, lightingFB);
+        
         lightingSP.setUniform("view", cam.getView());
+        
 	    lightingSP.setUniform("depthTex", depthVBlurTex);
 	    lightingSP.setUniform("depthTexLQ", depthVBlurTexLQ);
 	    lightingSP.setUniform("depth2Tex", depth2Tex);
@@ -455,7 +458,7 @@ public class FluidRenderer {
         
         screenQuad.draw();
         
-        endPath();
+        endPath(); 
 	}
 	
 	// TODO final image
@@ -475,13 +478,15 @@ public class FluidRenderer {
 		startPath(testPlaneSP, testPlaneFB);
 //	    testPlaneSP.setUniform("viewProj", viewProj);
 //	    testPlaneSP.setUniform("colorTex", planeTex);
-	    
+	    glEnable(GL_DEPTH_TEST);
+	    glDisable(GL_BLEND);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         testPlaneSP.setUniform("proj", cam.getProjection());
         testPlaneSP.setUniform("view", cam.getView());
         testPlaneSP.setUniform("normalTex", normalTex);
         testPlaneSP.setUniform("heightTex", heightTex);
+		testPlaneSP.setUniform("viewDistance", cam.getViewDistance());
         
 	    terrain.draw();
 	    
