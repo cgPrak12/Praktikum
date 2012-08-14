@@ -1,9 +1,12 @@
 package util;
 
 import static opengl.GL.*;
+
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
+
+import terrain.Terrain;
 
 /** Stellt Methoden zur Erzeugung von Geometrie bereit.
  * 
@@ -630,4 +633,52 @@ public class GeometryFactory
 		return geo;
 	}
 
+	 public static Geometry genTerrain(Terrain terra) {
+     	
+     	int vertexSize = 7;
+     	int maxX = terra.getSize();
+     	int maxZ = terra.getSize(); 	
+     	
+        	FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize*maxX*maxZ);
+
+     	
+     	
+        	// Gen Vbuffer
+        	for(int z=0; z < maxZ; ++z) {
+             for(int x=0; x < maxX; ++x) {
+             	vertices.put(1e-2f * (float)x);
+             	vertices.put(terra.get(x, z, 0));
+             	vertices.put(1e-2f * (float)z);
+             									
+             	vertices.put(terra.get(x, z, 1));	// norm.x
+             	vertices.put(terra.get(x, z, 2));	// norm.y
+             	vertices.put(terra.get(x, z, 3));	// norm.z
+             	vertices.put(terra.get(x, z, 4));	// material
+
+             }                	    
+        	}
+        	
+        	
+        	// Gen IndexBuffer
+         IntBuffer indices = BufferUtils.createIntBuffer(3 * 2 * (maxX - 1) * (maxZ - 1));
+         for(int z=0; z < maxZ - 1; ++z) {
+             for(int x=0; x < maxX - 1; ++x) {
+                 indices.put(z * maxX + x);
+                 indices.put((z + 1) * maxX + x + 1);
+                 
+                 indices.put(z * maxX + x + 1);
+                 
+                 indices.put(z * maxX + x);
+                 indices.put((z + 1) * maxX + x);
+                 indices.put((z + 1) * maxX + x + 1);
+             }
+         }
+         
+         vertices.position(0);
+         indices.position(0);
+         Geometry geo = new Geometry();
+         geo.setIndices(indices, GL_TRIANGLES);
+         geo.setVertices(vertices);
+         return geo;	
+     }
 }
