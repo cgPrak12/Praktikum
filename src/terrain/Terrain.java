@@ -15,14 +15,15 @@ public class Terrain
 	 * Konstruktor mit konkreten Angaben zu Groesse und Initialhoehe
 	 * @param size Groesse des Terrains
 	 * @param initHeight Initialhoehe der Vertices
-	 * @param done true *nur* dann, wenn im vorgegebenen Format bereits Daten vorliegen
+	 * @param overwrite true: neue Daten schreiben, false: alte Daten lesen
 	 */
-	public Terrain(int size, float initHeight, boolean done)
+	public Terrain(int size, float initHeight, boolean overwrite)
 	{
-		if(done)
+		boolean test = BlockUtil.test();
+		if(test && !overwrite)
 		{
 			// Bloecke liegen bereits vor
-			this.size = getLastPow2(size);
+			this.size = BlockUtil.readTest();
 			this.initialHeight = initHeight;
 			int dim = size / 256;
 			blocks = new String[dim][dim];
@@ -58,14 +59,15 @@ public class Terrain
 			currentBlocks = new Block[MEM_BLOCKS];
 			currentIDs = new int[MEM_BLOCKS][2];
 			
+			BlockUtil.writeTest(size);
 			init();
 		}
 	}
 	
 	/* Konstruktoren mit Standardwerten */
-	public Terrain(int size, boolean done)	{ this(size, 0.0f, done); } // initHeight = 0.0f
-	public Terrain(boolean done) 			{ this(1024, done); }       // size = 1024
-	public Terrain() 						{ this(false); }            // done = false
+	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } // initHeight = 0.0f
+	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       // size = 1024
+	public Terrain() 							{ this(true); }                  // overwrite = true
 	
 	/**
 	 * Setze alle Vertices initial auf die gleiche Hoehe
