@@ -668,7 +668,7 @@ public class Util
 	 * @param amp The amplitude with which the noise is applied
 	 */
 	public static void biLinIpol(Terrain terra, float[][]noise, float freq, float amp){
-
+		System.out.println("interpoliere...");
 		int terraX = terra.getSize();
 		int terraZ = terra.getSize();
 		int noiseX = noise.length;
