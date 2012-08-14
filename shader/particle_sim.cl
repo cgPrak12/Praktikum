@@ -36,42 +36,39 @@ constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE| CLK_FILTER_LINEAR| CLK_
 // epsilon environment to find the minimum height
 constant float minEpsilon = 0.004f;
 
-// OpenGl reflect method (may contain errors)
-float4 reflect(float4 normal, float4 einfall) {
-	float4 norm = normalize(normal);
-	return (float4)(-2*dot(norm.s012,einfall.s012)*norm.s012 + einfall.s012, 0.0f);
-}
+
 
 //////////////////////////////////////////////////////////
 // Geometric methods                                    //
 //////////////////////////////////////////////////////////
 float3 getNormal(image2d_t heightmap, float2 pos)
 {
-	int2 dim = get_image_dim(heightmap);
-	float dx = 1.0/(float)dim.x;
-	float dy = 1.0/(float)dim.y;
+    int2 dim = get_image_dim(heightmap);
+    float dx = 1.0/(float)dim.x;
+    float dy = 1.0/(float)dim.y;
 
 
-	float h = read_imagef(heightmap,sampler,pos).s0;
-	float3 hvec = (float3)(pos.s0,h,pos.s1);
+    float h = read_imagef(heightmap,sampler,pos).s0;
+    float3 hvec = (float3)(pos.s0,h,pos.s1);
 
-	float v01 = read_imagef(heightmap,sampler,pos+(float2)(-dx,0.0)).s0;
-	float v10 = read_imagef(heightmap,sampler,pos+(float2)(0.0,-dy)).s0;
-	float v12 = read_imagef(heightmap,sampler,pos+(float2)(0.0,dy)).s0;
-	float v21 = read_imagef(heightmap,sampler,pos+(float2)(+dx,0.0)).s0;
+    float v01 = read_imagef(heightmap,sampler,pos+(float2)(-dx,0.0)).s0;
+    float v10 = read_imagef(heightmap,sampler,pos+(float2)(0.0,-dy)).s0;
+    float v12 = read_imagef(heightmap,sampler,pos+(float2)(0.0,dy)).s0;
+    float v21 = read_imagef(heightmap,sampler,pos+(float2)(+dx,0.0)).s0;
 
-    	float3 v1 = (float3)(-dx, v01, 0.0)-hvec; 
-    	float3 v4 = (float3)(0.0, v10, -dy)-hvec; 
-    	float3 v2 = (float3)(0.0, v12, dy)-hvec; 
-    	float3 v3 = (float3)(dx,  v21,  0.0)-hvec; 
+    float3 v1 = (float3)(-dx, v01, 0.0)-hvec; 
+    float3 v4 = (float3)(0.0, v10, -dy)-hvec; 
+    float3 v2 = (float3)(0.0, v12, dy)-hvec; 
+    float3 v3 = (float3)(dx,  v21,  0.0)-hvec; 
 
-	float3 c1 = cross(v1,v2);
-	float3 c2 = cross(v2,v3);
-	float3 c3 = cross(v3,v4);
-	float3 c4 = cross(v4,v1);
+    float3 c1 = cross(v1,v2);
+    float3 c2 = cross(v2,v3);
+    float3 c3 = cross(v3,v4);
+    float3 c4 = cross(v4,v1);
 
-	return normalize(c1+c2+c3+c4);
+    return normalize(c1+c2+c3+c4);
 }
+
 
 #define GROUND_NORM_DAMPING 0.00004
 //#define GROUND_VELO_DAMPING 0.8
@@ -247,6 +244,7 @@ kernel void particle_sim
                                                     other_vel,
                                                     radius)
                                                     *COLLIDE_DAMPING;
+
                             collided = 1;
                         }
                     }
@@ -264,10 +262,18 @@ kernel void particle_sim
         myvel += gravity;
     } else {
         myvel += gravity*0.1;
+        if (fabs(myvel.s1) < 0.000001)
+        {
+            myvel.s0 *= 0.95;
+            myvel.s2 *= 0.95;
+        }
     }
     
     // add particle-particle-acceleration to velocity
     myvel += collide_velo;
+
+
+
 
     // multiply velocity and add to position: MOVE
     mypos.s012 += myvel.s012*3;
@@ -277,8 +283,24 @@ kernel void particle_sim
     float2 well = (float2)(0.71f,0.17f);
     float well_height = read_imagef(heightmap, sampler, well).s0;
 
-    if(mypos.s0<0||mypos.s0>1||mypos.s2<0||mypos.s2>1) {mypos.s3=0;}
+//    if(mypos.s0<0||mypos.s0>1||mypos.s2<0||mypos.s2>1) {mypos.s3=0;}
     if(length(myvel)<0.00001&&mypos.s1>0.03) {mypos.s3=0;}//{mypos.s3-=0.02;}
+
+    float4 gs = g.s;
+    float gl = g.slen;
+
+    // out of grid detection
+    if (mypos.s0 < gs.s0 || mypos.s0 > gs.s0+gl ||
+        mypos.s2 < gs.s2 || mypos.s2 > gs.s2+gl ||
+        mypos.s1 < gs.s1 || mypos.s1 > gs.s1+gl)
+    {
+        mypos.s3 = 0;
+    }
+
+    // particle moves to slow => respawn
+//    if(length(myvel) < 0.00001 && mypos.s1 > 0.03) {mypos.s3=0;}//{mypos.s3-=0.02;}
+
+
 	
     if(mypos.s3 <= 0)
     {
