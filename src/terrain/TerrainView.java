@@ -21,7 +21,7 @@ public class TerrainView {
 	 * constructor
 	 * @param c Camera
 	 */
-	public TerrainView(Camera c)
+	public TerrainView(Terrain terra, Camera c)
 	{		
 		myBl = new Block[9][9];
 		cam =  c;
@@ -36,13 +36,13 @@ public class TerrainView {
 				dummy.setInfo(i, j, 0, 5.0f);
 			}
 		}
-		init();
+		init(terra);
 	}
 	
 	/**
 	 * set the blocks 
 	 */
-	private void init()
+	private void init(Terrain terra)
 	{
 
 		myBl[4][4] = BlockUtil.getBlock(cam);
@@ -58,7 +58,7 @@ public class TerrainView {
 			{
 				if(!(i==4 && j==4))
 				{
-					if(idI+i-4>=0 && idJ+j-4>=0 && idI+i-4<(Terrain.getSize()/256) && idJ+j-4<(Terrain.getSize()/256))
+					if(idI+i-4>=0 && idJ+j-4>=0 && idI+i-4<(terra.getSize()/256) && idJ+j-4<(terra.getSize()/256))
 					{
 						myBl[i][j] = BlockUtil.readBlockData(new File((idI+i-4)+"_"+(idJ+j-4)+"_.bf"));
 						//System.out.println(myBl[i][j]);
@@ -76,7 +76,7 @@ public class TerrainView {
 	/**
 	 * update the whole blocks
 	 */
-	public static void updateTerrainView()
+	public static void updateTerrainView(Terrain terra)
 	{	
 	
 		
@@ -99,8 +99,8 @@ public class TerrainView {
 						if( i+diffX<0 || i+diffX>8 || j+diffY<0 || j+diffY>8)
 						{
 							
-							if((middle[0]-4+i)>=0 && (middle[1]-4+j)>=0 && (middle[0]-4+i)<(Terrain.getSize()/256)
-									&& (middle[1]-4+j)<(Terrain.getSize()/256))
+							if((middle[0]-4+i)>=0 && (middle[1]-4+j)>=0 && (middle[0]-4+i)<(terra.getSize()/256)
+									&& (middle[1]-4+j)<(terra.getSize()/256))
 							{	
 								System.out.println("Neuer Block wird gelesen");
 								String file = (myBl[i][j].getID()[0] + diffX) 

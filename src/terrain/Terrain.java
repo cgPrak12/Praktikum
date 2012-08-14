@@ -5,7 +5,7 @@ public class Terrain
 	private static final int MEM_BLOCKS = 4;
 	
 	private String[][] blocks;
-	private static int size;
+	private int size;
 	private float initialHeight;
 	
 	 int[][] currentIDs;
@@ -19,7 +19,7 @@ public class Terrain
 	public Terrain(int size, float initHeight)
 	{
 		System.out.println("0%      +++      Bloecke werden geschrieben       +++       100%");
-		Terrain.size = getLastPow2(size);
+		this.size = getLastPow2(size);
 		this.initialHeight = initHeight;
 		currentBlocks = new Block[MEM_BLOCKS];
 		currentIDs = new int[MEM_BLOCKS][2];
@@ -31,7 +31,7 @@ public class Terrain
 	public Terrain(int size) 
 	{ 
 		System.out.println("0%      +++      Bloecke werden geschrieben       +++       100%");
-		Terrain.size = getLastPow2(size);
+		this.size = getLastPow2(size);
 		currentBlocks = new Block[MEM_BLOCKS];
 		currentIDs = new int[MEM_BLOCKS][2];
 		
@@ -285,7 +285,7 @@ public class Terrain
 	/**
 	 * @return the size
 	 */
-	public static int getSize() {
+	public int getSize() {
 		return size;
 	}
 	
