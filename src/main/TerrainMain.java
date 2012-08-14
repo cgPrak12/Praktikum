@@ -22,6 +22,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import terrain.ClipMap;
+import terrain.Terrain;
 import terrain.TerrainView;
 import util.*;
 
@@ -34,6 +35,13 @@ public class TerrainMain
 	private static boolean culling = true;
 	private static boolean wireframe = true;
 	private static boolean movement = false;
+	
+	 // terrain
+    private static terrain.Terrain terra;
+    
+    
+    // geometries
+    private static Geometry terrainGeometry;
 
 	// control
 	private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -69,10 +77,16 @@ public class TerrainMain
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Test_Fs.glsl");
 			program.use();
 
-			clip = new ClipMap(30, 8, program, cam);
+            terra = new Terrain(1024, 0f);
+            TerrainFactory.init();
+            TerrainFactory.genTerrain(terra, 8);
+
+            terrainGeometry = GeometryFactory.genTerrain(terra);
+            
+			clip = new ClipMap(terra, 30, 8, program, cam);
 			
-			terrain.Terrain terrain = new terrain.Terrain(1024, true);
-			TerrainView tv = new TerrainView(cam);
+			terrain.Terrain terrain = new terrain.Terrain(1024);
+			TerrainView tv = new TerrainView(terra, cam);
 			
 			float[][] heightMap = tv.getHeightMap();
 			
@@ -183,22 +197,22 @@ public class TerrainMain
 				switch (Keyboard.getEventKey())
 				{
 				case Keyboard.KEY_W:
-					moveDir.z += 10.0f;
+					moveDir.z += 1.0f;
 					break;
 				case Keyboard.KEY_S:
-					moveDir.z -= 10.0f;
+					moveDir.z -= 1.0f;
 					break;
 				case Keyboard.KEY_A:
-					moveDir.x += 10.0f;
+					moveDir.x += 1.0f;
 					break;
 				case Keyboard.KEY_D:
-					moveDir.x -= 10.0f;
+					moveDir.x -= 1.0f;
 					break;
 				case Keyboard.KEY_SPACE:
-					moveDir.y += 10.0f;
+					moveDir.y += 1.0f;
 					break;
 				case Keyboard.KEY_C:
-					moveDir.y -= 10.0f;
+					moveDir.y -= 1.0f;
 					break;
 				case Keyboard.KEY_ESCAPE:
 					bContinue = false;
@@ -209,22 +223,22 @@ public class TerrainMain
 				switch (Keyboard.getEventKey())
 				{
 				case Keyboard.KEY_W:
-					moveDir.z -= 10.0f;
+					moveDir.z -= 1.0f;
 					break;
 				case Keyboard.KEY_S:
-					moveDir.z += 10.0f;
+					moveDir.z += 1.0f;
 					break;
 				case Keyboard.KEY_A:
-					moveDir.x -= 10.0f;
+					moveDir.x -= 1.0f;
 					break;
 				case Keyboard.KEY_D:
 					moveDir.x += 1.0f;
 					break;
 				case Keyboard.KEY_SPACE:
-					moveDir.y -= 10.0f;
+					moveDir.y -= 1.0f;
 					break;
 				case Keyboard.KEY_C:
-					moveDir.y += 10.0f;
+					moveDir.y += 1.0f;
 					break;
 				case Keyboard.KEY_F1:
 					cam.changeProjection();

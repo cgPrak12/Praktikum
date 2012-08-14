@@ -5,7 +5,7 @@ public class Terrain
 	private static final int MEM_BLOCKS = 4;
 	
 	private String[][] blocks;
-	private static int size;
+	private int size;
 	private float initialHeight;
 	
 	 int[][] currentIDs;
@@ -19,59 +19,32 @@ public class Terrain
 	public Terrain(int size, float initHeight)
 	{
 		System.out.println("0%      +++      Bloecke werden geschrieben       +++       100%");
-		Terrain.size = getLastPow2(size);
+		this.size = getLastPow2(size);
 		this.initialHeight = initHeight;
 		currentBlocks = new Block[MEM_BLOCKS];
 		currentIDs = new int[MEM_BLOCKS][2];
 		
-		init(false);
+		init();
 	}
 	
-	/**
-	 * Custom Constructor
-	 * @param size Groesse des Terrains
-	 * @param done true *nur*, wenn Daten bereits geschrieben wurden!
-	 */
-	public Terrain(int size, boolean done)
-	{
-		if(done)
-		{
-			Terrain.size = getLastPow2(size);
-			currentBlocks = new Block[MEM_BLOCKS];
-			currentIDs = new int[MEM_BLOCKS][2];
-			
-			blocks = new String[size / 256][size / 256];
-			
-			for(int i = 0; i < size / 256; i++)
-			{
-				for(int j = 0; j < size / 256; j++)
-				{
-					String block = i + "_" + j + "_.bf";
-					blocks[i][j] = block;
-				}
-			}
-		}
-		else
-		{
-			System.out.println("0%      +++      Bloecke werden geschrieben       +++       100%");
-			Terrain.size = getLastPow2(size);
-			currentBlocks = new Block[MEM_BLOCKS];
-			currentIDs = new int[MEM_BLOCKS][2];
-			
-			init(true);
-		}
+	/* Konstruktoren mit Standardwerten */
+	public Terrain(int size) 
+	{ 
+		System.out.println("0%      +++      Bloecke werden geschrieben       +++       100%");
+		this.size = getLastPow2(size);
+		currentBlocks = new Block[MEM_BLOCKS];
+		currentIDs = new int[MEM_BLOCKS][2];
+		
+		initRandom();	
 	}
-
-	// Custom Ctors
 	public Terrain(float initHeight) 	{ this(1024, initHeight); }
 	public Terrain() 					{ this(1024, 0.0f); }
 	
 	/**
 	 * Setze alle Vertices initial auf die gleiche Hoehe
 	 * Initialisiere dabei Block[] fuer schnelleren Zugriff bei get- und set-Aufrufen
-	 * @param random erzeugt Randomwerte wenn true, initHeight sonst
 	 */
-	private void init(boolean random)
+	public void init()
 	{
 		int dim = size / 256;
 		
@@ -108,17 +81,10 @@ public class Terrain
 							{
 								if(countDot++ % (factor * 16384) == 0)
 									System.out.print(".");
-								if(random)
-								{
-//									block.setInfo(m, n, 0, 0.5f + 0.1f * xPos * zPos);
-									block.setInfo(m, n, 0, (float) Math.random());
-								}
-								else
-								{
-									block.setInfo(m, n, 0, initialHeight);
-								}
+								block.setInfo(m, n, 0, initialHeight);
 							}
-						}						
+						}
+						
 						// auf Festplatte schreiben
 						blocks[xPos][zPos] = (BlockUtil.writeBlockData(block)).getName();						
 					}
@@ -126,6 +92,73 @@ public class Terrain
 			}
 		}
 		System.out.println();
+		
+//		for(int i = 0; i < MEM_BLOCKS; i++)
+//		{
+//			System.out.printf("MEM[%d] : Block (%d,  %d)\n", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
+//		}
+	}
+	
+	public void initRandom()
+	{
+		int dim = size / 256;
+		
+		blocks = new String[dim][dim];
+		int count = 0;
+		int countDot = 0;
+		int factor = (size / 1024) * (size / 1024);
+		
+		// Unterteilung in 1024x1024er Bloecke
+		for(int i = 0; i < size / 1024; i++)
+		{
+			for(int j = 0; j < size / 1024; j++)
+			{				
+				// Unterteilung in 256x256er Bloecke
+				for(int k = 0; k < 4; k++)
+				{
+					for(int l = 0; l < 4; l++)
+					{
+						int xPos = i * 4 + k;
+						int zPos = j * 4 + l;
+						Block block = new Block(xPos, zPos);
+						
+//						if(xPos * dim + zPos < MEM_BLOCKS)
+//						{
+//							currentBlocks[countSet]   = block;
+//							currentIDs[countSet][0]   = xPos;
+//							currentIDs[countSet++][1] = zPos;	
+//						}
+						
+						if(xPos * xPos < MEM_BLOCKS && zPos * zPos < MEM_BLOCKS)
+						{
+							currentBlocks[count]   = block;
+							currentIDs[count][0]   = xPos;
+							currentIDs[count++][1] = zPos;
+						}
+						
+						// Fuellen der Bloecke mit Initialhoehe
+						for(int m = 0; m < 256; m++)
+						{
+							for(int n = 0; n < 256; n++)
+							{
+								if(countDot++ % (factor * 16384) == 0)
+									System.out.print(".");
+								block.setInfo(m, n, 0, (float) (0.1f * xPos*zPos));
+							}
+						}
+						
+						// auf Festplatte schreiben
+						blocks[xPos][zPos] = (BlockUtil.writeBlockData(block)).getName();						
+					}
+				}
+			}
+		}
+		System.out.println();
+		
+//		for(int i = 0; i < MEM_BLOCKS; i++)
+//		{
+//			System.out.printf("MEM[%d] : Block (%d,  %d)", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
+//		}
 	}
 	
 	/**
@@ -145,7 +178,10 @@ public class Terrain
 			int idZ    = z / 256; // z-Koordinate im Terrain
 			int blockZ = z % 256; // z-Koordinate im Block
 			
+//			System.out.printf("SET: writing %f at (%d, %d, %d) in block (%d, %d) at (%d, %d, %d)\n", value, x, z, pos, idX, idZ, blockX, blockZ, pos);
+			
 			// liegt der Block bereits vor?
+			// wenn nicht, neue Bloecke reinladen
 			boolean test = false;
 			int n = 0;
 			while(n < MEM_BLOCKS)
@@ -158,7 +194,6 @@ public class Terrain
 				n++;
 			}
 			
-			// wenn nicht, neue Bloecke reinladen
 			if(!test)
 			{
 				updateBlocks(x, z);
@@ -172,9 +207,10 @@ public class Terrain
 					n++;
 				}
 			}
-			
-			// Position des Blocks ist in n gespeichert			
+//			System.out.println("SET: (" + test + "), value was " + currentBlocks[n].getInfo(blockX, blockZ, pos));
+						
 			currentBlocks[n].setInfo(blockX, blockZ, pos, value);
+//			System.out.println("SET: (" + test + "), value now " + currentBlocks[n].getInfo(blockX, blockZ, pos) + "\n");
 			return true;
 		}
 		return false;
@@ -193,8 +229,14 @@ public class Terrain
 		int blockX = x % 256; // x-Koordinate im Block
 		int idZ    = z / 256; // z-Koordinate im Terrain
 		int blockZ = z % 256; // z-Koordinate im Block
-						
+		
+//		for(int i = 0; i < MEM_BLOCKS; i++)
+//		{
+//			System.out.printf("GET: MEM[%d] : Block (%d,  %d)\n", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
+//		}
+				
 		// liegt der Block bereits vor?
+		// wenn nicht, neue Bloecke reinladen
 		boolean test = false;
 		int n = 0;
 		while(n < MEM_BLOCKS)
@@ -207,7 +249,6 @@ public class Terrain
 			n++;
 		}
 		
-		// wenn nicht, neue Bloecke reinladen
 		if(!test)
 		{
 			updateBlocks(x, z);
@@ -222,7 +263,10 @@ public class Terrain
 			}
 		}
 
-		// Position des Blocks ist in n gespeichert
+//		System.out.printf("GET: looking in MEM[%d] : Block (%d, %d)\n", n, currentBlocks[n].getID()[0], currentBlocks[n].getID()[1]); 
+//		System.out.printf("GET: getting %f at (%d, %d, %d) in block (%d, %d) at (%d, %d, %d)\n", currentBlocks[n].getInfo(blockX, blockZ, pos), x, z, pos, idX, idZ, blockX, blockZ, pos);
+//		System.out.println("GET: (" + test + ")\n");
+		
 		return currentBlocks[n].getInfo(blockX, blockZ, pos);
 	}
 	
@@ -241,7 +285,7 @@ public class Terrain
 	/**
 	 * @return the size
 	 */
-	public static int getSize() {
+	public int getSize() {
 		return size;
 	}
 	
@@ -252,7 +296,6 @@ public class Terrain
 	 */
 	private void updateBlocks(int x, int z)
 	{
-		// vom Heap auf Festplatte speichern
 		for(int i = 0; i < MEM_BLOCKS; i++)
 		{
 			BlockUtil.writeBlockData(currentBlocks[i]);
@@ -261,9 +304,9 @@ public class Terrain
 		int dim = size / 256;
 		int idX = dim + x / 256;
 		int idZ = dim + z / 256;
+//		System.out.printf("updating blocks for (%d,%d), should be in block(%d,%d)\n", x, z, idX % dim, idZ % dim);
 		int count = 0;
 		
-		// neue Bloecke auf den Heap
 		for(int i = 0; i * i < MEM_BLOCKS; i++)
 		{
 			for(int j = 0; j * j < MEM_BLOCKS; j++)
@@ -274,6 +317,11 @@ public class Terrain
 				count++;
 			}
 		}
+		
+//		for(int i = 0; i < MEM_BLOCKS; i++)
+//		{
+//			System.out.printf("MEM[%d] : Block (%d,  %d)\n", i, currentBlocks[i].getID()[0], currentBlocks[i].getID()[1]);
+//		}
 	}
 	
 	/**

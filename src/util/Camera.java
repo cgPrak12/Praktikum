@@ -11,13 +11,14 @@ public final class Camera
 	private final Vector3f upDir = new Vector3f(0, 1, 0);
 	private final Vector3f sideDir = new Vector3f(1, 0, 0);
 
-	private final Vector3f camPos = new Vector3f(100, 1, 300);
+	private final Vector3f camPos = new Vector3f(0, 1, 0);
 	private final Matrix4f view = new Matrix4f();
 	private final Matrix4f projection = new Matrix4f();
 	private boolean perspective = true;
 	private float altX;
 	private float altY;
 	private float altZ;
+	private int size;
 
 	/** Default Constructor. */
 	public Camera()
@@ -56,6 +57,10 @@ public final class Camera
 		camPos.x += altX;
 		camPos.y += altY;
 		camPos.z += altZ;
+		System.out.println("jojo");
+		/* Hier könnte ihre Kamerabegrenzung stehen! */
+//		if(camPos.x <= 0 || camPos.x > size) camPos.x -= altX;
+//		if(camPos.z <= 0 || camPos.z > size) camPos.z -= altZ;
 	}
 
 	public Vector3f getAlt()
@@ -114,6 +119,10 @@ public final class Camera
 	public Vector3f getViewDir()
 	{
 		return viewDir;
+	}
+	
+	public void setSize(int size) {
+		this.size = size;
 	}
 
 }

@@ -50,7 +50,7 @@ public class ClipMap
 	private Geometry center; // Quadratisches Grid
 	private Geometry outer; // Füllgeometrie um Löcher am Rand zu "stopfen"
 
-	private final float generalScale = 0.1f; // Skaliert die gesamte ClipMap um
+	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um
 												// Faktor
 
 	/** Konstruktor Erstellt eine ClipMap aus den gegebenen Parametern
@@ -59,7 +59,7 @@ public class ClipMap
 	 * @param stage Anzahl der Auflösungslevel
 	 * @param program Dazugehöriges Shaderprogram
 	 * @param cam Kamera des Programms */
-	public ClipMap(int size, int stage, ShaderProgram program, Camera cam)
+	public ClipMap(Terrain terra, int size, int stage, ShaderProgram program, Camera cam)
 	{
 
 		if ((size + 2) % 2 != 0)
@@ -274,28 +274,28 @@ public class ClipMap
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
 		{
-			// TerrainView.updateTerrainView();
+//			TerrainView.updateTerrainView();
 			moveClip(0, 1);
 			tempZ %= 2;
 		}
 		// Positiv X --- Nach Links
 		if (tempX > 2)
 		{
-			// TerrainView.updateTerrainView();
+//			TerrainView.updateTerrainView();
 			moveClip(0, 0);
 			tempX %= 2;
 		}
 		// Negativ Z --- Nach Hinten
 		if (tempZ < -2)
 		{
-			// TerrainView.updateTerrainView();
+//			TerrainView.updateTerrainView();
 			moveClip(0, 3);
 			tempZ %= 2;
 		}
 		// Negativ X --- Nach Rechts
 		if (tempX < -2)
 		{
-			// TerrainView.updateTerrainView();
+//			TerrainView.updateTerrainView();
 			moveClip(0, 2);
 			tempX %= 2;
 		}

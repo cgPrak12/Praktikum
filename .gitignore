@@ -18,4 +18,11 @@ manifest.mf
 .project
 1_2_.bf
 src/util/TestCase.java
+<<<<<<< HEAD
+1735_Gummy2.png
+matanui.bmp
+pacman.heightmap.jpg
+smootherodemap.jpg
+=======
 src/terrain/TestCase.java
+>>>>>>> c85557b97d089a647ef2107342c4cd540aa14d2c
