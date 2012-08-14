@@ -17,12 +17,12 @@ public class GL {
     /**
      * Breite des OpenGL Fensters
      */
-    public static final int WIDTH = 800;
+    public static final int WIDTH = 1000;
     
     /**
      * Hoehe des OpenGL Fensters
      */
-    public static final int HEIGHT = 800;
+    public static final int HEIGHT = 1000;
     
     /**
      * Primitive Restart Index
@@ -98,6 +98,11 @@ public class GL {
      * GL12.GL_CLAMP_TO_EDGE
      */
     public static final int GL_CLAMP_TO_EDGE = GL12.GL_CLAMP_TO_EDGE;
+    
+    /**
+     * GL11.GL_COLOR
+     */
+    public static final int GL_COLOR = GL11.GL_COLOR;
     
     /**
      * GL30.GL_COLOR_ATTACHMENT0
@@ -390,6 +395,10 @@ public class GL {
      */
     public static final int GL_RGBA16F = GL30.GL_RGBA16F;
     
+    /**
+     * GL30.GL_RGBA32F
+     */
+    public static final int GL_RGBA32F = GL30.GL_RGBA32F;
     
     /**
      * GL20.GL_SHADING_LANGUAGE_VERSION
@@ -694,6 +703,18 @@ public class GL {
     }
     
     /**
+     * OpenGL 3.0
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glClearBuffer.xml">glClearBuffer</a>
+     * @param buffer
+     * @param drawbuffer
+     * @param value
+     */
+    public static void glClearBuffer(int buffer, int drawbuffer, FloatBuffer value) {
+    	GL30.glClearBuffer(buffer, drawbuffer, value);
+    	GL.checkError("glClearBuffer");
+    }
+    
+    /**
      * OpenGL 1.1
      * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glClearColor.xml">glClearColor</a>
      * @param red
@@ -767,6 +788,37 @@ public class GL {
     public static void glDeleteVertexArrays(int array) {
         GL30.glDeleteVertexArrays(array);
         GL.checkError("glDeleteVertexArrays");
+    }
+    
+    /**
+     * OpenGL 2.0
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glDeleteProgram.xml">glDeleteProgram</a>
+     * @param program
+     */
+    public static void glDeleteProgram(int program) {
+    	GL20.glDeleteProgram(program);
+    	GL.checkError("glDeleteProgram");
+    }
+    
+    /**
+     * OpenGL 2.0
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glDeleteShader.xml">glDeleteShader</a>
+     * @param shader
+     */
+    public static void glDeleteShader(int shader) {
+    	GL20.glDeleteShader(shader);
+    	GL.checkError("glDeleteShader");
+    }
+    
+    /**
+     * OpenGL 2.0
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glDetachShader.xml">glDetachShader</a>
+     * @param program
+     * @param shader
+     */
+    public static void glDetachShader(int program, int shader) {
+    	GL20.glDetachShader(program, shader);
+    	GL.checkError("glDetachShader");
     }
 
     /**
@@ -1187,10 +1239,36 @@ public class GL {
      * @param location
      * @param v0
      * @param v1
+     */
+    public static void glUniform2f(int location, float v0, float v1) {
+        GL20.glUniform2f(location, v0, v1);
+        GL.checkError("glUniform");
+    }
+    
+    /**
+     * OpenGL 2.0
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniform.xml">glUniform</a>
+     * @param location
+     * @param v0
+     * @param v1
      * @param v2 
      */
     public static void glUniform3f(int location, float v0, float v1, float v2) {
         GL20.glUniform3f(location, v0, v1, v2);
+        GL.checkError("glUniform");
+    }
+    
+    /**
+     * OpenGL 2.0
+     * @see <a href="http://www.opengl.org/sdk/docs/man4/xhtml/glUniform.xml">glUniform</a>
+     * @param location
+     * @param v0
+     * @param v1
+     * @param v2
+     * @param v3
+     */
+    public static void glUniform4f(int location, float v0, float v1, float v2, float v3) {
+        GL20.glUniform4f(location, v0, v1, v2, v3);
         GL.checkError("glUniform");
     }
     

@@ -13,10 +13,13 @@ public final class Camera {
     private final Vector3f upDir = new Vector3f(0,1,0);
     private final Vector3f sideDir = new Vector3f(1,0,0);
     private final float viewDistance = 1e+2f;
+    private final float far = viewDistance;
     private final Vector3f camPos = new Vector3f(0,0,-1);
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
     private boolean perspective = true;
+    private float orthoScaleValue = 15f;
+    
 
     /**
      * Default Constructor.
@@ -68,9 +71,9 @@ public final class Camera {
      */
     public void updateProjection() {
         if(perspective) {
-            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, viewDistance, projection);
+            Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, far, projection);
         } else {
-            Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+2f, projection);
+            Util.ortho(-1.0f*orthoScaleValue, 1.0f*orthoScaleValue, -1.0f*orthoScaleValue, 1.0f*orthoScaleValue, 1e-2f*orthoScaleValue, far*orthoScaleValue, projection);
         }
     }
     
@@ -107,4 +110,31 @@ public final class Camera {
     	return viewDistance;    	
     }
     
+    public float getFar() {
+        return far;
+    }
+    
+    public Vector3f getViewDir() {
+        return viewDir;
+    }
+    
+    public void setCamPos(Vector3f camPos) {
+    	this.camPos.set(camPos);
+    }
+    
+    public void setCamDir(Vector3f viewDir) {
+    	this.viewDir.set(viewDir);
+    }
+    
+    public void setCamSideDir(Vector3f sideDir) {
+    	this.sideDir.set(sideDir);
+    }
+    
+    public void setUpDir(Vector3f upDir) {
+    	this.upDir.set(upDir);
+    }
+    
+    public void setOrthoScaleValue(float value) {
+    	this.orthoScaleValue = value;
+    }
 }

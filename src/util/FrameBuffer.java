@@ -8,7 +8,6 @@ import java.util.List;
 import static opengl.GL.*;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 
 public class FrameBuffer {
 
@@ -18,23 +17,22 @@ public class FrameBuffer {
 	private int renderBufferObjectId;
     private int width, height;
 
-
 	public void init(boolean depthTest, int width, int height) {
-	        this.width = width;
-	        this.height = height;
-	        count = 0;
-	        frameBufferObjectId = glGenFramebuffers();
-	        
-	        if(depthTest) {
-	            this.bind();
-	            renderBufferObjectId = glGenRenderbuffers();
-	            glBindRenderbuffer(GL_RENDERBUFFER, renderBufferObjectId);
-	            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, WIDTH, HEIGHT);
-	            glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferObjectId);
-	            this.unbind();
-	            this.checkForErrors();
-	        }
+        this.width = width;
+        this.height = height;
+        count = 0;
+        frameBufferObjectId = glGenFramebuffers();
+        
+        if(depthTest) {
+            this.bind();
+            renderBufferObjectId = glGenRenderbuffers();
+            glBindRenderbuffer(GL_RENDERBUFFER, renderBufferObjectId);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, WIDTH, HEIGHT);
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferObjectId);
+            this.unbind();
+            this.checkForErrors();
+        }
 	}
 
 	public void addTexture(Texture tex, int internalFormat, int format) {
@@ -66,6 +64,13 @@ public class FrameBuffer {
     
     public void clearColor() {
     	// set clear color
+    	this.bind();
+    	FloatBuffer color = BufferUtils.createFloatBuffer(4);
+    	color.put(new float[] { 0, 0, 0, 0 });
+    	color.position(0);
+    	for(int i=0; i < this.textureList.size(); ++i) {
+    		glClearBuffer(GL_COLOR, i, color);
+    	}
     	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     
@@ -78,7 +83,6 @@ public class FrameBuffer {
         } else {
             glEnable(GL_DEPTH_TEST);
         }
-        
     }
     
     
@@ -130,7 +134,6 @@ public class FrameBuffer {
     }
     
     public void reset(){
-    	count=0;
+    	count = 0;
     }
-    
 }

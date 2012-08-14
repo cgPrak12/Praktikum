@@ -2,11 +2,11 @@ package util;
 
 import static opengl.GL.*;
 
-import java.io.ObjectInputStream.GetField;
 
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 /**
  *
@@ -15,6 +15,8 @@ import org.lwjgl.util.vector.Vector3f;
 public class ShaderProgram {
     private int id, vs, fs;
     private String vertexShader, fragmentShader;
+    private int printed = 0;
+    
     public ShaderProgram(String vertexShader, String fragmentShader) {
         this.createShaderProgram(vertexShader, fragmentShader);
         this.vertexShader = vertexShader;
@@ -44,13 +46,15 @@ public class ShaderProgram {
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         } else {
-            System.err.println("Uniform: "+ varName +", ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
-        }
-            
-    }
+            if(printed <= 10) {
+            	System.err.println("Uniformlocation von: "+ varName +" ist -1, ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
+            	++printed;
+            }
+        }            
+    }          
     
     /**
-     * Hilfsmethode, um einen Vektor in eine Uniform zu schreiben. Das
+     * Hilfsmethode, um einen Vector3f in eine Uniform zu schreiben. Das
      * zugehoerige Programmobjekt muss aktiv sein.
      * @param vector Vektor
      * @param varName Zielvariable im Shader
@@ -59,6 +63,31 @@ public class ShaderProgram {
         int loc = glGetUniformLocation(this.id, varName);
         if(loc != -1) {
             glUniform3f(loc, vector.x, vector.y, vector.z);
+        }
+        else {
+            if(printed <= 10) {
+            	System.err.println("Uniformlocation von: "+ varName +" ist -1, ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
+            	++printed;
+            }
+        }
+    }
+    
+    /**
+     * Hilfsmethode, um einen Vector4f in eine Uniform zu schreiben. Das
+     * zugehoerige Programmobjekt muss aktiv sein.
+     * @param vector Vektor
+     * @param varName Zielvariable im Shader
+     */   
+    public void setUniform(String varName, Vector4f vector) {
+        int loc = glGetUniformLocation(this.id, varName);
+        if(loc != -1) {
+            glUniform4f(loc, vector.x, vector.y, vector.z, vector.w);
+        }
+        else {
+            if(printed <= 10) {
+            	System.err.println("Uniformlocation von: "+ varName +" ist -1, ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
+            	++printed;
+            }
         }
     }
     
@@ -73,6 +102,12 @@ public class ShaderProgram {
         if(loc != -1) {
             glUniform1f(loc, f);
         }
+        else {
+            if(printed <= 10) {
+            	System.err.println("Uniformlocation von: "+ varName +" ist -1, ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
+            	++printed;
+            }
+        }
     }
     
     /**
@@ -85,6 +120,12 @@ public class ShaderProgram {
         int loc = glGetUniformLocation(this.id, varName);
         if(loc != -1) {
             glUniform1i(loc, i);
+        }
+        else {
+            if(printed <= 10) {
+            	System.err.println("Uniformlocation von: "+ varName +" ist -1, ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
+            	++printed;
+            }
         }
     }
     
@@ -100,7 +141,36 @@ public class ShaderProgram {
             texture.bind();
             glUniform1i(loc, texture.getUnit());
         }
+        else {
+            if(printed <= 10) {
+            	System.err.println("Uniformlocation von: "+ varName +" ist -1, ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
+            	++printed;
+            }
+        }            
     }
+    
+    /**
+     * Hilfsmethode, um ein Vector2f-Array in eine Uniform zu schreiben. Das
+     * zugehoerige Programmobjekt muss aktiv sein.
+     * @param vectorarray Vektor2f-Array
+     * @param varName Zielvariable im Shader
+     */
+    public void setUniform(String varName, Vector2f[] vectorarray) {
+    	checkError("");
+    	for(int i=0; i < vectorarray.length; ++i) {
+    		int loc = glGetUniformLocation(this.id, varName + "[" + i + "]");
+    		if(loc != -1) {
+    			glUniform2f(loc, vectorarray[i].x, vectorarray[i].y);
+    		}
+            else {
+                if(printed <= 10) {
+                	System.err.println("Uniformlocation von: "+ varName +" ist -1, ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
+                	++printed;
+                }
+            }
+    	}
+    	checkError("");
+	}
     
     /**
      * Attribut Index von positionMC
@@ -131,7 +201,7 @@ public class ShaderProgram {
      * Attribut Index von instance
      */
     public static final int ATTR_INSTANCE = 5;
-    
+    public static final int ATTR_TANGENT = 6;
     /**
      * Erzeugt ein ShaderProgram aus einem Vertex- und Fragmentshader.
      * @param vs Pfad zum Vertexshader
@@ -165,8 +235,9 @@ public class ShaderProgram {
         glBindAttribLocation(this.id, ATTR_POS, "positionMC");
         glBindAttribLocation(this.id, ATTR_NORMAL, "normalMC");        
         glBindAttribLocation(this.id, ATTR_COLOR, "vertexColor");
-        glBindAttribLocation(this.id, ATTR_COLOR2, "vertexColor2");
-        glBindAttribLocation(this.id, ATTR_TEX, "vertexTexCoords");
+        glBindAttribLocation(this.id, ATTR_TANGENT, "tangentMC");
+        //glBindAttribLocation(this.id, ATTR_COLOR2, "vertexColor2");
+        glBindAttribLocation(this.id, ATTR_TEX, "texCoords");
         glBindAttribLocation(this.id, ATTR_INSTANCE, "instancedData");
         
         glLinkProgram(this.id);        
@@ -176,11 +247,11 @@ public class ShaderProgram {
     }
     
     public void delete() {
-        GL20.glDetachShader(this.id, this.fs);
-        GL20.glDetachShader(this.id, this.vs);
-        GL20.glDeleteShader(this.fs);
-        GL20.glDeleteShader(this.vs);
-        GL20.glDeleteProgram(this.id);
+        glDetachShader(this.id, this.fs);
+        glDetachShader(this.id, this.vs);
+        glDeleteShader(this.fs);
+        glDeleteShader(this.vs);
+        glDeleteProgram(this.id);
     }
     
     /**

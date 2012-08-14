@@ -14,7 +14,7 @@ public class Texture {
 
     public Texture(int target, int unit) {
         this.id = glGenTextures();
-        this.unit = unit;
+        this.unit = unit; 
         this.target = target;
     }
 
