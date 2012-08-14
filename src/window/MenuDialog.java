@@ -699,6 +699,7 @@ public class MenuDialog extends JDialog {
 	
 	public void close() {
 		this.dispose();
+		mDial = null;
 	}
 	
 	/**
@@ -718,7 +719,6 @@ public class MenuDialog extends JDialog {
 	public static void destroyInstance() {
 		if(mDial != null) {
 			mDial.close();
-			mDial = null;
 		}
 	}
 

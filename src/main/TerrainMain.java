@@ -34,7 +34,7 @@ public class TerrainMain {
     private static Texture bumpQuaderTexture;
     private static Texture skydomeTexture;
     private static Texture sunTexture;
-   private static Texture skyCloudTexture;
+    private static Texture skyCloudTexture;
     private static Texture noiseTexture;
     private static Texture blackTexture;
     
@@ -327,7 +327,6 @@ public class TerrainMain {
         	}
         	
         	if (ambientocclusion){
-            	//Ambient Occlusion
             	AOfbo = screenMan.getAmbientOcclusion(noiseTexture, shader.getNormalTexture(), enlightenedFBO.getTexture(0));
         	}
         	else{
