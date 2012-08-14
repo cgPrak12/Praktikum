@@ -81,6 +81,7 @@ public class TerrainMain {
     private static ShaderProgram shadowSP;
     
     //matrix
+    private static Matrix4f skyMoveMatrix = new Matrix4f();
     private static Matrix4f cloudModelMatrix = new Matrix4f();
     private static Matrix4f sunMatrix = new Matrix4f();
     private static Matrix4f sunTilt = new Matrix4f();
@@ -141,7 +142,6 @@ public class TerrainMain {
         //fboSP = new ShaderProgram("./shader/MainShadow_VS.glsl", "./shader/MainShadow_FS.glsl");
         
         Matrix4f floorQuadMatrix = new Matrix4f();
-        Matrix4f skyDomeMatrix = new Matrix4f();
         //Matrix4f floorQuadITMatrix = new Matrix4f();
         
         shadowCam.changeProjection();
@@ -209,8 +209,10 @@ public class TerrainMain {
             frameTimeDelta += millis;
             ++frames;
             
+            
             shadowCam.setCamDir(sunDirection.negate(null));
             shadowCam.setCamPos(sunDirection);           
+            
             
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
@@ -221,6 +223,12 @@ public class TerrainMain {
             // input and animation
             handleInput(millis);
             animate(millis);
+            
+            // move skydome width eyePos
+            Util.translationX(cam.getCamPos().x, skyMoveMatrix);
+            Util.mul(skyMoveMatrix, skyMoveMatrix, Util.translationZ(cam.getCamPos().z, null));
+            Util.mul(cloudModelMatrix,skyMoveMatrix, cloudModelMatrix );
+            
             if(rotatelight) {
             	Util.transformDir(Util.rotationY(0.005f, null), sunDirection, sunDirection);
             }
@@ -263,7 +271,7 @@ public class TerrainMain {
             
             
             //sky dome 
-			fboSP.setUniform("model", skyDomeMatrix);
+			fboSP.setUniform("model", skyMoveMatrix);
             fboSP.setUniform("normalTexture",blackTexture );
             fboSP.setUniform("specularTexture", blackTexture);
             
