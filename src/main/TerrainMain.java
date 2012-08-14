@@ -76,19 +76,18 @@ public class TerrainMain
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Test_Fs.glsl");
 			program.use();
-
-            terra = new Terrain(1024, 0f);
+			
             TerrainFactory.init();
-            TerrainFactory.genTerrain(terra, 8);
+            TerrainFactory.genTerrain(terra, 1);
 
             terrainGeometry = GeometryFactory.genTerrain(terra);
             
-			clip = new ClipMap(terra, 30, 8, program, cam);
 			
-			terrain.Terrain terrain = new terrain.Terrain(1024);
-			TerrainView tv = new TerrainView(terra, cam);
+			TerrainView.init(terra, cam);
 			
-			float[][] heightMap = tv.getHeightMap();
+			clip = new ClipMap(30, 8, program, cam);
+
+			float[][] heightMap = TerrainView.getHeightMap();
 			
 //			int zero =0;
 //			
