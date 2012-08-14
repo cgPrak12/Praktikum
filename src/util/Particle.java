@@ -90,7 +90,15 @@ public class Particle {
     //////////////////////////////////////////////////////////////////
     // OpenCL Particle Grid variables and constants                 //
     //////////////////////////////////////////////////////////////////
+    /** calculation radius for the particles */
+    private float particleRadius = 0.006f;
     
+    /** start in-space-coordinates for the grid */
+    private float spaceX = 0.0f;
+    private float spaceY = 0.0f;
+    private float spaceZ = 0.0f;
+    /** length of the grid in space */
+    private float spaceLength = 1.0f;    
     /** number cells per dimension spatial dimension */
     private int gridLen = 40;
     /** max number of particles per cell */
@@ -233,9 +241,9 @@ public class Particle {
     	//0.44843593, 0.019001158, 0.2570792
     	Random r = new Random();
     	for(int i=0; i < MAX_PARTICLES; i++){
-    		particles.put(0.44f + 0.1f*rand(r));//(float)(Math.random()));
-    		particles.put(rand(r) * 0.2f + 0.1f);//0.1f + (float)i*0.001f);
-    		particles.put(0.25f + 0.1f*rand(r));//(float)(Math.random())*0.5f);
+    		particles.put(0.44843593f-(float)Math.random()*0.1f);//(float)(Math.random()));
+    		particles.put(0.2f+(float)Math.random()*0.8f);//0.1f + (float)i*0.001f);
+    		particles.put(0.2570792f - (float)Math.random()*0.1f);//(float)(Math.random())*0.5f);
     		particles.put(1f);
     	}
     	
@@ -274,7 +282,7 @@ public class Particle {
         
 //        GL11.glPointSize(5);
 //        GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
-        
+//        
         
 
         
@@ -374,22 +382,13 @@ public class Particle {
 
         // create grid info
         FloatBuffer gib = BufferUtils.createFloatBuffer(8);
-        
-        float particleRadius = 0.006f;
-        float spaceX = 0.0f;
-        float spaceY = 0.0f;
-        float spaceZ = 0.0f;
-        float spaceLength = 1.0f;
-        float gridLength = this.gridLen;//(int)(spaceLength/(2*particleRadius))+1;
-        float gridMaxp = this.gridMaxParticles;
-        
         gib.put(particleRadius);
         gib.put(spaceX);
         gib.put(spaceY);
         gib.put(spaceZ);
         gib.put(spaceLength);
-        gib.put(gridLength);
-        gib.put(gridMaxp);
+        gib.put(this.gridLen);
+        gib.put(this.gridMaxParticles);
         gib.position(0);
        
         this.gridInfo = clCreateBuffer(this.context,
