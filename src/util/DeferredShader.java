@@ -64,12 +64,12 @@ public class DeferredShader {
     	texBump = 	 new Texture(GL11.GL_TEXTURE_2D,  unitOffset +6);
     	
     	frameBuffer.addTexture(texPosition, GL30.GL_RGBA32F, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texNormal, GL30.GL_RGBA32F, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texVertexColor, GL30.GL_RGBA32F, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texSpec, GL30.GL_RGBA16F, GL11.GL_RGBA);
-    	frameBuffer.addTexture(skyColor, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texNormal, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texVertexColor, GL11.GL_RGBA, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texSpec, GL11.GL_RGBA, GL11.GL_RGBA);
+    	frameBuffer.addTexture(skyColor, GL11.GL_RGBA, GL11.GL_RGBA);
     	frameBuffer.addTexture(texShadow, GL30.GL_RGBA32F, GL11.GL_RGBA);
-    	frameBuffer.addTexture(texBump, GL30.GL_RGBA16F, GL11.GL_RGBA);
+    	frameBuffer.addTexture(texBump, GL11.GL_RGBA, GL11.GL_RGBA);
     	
     	frameBuffer.drawBuffers();
     }
