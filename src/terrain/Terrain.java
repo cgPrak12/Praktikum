@@ -2,7 +2,7 @@ package terrain;
 
 public class Terrain
 {
-	private static final int MEM_BLOCKS = 16;
+	private static final int MEM_BLOCKS = 1;
 	
 	private String[][] blocks;
 	private int size;
