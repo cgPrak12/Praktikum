@@ -257,19 +257,19 @@ public class ClipMap
 
 		// Zähle Floats hoch, bis Schwellenwert erreicht ist
 		tempX += cam.getAlt().x / generalScale / scaleFaktor;
-//		tempY += cam.getAlt().y;
+		tempY += cam.getAlt().y;
 		tempZ += cam.getAlt().z / generalScale / scaleFaktor;
 
-//		if (tempY > 10)
-//		{
-//			updateHeight(true);
-//			tempY %= 10;
-//		}
-//		if (tempY < -10)
-//		{
-//			updateHeight(false);
-//			tempY %= 10;
-//		}
+		if (tempY > 10)
+		{
+			updateHeight(true);
+			tempY %= 10;
+		}
+		if (tempY < -10)
+		{
+			updateHeight(false);
+			tempY %= 10;
+		}
 
 		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
