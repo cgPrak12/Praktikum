@@ -16,35 +16,28 @@ public class TerrainView {
 	private static Camera cam;
 	private static int[] middle;
 	private static Block dummy;
+	private static Terrain terra;
+	private static boolean initialised;
 	
 	/**
 	 * constructor
 	 * @param c Camera
 	 */
-	public TerrainView(Terrain terra, Camera c)
-	{		
+
+	static {
 		myBl = new Block[9][9];
-		cam =  c;
-		
-		// dummy block erstellen
 		dummy = BlockUtil.readBlockData(BlockUtil.writeBlockData(new Block(-1,-1)));
-		
-		for(int i = 0; i < 256; i++)
-		{
-			for(int j = 0; j < 256; j++)
-			{
-				dummy.setInfo(i, j, 0, 5.0f);
-			}
-		}
-		init(terra);
+		initialised = false;
 	}
 	
 	/**
 	 * set the blocks 
 	 */
-	private void init(Terrain terra)
+	public static void init(Terrain terra, Camera cam)
 	{
-
+		TerrainView.terra = terra;
+		TerrainView.cam = cam;
+		initialised = true;
 		myBl[4][4] = BlockUtil.getBlock(cam);
 		middle = myBl[4][4].getID();
 		
@@ -76,10 +69,10 @@ public class TerrainView {
 	/**
 	 * update the whole blocks
 	 */
-	public static void updateTerrainView(Terrain terra)
+	public static void updateTerrainView(/* Muss das wirklich sein? Terrain wurde doch vorher initialisiert im Ctor:  Terrain terra */)
 	{	
 	
-		
+		if(!initialised) throw new IllegalStateException("Klasse wurde nicht initialisiert!");
 		// hier muss der erste Block mit Fehlerbehandlung gesetzt werden, falls Camera außerhalb
 		// einschränkung der Camera oder spezielle Fehlerbehandlung hier
 		int diffX = ((int)cam.getCamPos().x/256) - middle[0];
@@ -124,8 +117,8 @@ public class TerrainView {
 		}
 	}
 	
-	public float[][] getHeightMap(){
-		
+	public static float[][] getHeightMap(){
+		if(!initialised) throw new IllegalStateException("Klasse wurde nicht initialisiert!");
 		float[][] heightMap = new float[9*256][9*256];
 		for(int x=0; x<heightMap.length; x++){
 			for(int z=0; z<heightMap[0].length; z++){
@@ -159,8 +152,8 @@ public class TerrainView {
 	 * method for getting the latest blocks as an float[][][] with sizes [2304][2304][5]
 	 * @return float[][][]
 	 */
-	public float[][][] getArray(){
-		
+	public static float[][][] getArray(){
+		if(!initialised) throw new IllegalStateException("Klasse wurde nicht initialisiert!");
 		float[][][] area = new float[9*256][9*256][5];
 		
 		for(int x=0; x<area.length; x++){
@@ -182,8 +175,8 @@ public class TerrainView {
 	 * method gives the camPosX as related to the float[][][]
 	 * @return int 
 	 */
-	public int arrayCamPosX(){
-		
+	public static int arrayCamPosX(){
+		if(!initialised) throw new IllegalStateException("Klasse wurde nicht initialisiert!");
 		return (int)((cam.getCamPos().x%256)+256);
 	}
 	
@@ -191,8 +184,8 @@ public class TerrainView {
 	 * method gives the camPosZ as related to the float[][][]
 	 * @return
 	 */
-	public int arrayCamPosZ(){
-		
+	public static int arrayCamPosZ(){
+		if(!initialised) throw new IllegalStateException("Klasse wurde nicht initialisiert!");
 		return (int)((cam.getCamPos().z%256)+256);
 	}
 }

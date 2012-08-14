@@ -59,7 +59,7 @@ public class ClipMap
 	 * @param stage Anzahl der Auflösungslevel
 	 * @param program Dazugehöriges Shaderprogram
 	 * @param cam Kamera des Programms */
-	public ClipMap(Terrain terra, int size, int stage, ShaderProgram program, Camera cam)
+	public ClipMap(int size, int stage, ShaderProgram program, Camera cam)
 	{
 
 		if ((size + 2) % 2 != 0)
