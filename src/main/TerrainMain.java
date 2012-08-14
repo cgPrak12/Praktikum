@@ -78,6 +78,11 @@ public class TerrainMain {
     private static ShaderProgram shader = null;*/
     
     public static void main(String[] argv) {
+        //Generate terrain
+        terra = new util.Terrain(0f, 1024, 1024, 4);
+        terra.genTerrain(10);
+        terrainGeometry = GeometryFactory.genTerrain(terra.getTerra());
+        
         //Generate random numbers with wights
         int[] values = {0,1,2,3};
         int[] weights = {20,60,20,0};
@@ -114,10 +119,6 @@ public class TerrainMain {
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             glPointSize(2.0f);
-            
-            terra = new util.Terrain(0f, 1024, 1024, 4);
-            terra.genTerrain(10);
-            terrainGeometry = GeometryFactory.genTerrain(terra.getTerra());
             
             render();
             OpenCL.destroy();
@@ -169,30 +170,46 @@ public class TerrainMain {
             //clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            Matrix4f scale = new Matrix4f().scale(new Vector3f(0.04f, 0.04f, 0.04f));
+            Matrix4f scale = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
             Matrix4f model = new Matrix4f();
             Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 
             shaderProgramModels.use();
-            
-            for(int i=0; i<map.length; i+=1) {
-                for(int j=0; j<map.length; j+=1) {
+
+            float terrainGrid[][][] = terra.getTerrainGrid().getBlock();
+            for(int x=0; x<terrainGrid.length; x+=40) {
+                for(int z=0; z<terrainGrid.length; z+=40) {
+/*                    System.out.println(terrainGrid[y][x][0]);
+                    System.out.println(terrainGrid[y][x][1]);
+                    System.out.println(terrainGrid[y][x][2]);
+                    System.out.println(terrainGrid[y][x][3]);*/
+//                    System.out.println(terrainGrid[y][x][4]);
                     Matrix4f translate = new Matrix4f();
                     translate.m00 = 1;
                     translate.m11 = 1;
                     translate.m22 = 1;
                     translate.m33 = 1;
-                    translate.m30 = 1*i;
-                    translate.m32 = 1*j;
-
+                    translate.m30 = x/100.0f;
+                    translate.m31 = terrainGrid[x][z][0];
+                    translate.m32 = z/100.0f;
+/*
+                    0 default
+                    1 meer
+                    2 see und fluss
+                    3 sand
+                    4 erde
+                    5 helles flachlandgras
+                    6 höheres gras
+                    7 stein
+                    8 fels
+                    9 leichter schnee
+                    10 schwerer schnee*/
+                    
                     Iterator<ModelPart> modelPartListIterator = null;
-                    if(map[i][j]==1)
+                    if(terrainGrid[x][z][4]==3)
                         modelPartListIterator = modelPartList1.listIterator();
-                    else if(map[i][j]==2)
+                    else if(terrainGrid[x][z][4]==5)
                         modelPartListIterator = modelPartList2.listIterator();
-                    else if(map[i][j]==3)
-//                        modelPartListIterator = modelPartList3.listIterator();
-                        modelPartListIterator = null;
                     else
                         modelPartListIterator = null;
                     if(modelPartListIterator!=null) {
@@ -234,6 +251,7 @@ public class TerrainMain {
             Display.sync(60);
         }
         shaderProgramModels.delete();
+        shaderProgramTerrain.delete();
     }
     
     /**

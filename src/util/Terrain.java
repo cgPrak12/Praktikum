@@ -37,6 +37,10 @@ public class Terrain {
 	private int vertexInfoCount = 5;
 	private float SCALE;
 
+        public TerrainGrid getTerrainGrid() {
+            return this.terra;
+        }
+        
 	/**
 	 * 
 	 * @param initialHeight
@@ -229,7 +233,7 @@ public class Terrain {
 		//		putMountain(mountainMap1, 1, 256, 256, 100);
 
 		//		putTest(riverMap,1,512,512,300);
-				this.terraform(10, 1, 0.3f);	
+				this.terraform(1, 1, 0.1f);	
 		//				this.testForm();
 //				setMaterialsFromHeight(0, maxX, 0, maxZ);
 //				this.putRiver(2, 100, 100, 800, 800, 0f);
