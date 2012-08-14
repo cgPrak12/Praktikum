@@ -3,35 +3,33 @@
 uniform sampler2D noiseTexture;
 uniform sampler2D normalTexture;
 
-
 in vec2 texCoord;
 
-
 const float totStrength = 0.2;
-const float strength = 1;
-const float offset = 18.0;
-const float falloff = 0.0002;
-const float rad = 0.005;
-const float SAMPLES =10; // 10 is good
-const float invSamples = -1.38/10.0;
-
+const float strength 	= 1;
+const float offset 		= 18.0;
+const float falloff 	= 0.0002;
+const float rad 		= 0.005;
+const float SAMPLES 	= 10.0; 
+const float invSamples 	= -1.38 / 10.0;
 
 out vec4 finalColor;
+
 void main(void)
 {
 	float radCalc = 0;
 	
 	// these are the random vectors inside a unit sphere
-	vec3 pSphere[10] = vec3[](vec3(-0.010735935, 0.01647018, 0.0062425877),
-					   vec3(-0.06533369, 0.3647007, -0.13746321),
-					   vec3(-0.6539235, -0.016726388, -0.53000957),
-					   vec3(0.40958285, 0.0052428036, -0.5591124),
-					   vec3(-0.1465366, 0.09899267, 0.15571679),
-					   vec3(-0.44122112, -0.5458797, 0.04912532),
-					   vec3(0.03755566, -0.10961345, -0.33040273),
-					   vec3(0.019100213, 0.29652783, 0.066237666),
-					   vec3(0.8765323, 0.011236004, 0.28265962),
-					   vec3(0.29264435, -0.40794238, 0.15964167));
+	vec3 pSphere[10] = vec3[](vec3(-0.010735935, 0.01647018,    0.0062425877),
+							  vec3(-0.06533369,  0.3647007,    -0.13746321),
+					   	  	  vec3(-0.6539235,  -0.016726388,  -0.53000957),
+					   	  	  vec3( 0.40958285,  0.0052428036, -0.5591124),
+					   	  	  vec3(-0.1465366,   0.09899267,    0.15571679),
+					   	  	  vec3(-0.44122112, -0.5458797,     0.04912532),
+					   	  	  vec3( 0.03755566, -0.10961345,   -0.33040273),
+					   	  	  vec3( 0.019100213, 0.29652783,    0.066237666),
+					   	  	  vec3( 0.8765323,   0.011236004,   0.28265962),
+					   	  	  vec3( 0.29264435, -0.40794238,    0.15964167));
  
    // grab a normal for reflecting the sample rays later on
    vec3 fres = texture(noiseTexture,texCoord*offset).xyz;
@@ -39,7 +37,7 @@ void main(void)
  
    float currentPixelDepth = currentPixelSample.a;
  
-   if(currentPixelDepth >= 1) 
+   if(currentPixelDepth >= 1.0) 
    {
 		finalColor= vec4(0,0,0,0);
 		return;
@@ -70,14 +68,13 @@ void main(void)
  
       // calculate the difference between the normals as a weight
 	  // the falloff equation, starts at falloff and is kind of 1/x^2 falling
-      
-	 if (length(occluderFragment.xyz) > 0)
-	 {
-		bl += step(falloff,depthDifference)*(1.0-dot(occluderFragment.xyz,norm))*(1.0-smoothstep(falloff,strength,depthDifference));		// finalColor = vec4(1,0,0,0);
-	 }
+	  if (length(occluderFragment.xyz) > 0)
+	  {
+		  bl += step(falloff,depthDifference)*(1.0-dot(occluderFragment.xyz,norm))*(1.0-smoothstep(falloff,strength,depthDifference));		// finalColor = vec4(1,0,0,0);
+	  }
    }
  
    // output the result
-   finalColor = vec4(1-(1+bl*invSamples*totStrength));
+   finalColor = vec4(1.0 - (1.0 + bl*invSamples*totStrength));
  
 }

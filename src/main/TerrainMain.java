@@ -186,18 +186,21 @@ public class TerrainMain {
         shadowFBO.init(false, GL.WIDTH, GL.HEIGHT);
         
         //static Matrix calculation
-    	Matrix4f modelMatrix = Util.mul(null, Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
-    	Matrix4f modelIT = Util.transposeInverse(modelMatrix, null);
+    	Matrix4f modelMatrix = Util.mul(null, Util.translationY(1.0f, null), Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
     	
     	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(10f, null), Util.translationZ(10f, null), Util.translationY(5f, null));
-    	Matrix4f modelIT1 = Util.transposeInverse(modelMatrix1, null);
 
     	Matrix4f modelMatrix2 = Util.mul(null, Util.translationX(0.5f, null), Util.translationZ(0.5f, null), Util.translationY(1f, null));
-    	Matrix4f modelIT2 = Util.transposeInverse(modelMatrix2, null);
     	
     	//dynamic matrices
     	Matrix4f shadowMatrix = new Matrix4f();
         
+        //Main_FS
+        fboSP.setUniform("normalTexture", normalQuaderTexture);
+        fboSP.setUniform("specularTexture", specularQuaderTexture);
+        fboSP.setUniform("textureImage", quaderTexture);
+        fboSP.setUniform("camFar", cam.getFar());    	
+    	
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -206,12 +209,8 @@ public class TerrainMain {
             frameTimeDelta += millis;
             ++frames;
             
-            
             shadowCam.setCamDir(sunDirection.negate(null));
-            shadowCam.setCamPos(sunDirection);
-            
-            //animate(millis);
-           
+            shadowCam.setCamPos(sunDirection);           
             
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
@@ -243,17 +242,11 @@ public class TerrainMain {
 
         	//Main_VS
         	fboSP.setUniform("model", 	 	 modelMatrix);
-        	fboSP.setUniform("modelIT",  	 modelIT);
         	fboSP.setUniform("viewProj", 	 Util.mul(null, cam.getProjection(), cam.getView()));
             fboSP.setUniform("shadowMatrix", shadowMatrix);
         	fboSP.setUniform("camPos",   	 cam.getCamPos());
             fboSP.setUniform("view", 		 cam.getView());
             fboSP.setUniform("bumpTexture", bumpQuaderTexture);
-            //Main_FS
-            fboSP.setUniform("normalTexture", normalQuaderTexture);
-            fboSP.setUniform("specularTexture", specularQuaderTexture);
-            fboSP.setUniform("textureImage", quaderTexture);
-            fboSP.setUniform("camFar", cam.getFar());
             
             shader.bind();            
             shader.clear();
@@ -262,18 +255,15 @@ public class TerrainMain {
             
             //2nd test cube
             fboSP.setUniform("model", modelMatrix1);
-            fboSP.setUniform("modelIT", modelIT1);
 
             testCube1.draw();
             
             fboSP.setUniform("model", modelMatrix2);
-            fboSP.setUniform("modelIT", modelIT2);
             testCube2.draw();
             
             
-            //skydome 
+            //sky dome 
 			fboSP.setUniform("model", skyDomeMatrix);
-            fboSP.setUniform("modelIT", skyDomeMatrix);
             fboSP.setUniform("normalTexture",blackTexture );
             fboSP.setUniform("specularTexture", blackTexture);
             
@@ -281,36 +271,30 @@ public class TerrainMain {
             fboSP.setUniform("textureImage", skydomeTexture);
             skyDome.draw();
             
-            //Wolken
+            //clouds
             fboSP.setUniform("textureImage", skyCloudTexture);
             matrix2uniform(cloudModelMatrix, modelLoc);
             skyCloud.draw();
             
-            
-            
 			//sun cube
             fboSP.setUniform("model", sunMatrix);
-            fboSP.setUniform("modelIT", Util.transposeInverse(sunMatrix, null));
             fboSP.setUniform("textureImage", sunTexture);
             sunCube.draw();
             glDisable(GL_BLEND);
             
-            fboSP.setUniform("normalTexture", normalQuaderTexture);
             //floor quad
+            fboSP.setUniform("normalTexture", normalQuaderTexture);
             fboSP.setUniform("model", floorQuadMatrix);
-            fboSP.setUniform("modelIT", floorQuadMatrix);
             fboSP.setUniform("textureImage", quaderTexture);
             floorQuad.draw();
             
         	shader.finish();
         	
-        	//shader.DrawTexture(shader.getNormalTexture());
-
-        	//test cube (shadow map)
+        	//SHADOW MAP
+        	//test cube 
         	glCullFace(GL_FRONT);
         	shadowSP.use();
         	shadowSP.setUniform("model", 	modelMatrix);
-        	shadowSP.setUniform("modelIT",  modelIT);
         	shadowSP.setUniform("viewProj", shadowMatrix);
         	shadowSP.setUniform("camPos",   shadowCam.getCamPos());
     	
@@ -320,20 +304,15 @@ public class TerrainMain {
         	testCube.draw();
 
             shadowSP.setUniform("model", modelMatrix1);
-            shadowSP.setUniform("modelIT", modelIT1);
             testCube1.draw();
             
             fboSP.setUniform("model", modelMatrix2);
-            fboSP.setUniform("modelIT", modelIT2);
             testCube2.draw();
             
 			glCullFace(GL_BACK);
             
-            
         	shadowSP.setUniform("model",    floorQuadMatrix);
-        	shadowSP.setUniform("modelIT",  floorQuadMatrix);
         	shadowSP.setUniform("viewProj", shadowMatrix);
-        	//shadowSP.setUniform("camPos",   shadowCam.getCamPos());
         	
         	floorQuad.draw();
         	
