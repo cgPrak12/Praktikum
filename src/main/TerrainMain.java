@@ -77,6 +77,9 @@ public class TerrainMain
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Test_Fs.glsl");
 			program.use();
 			
+			
+			
+			
             TerrainFactory.init();
             TerrainFactory.genTerrain(terra, 1);
 
