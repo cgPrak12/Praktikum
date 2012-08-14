@@ -18,7 +18,6 @@ public final class Camera
 	private float altX;
 	private float altY;
 	private float altZ;
-	private int size;
 
 	/** Default Constructor. */
 	public Camera()
@@ -120,8 +119,8 @@ public final class Camera
 		return viewDir;
 	}
 	
-	public void setSize(int size) {
-		this.size = size;
-	}
+//	public void setSize(int size) {
+//		this.size = size;
+//	}
 
 }
