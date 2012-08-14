@@ -114,7 +114,6 @@ public class TerrainMain
 				for (int j = 0; j < terra.getSize(); j++)
 				{
 					fbuffer.put(terra.get(i, j, 4));
-					System.out.println(heightMap[i][j]);
 				}
 
 			}
