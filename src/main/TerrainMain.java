@@ -43,7 +43,7 @@ public class TerrainMain {
      * Blender Importer variables
      */
     //Map to simulate a terrain with different types of ground
-    private static int[][] map = new int[10][10];
+    private static Object[][][] modelMap;
     
     /**
      * Standard variables
@@ -83,33 +83,6 @@ public class TerrainMain {
         terra.genTerrain(10);
         terrainGeometry = GeometryFactory.genTerrain(terra.getTerra());
         
-        //Generate random numbers with wights
-        int[] values = {0,1,2,3};
-        int[] weights = {20,60,20,0};
-        
-        int weightSum = sum(weights);        
-        int[] histogram = new int[values.length];
-        
-        Random random = new Random();
-        for(int i=0; i<map.length; i++) {
-            for(int j=0; j<map.length; j++){
-                int currentLimit = random.nextInt(weightSum+1);
-            
-                int currentSum = 0;
-                for(int k = 0; k< values.length;k++){
-                    currentSum += weights[k];
-                    if(currentSum >= currentLimit){
-                        
-                        map[i][j] = values[k];
-                        
-                        histogram[k]++;
-                        
-                        break;
-                    }
-                }
-            }
-        }
-        
         try {
             init();
             OpenCL.init();
@@ -119,6 +92,8 @@ public class TerrainMain {
             glEnable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
             glPointSize(2.0f);
+            
+            generateModelMap();
             
             render();
             OpenCL.destroy();
@@ -165,91 +140,127 @@ public class TerrainMain {
         8 fels
         9 leichter schnee
         10 schwerer schnee*/
-        
-        Object modelMap[][][];
-        
-        
-        float terrainGrid[][][] = terra.getTerrainGrid().getBlock();
-            for(int x=0; x<terrainGrid.length; x+=50) {
-                for(int z=0; z<terrainGrid.length; z+=50) {
-                    Matrix4f translate = new Matrix4f();
-                    translate.m00 = 1;
-                    translate.m11 = 1;
-                    translate.m22 = 1;
-                    translate.m33 = 1;
-                    translate.m30 = x/100.0f;
-                    translate.m31 = terrainGrid[x][z][0];
-                    translate.m32 = z/100.0f;
-                    
-                    modelMap[x][z][0] = translate;
-                    
 
+        Matrix4f scale = new Matrix4f().scale(new Vector3f(0.01f, 0.01f, 0.01f));
+        float terrainGrid[][][] = terra.getTerrainGrid().getBlock();
+        modelMap = new Object[terrainGrid.length][terrainGrid.length][3] ;
+ 
+        for(int x=0; x<terrainGrid.length; x+=10) {
+            for(int z=0; z<terrainGrid.length; z+=10) {
+                Matrix4f translate = new Matrix4f();
+                translate.m00 = 1;
+                translate.m11 = 1;
+                translate.m22 = 1;
+                translate.m33 = 1;
+                translate.m30 = x/100.0f;
+                translate.m31 = terrainGrid[x][z][0];
+                translate.m32 = z/100.0f;
                     
-                    Iterator<ModelPart> modelPartListIterator = null;
-                    if(terrainGrid[x][z][4]==3) {
-/*                        //Generate random numbers with wights
-                        int[] values = {0,1};
-                        int[] weights = {70,30};
-                        int weightSum = sum(weights);        
-                        Random random = new Random();
-                        int currentLimit = random.nextInt(weightSum+1);
-                        int currentSum = 0;
-                        int result=0;
-                        for(int k = 0; k< values.length;k++){
-                            currentSum += weights[k];
-                            if(currentSum >= currentLimit){
-                               result = values[k]; break;
-                            }
-                        }
-                        if(result==0) {*/
-                            modelPartListIterator = modelPalmTree.listIterator();
-                            scale = new Matrix4f().scale(new Vector3f(0.007f, 0.007f, 0.007f));
-/*                        } else if (result==1) {
-                            modelPartListIterator = modelTallCactus.listIterator();
-                            scale = new Matrix4f().scale(new Vector3f(0.007f, 0.007f, 0.007f));
-                        }*/
-                    } else if(terrainGrid[x][z][4]==5) {
-                        modelPartListIterator = modelBirchTree.listIterator();
-                        scale = new Matrix4f().scale(new Vector3f(0.004f, 0.004f, 0.004f));
-                    } else if(terrainGrid[x][z][4]==6) {
-                        modelPartListIterator = modelElmTree.listIterator();
-                        scale = new Matrix4f().scale(new Vector3f(0.03f, 0.03f, 0.03f));
-                    } else if(terrainGrid[x][z][4]==7) {
-                        modelPartListIterator = modelPineTree.listIterator();
-                        scale = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
-                    } else if(terrainGrid[x][z][4]==8) {
-                        modelPartListIterator = modelDeadShrub.listIterator();
-                        scale = new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f));
-                    } else
-                        modelPartListIterator = null;
-                    if(modelPartListIterator!=null) {
-                        while(modelPartListIterator.hasNext()) {
-                            ModelPart modelPart = modelPartListIterator.next();
-                            shaderProgramModels.setUniform("scale", scale);
-                            shaderProgramModels.setUniform("translate", translate);
-                            
-                            shaderProgramModels.setUniform("model", model);
-//                            shaderProgram.setUniform("modelIT", new Matrix4f());
-                            shaderProgramModels.setUniform("viewProj", viewProj);   
-                            
-                            shaderProgramModels.setUniform("k_a", modelPart.material.ambientRef);
-                            shaderProgramModels.setUniform("k_dif", modelPart.material.diffuseRef);
-                            shaderProgramModels.setUniform("k_spec", modelPart.material.specularRef);
-                            shaderProgramModels.setUniform("k_diss", modelPart.material.dissolveFact);
-                        
-                            if(modelPart.material.textureDiffuseRefColorMap!=null)
-                                shaderProgramModels.setUniform("diffuseTex", modelPart.material.textureDiffuseRefColorMap);
-                            if(modelPart.material.textureDissolveFactColorMap!=null)
-                                shaderProgramModels.setUniform("dissolveTex", modelPart.material.textureDissolveFactColorMap);
-                            if(modelPart.material.textureSpecularRefColorMap!=null)
-                                shaderProgramModels.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);
-                        
-                            modelPart.geometry.draw();
-                        }
+                modelMap[x][z][0] = translate;
+                
+                if(terrainGrid[x][z][4]==3) {
+                    //Generate random numbers with wights
+                    int[] values = {0,1,2};
+                    int[] weights = {70,20,10};
+                    int result=randomNumber(values, weights);
+                    if(result==0) {
+                        modelMap[x][z][1] = null;
+                        modelMap[x][z][2] = null;
+                    } else if(result==1) {
+                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.007f, 0.007f, 0.007f));
+                        modelMap[x][z][2] = modelPalmTree;
+                    } else if (result==2) {
+                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.007f, 0.007f, 0.007f));
+                        modelMap[x][z][2] = modelTallCactus;
                     }
+                } else if(terrainGrid[x][z][4]==5) {
+                    //Generate random numbers with wights
+                    int[] values = {0,1,2,3,4};
+                    int[] weights = {30,5,20,15,30};
+                    int result=randomNumber(values, weights);
+                    if(result==0) {
+                        modelMap[x][z][1] = null;
+                        modelMap[x][z][2] = null;
+                    } else if(result==1) {
+                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.004f, 0.004f, 0.004f));
+                        modelMap[x][z][2] = modelBirchTree;
+                    } else if (result==2) {
+                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
+                        modelMap[x][z][2] = modelFlower1;
+                    } else if (result==3) {
+                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
+                        modelMap[x][z][2] = modelFlower2;
+                    } else if (result==4) {
+                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
+                        modelMap[x][z][2] = modelFlower3;
+                    }
+                } else if(terrainGrid[x][z][4]==6) {
+                    //Generate random numbers with wights
+                    int[] values = {0,1};
+                    int[] weights = {85,15};
+                    int result=randomNumber(values, weights);
+                    if(result==0) {
+                        modelMap[x][z][1] = null;
+                        modelMap[x][z][2] = null;
+                    } else if(result==1) {
+                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.03f, 0.03f, 0.03f));
+                        modelMap[x][z][2] = modelElmTree;
+                    }
+                } else if(terrainGrid[x][z][4]==7) {
+                    //Generate random numbers with wights
+                    int[] values = {0,1};
+                    int[] weights = {95,5};
+                    int result=randomNumber(values, weights);
+                    if(result==0) {
+                        modelMap[x][z][1] = null;
+                        modelMap[x][z][2] = null;
+                    } else if(result==1) {
+                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
+                        modelMap[x][z][2] = modelPineTree;
+                    }
+                } else if(terrainGrid[x][z][4]==8) {
+                    //Generate random numbers with wights
+                    int[] values = {0,1};
+                    int[] weights = {98,2};
+                    int result=randomNumber(values, weights);
+                    if(result==0) {
+                        modelMap[x][z][1] = null;
+                        modelMap[x][z][2] = null;
+                    } else if(result==1) {
+                    modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f));
+                    modelMap[x][z][2] = modelDeadShrub;
+                    }
+                } else if(terrainGrid[x][z][4]==9) {
+                    //Generate random numbers with wights
+                    int[] values = {0,1};
+                    int[] weights = {90,10};
+                    int result=randomNumber(values, weights);
+                    if(result==0) {
+                        modelMap[x][z][1] = null;
+                        modelMap[x][z][2] = null;
+                    } else if(result==1) {
+                    modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f));
+                    modelMap[x][z][2] = modelRock1;
+                    }
+                } else {
+                    modelMap[x][z][2] = null;
                 }
             }
-        
+        }
+    }
+    
+    public static int randomNumber(int[] values, int[] weights) {
+        int weightSum = sum(weights);        
+        Random random = new Random();
+        int currentLimit = random.nextInt(weightSum+1);
+        int currentSum = 0;
+        for(int k = 0; k< values.length;k++){
+            currentSum += weights[k];
+            if(currentSum >= currentLimit){
+                return values[k];
+            }
+        }
+        return 0;
     }
     
     public static void render() throws LWJGLException {
@@ -283,11 +294,44 @@ public class TerrainMain {
             //clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            Matrix4f scale = new Matrix4f().scale(new Vector3f(0.01f, 0.01f, 0.01f));
             Matrix4f model = new Matrix4f();
             Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 
             shaderProgramModels.use();
+            
+            for(int x=0; x<modelMap.length; x++) {
+                for(int z=0; z<modelMap.length; z++) {
+                    if(modelMap[x][z][2]!=null) {
+                        List modelList = (List)modelMap[x][z][2];
+                        ListIterator modelListIterator = modelList.listIterator();
+                        
+                        while(modelListIterator.hasNext()) {
+                            ModelPart modelPart = (ModelPart)modelListIterator.next();
+                            shaderProgramModels.setUniform("scale", (Matrix4f)modelMap[x][z][1]);
+                            shaderProgramModels.setUniform("translate", (Matrix4f)modelMap[x][z][0]);
+                            
+                            shaderProgramModels.setUniform("model", model);
+//                            shaderProgram.setUniform("modelIT", new Matrix4f());
+                            shaderProgramModels.setUniform("viewProj", viewProj);   
+                            
+                            shaderProgramModels.setUniform("k_a", modelPart.material.ambientRef);
+                            shaderProgramModels.setUniform("k_dif", modelPart.material.diffuseRef);
+                            shaderProgramModels.setUniform("k_spec", modelPart.material.specularRef);
+                            shaderProgramModels.setUniform("k_diss", modelPart.material.dissolveFact);
+                        
+                            if(modelPart.material.textureDiffuseRefColorMap!=null)
+                                shaderProgramModels.setUniform("diffuseTex", modelPart.material.textureDiffuseRefColorMap);
+                            if(modelPart.material.textureDissolveFactColorMap!=null)
+                                shaderProgramModels.setUniform("dissolveTex", modelPart.material.textureDissolveFactColorMap);
+                            if(modelPart.material.textureSpecularRefColorMap!=null)
+                                shaderProgramModels.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);
+                        
+                            modelPart.geometry.draw();
+                        }
+                    }
+                }
+            }
+            
             
             shaderProgramTerrain.use();
             shaderProgramTerrain.setUniform("viewProj", viewProj);
