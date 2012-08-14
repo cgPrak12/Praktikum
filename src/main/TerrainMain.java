@@ -78,7 +78,7 @@ public class TerrainMain
 			program.use();
 			
 			
-			Terrain terra = new Terrain(1024, 0);
+			Terrain terra = new Terrain(1024, false);
             TerrainFactory.init();
             TerrainFactory.genTerrain(terra, 1);
 

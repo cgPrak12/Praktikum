@@ -111,7 +111,7 @@ public class BlockUtil {
 	 */
 	public static Block readBlockData(int x, int z)
 	{
-		return readBlockData(new File(x + "_" + z + "_.bf"));
+		return readBlockData(new File("." + File.separator + "Data" + File.separator + x + "_" + z + "_.bf"));
 	}
 	
 	/**
@@ -151,13 +151,12 @@ public class BlockUtil {
 		{
 			if(DataInfo.exists())
 			{
-				System.out.println("DataInfo.dat does exists");
+
 				return true;
 			}
 		}
 		catch (Exception e)
 		{
-			System.out.println("DataInfo.dat does not exists");
 			return false;
 		}
 		return false;

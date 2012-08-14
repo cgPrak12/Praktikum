@@ -19,11 +19,11 @@ public class Terrain
 	 */
 	public Terrain(int size, float initHeight, boolean overwrite)
 	{
-		boolean test = BlockUtil.test();
+		boolean test = BlockUtil.DataInfoExist();
 		if(test && !overwrite)
 		{
 			// Bloecke liegen bereits vor
-			this.size = BlockUtil.readTest();
+			this.size = BlockUtil.readDataInfo();
 			this.initialHeight = initHeight;
 			int dim = size / 256;
 			blocks = new String[dim][dim];
@@ -59,7 +59,7 @@ public class Terrain
 			currentBlocks = new Block[MEM_BLOCKS];
 			currentIDs = new int[MEM_BLOCKS][2];
 			
-			BlockUtil.writeTest(size);
+			BlockUtil.writeDataInfo();
 			init();
 		}
 	}
