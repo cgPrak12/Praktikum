@@ -1,4 +1,4 @@
-package main;
+package uselessStuff;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,7 +12,6 @@ import org.lwjgl.util.vector.Vector3f;
 import util.Camera;
 import util.Geometry;
 import util.GeometryFactory;
-import terrain.Terrain;
 import util.TerrainFactory;
 import util.Util;
 
@@ -64,7 +63,6 @@ public class MainTest {
             terrainParamLoc = glGetUniformLocation(terrainProgram, "param");
                    
                       	
-            terra = new Terrain(1024, 0f, false);
             TerrainFactory.init();
             TerrainFactory.genTerrain(terra, 8);
 
