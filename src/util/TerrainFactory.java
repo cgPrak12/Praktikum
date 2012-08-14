@@ -144,8 +144,6 @@ public class TerrainFactory {
 		Vector3f bottomLeft = new Vector3f();
 		Vector3f bottomRight = new Vector3f();
 
-
-
 		for(int x = minX; x<maxX; x++){
 			
 			if(x%100 == 0){ 
@@ -153,31 +151,40 @@ public class TerrainFactory {
 			}
 			
 			for(int z = minZ; z<maxZ; z++){	
+				
 				tmp1.set(1e-2f * x, terra.get(x, z, 0), 1e-2f * z);
 //				if (x != 0 && z != 0 && x !=  terra.getSize() && z != terra.getSize()){
+				
 					tmp2.set(1e-2f * (x-1), terra.get(x-1, z, 0), 1e-2f * (z));	
 					tmp3.set(1e-2f * (x-1), terra.get(x-1, z-1, 0), 1e-2f * (z-1));	
-					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), topLeft);
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp2, tmp3, null), topLeft);
 					topLeft.normalise();
 
 					tmp2.set(1e-2f * (x), terra.get(x, z-1, 0), 1e-2f * (z-1));	
 					tmp3.set(1e-2f * (x+1), terra.get(x+1, z-1, 0), 1e-2f * (z-1));	
-					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), topRight);
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp2, tmp3, null), topRight);
 					topRight.normalise();
 
 					tmp2.set(1e-2f * (x), terra.get(x, z+1, 0), 1e-2f * (z+1));	
 					tmp3.set(1e-2f * (x-1), terra.get(x-1, z+1, 0), 1e-2f * (z+1));	
-					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), bottomLeft);
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp2, tmp3, null), bottomLeft);
 					bottomLeft.normalise();
 
 					tmp2.set(1e-2f * (x+1), terra.get(x+1, z, 0), 1e-2f * (z));	
 					tmp3.set(1e-2f * (x+1), terra.get(x+1, z+1, 0), 1e-2f * (z+1));	
-					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), bottomRight);
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp2, tmp3, null), bottomRight);
 					bottomRight.normalise();
+					
+					Vector3f.add(topLeft, topRight, tmp1);
+					Vector3f.add(tmp1, bottomLeft, tmp1);
+					Vector3f.add(tmp1, bottomRight, tmp1);
+					tmp1.normalise();
 
-					terra.set(x, z, 1, (topLeft.x+topRight.x+bottomLeft.x+bottomRight.x)/4f);
-					terra.set(x, z, 2, (topLeft.y+topRight.y+bottomLeft.y+bottomRight.y)/4f);
-					terra.set(x, z, 3, (topLeft.z+topRight.z+bottomLeft.z+bottomRight.z)/4f);
+
+					terra.set(x, z, 1, tmp1.x);
+					terra.set(x, z, 2, tmp1.y);
+					terra.set(x, z, 3, tmp1.z);
+					
 //				}else{
 //					// do edges and corners... or not!
 //				}
@@ -187,6 +194,11 @@ public class TerrainFactory {
 		System.out.println();
 	}
 
+	public static void checkTangents(Terrain terra){
+		
+		System.out.println("Calculating tangents");
+		
+	}
 	/**
 	 * smoothing of terra
 	 */
