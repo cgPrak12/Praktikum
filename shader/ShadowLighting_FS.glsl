@@ -7,9 +7,6 @@
  * @author kseidel
  */
 
-const vec4 upColor = vec4(1.0, 1.0, 0.95, 1.0);
-const vec4 downColor = vec4(0.0, 0.0, 0.0, 1.0);
-
 uniform sampler2D normalTex;
 uniform sampler2D worldTex;
 uniform sampler2D diffuseTex;
@@ -32,6 +29,8 @@ const float k_a = 0.2;
 const float k_spec = 0.2; 
 const float k_dif = 0.7; 
 const float es = 5.0;
+const float sunBurn = 0.3;
+const vec4 sunSetColor =  vec4(0.4,0.1,0,0);
 
 /**
  * Calculate lightning with Blinn-Phong.
@@ -66,6 +65,10 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s, vec3 c_a, float sun
 
 void main(void)
 {
+
+// enlightenedColor = vec4(1);
+// return;
+
 	vec3 normal = texture(normalTex, texCoord).xyz;	
 		
 	vec4 positionWC = texture(worldTex, texCoord);
@@ -79,11 +82,11 @@ void main(void)
 	float cosa  =  length(dot(normalize(sunDir), vec3(0, 1, 0)));
 	
 	//no light for bottom
-	if (sunDir.y < 0)
-	{
-		enlightenedColor = vec4(ambi*k_a, 1.0);
-		return;
-	}
+	// if (sunDir.y < 0)
+	// {
+		// enlightenedColor = vec4(ambi*k_a*(cosa), 1.0);
+		// return;
+	// }
 	
 	// *** shadow ***
 	vec4 shadowCoord = lProj * lView * vec4(positionWC.xyz, 1);
@@ -96,7 +99,7 @@ void main(void)
 	{
 		for (int j = -2; j < 3; j++)
 		{
-			sum += texture(shadowTex, 0.5 + 0.5*shadowCoord.xy + ivec2(i,j)).w;
+			sum += textureOffset(shadowTex, 0.5 + 0.5*shadowCoord.xy, ivec2(i,j)).w;
 			count++;
 		}
 	}
@@ -119,8 +122,11 @@ void main(void)
 	color = mix(vec4(diff* k_a,1), color , cosa);
 	
    	enlightenedColor =  skyDraw *color;
-	enlightenedColor +=  vec4(( (1-skyDraw) * diff) ,0.0 ) ;
-	
+	enlightenedColor +=  (1-skyDraw)* vec4((diff), 0.0)* step(0,sunDir.y)  + (1-skyDraw)* (1-step(0,sunDir.y)) *mix(vec4(ambi*k_a,1), vec4((diff), 0.0),  (1-cosa));
+	enlightenedColor += sunBurn*(1-cosa) * sunSetColor;
+	enlightenedColor = enlightenedColor * step(0,sunDir.y) + (1-step(0,sunDir.y)) *mix(vec4(ambi*k_a,1), enlightenedColor,  (1-cosa));//* vec4(ambi*k_a*(1-cosa), 1.0);
+
+
 }
 
 

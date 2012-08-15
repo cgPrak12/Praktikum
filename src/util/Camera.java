@@ -9,12 +9,12 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public final class Camera {
     private float phi = 0, theta = 0;
-    private final Vector3f viewDir = new Vector3f(0,-0.1f,1);
+    private final Vector3f viewDir = new Vector3f(0,0f,1);
     private final Vector3f upDir = new Vector3f(0,1,0);
     private final Vector3f sideDir = new Vector3f(1,0,0);
     private final float viewDistance = 1e+2f;
     private final float far = viewDistance;
-    private final Vector3f camPos = new Vector3f(0,0,-1);
+    private final Vector3f camPos = new Vector3f(0,3,-2);
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
     private boolean perspective = true;
@@ -54,7 +54,8 @@ public final class Camera {
      */
     public void move(float fb, float lr, float ud) {
         camPos.x += fb * viewDir.x + lr * sideDir.x;
-        camPos.y += fb * viewDir.y + lr * sideDir.y + ud;
+//        if ((ud > 0 || camPos.y >= 1) && (ud < 0 || camPos.y <= 15))
+        	camPos.y += fb * viewDir.y + lr * sideDir.y + ud;
         camPos.z += fb * viewDir.z + lr * sideDir.z;
     }
     

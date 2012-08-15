@@ -18,7 +18,7 @@ void main(void)
 {
 	vec4 sample[25];
 	for(int i = 0; i < 25; ++i) {
-		sample[i] = texture(colorTex, texCoord.st + ivec2(tc_offset[i]));
+		sample[i] = textureOffset(colorTex, texCoord.st, ivec2(tc_offset[i]));
 	}
 	bluredColor = (
 		( 1.0 * ( sample[0] +  sample[4] + sample[20] + sample[24])) +
@@ -28,4 +28,5 @@ void main(void)
 		(26.0 * ( sample[7] + sample[11] + sample[13] + sample[17])) +
 		(41.0 *  sample[12])
 		) / 273.0;
+		
 }

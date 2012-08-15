@@ -14,7 +14,6 @@ const float density           = 0.8;
 const float weight            = 0.05;
 const float Decay             = 1;
 const float Exposure          = 0.6;
-const vec4  backgroundColor	  = vec4(0,0,0,1);
 
 void main() 
 {  

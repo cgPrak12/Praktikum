@@ -54,12 +54,12 @@ public class GeometryFactory {
      * @return Geometrie der Kugel
      */
     public static Geometry createSkyDome(float r, int n, int k) {
-        FloatBuffer fb = BufferUtils.createFloatBuffer((3+3+3+2) * (n+1)*(k+1));
+        FloatBuffer fb = BufferUtils.createFloatBuffer((3+3+3+2) * (n+1)*((k/2)+2));
         
         float dTheta = Util.PI / (float)k;
         float dPhi = Util.PI_MUL2 / (float)n;
         float theta = 0;
-        for(int j=0; j <= k; ++j) {
+        for(int j=0; j <= (k/2)+1; ++j) {
             float sinTheta = (float)Math.sin(theta);
             float cosTheta = (float)Math.cos(theta);
             float phi = 0;
@@ -93,7 +93,7 @@ public class GeometryFactory {
         fb.position(0);
         
         IntBuffer ib = BufferUtils.createIntBuffer(k*(2*(n+1)+1));
-        for(int j=0; j < k; ++j) {
+        for(int j=0; j < (k/2)+1; ++j) {
             for(int i=0; i <= n; ++i) {
                 
                 ib.put(j*(n+1) + i);

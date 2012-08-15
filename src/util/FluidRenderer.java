@@ -23,7 +23,7 @@ public class FluidRenderer {
 	private Geometry testWaterParticles = GeometryFactory.createTestParticles(4096);
 	private Texture backgroundTex;
 
-	private int 	 textureUnit = 0;
+	private int 	 textureUnit = 101;
 	private Camera   cam;
 	private Vector3f lightPos;
 	private Matrix4f viewProj;
@@ -201,7 +201,7 @@ public class FluidRenderer {
 //		finalImage();
 		glViewport(0, 0, WIDTH, HEIGHT);
 		
-//		drawTextureSP.use();
+		drawTextureSP.use();
 		
 //		drawTextureSP.setUniform("image", depthTex);
 //		drawTextureSP.setUniform("image", depth2Tex);
@@ -228,9 +228,9 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", lightingTex);
 //		drawTextureSP.setUniform("image", finalImageTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
-//		drawTextureSP.setUniform("image", backgroundTex);
+		drawTextureSP.setUniform("image", backgroundTex);
 		
-//		screenQuad.draw();
+		screenQuad.draw();
 		
 		return lightingTex;
 	}

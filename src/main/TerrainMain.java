@@ -30,7 +30,6 @@ public class TerrainMain {
 	// uniform locations
     private static int modelLoc;
     
-    
 	// textures
     private static Texture normalQuaderTexture;
     private static Texture quaderTexture;
@@ -86,7 +85,6 @@ public class TerrainMain {
     private static Vector4f brightnessFactor  = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     
     private static Vector3f sunDirection = new Vector3f(47.0f, 20f, 0f);
-    private static Vector3f sunDirectionOld = new Vector3f();
     private static Vector3f sunDirectionStart = new Vector3f(0f, 0f, 0f);
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
@@ -102,6 +100,7 @@ public class TerrainMain {
     private static Matrix4f sunTilt = new Matrix4f();
     private static Matrix4f sunTranslation = new Matrix4f();
     private static Matrix4f sunRotation = new Matrix4f();
+    private static Matrix4f skyMoveMatrix = new Matrix4f();
     
     // WATER
     private static FluidRenderer fluidRenderer;
@@ -110,7 +109,7 @@ public class TerrainMain {
         try {
             init();
             OpenCL.init();
-            glDisable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
@@ -123,7 +122,7 @@ public class TerrainMain {
             //texturen
             normalQuaderTexture   = Texture.generateTexture("./res/stone_wall_normal_map.jpg",0 );
             quaderTexture         = Texture.generateTexture("./res/stone_wall.jpg",1 );
-            specularQuaderTexture = Texture.generateTexture("./res/stone_wall_specular.jpg",3 );
+            specularQuaderTexture = Texture.generateTexture("./res/stone_wall_specular.jpg",99 );
             bumpQuaderTexture     = Texture.generateTexture("./res/stone_wall_bump.jpg",4 );
            
             skydomeTexture         = Texture.generateTexture("./res/sky_2.jpg",5 );
@@ -165,6 +164,7 @@ public class TerrainMain {
 //        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
         drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
         
+        
         // create Fluid Rendererer
         fluidRenderer = new FluidRenderer(cam);
         
@@ -177,7 +177,6 @@ public class TerrainMain {
         particles = new Particle(4096, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         glDisable(GL_DEPTH_TEST);
-        //
 
         shadowSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
         fboSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
@@ -191,7 +190,7 @@ public class TerrainMain {
         Util.mul(floorQuadMatrix, Util.translationY(0, null), Util.scale(50, null), Util.rotationX(-Util.PI_DIV2, null)); 
 
         ShadowShader shadowShader = new ShadowShader();
-        shadowShader.init(14);
+        shadowShader.init(100);
         shadowShader.registerShaderProgram(shadowSP);
         
         DeferredShader shader = new DeferredShader();
@@ -241,7 +240,6 @@ public class TerrainMain {
         fboSP.setUniform("normalTexture", normalQuaderTexture);
         fboSP.setUniform("specularTexture", specularQuaderTexture);
         fboSP.setUniform("textureImage", quaderTexture);
-//        fboSP.setUniform("camFar", cam.getFar());    	
     	
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -251,7 +249,7 @@ public class TerrainMain {
             frameTimeDelta += millis;
             ++frames;
             shadowCam.setCamDir(sunDirection.negate(null));
-            shadowCam.setCamPos(sunDirection);           
+            shadowCam.setCamPos(sunDirection);
             
             if(frameTimeDelta > 1000) {
                 System.out.println(1e3f * (float)frames / (float)frameTimeDelta + " FPS");
@@ -261,6 +259,7 @@ public class TerrainMain {
             // input and animation
             handleInput(millis);
             animate(millis);
+            
             
             
             if(rotatelight) {
@@ -302,23 +301,27 @@ public class TerrainMain {
             
             
             //sky dome 
-			fboSP.setUniform("model", skyDomeMatrix);
+            fboSP.setUniform("model", skyMoveMatrix);
+//			fboSP.setUniform("model", skyDomeMatrix);
             fboSP.setUniform("normalTexture",blackTexture );
             fboSP.setUniform("specularTexture", blackTexture);
             
             glEnable(GL_BLEND);
             fboSP.setUniform("textureImage", skydomeTexture);
             skyDome.draw();
+          
+             
+            //sun cube
+            fboSP.setUniform("model", sunMatrix);
+            fboSP.setUniform("textureImage", sunTexture);
+            sunCube.draw();
             
             //clouds
             fboSP.setUniform("textureImage", skyCloudTexture);
             matrix2uniform(cloudModelMatrix, modelLoc);
             skyCloud.draw();
             
-			//sun cube
-            fboSP.setUniform("model", sunMatrix);
-            fboSP.setUniform("textureImage", sunTexture);
-            sunCube.draw();
+			
             glDisable(GL_BLEND);
             
             //floor quad
@@ -326,7 +329,6 @@ public class TerrainMain {
             fboSP.setUniform("model", floorQuadMatrix);
             fboSP.setUniform("textureImage", quaderTexture);
             floorQuad.draw();
-//            terrain.draw();
             
         	shader.finish();
         	
@@ -350,12 +352,6 @@ public class TerrainMain {
             testCube2.draw();
             
 			glCullFace(GL_BACK);
-            
-        	shadowSP.setUniform("model",    floorQuadMatrix);
-        	shadowSP.setUniform("viewProj", shadowMatrix);
-        	
-        	floorQuad.draw();
-//        	terrain.draw();
         	
         	shadowShader.finish();
         	
@@ -400,12 +396,10 @@ public class TerrainMain {
 	        	}
         	} 
         	
-        	shader.DrawTexture(fbo.getTexture(0));
+        	       	
+        	//shader.DrawTexture(fbo.getTexture(0));
+//        	shader.DrawTexture(screenMan.getAmbientOcclusion(noiseTexture, shader.getNormalTexture(),shader.getDiffuseTexture()).getTexture(0));
 
-        	sunDirectionOld.set(sunDirection);
-        	
-        	
-        	
         	
         	///////////////////////////////////////////////////////////////////////////////////////
         	//
@@ -516,7 +510,7 @@ public class TerrainMain {
      * @param millis Millisekunden seit dem letzten Aufruf
      */
     public static void handleInput(long millis) {
-        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 0.1f : 1.0f)*(float)millis;
+        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 10.0f : 1.0f)*(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 0.1f : 1.0f)*(float)millis;
         float camSpeed = 5e-3f;
         
         while(Keyboard.next()) {
@@ -651,16 +645,31 @@ public class TerrainMain {
      */
     private static void animate(long millis) {
     	if(rotatelight) {
+    		// move skydome width eyePos
+            Util.translationX(cam.getCamPos().x, skyMoveMatrix);
+            Util.mul(skyMoveMatrix, skyMoveMatrix, Util.translationZ(cam.getCamPos().z, null));
+            Util.rotationY((0.005f)*Util.PI_MUL2 * ingameTime,cloudModelMatrix);
+            Util.mul(cloudModelMatrix,skyMoveMatrix, cloudModelMatrix );
+            
+//            Util.mul(sunMatrix,skyMoveMatrix, sunMatrix);
+//            Util.transformCoord(sunMatrix, sunDirection, sunDirection);
+            
     		//sonne drehen
        	 	ingameTime += ingameTimePerSecond * 1e-3f * (float)millis;
        	 	Util.rotationY((0.05f)*Util.PI_MUL2 * ingameTime, sunRotation);
-            Util.mul(sunMatrix,sunTilt, sunRotation, sunTranslation, Util.scale(5.0f, null));
+            Util.mul(sunMatrix, sunTilt, sunRotation, sunTranslation,skyMoveMatrix, Util.scale(5.0f, null));
+            
             //licht drehen
-            Util.transformCoord(Util.mul(null,sunTilt, sunRotation, sunTranslation), sunDirectionStart, sunDirection);
+            Util.transformCoord(Util.mul(null,sunTilt, sunRotation,  sunTranslation, skyMoveMatrix), new Vector3f(cam.getCamPos().x, 0.0f, cam.getCamPos().z), sunDirection);
+            
+            //drehen der Wolken
+            
+            
+            
+            
         }
     	
-    	 //drehen der Wolken
-         Util.rotationY((0.005f)*Util.PI_MUL2 * ingameTime,cloudModelMatrix);
+    	 
 
     }  
 
