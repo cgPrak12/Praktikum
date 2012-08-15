@@ -17,12 +17,12 @@ public class GL {
     /**
      * Breite des OpenGL Fensters
      */
-    public static final int WIDTH = 1000;
+    public static final int WIDTH = 400;
     
     /**
      * Hoehe des OpenGL Fensters
      */
-    public static final int HEIGHT = 1000;
+    public static final int HEIGHT = 400;
     
     /**
      * Primitive Restart Index
@@ -128,6 +128,11 @@ public class GL {
      * GL11.GL_CW
      */
     public static final int GL_CW = GL11.GL_CW;
+    
+    /**
+     * GL30.GL_DEPTH24_STENCIL8
+     */
+    public static final int GL_DEPTH24_STENCIL8 = GL30.GL_DEPTH24_STENCIL8;
     
     /**
      * GL30.GL_DEPTH_ATTACHMENT

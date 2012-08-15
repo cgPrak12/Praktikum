@@ -39,13 +39,20 @@ void main(void) {
 //		color = texture(plane,texCoords).xyz;
 //	}else{
 	
-	float depth = texture2D(depthTex, texCoords).w + texture2D(depthTexLQ, texCoords).w * 0.5;
-	vec4 depthInt = texture2D(depthTex, texCoords);//depth*texture2D(depthTex, texCoords)+ (1-depth)*texture2D(depthTexLQ, texCoords);
-	vec4 normalInt = texture2D(normalTex, texCoords);//depth*texture2D(normalTex, texCoords)+ (1-depth)*texture2D(normalTexLQ, texCoords);
-	vec4 thicknessInt = texture2D(thicknessTex, texCoords);//depth*texture2D(thicknessTex, texCoords)+ (1-depth)*texture2D(thicknessTexLQ, texCoords);
+	float depth = texture2D(depthTex, texCoords).w;// + texture2D(depthTexLQ, texCoords).w * 0.5;
+	vec4 depthInt = texture2D(depthTex, texCoords);
+	vec4 normalInt = texture2D(normalTex, texCoords);
+	vec4 thicknessInt = texture2D(thicknessTex, texCoords);
 
+//	vec4 depthInt = depth*texture2D(depthTex, texCoords)+ (1-depth)*texture2D(depthTexLQ, texCoords);
+//	vec4 normalInt = depth*texture2D(normalTex, texCoords)+ (1-depth)*texture2D(normalTexLQ, texCoords);
+//	vec4 thicknessInt = depth*texture2D(thicknessTex, texCoords)+ (1-depth)*texture2D(thicknessTexLQ, texCoords);
+
+//	color = vec3(texture(normalTex,texCoords));
+//	color = vec3(texture(depthTex,texCoords).w*10);
+//	color = normalInt.xyz;
 	float black = 1;
-//	if(texture(thicknessTexNB, texCoords).z == 0) black = 0;
+	if(texture(thicknessTexNB, texCoords).z == 0) black = 0;
 	
 	vec3 position = depthInt.xyz;
 	vec3 normal = normalize(normalInt.xyz);
@@ -73,16 +80,17 @@ void main(void) {
 	vec3 light2pos = normalize(position - lightPos);
 	vec3 reflected = normalize(reflect(light2pos, normal));
 	
-	vec3 phong = c_a * k_a
-			   + c_d * k_dif * max(0.7, dot(-light2pos, normal))
-			   + c_s * k_spec * max(0, pow(dot(reflected, pos2eye), es));
+	vec3 phongDiff = c_a * k_a
+				   + c_d * k_dif * max(0.7, dot(-light2pos, normal));
+	vec3 phongSpec = c_s * k_spec * max(0, pow(dot(reflected, pos2eye), es));
+	vec3 phong = phongDiff + phongSpec;
 
 // ***************************			  
 // CubeMap
 
 	vec3 position2 = texture(depth2Tex, texCoords).xyz;
 	vec3 normal2 = texture(normal2Tex, texCoords).xyz;
-	vec3 reflectPos = normalize(reflect(position, normal));
+	vec3 reflectPos = normalize(reflect(position2, normal2));
 	vec3 reflectedW = normalize((iView * vec4(reflectPos, 0.0)).xyz);
 	vec3 cubeColor = texture(cubeMap, reflectedW).xyz;
 	
@@ -102,7 +110,7 @@ void main(void) {
 
 //	color = phong;
 //	color = normal;
-	vec3 waterColor =  0.5*(1.0 - max(0, dot(pos2eye, normal)))  +  phong;
+//	vec3 waterColor =  0.5*(1.0 - max(0, dot(pos2eye, normal)))  +  phong;
 //	color = waterColor;
 //	color = fresnel * cubeColor;
 	mat4 iv = inverse(view);
@@ -114,12 +122,15 @@ void main(void) {
 	vec3 planeColor = texture(plane, texCoords).xyz;
 //	color = vec3(texture(plane, texCoords).w) + vec3(depth);
 //	color = vec3(thickness);
+//	color = cubeColor;//clamp(thickness*10,0.0,1.0) * cubeColor +phongDiff;
 
-	color = 0 * black * 0.2*(1.0 - max(0, dot(pos2eye, normal))) + (1-thickness) * planeColor + pow(thickness,0.25) * black * phong + 
-	
-	clamp(thickness*1000,0.0,1.0)*0.5 * cubeColor;//mix(phong, cubeColor, cubeColor);
-	
-	//thickness * 0.5 * black * vec3(pow(cubeColor.x,2), pow(cubeColor.y,2), pow(cubeColor.z,2)); 
+// 0 * black * 0.2*(1.0 - max(0, dot(pos2eye, normal))) + 
 
+//	color = (1-thickness) * planeColor + pow(thickness,0.25) * black * phongDiff + phongSpec +	
+//	clamp(thickness*1000,0.0,1.0)*0.5 * cubeColor;//mix(phong, cubeColor, cubeColor);
+//	thickness * 0.5 * black * vec3(pow(cubeColor.x,2), pow(cubeColor.y,2), pow(cubeColor.z,2)); 
+
+	color = black*0.5*phongSpec+(1-thickness) * planeColor + thickness * phong + black*0.5 /*pow(thickness,0.02)*/ * mix(phongDiff,cubeColor,cubeColor);//pow(thickness,0.2));// * cubeColor;
+//	color = phongSpec;
 //	}
 }
