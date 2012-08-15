@@ -463,15 +463,13 @@ public class TerrainFactory {
 	 * @param x
 	 * @param z
 	 */
-	public static void putLake(Terrain terra, float scale, float depth, int x, int z){
+	public static void putLake(Terrain terra, float scale, float depth, int x, int z, boolean putShore){
 
 		System.out.println("Putting lake at "+x+" / "+z);
-		
+
 		// relict
 		float rotation = 0;
 
-		int maxX = terra.getSize();
-		int maxZ = maxX;
 		int riverX = gauss17.length-1;
 		int riverZ = gauss17[0].length-1;
 		int pX, pZ;
@@ -498,7 +496,7 @@ public class TerrainFactory {
 
 				// set material to "river" if depth at that point is close to lvl
 
-				if (i>0 && i<maxX && j>0 && j<maxZ) {
+				if (i>0 && i<terra.getSize() && j>0 && j<terra.getSize()) {
 					vec.x = i;
 					vec.y = j;
 					Matrix3f.transform(transformation, vec, vec);
@@ -531,16 +529,17 @@ public class TerrainFactory {
 							terra.set(i, j, 4, 2);
 						}	
 					}
-						//set materials for earth around lake
-					if (((riverVal + ((random.nextFloat()))/scale) > 0.1f ) 
-						  && terra.get(i, j, 4) !=2) {
-						terra.set(i, j, 4, 4);								
-							
-						
-					}
+						if (putShore) {
+							//set materials for earth around lake
+							if (((riverVal + ((random.nextFloat())) / scale) > 0.1f)
+									&& terra.get(i, j, 4) != 2) {
+								terra.set(i, j, 4, 4);
+
+							}
+						}
 				}
 			}
-		}	
+		}		
 		System.out.println("Done");
 		System.out.println();
 	}
@@ -575,9 +574,10 @@ public class TerrainFactory {
 		}
 
 		// Store them and call them later, so that calls don't affect later calls
-		float[][] callValues = new float[callIdx][4];
+		float[][] callValues = new float[callIdx][5];
 		callIdx = 0;
 		float fluct;	// is the amount of stone/rock/.. in the area around the current lake, if it is high, the lake is made smaller
+		boolean putShore = true;
 		for(float var = 0; var<1.0001; var+=(negFreq/dist)){
 			iPolIndex = 0;
 			for(int linePos = 0; linePos< interPols.length; linePos++){
@@ -615,6 +615,10 @@ public class TerrainFactory {
 					if(terra.get(idxX+idxI, idxZ+idxJ, 4) > 6.5f){
 						fluct -= 0.5f;
 					}
+					if(terra.get(idxX+idxI, idxZ+idxJ, 4) < 1.5f){
+						fluct -= 0.5f;
+						putShore = false;
+					}
 							
 				}
 			}
@@ -628,12 +632,13 @@ public class TerrainFactory {
 			callValues[callIdx][1] = lvl-depth;
 			callValues[callIdx][2] = idxX;
 			callValues[callIdx][3] = idxZ;
+			callValues[callIdx][4] = putShore ? 1.5f : 0.5f;
 			callIdx++;
 		}
 		
 		// Call them all
 		for(int i = 0; i<callValues.length; i++){
-			putLake(terra, callValues[i][0], callValues[i][1], Math.round(callValues[i][2]), Math.round(callValues[i][3]));
+			putLake(terra, callValues[i][0], callValues[i][1], Math.round(callValues[i][2]), Math.round(callValues[i][3]), callValues[i][4]>1);
 		}
 		
 		System.out.println("Done");
