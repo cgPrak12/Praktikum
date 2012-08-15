@@ -6,12 +6,13 @@ package util;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.io.Serializable;
 
 /**
  * Class which represents an geometric ModelPart
  * @author Floh1111
  */
-public class ModelPart {
+public class ModelPart implements Serializable {
     public String modelPartName; //name of model part
     public int smothingGroup; //0 for off
     public Geometry geometry;

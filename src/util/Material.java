@@ -4,13 +4,14 @@
  */
 package util;
 import org.lwjgl.util.vector.Vector3f;
+import java.io.Serializable;
 
 /**
  * Class which represents an Material specified in an MTL file. Watch this
  * website for specification: http://paulbourke.net/dataformats/mtl/
  * @author Floh1111
  */
-public class Material {
+public class Material implements Serializable {
     private static int textureUnitCounter = 0;
     
     public String materialLibraryName;

@@ -2,12 +2,13 @@ package util;
 
 import static opengl.GL.*;
 import org.lwjgl.opengl.GL11;
+import java.io.Serializable;
 
 /**
  *
  * @author nico3000
  */
-public class Texture {
+public class Texture implements Serializable {
     private int id;
     private int unit;
     private int target;

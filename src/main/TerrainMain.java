@@ -20,6 +20,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import util.*;
 import java.util.*;
+import java.io.*;
 
 /**
  *
@@ -75,7 +76,7 @@ public class TerrainMain {
     
     public static void main(String[] argv) {
         //Generate terrain
-        terra = new util.Terrain(0f, 1024, 1024, 4);
+        terra = new util.Terrain(0f, 512, 512, 4);
         terra.genTerrain(10);
         terrainGeometry = GeometryFactory.genTerrain(terra.getTerra());
         
@@ -103,25 +104,25 @@ public class TerrainMain {
         //load models
         //Current time in millis
     	long timeInMillis = System.currentTimeMillis();
-        List modelTallCactus = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\tall-cactus.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\tall-cactus.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelPalmTree = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-palm-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelBirchTree = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\pseudo-birch2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\pseudo-birch2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelElmTree = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-leaf-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\low-poly-leaf-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelPineTree = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\pine-tree.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\pine-tree.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelDeadShrub = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\dead-shrub.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\dead-shrub.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelFern = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\fern.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\fern.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelFlower1 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower1.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower1.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelFlower2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelFlower3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower3.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower3.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelFlower4 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower4.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower4.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelFlower5 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower5.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\flower5.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelRock1 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock1.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock1.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelRock2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelRock3 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock3.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock3.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelRock4 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock4.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\rock4.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelShroom = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shroom.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shroom.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelShroom2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shroom2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shroom2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");
-        List modelShrub2 = GeometryFactory.importFromBlender("C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shrub2.obj", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\shrub2.mtl", "C:\\Users\\Floh1111\\.ssh\\Praktikum\\blender\\textures\\");        
+        List modelTallCactus = GeometryFactory.importFromBlender("blender\\tall-cactus.obj", "blender\\tall-cactus.mtl", "blender\\textures\\");
+        List modelPalmTree = GeometryFactory.importFromBlender("blender\\low-poly-palm-tree.obj", "blender\\low-poly-palm-tree.mtl", "blender\\textures\\");
+        List modelBirchTree = GeometryFactory.importFromBlender("blender\\pseudo-birch2.obj", "blender\\pseudo-birch2.mtl", "blender\\textures\\");
+        List modelElmTree = GeometryFactory.importFromBlender("blender\\low-poly-leaf-tree.obj", "blender\\low-poly-leaf-tree.mtl", "blender\\textures\\");
+        List modelPineTree = GeometryFactory.importFromBlender("blender\\pine-tree.obj", "blender\\pine-tree.mtl", "blender\\textures\\");
+        List modelDeadShrub = GeometryFactory.importFromBlender("blender\\dead-shrub.obj", "blender\\dead-shrub.mtl", "blender\\textures\\");
+        List modelFern = GeometryFactory.importFromBlender("blender\\fern.obj", "blender\\fern.mtl", "blender\\textures\\");
+        List modelFlower1 = GeometryFactory.importFromBlender("blender\\flower1.obj", "blender\\flower1.mtl", "blender\\textures\\");
+        List modelFlower2 = GeometryFactory.importFromBlender("blender\\flower2.obj", "blender\\flower2.mtl", "blender\\textures\\");
+        List modelFlower3 = GeometryFactory.importFromBlender("blender\\flower3.obj", "blender\\flower3.mtl", "blender\\textures\\");
+        List modelFlower4 = GeometryFactory.importFromBlender("blender\\flower4.obj", "blender\\flower4.mtl", "blender\\textures\\");
+        List modelFlower5 = GeometryFactory.importFromBlender("blender\\flower5.obj", "blender\\flower5.mtl", "blender\\textures\\");
+        List modelRock1 = GeometryFactory.importFromBlender("blender\\rock1.obj", "blender\\rock1.mtl", "blender\\textures\\");
+        List modelRock2 = GeometryFactory.importFromBlender("blender\\rock2.obj", "blender\\rock2.mtl", "blender\\textures\\");
+        List modelRock3 = GeometryFactory.importFromBlender("blender\\rock3.obj", "blender\\rock3.mtl", "blender\\textures\\");
+        List modelRock4 = GeometryFactory.importFromBlender("blender\\rock4.obj", "blender\\rock4.mtl", "blender\\textures\\");
+        List modelShroom = GeometryFactory.importFromBlender("blender\\shroom.obj", "blender\\shroom.mtl", "blender\\textures\\");
+        List modelShroom2 = GeometryFactory.importFromBlender("blender\\shroom2.obj", "blender\\shroom2.mtl", "blender\\textures\\");
+        List modelShrub2 = GeometryFactory.importFromBlender("blender\\shrub2.obj", "blender\\shrub2.mtl", "blender\\textures\\");        
         System.out.println("Importing took "+(System.currentTimeMillis()-timeInMillis)+" milliseconds.");
 
 /*
@@ -244,6 +245,18 @@ public class TerrainMain {
                     modelMap[x][z].setModelList(null);
                 }
             }
+            
+            try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                try(ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+                    oos.writeObject(modelMap);
+                    try(FileOutputStream fos = new FileOutputStream("modelMap.ser")) {
+                        baos.writeTo(fos);
+                    }
+                }                
+            } catch (IOException e) {
+                System.out.println(e);                
+            }
+
         }
     }
     

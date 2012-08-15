@@ -5,6 +5,9 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.AbstractQueue;
+import java.io.Serializable;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
@@ -14,8 +17,11 @@ import org.lwjgl.opengl.GL33;
  * Kapselt ein Vertexarray Object.
  * @author Sascha Kolodzey, Nico Marniok
  */
-public class Geometry {
+public class Geometry implements Serializable {
     private int vaid = -1;                  // vertex array id
+    private Queue<Float>  vertexValueQueue = new LinkedList<Float>();
+    private Queue<Float>  instanceDataQueue = new LinkedList<Float>();
+    private Queue<Integer>  indexValueQueue = new LinkedList<Integer>();
     private FloatBuffer vertexValueBuffer;  // vertex buffer values
     private FloatBuffer instanceData;
     private IntBuffer indexValueBuffer;     // index buffer values
@@ -29,6 +35,17 @@ public class Geometry {
     private int instanceAttributeSize;
     private final List<VertexAttribute> attributes = new LinkedList<>();
 
+    public void createBuffers() {
+        while(!vertexValueQueue.isEmpty())
+            vertexValueBuffer.put(vertexValueQueue.poll());
+
+        while(!instanceDataQueue.isEmpty())
+            instanceData.put(instanceDataQueue.poll());
+
+        while(!indexValueQueue.isEmpty())
+            indexValueBuffer.put(indexValueQueue.poll());
+    }
+    
     /**
      * Setzt den IntBuffer, der die Indexdaten dieser Geometrie beinhaltet und
      * die zugehoerige Topologie.
@@ -37,6 +54,10 @@ public class Geometry {
      * @param topology Zugehoerige Topologie
      */
     public void setIndices(IntBuffer indices, int topology) {
+        while(indices.hasRemaining())
+            this.indexValueQueue.add(indices.get());
+        indices.position(0);
+        
         indexValueBuffer = indices;
         indexCount = indices.capacity();
         this.topology = topology;
@@ -48,6 +69,10 @@ public class Geometry {
      * @param vertices 
      */
     public void setVertices(FloatBuffer vertices) {
+        while(vertices.hasRemaining())
+            this.vertexValueQueue.add(vertices.get());
+        vertices.position(0);
+        
         vertexValueBuffer = vertices;
     }
     
@@ -79,6 +104,10 @@ public class Geometry {
      * @param stride in BYTE
      */
     public void setInstanceBuffer(FloatBuffer instanceData, int size) {
+        while(instanceData.hasRemaining())
+            this.instanceDataQueue.add(instanceData.get());
+        instanceData.position(0);
+
         this.instanceData = instanceData;
         this.instanceStride = 4 * size;
         this.instanceAttributeSize = size;
@@ -164,7 +193,7 @@ public class Geometry {
         }
     }
     
-    private class VertexAttribute {
+    private class VertexAttribute implements Serializable {
         /**
          * Attribut index / location
          */
