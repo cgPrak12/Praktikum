@@ -59,8 +59,8 @@ public class GeometryFactory
 		{
 			for (int x = 0; x < m; x++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] =1e-2f *  x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 			}
 		}
 
@@ -235,8 +235,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] = x;
 			}
 		}
 
@@ -244,8 +244,8 @@ public class GeometryFactory
 		{
 			for (int y = 2; y < length; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] =1e-2f *  x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 			}
 		}
 
@@ -314,8 +314,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] =1e-2f *  y;
-				vertices[count++] =1e-2f *  x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 			}
 		}
 
@@ -323,8 +323,8 @@ public class GeometryFactory
 		{
 			for (int y = 2; y < length; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 
 			}
 		}
@@ -389,8 +389,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 
 			}
 		}
@@ -467,8 +467,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 				
 			}
 		}
@@ -477,8 +477,8 @@ public class GeometryFactory
 		{
 			for (int y = -1; y > -length + 1; y--)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 
 			}
 		}
@@ -548,8 +548,8 @@ public class GeometryFactory
 		{
 			for (int i = 0; i < length; i++)
 			{
-				vertices[count++] = 1e-2f * i;
-				vertices[count++] = 1e-2f * y;
+				vertices[count++] =  i;
+				vertices[count++] =  y;
 			}
 		}
 
@@ -557,8 +557,8 @@ public class GeometryFactory
 		{
 			for (int i = 0; i < length; i++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * i;
+				vertices[count++] =  y;
+				vertices[count++] =  i;
 			}
 		}
 
@@ -618,9 +618,9 @@ public class GeometryFactory
         	// Gen Vbuffer
         	for(int z=0; z < maxZ; ++z) {
              for(int x=0; x < maxX; ++x) {
-             	vertices.put(1e-2f * (float)x);
+             	vertices.put( (float)x);
              	vertices.put(terra.get(x, z, 0));
-             	vertices.put(1e-2f * (float)z);
+             	vertices.put( (float)z);
              									
              	vertices.put(terra.get(x, z, 1));	// norm.x
              	vertices.put(terra.get(x, z, 2));	// norm.y

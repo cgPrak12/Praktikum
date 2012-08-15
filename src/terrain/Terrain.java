@@ -289,7 +289,7 @@ public class Terrain
 			for(int j = 0; j < 256; j++)
 			{
 				int blockX = idX * 256 + i;
-				int blockZ = idZ * 256 + j;System.out.println(this.get(blockX, blockZ, 0));
+				int blockZ = idZ * 256 + j;
 				result.setInfo(i, j, 0, this.get(blockX, blockZ, 0));
 				result.setInfo(i, j, 1, this.get(blockX, blockZ, 1));
 				result.setInfo(i, j, 2, this.get(blockX, blockZ, 2));
