@@ -87,7 +87,7 @@ public class TerrainMain {
         Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
         
         // simulation test terrain
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/07.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/09.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
