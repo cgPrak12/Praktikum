@@ -2,7 +2,7 @@ package terrain;
 
 public class Terrain
 {
-	private static final int MEM_BLOCKS_DIM = 8;
+	private static final int MEM_BLOCKS_DIM = 8; // n.M. 2er-Potenz
 	private static final int MEM_BLOCKS = MEM_BLOCKS_DIM * MEM_BLOCKS_DIM;
 	
 	private int size;
