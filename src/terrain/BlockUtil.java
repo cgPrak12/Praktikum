@@ -21,7 +21,6 @@ public class BlockUtil {
 
 	private static final int blockSize = 256; 	/* block length / width */
 	private static final int blockHeight = 5; 	/* vertexlayout length */
-	private static int blockCount = 0;			/* Anzahl geschriebener Block Objekte */
 				
 	/**
 	 * Liest einen gegebenen Block ein und schreibt diesen in eine blockfile (.bf) Datei
@@ -53,8 +52,6 @@ public class BlockUtil {
 					}		
 				}
 			}		
-			blockCount++;
-			writeDataInfo();
 			
 			return file;
 		}
@@ -168,7 +165,7 @@ public class BlockUtil {
 	 * 
 	 * @return
 	 */
-	public static File writeDataInfo()
+	public static File writeDataInfo(int size)
 	{			
 		File DataInfo = new File("DataInfo.dat");
 		
@@ -179,7 +176,7 @@ public class BlockUtil {
 				DataInfo.createNewFile();
 			}	
 			
-			output.writeInt(blockCount);
+			output.writeInt(size);
 			
 			return DataInfo;		
 		}

@@ -54,7 +54,7 @@ public class Terrain
 			currentIDs = new int[MEM_BLOCKS][2];
 			
 			init();
-			BlockUtil.writeDataInfo();
+			BlockUtil.writeDataInfo(this.size);
 		}
 	}
 	
