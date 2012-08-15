@@ -93,7 +93,7 @@ public class ShaderProgram {
      * @param fs Pfad zum Fragmentshader
      * @return ShaderProgram ID
      */
-    private void createShaderProgram(String vs, String fs) {
+    public void createShaderProgram(String vs, String fs) {
         this.id = glCreateProgram();
         
         this.vs = glCreateShader(GL_VERTEX_SHADER);

@@ -16,14 +16,19 @@ const float diff = 0.4;
 in float height;
 in vec3 normalWC;
 in float materialV;
+in vec3 tangent;
 
+in vec2 tex;
+
+uniform sampler2D elevation;
 out vec4 finalColor;
 
 void main(void)
 {	
 	vec3 fragmentColor = vec3(1,1,1);
+//	finalColor = vec4(tangent,1); return;
 	
-	
+//	finalColor = vec4(1,1,1,1);return;
 	/*
 	if(height<0-diff){
 	fragmentColor = seaColor;

@@ -15,7 +15,7 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class Terrain {
 
-	public TerrainGrid terra;
+	private TerrainGrid terra;
 	private float[][] noiseMap = new float [32][32];
 	private float[][] mountainMap1 = new float [32][32];
 	private float[][] mountainMap2 = new float [32][32];
@@ -888,7 +888,7 @@ public class Terrain {
 			for(int z=0; z<maxZ; z++){
 
 
-				Util.smooth(this.terra, x, z);
+				Util.smooth(this.terra.getBlock(), x, z);
 			}
 		}
 		System.out.println("Done");
