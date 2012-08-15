@@ -413,49 +413,64 @@ public class TerrainFactory {
 	 * @param z
 	 * @param range
 	 */
-	public static void putDesert(Terrain terra, float amp, int x, int z, int range){
+	private void putDesert(Terrain terra, float amp, int x, int z, int range){
 		
-		System.out.println("putting Desert");
+		System.out.println("Putting desert at"+x+" / "+z);
 
-		int desertX = desertMap2.length;
-		int desertZ = desertMap2[0].length;
+		float desertVal;
+		float desertRatio;
+		int ipolMapX = desertMap2.length;
+		int ipolMapZ = desertMap2[0].length;
 		int pX, pZ;
 		float a, b;
 		float dX, dZ;
 
 		flatten(terra, x, z, range, 0.25f, 1, 3);
-
+		//		this.setMaterialsFromHeight(x-range, x+range, z-range, z+range);
 		amp *= 0.8f;
 		for(int i=0; i < 2*range-1; i++){
 
-			a = (float) desertX / (float) (2f*range) * (float) i;
+			a = (float) ipolMapX / (float) (2f*range) * (float) i;
 			pX = (int) a;
 			dX = a - pX;
 
 			for(int j=0; j < 2*range-1; j++){
 
-				b = (float) desertZ / (float) (2f*range) * (float) j;
+				b = (float) ipolMapZ / (float) (2f*range) * (float) j;
 				pZ = (int) b;
 				dZ = b - pZ;
 
 				//interpolate height values
-//				biomeMap[x-range+i][z-range+j] = DESERT;
 
-				terra.add(x-range+i, z-range+j, 0, amp * 
-						(Util.iPol
+				desertVal = (amp * 
+							(Util.iPol
 								(Util.iPol(
-										desertMap2[pX % desertX][pZ % desertZ], 
-										desertMap2[pX % desertX][(pZ+1)%desertZ],
+										desertMap1[pX % ipolMapX][pZ % ipolMapZ], 
+										desertMap1[pX % ipolMapX][(pZ+1)%ipolMapZ],
 										dZ),
 										Util.iPol(
-												desertMap2[(pX+1)%desertX][pZ % desertZ], 
-												desertMap2[(pX+1)%desertX][(pZ+1)%desertZ],
+												desertMap1[(pX+1)%ipolMapX][pZ % ipolMapZ], 
+												desertMap1[(pX+1)%ipolMapX][(pZ+1)%ipolMapZ],
 												dZ),
 												dX)));
+				desertRatio = Util.iPol
+								(Util.iPol(
+										desertMap1[pX % ipolMapX][pZ % ipolMapZ], 
+										desertMap1[pX % ipolMapX][(pZ+1)%ipolMapZ],
+										dZ),
+										Util.iPol(
+												desertMap1[(pX+1)%ipolMapX][pZ % ipolMapZ], 
+												desertMap1[(pX+1)%ipolMapX][(pZ+1)%ipolMapZ],
+												dZ),
+												dX);
+				
+				terra.set(x-range+i, z-range+j, 0, Util.iPol(terra.get(x-range+i, z-range+j, 0), desertVal, desertRatio));
+				
 			}
+
 		}
+		makeNoise(terra, range, x, z, 2, 0.03f, 2);
 		System.out.println("Done");
-		System.out.println();
 	}
 	
 	/**
