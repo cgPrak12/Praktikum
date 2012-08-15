@@ -20,7 +20,7 @@ vec3 eyePos(vec2 offset, sampler2D tex) {
 }
 vec4 calculateNormal(sampler2D tex) {
 	vec3 eye = eyePos(vec2(0), tex);
-	
+		
 	vec3 ddx  = eyePos(vec2( offset, 0), tex) - eye;
 	vec3 ddx2 = eye - eyePos(vec2(-offset, 0), tex);
 	if(abs(ddx.z) > abs(ddx2.z)) ddx = ddx2;
@@ -35,9 +35,11 @@ vec4 calculateNormal(sampler2D tex) {
 }
 
 void main(void) {
-	if(texture(depthTex, texCoord).w <= 0) factor1 = 0.0;
-	if(texture(depth2Tex, texCoord).w <= 0) factor2 = 0.0;
-
+	//if(texture(depthTex, texCoord).w <= 0) factor1 = 0.0;
+	//if(texture(depth2Tex, texCoord).w <= 0) factor2 = 0.0;
+	
+	if(texture(depthTex, texCoord).w <= 0) discard;
+	
 	normal = calculateNormal(depthTex);
 	normal2 = calculateNormal(depth2Tex);
  }

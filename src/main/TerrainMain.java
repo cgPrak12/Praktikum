@@ -92,7 +92,7 @@ public class TerrainMain {
         Texture heightTex = terrain.getHeightTex();
         
         // particle creation
-        particles = new Particle(4096*4, Device_Type.GPU, Display.getDrawable());
+        particles = new Particle(4096*2, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         glDisable(GL11.GL_DEPTH_TEST);
         //
