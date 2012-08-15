@@ -12,7 +12,7 @@ import java.io.IOException;
 import util.Camera;
 
 /**
- * Methoden um Bloecke auf die Festplatte zu schreiben oder von ihr zu lesen
+ * Methoden zur Verwaltung von Block Objekten
  * 
  * @author daniel, lukas, mareike
  */
@@ -22,7 +22,6 @@ public class BlockUtil {
 	private static final int blockSize = 256; 	/* block length / width */
 	private static final int blockHeight = 5; 	/* vertexlayout length */
 	private static int blockCount = 0;			/* Anzahl geschriebener Block Objekte */
-	private static File DataInfo = null;		/* Datei die blockCount enthaelt */
 				
 	/**
 	 * Liest einen gegebenen Block ein und schreibt diesen in eine blockfile (.bf) Datei
@@ -55,6 +54,8 @@ public class BlockUtil {
 				}
 			}		
 			blockCount++;
+			writeDataInfo();
+			
 			return file;
 		}
 		catch (IOException e)
@@ -147,10 +148,9 @@ public class BlockUtil {
 	 */
 	public static boolean DataInfoExist()
 	{
-		DataInfo = new File("DataInfo.dat");
 		try
 		{
-			if(DataInfo.exists())
+			if(new File("DataInfo.dat").exists())
 			{
 				return true;
 			}
@@ -163,13 +163,13 @@ public class BlockUtil {
 	}
 	
 	/**
-	 * Schreibt die Anzahl an blockfiles aus dem Ordner Data in DataInfo.dat
+	 * Schreibt die Anzahl an erzeugten blockfiles in DataInfo.dat
 	 * 
 	 * @return
 	 */
 	public static File writeDataInfo()
-	{	
-		DataInfo = new File("DataInfo.dat");
+	{			
+		File DataInfo = new File("DataInfo.dat");
 		
 		try(DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(DataInfo))))
 		{			
@@ -195,7 +195,7 @@ public class BlockUtil {
 	 */
 	public static int readDataInfo()
 	{
-		try(DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(DataInfo))))
+		try(DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(new File("DataInfo.dat")))))
 		{
 			int count = input.readInt();
 			return count;
