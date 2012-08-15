@@ -1,12 +1,10 @@
 package terrain;
 
-import java.io.File;
-
 public class Terrain
 {
-	private static final int MEM_BLOCKS = 64;
+	private static final int MEM_BLOCKS_DIM = 8;
+	private static final int MEM_BLOCKS = MEM_BLOCKS_DIM * MEM_BLOCKS_DIM;
 	
-	private String[][] blocks;
 	private int size;
 	private float initialHeight;
 	
@@ -30,14 +28,6 @@ public class Terrain
 		{
 			// Bloecke liegen bereits vor
 			this.initialHeight = initHeight;
-			blocks = new String[dim][dim];
-			for(int i = 0; i < dim; i++)
-			{
-				for(int j = 0; j < dim; j++)
-				{
-					blocks[i][j] = "." + File.separator + "Data" + File.separator + i + "_" + j + "_.bf";
-				}
-			}
 			
 			currentBlocks = new Block[MEM_BLOCKS];
 			currentIDs = new int[MEM_BLOCKS][2];
@@ -69,13 +59,6 @@ public class Terrain
 	}
 	
 	/* Konstruktoren mit Standardwerten */
-
-//	public Terrain(int size, float initHeight)	{ this(size, initHeight, true); }	// overwrite = false
-//	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } 	// initHeight = 0.0f
-//	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       	// size = 1024
-//	public Terrain(int size)					{ this(size, true); }
-//	public Terrain() 							{ this(true); }                  	// overwrite = true
-
 	public Terrain(int size, float initHeight)	{ this(size, initHeight, false); }	// overwrite = false
 	public Terrain(int size, boolean overwrite)	{ this(size, 1.0f, overwrite); } 	// initHeight = 0.0f
 	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       	// size = 1024
@@ -88,9 +71,6 @@ public class Terrain
 	 */
 	private void init()
 	{
-		int dim = size / 256;
-		
-		blocks = new String[dim][dim];
 		int count = 0;
 		int countDot = 0;
 		int factor = (size / 1024) * (size / 1024);
@@ -128,7 +108,7 @@ public class Terrain
 						}
 						
 						// auf Festplatte schreiben
-						blocks[xPos][zPos] = (BlockUtil.writeBlockData(block)).getName();						
+						BlockUtil.writeBlockData(block);						
 					}
 				}
 			}
@@ -182,7 +162,6 @@ public class Terrain
 			}
 			
 			// Blockindex ist in n gespeichert
-//			System.out.printf("SET: setting (%d,%d) at pos %d with %f in block (%d,%d)\n", x, z, pos, value, blockX, blockZ);
 			currentBlocks[n].setInfo(blockX, blockZ, pos, value);
 			return true;
 		}
@@ -264,7 +243,6 @@ public class Terrain
 		// Heap auf Festplatte schreiben
 		for(int i = 0; i < MEM_BLOCKS; i++)
 		{
-
 			BlockUtil.writeBlockData(currentBlocks[i]);
 		}
 		
@@ -308,6 +286,20 @@ public class Terrain
 			}
 		}				
 		return result;
+	}
+	
+	/**
+	 * Speichert alle Daten auf die Festplatte
+	 */
+	public void save()
+	{
+		for(int i = 0; i < size / 256; i++)
+		{
+			for(int j = 0; j < size / 256; j++)
+			{
+				BlockUtil.writeBlockData(getBlock(i,j));
+			}
+		}
 	}
 	
 	/**
