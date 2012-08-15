@@ -667,10 +667,10 @@ public class Util
 	 * @param freq The frequency by which the noisemap is taken
 	 * @param amp The amplitude with which the noise is applied
 	 */
-	public static void biLinIpol(Terrain terra, float[][]noise, float freq, float amp){
+	public static void biLinIpol(float[][][] terra, float[][]noise, float freq, float amp){
 		System.out.println("interpoliere...");
-		int terraX = terra.getSize();
-		int terraZ = terra.getSize();
+		int terraX = terra.length;
+		int terraZ = terra[0].length;
 		int noiseX = noise.length;
 		int noiseZ = noise[0].length;
 		int pX, pZ;
@@ -692,14 +692,14 @@ public class Util
 				b = (float)noiseZ * freq * (float)j / (float)terraZ;
 				pZ = (int)(b);
 				dZ = b - pZ;
-				terra.add(i, j, 0, (amp * (iPol(
+				terra[i][j][0] += (amp * (iPol(
 											iPol(noise[pX % noiseX][pZ % noiseZ], 
 												 noise[pX % noiseX][(pZ+1)%noiseZ], 
 												 dZ),
 											iPol(noise[(pX+1)%noiseX][pZ % noiseZ], 
 												 noise[(pX+1)%noiseX][(pZ+1)%noiseZ], 
 												 dZ), 
-											dX))));
+											dX)));
 				
                  ++index;
                  long now = System.nanoTime();
@@ -724,7 +724,7 @@ public class Util
 	 * @param x
 	 * @param z
 	 */
-	public static void smooth(Terrain terra, int x, int z){
+	public static void smooth(TerrainGrid terra, int x, int z){
 
 		switch(Math.round(terra.get(x, z, 4))){
 
@@ -758,9 +758,9 @@ public class Util
 	 * 
 	 * @param heightmap to smooth
 	 */
-	private static void smoothGauss3(Terrain terra, int x, int z, int count){
+	private static void smoothGauss3(TerrainGrid terra, int x, int z, int count){
 
-		int width = terra.getSize() , height = terra.getSize();
+		int width = terra.getBlock().length , height = terra.getBlock().length;
 		float sum = 0;
 
 		// Fill GaussPattern
@@ -803,10 +803,9 @@ public class Util
 	 * smoothing with 7x7 Gausskernel
 	 * @param terra
 	 */
-	private static void smoothGauss7(Terrain terra, int x, int z, int count){
+	private static void smoothGauss7(TerrainGrid terra, int x, int z, int count){
 
-		int width, height;
-		width = height = terra.getSize();
+		int width = terra.getBlock().length , height = terra.getBlock().length;
 		float sum = 0;
 
 		// Fill GaussPattern

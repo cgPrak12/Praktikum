@@ -12,8 +12,6 @@ import org.lwjgl.util.vector.Vector3f;
 import util.Camera;
 import util.Geometry;
 import util.GeometryFactory;
-import terrain.Terrain;
-import util.TerrainFactory;
 import util.Util;
 
 /**
@@ -25,7 +23,7 @@ public class MainTest {
     private static int terrainProgram;
     
     // terrain
-    private static terrain.Terrain terra;
+    private static util.Terrain terra;
     
     // uniform locations
     private static int terrainViewProjLoc;
@@ -64,21 +62,13 @@ public class MainTest {
             terrainParamLoc = glGetUniformLocation(terrainProgram, "param");
                    
                       	
-            terra = new Terrain(1024, false);
-            TerrainFactory.init();
-            TerrainFactory.genTerrain(terra, 8);
-
-            terrainGeometry = GeometryFactory.genTerrain(terra);
+            terra = new util.Terrain(0f, 2048, 2048, 4);
+            terra.genTerrain(8);
             
-//            terra.set(7, 871, 0, 1.0f);
-//            terra.set(523, 12, 0, 4.0f);
-//            terra.set(112, 253, 0, 3.0f);
-//            terra.set(812, 80, 0, 2.0f);
-//            terra.add(812, 80, 0, 2.0f);
-//            System.out.println(terra.get(7, 871, 0));
-//            System.out.println(terra.get(523, 12, 0));
-//            System.out.println(terra.get(112, 253, 0));
-//            System.out.println(terra.get(812, 80, 0));
+//            TerrainView tv = new TerrainView(cam);
+            // terrainGeometry = GeometryFactory.genTerrain(tv.getArray());
+            
+            terrainGeometry = GeometryFactory.genTerrain(terra.terra);
             
             glEnable(GL_DEPTH_TEST);
             glPointSize(2.0f);

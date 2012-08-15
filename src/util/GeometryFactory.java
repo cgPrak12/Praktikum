@@ -605,11 +605,11 @@ public class GeometryFactory
 		return geo;
 	}
 
-	 public static Geometry genTerrain(Terrain terra) {
+	 public static Geometry genTerrain(TerrainGrid terra) {
      	
      	int vertexSize = 7;
-     	int maxX = terra.getSize();
-     	int maxZ = terra.getSize(); 	
+     	int maxX = terra.getBlock().length;
+     	int maxZ = terra.getBlock().length; 	
      	
         	FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize*maxX*maxZ);
 

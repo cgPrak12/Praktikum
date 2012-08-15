@@ -93,6 +93,14 @@ public class TerrainMain
 			clip = new ClipMap(30, 8, program, cam);
 
 			float[][] heightMap = TerrainView.getHeightMap();
+			for(int i = 0; i < heightMap.length; i++)
+			{
+				for(int j = 0; j < heightMap.length; j++)
+				{
+					heightMap[i][j] = (float)Math.random();
+				}
+					
+			}
 
 			FloatBuffer fbuffer = BufferUtils.createFloatBuffer(heightMap.length * heightMap.length);
 			for (int i = 0; i < heightMap.length; i++)
@@ -105,6 +113,11 @@ public class TerrainMain
 			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, heightMap.length, heightMap[0].length, 0, GL11.GL_RED,
 					GL_FLOAT, fbuffer);
 			program.setUniform("elevation", tex);
+			
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 			
 			
 			
@@ -123,11 +136,6 @@ public class TerrainMain
 			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, terra.getSize(), terra.getSize(), 0, GL11.GL_RED,
 					GL_FLOAT, fbuffer);
 			program.setUniform("color", tex);
-			
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
 			tex = Texture.generateTexture("./earth.jpg", 2);
 			tex.bind();
