@@ -18,6 +18,7 @@ private boolean perspective = true;
 private float altX;
 private float altY;
 private float altZ;
+private ClipMap clip;
 
 /** Default Constructor. */
 public Camera()
@@ -62,10 +63,16 @@ public Vector3f getAlt()
 {
 return new Vector3f(altX, altY, altZ);
 }
-
+public void setClipMap(ClipMap clip) {
+	this.clip = clip;
+}
 public void beam() {
-	camPos.x += 100*viewDir.x;
-	camPos.z += 100*viewDir.z;
+	float tmpX = 100*viewDir.x;
+	float tmpZ = 100*viewDir.z;
+	camPos.x += tmpX;
+	camPos.z += tmpZ;
+	clip.moveClipBy((int)(tmpX / 2 / clip.getScale()), (int) (tmpZ /2 / clip.getScale()));
+	clip.adjustTmp(tmpX % 2, tmpZ % 2);
 }
 
 /** Aktualisiert die Viewmatrix. */

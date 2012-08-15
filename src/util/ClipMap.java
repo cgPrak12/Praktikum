@@ -501,4 +501,15 @@ public class ClipMap
 		int result = 1;
 		return result << expo;
 	}
+
+	public float getScale()
+	{
+		return generalScale;
+	}
+
+	public void adjustTmp(float tempX, float tempZ)
+	{
+		this.tempX += tempX;
+		this.tempZ += tempZ;
+	}
 }
