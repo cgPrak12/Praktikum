@@ -123,6 +123,7 @@ public class DeferredShader {
     }
 
     public void DrawTexture(Texture tex) {
+    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         drawTextureSP.use();
         drawTextureSP.setUniform("image", tex);
         screenQuadGeo.draw();
@@ -135,9 +136,9 @@ public class DeferredShader {
         texPosition.delete();
         texNormal.delete();
         texVertexColor.delete();
-    	texSpec.delete();
-    	skyColor.delete();
-    	texShadow.delete();
-    	texBump.delete();
+//    	texSpec.delete();
+//    	skyColor.delete();
+//    	texShadow.delete();
+//    	texBump.delete();
     }
 }

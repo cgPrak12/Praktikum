@@ -163,15 +163,15 @@ public class TerrainMain {
         
         // create new shader programs
 //        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
-        drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
+//        drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
         
         // create Fluid Rendererer
-        fluidRenderer = new FluidRenderer(cam);
+//        fluidRenderer = new FluidRenderer(cam);
         
         // simulation test terrain
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/07.jpg",0.3f);
-        Texture normalTex = terrain.getNormalTex();
-        Texture heightTex = terrain.getHeightTex();
+//        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/07.jpg",0.3f);
+//        Texture normalTex = terrain.getNormalTex();
+//        Texture heightTex = terrain.getHeightTex();
         
         // particle creation
 //        particles = new Particle(4096, Device_Type.GPU, Display.getDrawable());
@@ -237,6 +237,7 @@ public class TerrainMain {
     	Matrix4f shadowMatrix = new Matrix4f();
         
         //Main_FS
+    	fboSP.use();
         fboSP.setUniform("normalTexture", normalQuaderTexture);
         fboSP.setUniform("specularTexture", specularQuaderTexture);
         fboSP.setUniform("textureImage", quaderTexture);
@@ -249,7 +250,6 @@ public class TerrainMain {
             last = now;     
             frameTimeDelta += millis;
             ++frames;
-            
             shadowCam.setCamDir(sunDirection.negate(null));
             shadowCam.setCamPos(sunDirection);           
             
@@ -261,6 +261,8 @@ public class TerrainMain {
             // input and animation
             handleInput(millis);
             animate(millis);
+            
+            
             if(rotatelight) {
             	Util.transformDir(Util.rotationY(0.005f, null), sunDirection, sunDirection);
             }
@@ -410,7 +412,7 @@ public class TerrainMain {
         	///////////////////////////////////////////////////////////////////////////////////////
         	
         	// clear screen
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             // prepare simulation: draw terrain to world
 //            simShader.use();
