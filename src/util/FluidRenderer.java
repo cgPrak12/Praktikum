@@ -126,9 +126,9 @@ public class FluidRenderer {
     	cam = camTmp;
     	
     	// init shaderPrograms, frameBuffers, ...
-    	glPointSize(GL_POINT_SIZE);
-    	glPointParameteri(GL_POINT_SIZE_MIN, 1);
-        glPointParameteri(GL_POINT_SIZE_MAX, 1000);
+//    	glPointSize(GL_POINT_SIZE);
+//    	glPointParameteri(GL_POINT_SIZE_MIN, 1);
+//        glPointParameteri(GL_POINT_SIZE_MAX, 1000);
         
         FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(4);
         floatBuffer.put(new float[]{1.0f, 1.0f, 0.0f, 0.0f});
