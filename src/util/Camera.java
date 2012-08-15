@@ -53,8 +53,9 @@ public final class Camera {
      */
     public void move(float fb, float lr, float ud) {
         camPos.x += fb * viewDir.x + lr * sideDir.x;
-        if (camPos.y >= 1 || ud > 0) camPos.y += fb * viewDir.y + lr * sideDir.y + ud;
-        if (camPos.y <= 17 || ud < 0) camPos.y += fb * viewDir.y + lr * sideDir.y + ud;
+        if ((ud > 0 || camPos.y >= 1) && (ud < 0 || camPos.y <= 15)) {
+        	camPos.y += fb * viewDir.y + lr * sideDir.y + ud;
+        }
         camPos.z += fb * viewDir.z + lr * sideDir.z;
     }
     

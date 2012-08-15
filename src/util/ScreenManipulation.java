@@ -3,7 +3,14 @@ package util;
 import static opengl.GL.GL_RGBA;
 import static opengl.GL.GL_TEXTURE_2D;
 
+import opengl.GL;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
@@ -78,6 +85,9 @@ public class ScreenManipulation {
      * @param height Height of the FrameBufferObjects
      */
 	public void init(String vertexShader, String fragmentShaderBlur, String fragmentShaderBrightness, String fragmentShaderBloom, String fragmentShaderTone, String fragmentShaderPhong, int unitOffset, int width, int height) {
+		
+//		int MaxTextureImageUnits;
+//		MaxTextureImageUnits = GL11.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS);
 		
 		//initialize pixel offset
 		tc_offset_5 = generateTCOffset(5);

@@ -2,7 +2,6 @@ package main;
 
 import static opengl.GL.*;
 
-import java.awt.peer.LightweightPeer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -119,7 +118,7 @@ public class TerrainMain {
             
             //movement 
             Util.rotationX((float)Math.toRadians(-45.0), sunTilt);
-            Util.translationX(48.0f, sunTranslation);
+            Util.translationX(7.0f, sunTranslation);
             
             render();
             OpenCL.destroy();
@@ -130,7 +129,7 @@ public class TerrainMain {
     }
 
 	public static void render() throws LWJGLException {
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // background color: dark red
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         
         long last = System.currentTimeMillis();
         long now, millis;
@@ -158,10 +157,8 @@ public class TerrainMain {
         modelLoc = glGetUniformLocation(fboSP.getId(), "model");
         
         
-        Geometry testCube = GeometryFactory.createCube();
-        
-        Geometry testCube2 = GeometryFactory.createSphere(0.5f, 20, 20);
-        
+        Geometry testCube = GeometryFactory.createCube();        
+        Geometry testCube2 = GeometryFactory.createSphere(0.5f, 20, 20);       
         Geometry testCube1 = GeometryFactory.createCube();
         Geometry floorQuad = GeometryFactory.createWhiteScreenQuad();
         Geometry sunCube = GeometryFactory.createQuad();
@@ -187,9 +184,7 @@ public class TerrainMain {
         
         //static Matrix calculation
     	Matrix4f modelMatrix = Util.mul(null, Util.translationY(1.0f, null), Util.rotationX(1.0f, null), Util.rotationZ(1.0f, null));
-    	
     	Matrix4f modelMatrix1 = Util.mul(null, Util.translationX(10f, null), Util.translationZ(10f, null), Util.translationY(5f, null));
-
     	Matrix4f modelMatrix2 = Util.mul(null, Util.translationX(0.5f, null), Util.translationZ(0.5f, null), Util.translationY(1f, null));
     	
     	//dynamic matrices
@@ -284,7 +279,7 @@ public class TerrainMain {
             matrix2uniform(cloudModelMatrix, modelLoc);
             skyCloud.draw();
             
-			//sun cube
+			//sun
             fboSP.setUniform("model", sunMatrix);
             fboSP.setUniform("textureImage", sunTexture);
             sunCube.draw();
@@ -570,7 +565,7 @@ public class TerrainMain {
     		//sonne drehen
        	 	ingameTime += ingameTimePerSecond * 1e-3f * (float)millis;
        	 	Util.rotationY((0.05f)*Util.PI_MUL2 * ingameTime, sunRotation);
-            Util.mul(sunMatrix,sunTilt, sunRotation, sunTranslation, Util.scale(5.0f, null));
+            Util.mul(sunMatrix, sunTilt, sunRotation, Util.scale(5.0f, null), sunTranslation);
             //licht drehen
             Util.transformCoord(Util.mul(null,sunTilt, sunRotation, sunTranslation), sunDirectionStart, sunDirection);
         }
