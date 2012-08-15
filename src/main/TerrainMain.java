@@ -163,20 +163,20 @@ public class TerrainMain {
         
         // create new shader programs
 //        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
-//        drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
+        drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
         
         // create Fluid Rendererer
-//        fluidRenderer = new FluidRenderer(cam);
+        fluidRenderer = new FluidRenderer(cam);
         
         // simulation test terrain
-//        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/07.jpg",0.3f);
-//        Texture normalTex = terrain.getNormalTex();
-//        Texture heightTex = terrain.getHeightTex();
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
+        Texture normalTex = terrain.getNormalTex();
+        Texture heightTex = terrain.getHeightTex();
         
         // particle creation
-//        particles = new Particle(4096, Device_Type.GPU, Display.getDrawable());
-//        particles.createData(heightTex.getId(), normalTex.getId());
-//        glDisable(GL_DEPTH_TEST);
+        particles = new Particle(4096, Device_Type.GPU, Display.getDrawable());
+        particles.createData(heightTex.getId(), normalTex.getId());
+        glDisable(GL_DEPTH_TEST);
         //
 
         shadowSP = new ShaderProgram("./shader/Main_VS.glsl", "./shader/Main_FS.glsl");
@@ -326,6 +326,7 @@ public class TerrainMain {
             fboSP.setUniform("model", floorQuadMatrix);
             fboSP.setUniform("textureImage", quaderTexture);
             floorQuad.draw();
+//            terrain.draw();
             
         	shader.finish();
         	
@@ -354,6 +355,7 @@ public class TerrainMain {
         	shadowSP.setUniform("viewProj", shadowMatrix);
         	
         	floorQuad.draw();
+//        	terrain.draw();
         	
         	shadowShader.finish();
         	
@@ -412,7 +414,7 @@ public class TerrainMain {
         	///////////////////////////////////////////////////////////////////////////////////////
         	
         	// clear screen
-//            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             // prepare simulation: draw terrain to world
 //            simShader.use();
@@ -425,15 +427,15 @@ public class TerrainMain {
 //            terrain.draw();
            
             // simulate particles
-//            particles.getShaderProgram().use();
-//            
-//            particles.draw(cam, millis);
+            particles.getShaderProgram().use();
+            
+            particles.draw(cam, millis);
 //            
             // render fluid
-//            Texture t = fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain);
-//    		drawTextureSP.use();        
-//    		drawTextureSP.setUniform("image", t);
-//    		screenQuad.draw();  
+            Texture t = fluidRenderer.render(sunDirection, particles.getVertexArray(), particles.getNumParticles(), terrain, fbo.getTexture(0));
+    		drawTextureSP.use();        
+    		drawTextureSP.setUniform("image", t);
+    		screenQuad.draw();  
             
             ///////////////////////////////////////////////////////////////////////////////////////
             //
@@ -449,7 +451,7 @@ public class TerrainMain {
             Display.update();
             Display.sync(60);
         }
-        simShader.delete();
+//        simShader.delete();
         drawTextureSP.delete();
         OpenCL.destroy();
         MenuDialog.destroyInstance();

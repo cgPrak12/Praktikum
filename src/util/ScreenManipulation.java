@@ -79,7 +79,6 @@ public class ScreenManipulation {
      */
 	public void init(String vertexShader, String fragmentShaderBlur, String fragmentShaderBrightness, String fragmentShaderBloom, String fragmentShaderTone, String fragmentShaderPhong, int unitOffset, int width, int height) {
 		
-		//initialize pixel offset
 		tc_offset_5 = generateTCOffset(5);
 		
 		//initialize screen quad

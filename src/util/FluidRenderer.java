@@ -21,6 +21,7 @@ public class FluidRenderer {
 	
 	private Geometry terrain;
 	private Geometry testWaterParticles = GeometryFactory.createTestParticles(4096);
+	private Texture backgroundTex;
 
 	private int 	 textureUnit = 0;
 	private Camera   cam;
@@ -117,8 +118,8 @@ public class FluidRenderer {
     private FrameBuffer finalImageFB   = new FrameBuffer();
     private Texture finalImageTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-//    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/fluid/TestPlane_VS.glsl", "./shader/fluid/TestPlane_FS.glsl");
-    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/simulation_vs.glsl", "./shader/simulation_fs.glsl");
+    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/fluid/TestPlane_VS.glsl", "./shader/fluid/TestPlane_FS.glsl");
+//    private ShaderProgram testPlaneSP = new ShaderProgram("./shader/simulation_vs.glsl", "./shader/simulation_fs.glsl");
     private FrameBuffer testPlaneFB   = new FrameBuffer();
     private Texture testPlaneTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
     
@@ -164,13 +165,14 @@ public class FluidRenderer {
 //    	testWaterParticles.draw();
     }
     
-	public Texture render(Vector3f light, int particleVertexArrayId, int number, Geometry terrain) {
+	public Texture render(Vector3f light, int particleVertexArrayId, int number, Geometry terrain, Texture background) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
 		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 		lightPos = light;
 		vaid = particleVertexArrayId;
 		particleNumber = number;
 		this.terrain = terrain;
+		this.backgroundTex = background;
 		
 		// depth
 		
@@ -226,6 +228,7 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", lightingTex);
 //		drawTextureSP.setUniform("image", finalImageTex);
 //		drawTextureSP.setUniform("image", testPlaneTex);
+//		drawTextureSP.setUniform("image", backgroundTex);
 		
 //		screenQuad.draw();
 		
@@ -413,7 +416,7 @@ public class FluidRenderer {
 	    lightingSP.setUniform("thicknessTex", thicknessVBlurTex);
 	    lightingSP.setUniform("thicknessTexLQ", thicknessVBlurTexLQ);
         lightingSP.setUniform("cubeMap", cubemap);
-	    lightingSP.setUniform("plane", testPlaneTex);
+	    lightingSP.setUniform("plane", backgroundTex);
         lightingSP.setUniform("lightPosW", lightPos);
         lightingSP.setUniform("eye", cam.getCamPos());
         Matrix4f iView = new Matrix4f();
@@ -461,9 +464,11 @@ public class FluidRenderer {
         testPlaneSP.setUniform("view", cam.getView());
         testPlaneSP.setUniform("normalTex", normalTex);
         testPlaneSP.setUniform("heightTex", heightTex);
+        testPlaneSP.setUniform("colorTex", backgroundTex);
 		testPlaneSP.setUniform("viewDistance", cam.getViewDistance());
         
-	    terrain.draw();
+//	    terrain.draw();
+		screenQuad.draw();
 	    
 	    endPath();
 	}
