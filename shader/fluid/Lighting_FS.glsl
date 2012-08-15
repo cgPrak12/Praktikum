@@ -6,6 +6,7 @@ uniform mat4 view;
 uniform sampler2D depthTex; 
 uniform sampler2D depthTexLQ;
 uniform sampler2D depth2Tex;
+uniform sampler2D depth3Tex;
 uniform sampler2D normalTex;
 uniform sampler2D normalTexLQ;
 uniform sampler2D normal2Tex;
@@ -14,13 +15,14 @@ uniform sampler2D thicknessTex;
 uniform sampler2D thicknessTexLQ;
 uniform samplerCube cubeMap;
 uniform sampler2D plane;
+uniform sampler2D skyTex;
 uniform vec3 lightPosW;
 uniform mat4 iView;
 uniform vec3 eye;
 
 out vec3 color;
 
-
+const float pi = 3.14159265358979;
 const vec3 c_s = vec3(1.0, 1.0, 1.0);  // spekulare Farbe
 //const vec3 c_a = vec3(1.0, 1.0, 1.0);  // ambiente Farbe
 // material eigenschaften
@@ -30,14 +32,16 @@ const float k_spec = 0.3;
 const float es     = 16.0;
 
 
+
+
 void main(void) {
 	
 // ***************************	
 // Interpolation
 
-//	if(texture(plane,texCoords).w <= texture(depth2Tex,texCoords).w) { 
-//		color = texture(plane,texCoords).xyz;
-//	}else{
+	if(texture(plane,texCoords).w <= texture(depth3Tex,texCoords).w) { 
+		color = texture(plane,texCoords).xyz;
+	}else{
 	
 	float depth = texture2D(depthTex, texCoords).w;// + texture2D(depthTexLQ, texCoords).w * 0.5;
 	vec4 depthInt = texture2D(depthTex, texCoords);
@@ -53,6 +57,7 @@ void main(void) {
 //	color = normalInt.xyz;
 	float black = 1;
 	if(texture(thicknessTexNB, texCoords).z == 0) black = 0;
+//	black = sign(texture(thicknessTexNB, texCoords).z);
 	
 	vec3 position = depthInt.xyz;
 	vec3 normal = normalize(normalInt.xyz);
@@ -100,19 +105,44 @@ void main(void) {
 
 	float rNull = (1.0003-1.3333)/(1.0003+1.3333);//0.5 * ((1.0003-1.3333)/(1.0003+1.3333) + (1.3333-1.0003)/(1.3333+1.0003));
 	float fresnel = rNull + ((1.0 - rNull) * pow(1.0 - dot(pos2eye, normal), 2.0));  //normal, vec3(0.0, 0.0, 1.0) ),5.0));
+	
+	
+
+// ***************************
+// SphereColor
+
+	float atanYX;
+	atanYX = atan(reflectedW.z / reflectedW.x);
+	if(reflectedW.x < 0) {
+		atanYX += sign(reflectedW.z) * pi;
+		if(reflectedW.z == 0) atanYX += pi;
+	}
+	if(reflectedW.x == 0) atanYX = sign(reflectedW.z) * pi / 2.0;
+	
+	vec2 sphereCoords;
+	sphereCoords.x = atanYX / (pi * 2.0);
+	sphereCoords.y = acos(reflectedW.y / length(reflectedW)) / pi;
+	
+	vec3 sphereColor = texture(skyTex, sphereCoords).xyz;
+//	color = sphereColor;
+
+
+
 
 
 //	color = vec3(fresnel);
 //	color = reflectedW;
 	//color = texture(cubeMap, vec3(texCoords, 0)).xyz;
-//	color = vec3(1 - dot(pos2eye, normal)) * cubeColor;
+	
+	vec3 pos2eye2 = normalize(-position2);
+	fresnel = (1 - dot(-pos2eye2, -normal2));// * cubeColor;
 //	color = phong + fresnel * cubeColor;
 
 //	color = phong;
 //	color = normal;
 //	vec3 waterColor =  0.5*(1.0 - max(0, dot(pos2eye, normal)))  +  phong;
 //	color = waterColor;
-//	color = fresnel * cubeColor;
+//	cubeColor = fresnel * cubeColor;
 	mat4 iv = inverse(view);
 	vec4 wPos = vec4(-position, 1);
 	vec4 wN = vec4(normal, 0);
@@ -130,7 +160,7 @@ void main(void) {
 //	clamp(thickness*1000,0.0,1.0)*0.5 * cubeColor;//mix(phong, cubeColor, cubeColor);
 //	thickness * 0.5 * black * vec3(pow(cubeColor.x,2), pow(cubeColor.y,2), pow(cubeColor.z,2)); 
 
-	color = black*0.5*phongSpec+(1-thickness) * planeColor + thickness * phong + black*0.5 /*pow(thickness,0.02)*/ * mix(phongDiff,cubeColor,cubeColor);//pow(thickness,0.2));// * cubeColor;
+	color = black*0.5*phongSpec + (1-thickness) * planeColor + thickness * phong + black*0.5 /*pow(thickness,0.02)*/ * mix(phongDiff,cubeColor,cubeColor);//pow(thickness,0.2));// * cubeColor;
 //	color = phongSpec;
-//	}
+	}
 }

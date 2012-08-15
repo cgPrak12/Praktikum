@@ -32,6 +32,7 @@ public class FluidRenderer {
     private Geometry cube 		= GeometryFactory.createCube();
     private Geometry plane 		= GeometryFactory.createPlane();
     private Texture  planeTex 	= Texture.generateTexture("Marble.jpg", textureUnit++);
+    private Texture  skyTex 	= Texture.generateTexture("skydome.jpg", textureUnit++);
     private Texture  cubemap    = new Texture(GL_TEXTURE_CUBE_MAP, textureUnit++);
     
     // Depth
@@ -42,11 +43,13 @@ public class FluidRenderer {
     private Texture depthTexLQ 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
 
     // Depth2
-    private ShaderProgram depth2SP     = new ShaderProgram("./shader/fluid/Depth_VS.glsl", "./shader/fluid/Depth2_FS.glsl");
-    private FrameBuffer depth2FB 	   = new FrameBuffer();
-    private FrameBuffer depth2FBLQ 	   = new FrameBuffer();
+//    private ShaderProgram depth2SP     = new ShaderProgram("./shader/fluid/Depth_VS.glsl", "./shader/fluid/Depth2_FS.glsl");
+//    private FrameBuffer depth2FB 	   = new FrameBuffer();
+//    private FrameBuffer depth2FBLQ 	   = new FrameBuffer();
     private Texture depth2Tex 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture depth2TexLQ 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture depth3Tex 		   = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private Texture depth3TexLQ 	   = new Texture(GL_TEXTURE_2D, textureUnit++);
 
     // Normals
     private ShaderProgram normalSP      = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/fluid/Normal_FS.glsl");
@@ -137,8 +140,8 @@ public class FluidRenderer {
         
         // init depth, normal, thickness
         
-    	init(depthFB, depthSP, new Texture[]{depthTex, depth2Tex}, new String[]{"depth", "depth2"}, false, true);
-    	init(depthFBLQ, depthSP, new Texture[]{depthTexLQ, depth2TexLQ}, new String[]{"depth", "depth2"}, false, true);
+    	init(depthFB, depthSP, new Texture[]{depthTex, depth2Tex, depth3Tex}, new String[]{"depth", "depth2", "depth3"}, false, true);
+    	init(depthFBLQ, depthSP, new Texture[]{depthTexLQ, depth2TexLQ, depth3Tex}, new String[]{"depth", "depth2", "depth3"}, false, true);
 		init(normalFB, normalSP, new Texture[]{normalTex, normal2Tex}, new String[]{"normal", "normal2"}, false, false);
 		init(normalFBLQ, normalSP, new Texture[]{normalTexLQ, normal2TexLQ}, new String[]{"normal", "normal2"}, false, false);
     	init(thicknessSP, thicknessFB, thicknessFBLQ, thicknessTex, thicknessTexLQ);
@@ -146,7 +149,7 @@ public class FluidRenderer {
     	// init lighting
     	init(lightingSP, lightingFB, lightingTex, "color", false, false, GL_RGBA8);
     	init(finalImageSP, finalImageFB, finalImageTex, "color", false, false, GL_RGBA8);
-    	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", false, false, GL_RGBA8);
+    	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", true, false, GL_RGBA8);
     	
     	// init blur
     	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB, normal2HBlurFB, normal2VBlurFB}, 
@@ -406,6 +409,7 @@ public class FluidRenderer {
 	    lightingSP.setUniform("depthTex", depthVBlurTex);
 	    lightingSP.setUniform("depthTexLQ", depthVBlurTexLQ);
 	    lightingSP.setUniform("depth2Tex", depth2Tex);
+	    lightingSP.setUniform("depth3Tex", depth3Tex);
 	    lightingSP.setUniform("normalTex", normalVBlurTex);
 	    lightingSP.setUniform("normalTexLQ", normalVBlurTexLQ);
 	    lightingSP.setUniform("normal2Tex", normal2VBlurTex);
@@ -414,6 +418,7 @@ public class FluidRenderer {
 	    lightingSP.setUniform("thicknessTexLQ", thicknessVBlurTexLQ);
         lightingSP.setUniform("cubeMap", cubemap);
 	    lightingSP.setUniform("plane", testPlaneTex);
+	    lightingSP.setUniform("skyTex", skyTex);
         lightingSP.setUniform("lightPosW", lightPos);
         lightingSP.setUniform("eye", cam.getCamPos());
         Matrix4f iView = new Matrix4f();
