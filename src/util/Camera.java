@@ -68,8 +68,10 @@ public void setClipMap(ClipMap clip) {
 }
 public void beam() {
 	float tmpX = 100*viewDir.x;
+	float tmpY = 100*viewDir.y;
 	float tmpZ = 100*viewDir.z;
 	camPos.x += tmpX;
+	camPos.y += tmpY;
 	camPos.z += tmpZ;
 	clip.moveClipBy((int)(tmpX / 2 / clip.getScale()), (int) (tmpZ /2 / clip.getScale()));
 	clip.adjustTmp(tmpX % 2, tmpZ % 2);

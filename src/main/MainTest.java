@@ -18,7 +18,6 @@ import org.lwjgl.util.vector.Vector3f;
 import util.Camera;
 import util.ClipMap;
 import util.Geometry;
-import util.GeometryFactory;
 import util.ShaderProgram;
 import util.Texture;
 import util.Util;
