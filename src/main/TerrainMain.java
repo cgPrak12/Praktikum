@@ -75,12 +75,9 @@ public class TerrainMain
 			glEnable(GL_PRIMITIVE_RESTART);
 			glPrimitiveRestartIndex(-1);
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Terrain_Fs.glsl");
+			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Terrain_FS.glsl");
 			program.use();
 			
-			
-			
-
 			terra = new terrain.Terrain(1024, 5f, true);
 
 			TerrainFactory.init();

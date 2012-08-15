@@ -2,6 +2,12 @@ package terrain;
 
 import java.io.Serializable;
 
+/**
+ * Block Objekt, das einen Teil eines Terrains darstellt
+ * 
+ * @author daniel, lukas, mareike
+ */
+
 public class Block implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -19,6 +25,14 @@ public class Block implements Serializable {
 		vertexInfo = new float[256][256][5];		
 	}
 	
+	/**
+	 * Getter Vertex Information
+	 * 
+	 * @param x			x-Position im Block
+	 * @param z			z-Position im Block
+	 * @param pos		Position im Vertex Layout
+	 * @return float	Vertex Information
+	 */
 	public float getInfo(int x, int z, int pos)
 	{
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
@@ -32,14 +46,16 @@ public class Block implements Serializable {
 		}			
 	}
 	
-	/**
+	/** 
+	 * Setter Vertex Information
 	 * 
-	 * @param x
-	 * @param z
-	 * @param info
+	 * @param x			x-Position im Block
+	 * @param z			z-Position im Block
+	 * @param pos		Position im Vertex Layout
+	 * @param info		zu setzender Wert
 	 */
 	public void setInfo(int x, int z, int pos, float info)
-	{	
+	{
 		if(x >= 0 && z >= 0 && pos >= 0 && x < 256 && z < 256 && pos < 5)
 		{
 			vertexInfo[x][z][pos] = info;
@@ -47,7 +63,8 @@ public class Block implements Serializable {
 	}
 	
 	/**
-	 * Getter X
+	 * Getter x-Position
+	 * 
 	 * @return posX
 	 */
 	public int getX()	
@@ -56,7 +73,8 @@ public class Block implements Serializable {
 	}
 	
 	/**
-	 * Getter Z
+	 * Getter z-Position
+	 * 
 	 * @return posZ
 	 */
 	public int getZ()	
@@ -65,7 +83,8 @@ public class Block implements Serializable {
 	}	
 	
 	/**
-	 * Getter Z
+	 * Getter x-Position und z-Position
+	 * 
 	 * @return result	int Array mit posX und posZ
 	 */
 	public int[] getID()

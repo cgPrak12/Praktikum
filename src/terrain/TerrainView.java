@@ -1,10 +1,8 @@
 package terrain;
 
-import java.io.File;
-
 import util.Camera;
 
-/** this class take care of the blocks which are in use
+/** this class takes care of the blocks which are in use
  * @author group data */
 public class TerrainView
 {
@@ -33,7 +31,7 @@ public class TerrainView
 		TerrainView.terra = terra;
 		TerrainView.cam = cam;
 		initialised = true;
-		myBl[4][4] = BlockUtil.getBlock(cam);
+		myBl[4][4] = terra.getBlock((int)cam.getCamPos().x, (int)cam.getCamPos().z);
 		middle = myBl[4][4].getID();
 
 		int idI = middle[0];
@@ -61,6 +59,7 @@ public class TerrainView
 		}
 	}
 
+
 	/** update the whole blocks */
 	public static void updateTerrainView(/* Muss das wirklich sein? Terrain wurde
 										 * doch vorher initialisiert im Ctor:
@@ -70,15 +69,15 @@ public class TerrainView
 		if (!initialised)
 			throw new IllegalStateException("Klasse wurde nicht initialisiert!");
 		// hier muss der erste Block mit Fehlerbehandlung gesetzt werden, falls
-		// Camera außerhalb
-		// einschränkung der Camera oder spezielle Fehlerbehandlung hier
+		// Camera auï¿½erhalb
+		// einschrï¿½nkung der Camera oder spezielle Fehlerbehandlung hier
 		int diffX = ((int) cam.getCamPos().x / 256) - middle[0];
 		int diffY = ((int) cam.getCamPos().z / 256) - middle[1];
 
 		if (!(diffX == 0 && diffY == 0))
 		{
 
-			myBl[4][4] = BlockUtil.getBlock(cam);
+			myBl[4][4] = terra.getBlock((int)cam.getCamPos().x / 256, (int)cam.getCamPos().z / 256);
 			middle = myBl[4][4].getID();
 
 			for (int i = 0; i < 9; i++)
