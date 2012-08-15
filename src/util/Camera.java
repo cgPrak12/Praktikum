@@ -11,7 +11,7 @@ public final class Camera
 	private final Vector3f upDir = new Vector3f(0, 1, 0);
 	private final Vector3f sideDir = new Vector3f(1, 0, 0);
 
-	private final Vector3f camPos = new Vector3f(0, 1, 0);
+	private final Vector3f camPos = new Vector3f(0, 200, 0);
 	private final Matrix4f view = new Matrix4f();
 	private final Matrix4f projection = new Matrix4f();
 	private boolean perspective = true;
@@ -56,7 +56,7 @@ public final class Camera
 		camPos.x += altX;
 		camPos.y += altY;
 		camPos.z += altZ;
-		/* Hier könnte ihre Kamerabegrenzung stehen! */
+		/* Hier kï¿½nnte ihre Kamerabegrenzung stehen! */
 //		if(camPos.x <= 0 || camPos.x > size) camPos.x -= altX;
 //		if(camPos.z <= 0 || camPos.z > size) camPos.z -= altZ;
 	}
