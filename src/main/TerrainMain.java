@@ -43,7 +43,8 @@ public class TerrainMain {
      * Blender Importer variables
      */
     //Map to simulate a terrain with different types of ground
-    private static Object[][][] modelMap;
+    private static ModelMapEntry[][] modelMap;
+    
     
     /**
      * Standard variables
@@ -71,11 +72,6 @@ public class TerrainMain {
         
         return result;
     }
-    
-/*    //einfache geometrie für ein quadrat
-    private static Geometry quad = null;
-    //shader erzeugen
-    private static ShaderProgram shader = null;*/
     
     public static void main(String[] argv) {
         //Generate terrain
@@ -143,10 +139,12 @@ public class TerrainMain {
 
         Matrix4f scale = new Matrix4f().scale(new Vector3f(0.01f, 0.01f, 0.01f));
         float terrainGrid[][][] = terra.getTerrainGrid().getBlock();
-        modelMap = new Object[terrainGrid.length][terrainGrid.length][3] ;
+        modelMap = new ModelMapEntry[terrainGrid.length][terrainGrid.length];
  
         for(int x=0; x<terrainGrid.length; x+=10) {
             for(int z=0; z<terrainGrid.length; z+=10) {
+                modelMap[x][z] = new ModelMapEntry();
+                
                 Matrix4f translate = new Matrix4f();
                 translate.m00 = 1;
                 translate.m11 = 1;
@@ -155,8 +153,7 @@ public class TerrainMain {
                 translate.m30 = x/100.0f;
                 translate.m31 = terrainGrid[x][z][0];
                 translate.m32 = z/100.0f;
-                    
-                modelMap[x][z][0] = translate;
+                modelMap[x][z].setPosition(translate);
                 
                 if(terrainGrid[x][z][4]==3) {
                     //Generate random numbers with wights
@@ -164,14 +161,14 @@ public class TerrainMain {
                     int[] weights = {70,20,10};
                     int result=randomNumber(values, weights);
                     if(result==0) {
-                        modelMap[x][z][1] = null;
-                        modelMap[x][z][2] = null;
+                        modelMap[x][z].setScale(null);
+                        modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.007f, 0.007f, 0.007f));
-                        modelMap[x][z][2] = modelPalmTree;
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.007f, 0.007f, 0.007f)));
+                        modelMap[x][z].setModelList(modelPalmTree);
                     } else if (result==2) {
-                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.007f, 0.007f, 0.007f));
-                        modelMap[x][z][2] = modelTallCactus;
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.007f, 0.007f, 0.007f)));
+                        modelMap[x][z].setModelList(modelTallCactus);
                     }
                 } else if(terrainGrid[x][z][4]==5) {
                     //Generate random numbers with wights
@@ -179,20 +176,20 @@ public class TerrainMain {
                     int[] weights = {30,5,20,15,30};
                     int result=randomNumber(values, weights);
                     if(result==0) {
-                        modelMap[x][z][1] = null;
-                        modelMap[x][z][2] = null;
+                        modelMap[x][z].setScale(null);
+                        modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.004f, 0.004f, 0.004f));
-                        modelMap[x][z][2] = modelBirchTree;
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.004f, 0.004f, 0.004f)));
+                        modelMap[x][z].setModelList(modelBirchTree);
                     } else if (result==2) {
-                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
-                        modelMap[x][z][2] = modelFlower1;
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f)));
+                        modelMap[x][z].setModelList(modelFlower1);
                     } else if (result==3) {
-                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
-                        modelMap[x][z][2] = modelFlower2;
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f)));
+                        modelMap[x][z].setModelList(modelFlower2);
                     } else if (result==4) {
-                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
-                        modelMap[x][z][2] = modelFlower3;
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f)));
+                        modelMap[x][z].setModelList(modelFlower3);
                     }
                 } else if(terrainGrid[x][z][4]==6) {
                     //Generate random numbers with wights
@@ -200,11 +197,11 @@ public class TerrainMain {
                     int[] weights = {85,15};
                     int result=randomNumber(values, weights);
                     if(result==0) {
-                        modelMap[x][z][1] = null;
-                        modelMap[x][z][2] = null;
+                        modelMap[x][z].setScale(null);
+                        modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.03f, 0.03f, 0.03f));
-                        modelMap[x][z][2] = modelElmTree;
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.03f, 0.03f, 0.03f)));
+                        modelMap[x][z].setModelList(modelElmTree);
                     }
                 } else if(terrainGrid[x][z][4]==7) {
                     //Generate random numbers with wights
@@ -212,11 +209,11 @@ public class TerrainMain {
                     int[] weights = {95,5};
                     int result=randomNumber(values, weights);
                     if(result==0) {
-                        modelMap[x][z][1] = null;
-                        modelMap[x][z][2] = null;
+                        modelMap[x][z].setScale(null);
+                        modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f));
-                        modelMap[x][z][2] = modelPineTree;
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.005f, 0.005f, 0.005f)));
+                        modelMap[x][z].setModelList(modelPineTree);
                     }
                 } else if(terrainGrid[x][z][4]==8) {
                     //Generate random numbers with wights
@@ -224,11 +221,11 @@ public class TerrainMain {
                     int[] weights = {98,2};
                     int result=randomNumber(values, weights);
                     if(result==0) {
-                        modelMap[x][z][1] = null;
-                        modelMap[x][z][2] = null;
+                        modelMap[x][z].setScale(null);
+                        modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                    modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f));
-                    modelMap[x][z][2] = modelDeadShrub;
+                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f)));
+                    modelMap[x][z].setModelList(modelDeadShrub);
                     }
                 } else if(terrainGrid[x][z][4]==9) {
                     //Generate random numbers with wights
@@ -236,14 +233,15 @@ public class TerrainMain {
                     int[] weights = {90,10};
                     int result=randomNumber(values, weights);
                     if(result==0) {
-                        modelMap[x][z][1] = null;
-                        modelMap[x][z][2] = null;
+                        modelMap[x][z].setScale(null);
+                        modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                    modelMap[x][z][1] = new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f));
-                    modelMap[x][z][2] = modelRock1;
+                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f)));
+                    modelMap[x][z].setModelList(modelRock1);
                     }
                 } else {
-                    modelMap[x][z][2] = null;
+                    modelMap[x][z].setScale(null);
+                    modelMap[x][z].setModelList(null);
                 }
             }
         }
@@ -298,20 +296,18 @@ public class TerrainMain {
             Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 
             shaderProgramModels.use();
-//            System.out.println(cam.getCamPos().x+", "+cam.getCamPos().z);
+            
             for(int x=0; x<modelMap.length; x++) {
                 for(int z=0; z<modelMap.length; z++) {
-                    if(modelMap[x][z][2]!=null) {
-                        List modelList = (List)modelMap[x][z][2];
-                        ListIterator modelListIterator = modelList.listIterator();
+                    if(modelMap[x][z]!=null && modelMap[x][z].getModelList()!=null) {
+                        ListIterator modelListIterator = modelMap[x][z].getModelList().listIterator();
                         
                         while(modelListIterator.hasNext()) {
                             ModelPart modelPart = (ModelPart)modelListIterator.next();
-                            shaderProgramModels.setUniform("scale", (Matrix4f)modelMap[x][z][1]);
-                            shaderProgramModels.setUniform("translate", (Matrix4f)modelMap[x][z][0]);
+                            shaderProgramModels.setUniform("scale", modelMap[x][z].getScale());
+                            shaderProgramModels.setUniform("translate", modelMap[x][z].getPosition());
                             
                             shaderProgramModels.setUniform("model", model);
-//                            shaderProgram.setUniform("modelIT", new Matrix4f());
                             shaderProgramModels.setUniform("viewProj", viewProj);   
                             
                             shaderProgramModels.setUniform("k_a", modelPart.material.ambientRef);
@@ -325,17 +321,11 @@ public class TerrainMain {
                                 shaderProgramModels.setUniform("dissolveTex", modelPart.material.textureDissolveFactColorMap);
                             if(modelPart.material.textureSpecularRefColorMap!=null)
                                 shaderProgramModels.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);
-                        
-                            Matrix4f translateTmp = (Matrix4f)modelMap[x][z][0];
-                            Vector3f modelPosition = new Vector3f(translateTmp.m30, translateTmp.m31, translateTmp.m32);
-//                            System.out.println(modelPosition.length()-cam.getCamPos().length());
                             
-
-                            
-                            if(modelPosition.x-cam.getCamPos().x<2 &&
-                               modelPosition.x-cam.getCamPos().x>-2 &&
-                               modelPosition.z-cam.getCamPos().z<2 &&
-                               modelPosition.z-cam.getCamPos().z>-2)
+                            if(modelMap[x][z].getPosition().m30-cam.getCamPos().x<2 &&
+                               modelMap[x][z].getPosition().m30-cam.getCamPos().x>-2 &&
+                               modelMap[x][z].getPosition().m32-cam.getCamPos().z<2 &&
+                               modelMap[x][z].getPosition().m32-cam.getCamPos().z>-2)
                             {
                                modelPart.geometry.draw();
                             }
@@ -348,8 +338,8 @@ public class TerrainMain {
             shaderProgramTerrain.setUniform("viewProj", viewProj);
             shaderProgramTerrain.setUniform("model", terrainModelMatrix);
             shaderProgramTerrain.setUniform("modelIT", terrainModelITMatrix);
-//            shaderProgram.setUniform("param", terrainParamLoc);
             terrainGeometry.draw();
+
             // present screen
             Display.update();
             Display.sync(60);
@@ -363,7 +353,7 @@ public class TerrainMain {
      * @param millis Millisekunden seit dem letzten Aufruf
      */
     public static void handleInput(long millis) {
-        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
+        float moveSpeed = 2e-4f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
         float camSpeed = 5e-3f;
         
         while(Keyboard.next()) {
