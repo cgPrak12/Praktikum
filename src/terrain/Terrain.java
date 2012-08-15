@@ -25,6 +25,7 @@ public class Terrain
 		this.size = getLastPow2(size);
 		int dim = this.size / 256;
 		
+		System.out.println("test: " + test + ", size: " + this.size + ", dim: " + dim + ", overwrite: " + overwrite);
 		if(test && !overwrite && dim * dim == (BlockUtil.readDataInfo()))
 		{
 			// Bloecke liegen bereits vor
@@ -68,11 +69,18 @@ public class Terrain
 	}
 	
 	/* Konstruktoren mit Standardwerten */
-	public Terrain(int size, float initHeight)	{ this(size, initHeight, true); }	// overwrite = false
-	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } 	// initHeight = 0.0f
+
+//	public Terrain(int size, float initHeight)	{ this(size, initHeight, true); }	// overwrite = false
+//	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } 	// initHeight = 0.0f
+//	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       	// size = 1024
+//	public Terrain(int size)					{ this(size, true); }
+//	public Terrain() 							{ this(true); }                  	// overwrite = true
+
+	public Terrain(int size, float initHeight)	{ this(size, initHeight, false); }	// overwrite = false
+	public Terrain(int size, boolean overwrite)	{ this(size, 1.0f, overwrite); } 	// initHeight = 0.0f
 	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       	// size = 1024
-	public Terrain(int size)					{ this(size, true); }
-	public Terrain() 							{ this(true); }                  	// overwrite = true
+	public Terrain() 							{ this(false); }                  	// overwrite = false
+
 	
 	/**
 	 * Setze alle Vertices initial auf die gleiche Hoehe
@@ -174,6 +182,7 @@ public class Terrain
 			}
 			
 			// Blockindex ist in n gespeichert
+//			System.out.printf("SET: setting (%d,%d) at pos %d with %f in block (%d,%d)\n", x, z, pos, value, blockX, blockZ);
 			currentBlocks[n].setInfo(blockX, blockZ, pos, value);
 			return true;
 		}
@@ -255,6 +264,7 @@ public class Terrain
 		// Heap auf Festplatte schreiben
 		for(int i = 0; i < MEM_BLOCKS; i++)
 		{
+
 			BlockUtil.writeBlockData(currentBlocks[i]);
 		}
 		
@@ -273,6 +283,31 @@ public class Terrain
 				count++;
 			}
 		}
+	}
+	
+	/**
+	 * Liefert einen Block mit allen Werten bei ID (idX, idZ)
+	 * @param idX x-Koordinate des Blocks
+	 * @param idZ z-Koordinate des Blocks
+	 * @return Block mit allen Werten bei ID (idX, idZ)
+	 */
+	public Block getBlock(int idX, int idZ)
+	{
+		Block result = new Block(idX, idZ);
+		for(int i = 0; i < 256; i++)
+		{
+			for(int j = 0; j < 256; j++)
+			{
+				int blockX = idX * 256 + i;
+				int blockZ = idZ * 256 + j;
+				result.setInfo(i, j, 0, this.get(blockX, blockZ, 0));
+				result.setInfo(i, j, 1, this.get(blockX, blockZ, 1));
+				result.setInfo(i, j, 2, this.get(blockX, blockZ, 2));
+				result.setInfo(i, j, 3, this.get(blockX, blockZ, 3));
+				result.setInfo(i, j, 4, this.get(blockX, blockZ, 4));
+			}
+		}				
+		return result;
 	}
 	
 	/**

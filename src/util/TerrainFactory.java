@@ -116,7 +116,7 @@ public class TerrainFactory {
 	 */
 	public static void genTerrain(Terrain terra, int form){
 
-		terraform(terra, form, 6);
+		terraform(terra, form, 1);
 		flattenAllBiomes(terra, 10);
 		smooth(terra);
 		checkNormals(terra);
@@ -144,8 +144,6 @@ public class TerrainFactory {
 		Vector3f bottomLeft = new Vector3f();
 		Vector3f bottomRight = new Vector3f();
 
-
-
 		for(int x = minX; x<maxX; x++){
 			
 			if(x%100 == 0){ 
@@ -153,31 +151,40 @@ public class TerrainFactory {
 			}
 			
 			for(int z = minZ; z<maxZ; z++){	
+				
 				tmp1.set(1e-2f * x, terra.get(x, z, 0), 1e-2f * z);
 //				if (x != 0 && z != 0 && x !=  terra.getSize() && z != terra.getSize()){
+				
 					tmp2.set(1e-2f * (x-1), terra.get(x-1, z, 0), 1e-2f * (z));	
 					tmp3.set(1e-2f * (x-1), terra.get(x-1, z-1, 0), 1e-2f * (z-1));	
-					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), topLeft);
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp2, tmp3, null), topLeft);
 					topLeft.normalise();
 
 					tmp2.set(1e-2f * (x), terra.get(x, z-1, 0), 1e-2f * (z-1));	
 					tmp3.set(1e-2f * (x+1), terra.get(x+1, z-1, 0), 1e-2f * (z-1));	
-					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), topRight);
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp2, tmp3, null), topRight);
 					topRight.normalise();
 
 					tmp2.set(1e-2f * (x), terra.get(x, z+1, 0), 1e-2f * (z+1));	
 					tmp3.set(1e-2f * (x-1), terra.get(x-1, z+1, 0), 1e-2f * (z+1));	
-					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), bottomLeft);
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp2, tmp3, null), bottomLeft);
 					bottomLeft.normalise();
 
 					tmp2.set(1e-2f * (x+1), terra.get(x+1, z, 0), 1e-2f * (z));	
 					tmp3.set(1e-2f * (x+1), terra.get(x+1, z+1, 0), 1e-2f * (z+1));	
-					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp3, tmp1, null), bottomRight);
+					Vector3f.cross(Vector3f.sub(tmp2, tmp1, null), Vector3f.sub(tmp2, tmp3, null), bottomRight);
 					bottomRight.normalise();
+					
+					Vector3f.add(topLeft, topRight, tmp1);
+					Vector3f.add(tmp1, bottomLeft, tmp1);
+					Vector3f.add(tmp1, bottomRight, tmp1);
+					tmp1.normalise();
 
-					terra.set(x, z, 1, (topLeft.x+topRight.x+bottomLeft.x+bottomRight.x)/4f);
-					terra.set(x, z, 2, (topLeft.y+topRight.y+bottomLeft.y+bottomRight.y)/4f);
-					terra.set(x, z, 3, (topLeft.z+topRight.z+bottomLeft.z+bottomRight.z)/4f);
+
+					terra.set(x, z, 1, tmp1.x);
+					terra.set(x, z, 2, tmp1.y);
+					terra.set(x, z, 3, tmp1.z);
+					
 //				}else{
 //					// do edges and corners... or not!
 //				}
@@ -187,94 +194,11 @@ public class TerrainFactory {
 		System.out.println();
 	}
 
-//
-//	/**
-//	 * check vertices in the whole map for their normals and writes them in position 1 - 3.
-//	 */ 
-//	public static void checkNormals(Terrain terra){
-//		// List of triangles for a grid of vertices, one bigger on each side to account context
-//		
-//		System.out.println("Checking normals");
-//		int vertexSize = 6;
-//		
-//		//Gen normalMap
-//		   	    	
-//		FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize*terra.getSize()*terra.getSize());
-//
-//		// Gen Vbuffer
-//		for(int z=0; z < terra.getSize(); ++z) {
-//			for(int x=0; x < terra.getSize(); ++x) {
-//				vertices.put(1e-2f * (float)x);
-//				vertices.put(terra.get(x, z, 0));
-//				vertices.put(1e-2f * (float)z);
-//				vertices.put(0);	// norm.x
-//				vertices.put(0);	// norm.y
-//				vertices.put(0);	// norm.z
-//			}                	    
-//		}
-//		
-//		System.out.println("Generating IndexBuffer");
-//		// Gen IndexBuffer
-//		IntBuffer indices = BufferUtils.createIntBuffer(3 * 2 * (terra.getSize() - 1) * (terra.getSize() - 1));
-//		for(int z=0; z < terra.getSize() - 1; ++z) {
-//			for(int x=0; x < terra.getSize() - 1; ++x) {
-//				indices.put(z * terra.getSize() + x);
-//				indices.put((z + 1) * terra.getSize() + x + 1);
-//				indices.put(z * terra.getSize() + x + 1);
-//
-//				indices.put(z * terra.getSize() + x);
-//				indices.put((z + 1) * terra.getSize() + x);
-//				indices.put((z + 1) * terra.getSize() + x + 1);
-//			}
-//		}
-//		
-//		System.out.println("Calculating normals");
-//		// Gen norms
-//		indices.position(0);
-//		for(int i=0; i < indices.capacity();) {
-//			int index0 = indices.get(i++);
-//			int index1 = indices.get(i++);
-//			int index2 = indices.get(i++);
-//
-//			vertices.position(vertexSize * index0);
-//			Vector3f p0 = new Vector3f();
-//			p0.load(vertices);
-//			vertices.position(vertexSize * index1);
-//			Vector3f p1 = new Vector3f();
-//			p1.load(vertices);
-//			vertices.position(vertexSize * index2);
-//			Vector3f p2 = new Vector3f();
-//			p2.load(vertices);
-//
-//			Vector3f a = Vector3f.sub(p1, p0, null);
-//			Vector3f b = Vector3f.sub(p2, p0, null);
-//			Vector3f normal = Vector3f.cross(a, b, null);
-//			normal.normalise();
-//
-//			vertices.position(vertexSize * index0 + 3);
-//			normal.store(vertices);
-//			
-//		}
-//		vertices.position(0);
-//		indices.position(0);
-//		
-//		System.out.println("Storing normals");
-//		
-//		for(int x=1; x<=terra.getSize(); x++){
-//			for(int z=0; z<terra.getSize(); z++){
-//
-//				vertices.position(4+(vertexSize*x*z));
-//
-//				terra.set(x-1,z,1, vertices.get());
-//				terra.set(x-1,z,2, vertices.get());
-//				terra.set(x-1,z,3, vertices.get());	   
-//				
-//			}        	
-//		}
-//		System.out.println("Done");
-//		System.out.println();
-//	}
-
+	public static void checkTangents(Terrain terra){
+		
+		System.out.println("Calculating tangents");
+		
+	}
 	/**
 	 * smoothing of terra
 	 */
@@ -621,7 +545,6 @@ public class TerrainFactory {
 		System.out.println();
 	}
 	
-
 	/**
 	 * First, a "riverflow" is computed and put in an array, where the first dimension size is the length of the river,
 	 * and the second dimension is 2, one for each coordinate. Fluctuation is currently changed at /5 of river length.
@@ -633,35 +556,28 @@ public class TerrainFactory {
 	 * @param dstX destination  point x
 	 * @param dstZ destination  point z
 	 * @param depth how deep the river bed will be 
+	 * @param bezierPts is the array of bezierpoints. Use with care, if unsure call the overloaded function
 	 */
-	public static void putRiver(Terrain terra, float scale, int x, int z, int dstX, int dstZ, float depth){
-		
+	public static void putRiver(Terrain terra, float scale, int x, int z, int dstX, int dstZ, float depth, float[][] bezierPts){
 		System.out.println("Putting river from "+x+" / "+z+" to "+dstX+" / "+dstZ);
-		
-		float negFreq = 1*scale; // depends in some way on depth and scale
-		int randRad = (int) (100*Math.sqrt(Math.sqrt(scale))); // defines the weight of randomness. TotalRand = [-1, 1] * radRad
+
+		float negFreq = 0.5f*scale; // depends in some way on depth and scale
 		float dist = (float) Math.sqrt((x-dstX)*(x-dstX)+(z-dstZ)*(z-dstZ));
-
-		float deltaX = Math.abs(x - dstX);
-		float deltaZ = Math.abs(z - dstZ);
-		float[][] bezierPts = new float [(int) Math.ceil(Math.sqrt(dist)*3f)][2];
-
-		// Fill the array with suitable bezier Points
-		bezierPts[0][0] = x;
-		bezierPts[0][1] = z;
-		bezierPts[bezierPts.length-1][0] = dstX;
-		bezierPts[bezierPts.length-1][1] = dstZ;
-		for(int i=2; i<=bezierPts.length-1; i++){
-			bezierPts[i-1][0] = ((2*random.nextFloat()-1) * randRad) + x + ((float)i/bezierPts.length * deltaX);
-
-			bezierPts[i-1][1] = ((2*random.nextFloat()-1) * randRad) + z + ((float)i/bezierPts.length * deltaZ); 
-		}
 
 		//Draw Lines
 		float[][][] interPols = new float[bezierPts.length-1][bezierPts.length-1][2];
 		int iPolIndex;
 		float lvl;
 		int idxX, idxZ;
+		int callIdx = 0;
+		for(float i = 0; i<1.0001; i+=(negFreq/dist)){
+			callIdx++;
+		}
+
+		// Store them and call them later, so that calls don't affect later calls
+		float[][] callValues = new float[callIdx][4];
+		callIdx = 0;
+		float fluct;	// is the amount of stone/rock/.. in the area around the current lake, if it is high, the lake is made smaller
 		for(float var = 0; var<1.0001; var+=(negFreq/dist)){
 			iPolIndex = 0;
 			for(int linePos = 0; linePos< interPols.length; linePos++){
@@ -674,24 +590,88 @@ public class TerrainFactory {
 					interPols[iPolIndex][linePos][1] = Util.iPol(interPols[iPolIndex-1][linePos][1], interPols[iPolIndex-1][linePos+1][1], var);			 
 				}
 			}
-			
-			// Get new depth by substracting it from the averaged lvl from the point where the lake is put 
+			// Get new depth by subtracting it from the averaged lvl from the point where the lake is put 
 			lvl = 0;
 			idxX = (int)Math.round(interPols[interPols.length-1][0][0]);
 			idxZ = (int)Math.round(interPols[interPols.length-1][0][1]);
+
 			for(int i = 0; i<gauss17.length;i++){
 				for(int j = 0; j<gauss17[0].length;j++){
-					lvl += (gauss17[i][j]*terra.get(idxX+i-8, idxZ+i-8, 0)); 
+					lvl += (gauss17[i][j]*terra.get(idxX+i-8, idxZ+j-8, 0)); 
 				}
 			}
+			fluct = 289 * scale*scale;
+			int idxI, idxJ;
+			for(int i = (int) (-gauss17.length*scale/2); i<gauss17.length*scale/2; i++){
+				if(i>=0) idxI = i;
+				else idxI = 0;
+				if(i<terra.getSize()){
+				}else idxI = terra.getSize()-1;
+				for(int j = (int) (-gauss17[0].length*scale/2); j<gauss17[0].length*scale/2; j++){
+					if(j>=0) idxJ = j;
+					else idxJ = 0;
+					if(j<terra.getSize()){
+					}else idxJ = terra.getSize()-1;
+					if(terra.get(idxX+idxI, idxZ+idxJ, 4) > 6.5f){
+						fluct -= 0.5f;
+					}
+							
+				}
+			}
+			fluct /= (289f*scale*scale);
+			System.out.println(fluct);
 			lvl /= gauss17Sum;
-			
-			// Calling lake function
-			putLake(terra, scale, lvl-depth, idxX, idxZ);
+
+			System.out.println(fluct);
+
+			callValues[callIdx][0] = fluct * scale;
+			callValues[callIdx][1] = lvl-depth;
+			callValues[callIdx][2] = idxX;
+			callValues[callIdx][3] = idxZ;
+			callIdx++;
 		}
+		
+		// Call them all
+		for(int i = 0; i<callValues.length; i++){
+			putLake(terra, callValues[i][0], callValues[i][1], Math.round(callValues[i][2]), Math.round(callValues[i][3]));
+		}
+		
 		System.out.println("Done");
-		System.out.println();
 	}
+	
+	/**
+	 * Computes random bezier points for putRiver and uses it with these.
+	 * 
+	 * @param terra
+	 * @param scale
+	 * @param x
+	 * @param z
+	 * @param dstX
+	 * @param dstZ
+	 * @param depth
+	 */
+		public static void putRiver(Terrain terra, float scale, int x, int z, int dstX, int dstZ, float depth){
+
+			int randRad = (int) (100*Math.sqrt(Math.sqrt(scale))); // defines the weight of randomness. TotalRand = [-1, 1] * radRad
+			float dist = (float) Math.sqrt((x-dstX)*(x-dstX)+(z-dstZ)*(z-dstZ));
+
+			float deltaX = Math.abs(x - dstX);
+			float deltaZ = Math.abs(z - dstZ);
+			float[][] bezierPts = new float [(int) Math.ceil(Math.sqrt(dist)*3f)][2];
+
+			// Fill the array with suitable bezier Points
+			bezierPts[0][0] = x;
+			bezierPts[0][1] = z;
+			bezierPts[bezierPts.length-1][0] = dstX;
+			bezierPts[bezierPts.length-1][1] = dstZ;
+			for(int i=2; i<=bezierPts.length-1; i++){
+				bezierPts[i-1][0] = ((2*random.nextFloat()-1) * randRad) + x + ((float)i/bezierPts.length * deltaX);
+
+				bezierPts[i-1][1] = ((2*random.nextFloat()-1) * randRad) + z + ((float)i/bezierPts.length * deltaZ); 
+			}
+
+			putRiver(terra, scale, x, z, dstX, dstZ, depth, bezierPts);
+		}
 
 	/**
 	 * Flattens at a certain point within a range and also sets material in this range.
@@ -900,7 +880,7 @@ public class TerrainFactory {
 		boolean needsRoughing = true;
 		switch(macroStructure){
 		case 1:	Util.biLinIpol(terra, noiseMap, 0.05f, 1f);
-		Util.biLinIpol(terra, noiseMap, 0.1f, 0.505f);break;
+				Util.biLinIpol(terra, noiseMap, 0.1f, 0.505f);break;
 		case 2: Util.biLinIpol(terra, desertMap1, 1f, 0.4f);break;
 		case 3: Util.biLinIpol(terra, mountainMap1, 0.8f, 2f);break;
 		case 4: Util.biLinIpol(terra, mountainMap2, 1f, 0.4f);break;
