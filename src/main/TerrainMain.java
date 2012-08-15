@@ -298,7 +298,7 @@ public class TerrainMain {
             Matrix4f viewProj = Util.mul(null, cam.getProjection(), cam.getView());
 
             shaderProgramModels.use();
-            
+//            System.out.println(cam.getCamPos().x+", "+cam.getCamPos().z);
             for(int x=0; x<modelMap.length; x++) {
                 for(int z=0; z<modelMap.length; z++) {
                     if(modelMap[x][z][2]!=null) {
@@ -326,12 +326,23 @@ public class TerrainMain {
                             if(modelPart.material.textureSpecularRefColorMap!=null)
                                 shaderProgramModels.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);
                         
-                            modelPart.geometry.draw();
+                            Matrix4f translateTmp = (Matrix4f)modelMap[x][z][0];
+                            Vector3f modelPosition = new Vector3f(translateTmp.m30, translateTmp.m31, translateTmp.m32);
+//                            System.out.println(modelPosition.length()-cam.getCamPos().length());
+                            
+
+                            
+                            if(modelPosition.x-cam.getCamPos().x<2 &&
+                               modelPosition.x-cam.getCamPos().x>-2 &&
+                               modelPosition.z-cam.getCamPos().z<2 &&
+                               modelPosition.z-cam.getCamPos().z>-2)
+                            {
+                               modelPart.geometry.draw();
+                            }
                         }
                     }
                 }
             }
-            
             
             shaderProgramTerrain.use();
             shaderProgramTerrain.setUniform("viewProj", viewProj);
