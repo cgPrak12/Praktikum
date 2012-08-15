@@ -89,12 +89,12 @@ public class TerrainMain
 
 			clip = new ClipMap(30, 8, program, cam);
 
-			float[][] heightMap = new float[terra.getSize()][terra.getSize()];
+			float[][] heightMap = TerrainView.getHeightMap();
 			for(int i = 0; i < heightMap.length; i++)
 			{
 				for(int j = 0; j < heightMap.length; j++)
 				{
-					heightMap[i][j] = terra.get(i, j, 0);
+					heightMap[i][j] = (float)Math.random();
 				}
 					
 			}
