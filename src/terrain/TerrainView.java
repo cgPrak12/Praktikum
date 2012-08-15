@@ -6,7 +6,6 @@ import util.Camera;
  * @author group data */
 public class TerrainView
 {
-
 	// private values
 	private static Block[][] myBl;
 	private static Camera cam;
@@ -16,8 +15,8 @@ public class TerrainView
 	private static boolean initialised;
 
 	/** constructor
-	 * @param c Camera */
-
+	 * @param c Camera 
+	 */
 	static
 	{
 		myBl = new Block[9][9];
@@ -36,22 +35,23 @@ public class TerrainView
 
 		int idI = middle[0];
 		int idJ = middle[1];
-		
-		int dim = terra.getSize() / 256;
 
+		int dim = terra.getSize() / 256;
+		
 		for (int i = 0; i < 9; i++)
 		{
 			for (int j = 0; j < 9; j++)
 			{
 				if (!(i == 4 && j == 4))
 				{
-					if (idI + i - 4 >= 0 && idJ + j - 4 >= 0 && idI + i - 4 < dim
-							&& idJ + j - 4 < dim)
+					if (idI + i - 4 >= 0 && idJ + j - 4 >= 0 && idI + i - 4 < dim && idJ + j - 4 < dim)
 					{
-						myBl[i][j] = terra.getBlock(idI + i - 4,idJ + j - 4);
+						System.out.println("all clear!");
+						myBl[i][j] = terra.getBlock(idI+i-4,idJ+j-4);
 					}
 					else
 					{
+						System.out.println("we need more dummies!");
 						myBl[i][j] = dummy;
 					}
 				}
@@ -59,21 +59,21 @@ public class TerrainView
 		}
 	}
 
+
 	/** update the whole blocks */
 	public static void updateTerrainView()
 	{
-
 		if (!initialised)
 			throw new IllegalStateException("Klasse wurde nicht initialisiert!");
 		// hier muss der erste Block mit Fehlerbehandlung gesetzt werden, falls
-		// Camera außerhalb
-		// einschränkung der Camera oder spezielle Fehlerbehandlung hier
+		// Camera ausserhalb
+		// einschraenkung der Camera oder spezielle Fehlerbehandlung hier
 		int diffX = ((int) cam.getCamPos().x / 256) - middle[0];
 		int diffY = ((int) cam.getCamPos().z / 256) - middle[1];
-		int dim = terra.getSize() / 256;
 
 		if (!(diffX == 0 && diffY == 0))
 		{
+			int dim = terra.getSize() / 256;
 			myBl[4][4] = terra.getBlock((int)cam.getCamPos().x / 256, (int)cam.getCamPos().z / 256);
 			middle = myBl[4][4].getID();
 
@@ -85,14 +85,10 @@ public class TerrainView
 					{
 						if (i + diffX < 0 || i + diffX > 8 || j + diffY < 0 || j + diffY > 8)
 						{
-
-							if (   middle[0] - 4 + i >= 0 
-								&& middle[1] - 4 + j >= 0
-								&& middle[0] - 4 + i < dim
-								&& middle[1] - 4 + j < dim)
+							if ((middle[0] - 4 + i) >= 0 && (middle[1] - 4 + j) >= 0 && (middle[0] - 4 + i) < dim && (middle[1] - 4 + j) < dim)
 							{
 								System.out.println("Neuer Block wird gelesen");
-								myBl[i][j] = terra.getBlock(myBl[i][j].getID()[0] + diffX, myBl[i][j].getID()[1] + diffY);
+								myBl[i][j] = terra.getBlock(myBl[i][j].getID()[0] + diffX,myBl[i][j].getID()[1] + diffY);
 							}
 							else
 							{
@@ -126,38 +122,11 @@ public class TerrainView
 				{
 					System.out.println("error");
 				}
-				heightMap[x][z] = myBl[bx][bz].getInfo(x % 256, z % 256, 0);
+				heightMap[x][z] = myBl[bx][bz].getInfo(x % 256, z % 256, 0) * 20f;
 			}
 		}
 		return heightMap;
 	}
-
-//	/** method for getting the latest blocks as an float[][][] with sizes
-//	 * [2304][2304][5]
-//	 * @return float[][][] */
-//	public static float[][][] getArray()
-//	{
-//		if (!initialised)
-//			throw new IllegalStateException("Klasse wurde nicht initialisiert!");
-//		float[][][] area = new float[9 * 256][9 * 256][5];
-//
-//		for (int x = 0; x < area.length; x++)
-//		{
-//			for (int z = 0; z < area.length; z++)
-//			{
-//
-//				int bx = (int) x / 256;
-//				int bz = (int) z / 256;
-//
-//				for (int dat = 0; dat < 5; dat++)
-//				{
-//					area[x][z][dat] = myBl[bx][bz].getInfo(x % 256, z % 256, dat);
-//				}
-//			}
-//		}
-//
-//		return area;
-//	}
 
 	/** method gives the camPosX as related to the float[][][]
 	 * @return int */

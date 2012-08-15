@@ -78,13 +78,14 @@ public class TerrainMain
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Terrain_FS.glsl");
 			program.use();
 			
-			terra = new terrain.Terrain(3000, 5f, false);
+			terra = new terrain.Terrain(2048, 5f, false);
 
 			TerrainFactory.init();
 			TerrainFactory.genTerrain(terra, 1);
 
 			// terrainGeometry = GeometryFactory.genTerrain(terra);
 
+			terra.save();
 			TerrainView.init(terra, cam);
 
 			clip = new ClipMap(30, 8, program, cam);
@@ -128,7 +129,7 @@ public class TerrainMain
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-
+			
 			render();
 			OpenCL.destroy();
 			destroy();

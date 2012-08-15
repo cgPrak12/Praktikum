@@ -1,9 +1,9 @@
 package terrain;
 
+
 public class Terrain
 {
-	private static final int MEM_BLOCKS_DIM = 8;
-	private static final int MEM_BLOCKS = MEM_BLOCKS_DIM * MEM_BLOCKS_DIM;
+	private static final int MEM_BLOCKS = 64;
 	
 	private int size;
 	private float initialHeight;
@@ -23,7 +23,7 @@ public class Terrain
 		this.size = getLastPow2(size);
 		int dim = this.size / 256;
 		
-		System.out.println("test: " + test + ", size: " + this.size + ", dim: " + dim + ", overwrite: " + overwrite + " " + BlockUtil.readDataInfo());
+		System.out.println("test: " + test + ", size: " + this.size + ", dim: " + dim + ", overwrite: " + overwrite + " " + (BlockUtil.readDataInfo()));
 		if(test && !overwrite && dim * dim == (BlockUtil.readDataInfo()))
 		{
 			// Bloecke liegen bereits vor
@@ -60,7 +60,7 @@ public class Terrain
 	
 	/* Konstruktoren mit Standardwerten */
 	public Terrain(int size, float initHeight)	{ this(size, initHeight, false); }	// overwrite = false
-	public Terrain(int size, boolean overwrite)	{ this(size, 1.0f, overwrite); } 	// initHeight = 0.0f
+	public Terrain(int size, boolean overwrite)	{ this(size, 0.0f, overwrite); } 	// initHeight = 0.0f
 	public Terrain(boolean overwrite) 			{ this(1024, overwrite); }       	// size = 1024
 	public Terrain() 							{ this(false); }                  	// overwrite = false
 
@@ -70,7 +70,7 @@ public class Terrain
 	 * Initialisiere dabei Block[] fuer schnelleren Zugriff bei get- und set-Aufrufen
 	 */
 	private void init()
-	{
+	{		
 		int count = 0;
 		int countDot = 0;
 		int factor = (size / 1024) * (size / 1024);
@@ -126,7 +126,7 @@ public class Terrain
 	 */
 	public boolean set(int x, int z, int pos, float value)
 	{
-		if(x >= 0 && z >= 0 && pos >= 0 &&x < size && z < size && pos < 5)
+		if(x >= 0 && z >= 0 && pos >= 0 && x < size && z < size && pos < 5)
 		{
 			int idX    = x / 256; // x-Koordinate im Terrain
 			int blockX = x % 256; // x-Koordinate im Block
@@ -159,8 +159,7 @@ public class Terrain
 					}
 					n++;
 				}
-			}
-			
+			}			
 			// Blockindex ist in n gespeichert
 			currentBlocks[n].setInfo(blockX, blockZ, pos, value);
 			return true;
@@ -229,8 +228,23 @@ public class Terrain
 	/**
 	 * @return the size
 	 */
-	public int getSize() {
+	public int getSize()
+	{
 		return size;
+	}
+	
+	/**
+	 * Speichert die Daten auf der Festplatte
+	 */
+	public void save()
+	{
+		for(int i = 0; i < size / 256; i++)
+		{
+			for(int j = 0; j < size / 256; j++)
+			{
+				BlockUtil.writeBlockData(getBlock(i,j));
+			}
+		}
 	}
 	
 	/**
@@ -286,20 +300,6 @@ public class Terrain
 			}
 		}				
 		return result;
-	}
-	
-	/**
-	 * Speichert alle Daten auf die Festplatte
-	 */
-	public void save()
-	{
-		for(int i = 0; i < size / 256; i++)
-		{
-			for(int j = 0; j < size / 256; j++)
-			{
-				BlockUtil.writeBlockData(getBlock(i,j));
-			}
-		}
 	}
 	
 	/**
