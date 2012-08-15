@@ -20,14 +20,14 @@ void main(void) {
 	float r2 = dot(n.xy, n.xy);
 	if (r2 > 1.0) discard; 			// kill pixels outside circle
 
-
 	n.z = -dot(n.xy, n.xy);
 	vec4 pos = (view * positionWC);
+
 	vec3 pixelPos = pos.xyz + n;
 	depth = vec4(pixelPos, length(pixelPos) / viewDistance);
-	
-	float scale = pointSize * 0.5 / 800.0;
+
+	float scale = pointSize * 0.5 / 100.0;
 	vec3 pixelPos2 = pos.xyz + scale*n;
-//	depth2 = vec4(pixelPos2, length(pixelPos2) / viewDistance);
-	depth2 = vec4(pos.xyz, length(pos.xyz) / viewDistance);
+	depth2 = vec4(pixelPos2, length(pixelPos2) / viewDistance);
+//	depth2 = vec4(pos.xyz, length(pos.xyz) / viewDistance);
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import static opengl.GL.*;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL30;
 
 public class FrameBuffer {
 
@@ -27,7 +28,7 @@ public class FrameBuffer {
             this.bind();
             renderBufferObjectId = glGenRenderbuffers();
             glBindRenderbuffer(GL_RENDERBUFFER, renderBufferObjectId);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, WIDTH, HEIGHT);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
             glBindRenderbuffer(GL_RENDERBUFFER, 0);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferObjectId);
             this.unbind();
