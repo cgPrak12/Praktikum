@@ -78,7 +78,7 @@ public class TerrainMain
 			program = new ShaderProgram("./shader/Test_Vs.glsl", "./shader/Terrain_FS.glsl");
 			program.use();
 			
-			terra = new terrain.Terrain(1024, 5f, true);
+			terra = new terrain.Terrain(3000, 5f, false);
 
 			TerrainFactory.init();
 			TerrainFactory.genTerrain(terra, 1);
@@ -95,6 +95,13 @@ public class TerrainMain
 			for (int i = 0; i < heightMap.length; i++)
 			{	
 				fbuffer.put(heightMap[i]);
+//				for (int k = 0; k < heightMap[0].length; k++)
+//				{
+//					if(heightMap[i][k] != 0.0)
+//					{
+//						System.out.println(heightMap[i][k]);
+//					}	
+//				}
 			}
 			fbuffer.flip();
 			tex = new Texture(GL_TEXTURE_2D, 1);
@@ -103,29 +110,17 @@ public class TerrainMain
 					GL_FLOAT, fbuffer);
 			program.setUniform("elevation", tex);
 			
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 			
-			
-
-			for (int i = 0; i < terra.getSize(); i++)
-			{
-				for (int j = 0; j < terra.getSize(); j++)
-				{
-					fbuffer.put(terra.get(i, j, 4));
-					//System.out.println(heightMap[i][j]);
-				}
-
-			}
 			fbuffer.flip();
 			tex = new Texture(GL_TEXTURE_2D, 2);
 			tex.bind();
 			glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, terra.getSize(), terra.getSize(), 0, GL11.GL_RED,
 					GL_FLOAT, fbuffer);
 			program.setUniform("color", tex);
-			
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
 			tex = Texture.generateTexture("./earth.jpg", 2);
 			tex.bind();
@@ -145,7 +140,7 @@ public class TerrainMain
 
 	public static void render() throws LWJGLException
 	{
-		glClearColor(0.1f, 0.0f, 0.0f, 1.0f); // background color: dark red
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // background color: dark red
 
 		long last = System.currentTimeMillis();
 		long now, millis;
@@ -203,22 +198,22 @@ public class TerrainMain
 				switch (Keyboard.getEventKey())
 				{
 				case Keyboard.KEY_W:
-					moveDir.z += 1.0f;
+					moveDir.z += 5.0f;
 					break;
 				case Keyboard.KEY_S:
-					moveDir.z -= 1.0f;
+					moveDir.z -= 5.0f;
 					break;
 				case Keyboard.KEY_A:
-					moveDir.x += 1.0f;
+					moveDir.x += 5.0f;
 					break;
 				case Keyboard.KEY_D:
-					moveDir.x -= 1.0f;
+					moveDir.x -= 5.0f;
 					break;
 				case Keyboard.KEY_SPACE:
-					moveDir.y += 1.0f;
+					moveDir.y += 5.0f;
 					break;
 				case Keyboard.KEY_C:
-					moveDir.y -= 1.0f;
+					moveDir.y -= 5.0f;
 					break;
 				case Keyboard.KEY_ESCAPE:
 					bContinue = false;
@@ -229,22 +224,22 @@ public class TerrainMain
 				switch (Keyboard.getEventKey())
 				{
 				case Keyboard.KEY_W:
-					moveDir.z -= 1.0f;
+					moveDir.z -= 5.0f;
 					break;
 				case Keyboard.KEY_S:
-					moveDir.z += 1.0f;
+					moveDir.z += 5.0f;
 					break;
 				case Keyboard.KEY_A:
-					moveDir.x -= 1.0f;
+					moveDir.x -= 5.0f;
 					break;
 				case Keyboard.KEY_D:
-					moveDir.x += 1.0f;
+					moveDir.x += 5.0f;
 					break;
 				case Keyboard.KEY_SPACE:
-					moveDir.y -= 1.0f;
+					moveDir.y -= 5.0f;
 					break;
 				case Keyboard.KEY_C:
-					moveDir.y += 1.0f;
+					moveDir.y += 5.0f;
 					break;
 				case Keyboard.KEY_F1:
 					cam.changeProjection();

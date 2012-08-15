@@ -44,7 +44,7 @@ public class GeometryFactory
 	/** Erzeugt ein MxNGrid in der XZ-Ebene
 	 * 
 	 * @param m breite
-	 * @param n länge
+	 * @param n lï¿½nge
 	 * @return Grid : Geometry */
 	public static Geometry createMxNGrid(int m, int n)
 	{
@@ -59,8 +59,8 @@ public class GeometryFactory
 		{
 			for (int x = 0; x < m; x++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] =1e-2f *  x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 			}
 		}
 
@@ -104,7 +104,7 @@ public class GeometryFactory
 	/** Erzeugt ein Grid in der XZ-Ebene
 	 * 
 	 * @param m breite
-	 * @param n länge
+	 * @param n lï¿½nge
 	 * @return Grid : Geometry */
 	public static Geometry createGrid(int x, int y)
 	{
@@ -160,7 +160,7 @@ public class GeometryFactory
 	/** Erzeugt ein Grid in der XZ-Ebene
 	 * 
 	 * @param m breite
-	 * @param n länge
+	 * @param n lï¿½nge
 	 * @return Grid : Geometry */
 	public static Geometry createGridTex(int x, int y)
 	{
@@ -216,7 +216,7 @@ public class GeometryFactory
 
 	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben rechts"
 	 * 
-	 * @param length Länge einer Kante
+	 * @param length Lï¿½nge einer Kante
 	 * @return TopRightL Geometrie */
 
 	public static Geometry createTopRight(int length)
@@ -225,7 +225,7 @@ public class GeometryFactory
 		int vaid = glGenVertexArrays();
 		glBindVertexArray(vaid);
 
-		// Vertex und Index Arrays mit passender Größe erzeugen
+		// Vertex und Index Arrays mit passender Grï¿½ï¿½e erzeugen
 		float[] vertices = new float[7 * length + 7 * (length - 1)];
 		int[] indices = new int[2 * length + (length - 2) * 4 + (length - 2) * 10];
 		int count = 0;
@@ -235,8 +235,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 			}
 		}
 
@@ -244,8 +244,8 @@ public class GeometryFactory
 		{
 			for (int y = 2; y < length; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] =1e-2f *  x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 			}
 		}
 
@@ -297,7 +297,7 @@ public class GeometryFactory
 
 	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten rechts"
 	 * 
-	 * @param length Länge "einer" Kante
+	 * @param length Lï¿½nge "einer" Kante
 	 * @return BottomRechtsL Geometrie */
 
 	public static Geometry createBottomRight(int length)
@@ -314,8 +314,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] =1e-2f *  y;
-				vertices[count++] =1e-2f *  x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 			}
 		}
 
@@ -323,8 +323,8 @@ public class GeometryFactory
 		{
 			for (int y = 2; y < length; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 
 			}
 		}
@@ -373,7 +373,7 @@ public class GeometryFactory
 
 	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "oben links"
 	 * 
-	 * @param length Länge einer Kante
+	 * @param length Lï¿½nge einer Kante
 	 * @return TopLeftL Geometrie */
 	public static Geometry createTopLeft(int length)
 	{
@@ -389,8 +389,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 
 			}
 		}
@@ -450,7 +450,7 @@ public class GeometryFactory
 
 	/** Erzeugt ein L-Grid in der XZ-Ebene Kante des Ls liegt "unten links"
 	 * 
-	 * @param length Länge einer Kante
+	 * @param length Lï¿½nge einer Kante
 	 * @return BottomLeftL Geometrie */
 
 	public static Geometry createBottomLeft(int length)
@@ -467,8 +467,8 @@ public class GeometryFactory
 		{
 			for (int y = 0; y < 2; y++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 				
 			}
 		}
@@ -477,8 +477,8 @@ public class GeometryFactory
 		{
 			for (int y = -1; y > -length + 1; y--)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * x;
+				vertices[count++] =  y;
+				vertices[count++] =  x;
 
 			}
 		}
@@ -529,9 +529,9 @@ public class GeometryFactory
 
 	/**
 	 * Erzeugt die outer Triangles die am Rand jedes Rings liegen um 
-	 * Geometrielücken zu vermeiden
+	 * Geometrielï¿½cken zu vermeiden
 	 * 
-	 * @param length Länge eined Rings
+	 * @param length Lï¿½nge eined Rings
 	 * @return outerTriangle Geometry
 	 */
 	public static Geometry outerTriangle(int length)
@@ -548,8 +548,8 @@ public class GeometryFactory
 		{
 			for (int i = 0; i < length; i++)
 			{
-				vertices[count++] = 1e-2f * i;
-				vertices[count++] = 1e-2f * y;
+				vertices[count++] =  i;
+				vertices[count++] =  y;
 			}
 		}
 
@@ -557,8 +557,8 @@ public class GeometryFactory
 		{
 			for (int i = 0; i < length; i++)
 			{
-				vertices[count++] = 1e-2f * y;
-				vertices[count++] = 1e-2f * i;
+				vertices[count++] =  y;
+				vertices[count++] =  i;
 			}
 		}
 
@@ -618,9 +618,9 @@ public class GeometryFactory
         	// Gen Vbuffer
         	for(int z=0; z < maxZ; ++z) {
              for(int x=0; x < maxX; ++x) {
-             	vertices.put(1e-2f * (float)x);
+             	vertices.put( (float)x);
              	vertices.put(terra.get(x, z, 0));
-             	vertices.put(1e-2f * (float)z);
+             	vertices.put( (float)z);
              									
              	vertices.put(terra.get(x, z, 1));	// norm.x
              	vertices.put(terra.get(x, z, 2));	// norm.y

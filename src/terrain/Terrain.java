@@ -4,7 +4,7 @@ import java.io.File;
 
 public class Terrain
 {
-	private static final int MEM_BLOCKS = 16;
+	private static final int MEM_BLOCKS = 64;
 	
 	private String[][] blocks;
 	private int size;
@@ -25,7 +25,7 @@ public class Terrain
 		this.size = getLastPow2(size);
 		int dim = this.size / 256;
 		
-		System.out.println("test: " + test + ", size: " + this.size + ", dim: " + dim + ", overwrite: " + overwrite);
+		System.out.println("test: " + test + ", size: " + this.size + ", dim: " + dim + ", overwrite: " + overwrite + " " + BlockUtil.readDataInfo());
 		if(test && !overwrite && dim * dim == (BlockUtil.readDataInfo()))
 		{
 			// Bloecke liegen bereits vor

@@ -204,13 +204,17 @@ public class TerrainFactory {
 	 */
 	public static void smooth(Terrain terra){
 		
+		System.out.println("Beginning smoothing");
 		for(int x=0; x<terra.getSize(); x++){
 			for(int z=0; z<terra.getSize(); z++){
 
 				Util.smooth(terra, x, z);
-				
+			}			
+			if(x%100 == 0){ 
+				System.out.println(x+" / "+terra.getSize());
 			}
 		}
+		System.out.println("smoothing done");
 	}
 
 	/**
