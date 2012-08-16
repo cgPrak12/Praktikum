@@ -50,7 +50,7 @@ public class ClipMap
 	private Geometry center; // Quadratisches Grid
 	private Geometry outer; // Füllgeometrie um Löcher am Rand zu "stopfen"
 
-	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um
+	private final float generalScale = 0.1f; // Skaliert die gesamte ClipMap um
 												// Faktor
 
 	/** Konstruktor Erstellt eine ClipMap aus den gegebenen Parametern
@@ -106,6 +106,7 @@ public class ClipMap
 		updateSize();
 		updateHeightScale();
 		adjustCamera();
+		
 	}
 
 	private void adjustCamera()

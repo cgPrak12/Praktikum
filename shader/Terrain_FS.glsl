@@ -17,6 +17,7 @@ in float height;
 in vec3 normalWC;
 in float materialV;
 in vec3 tangent;
+in vec3 binormal;
 
 in vec2 tex;
 
@@ -26,7 +27,7 @@ out vec4 finalColor;
 void main(void)
 {	
 	vec3 fragmentColor = vec3(1,1,1);
-	//finalColor = vec4(tangent,1); return;
+	finalColor = vec4(binormal,1); return;
 	
 //	finalColor = vec4(1,1,1,1);return;
 	/*
