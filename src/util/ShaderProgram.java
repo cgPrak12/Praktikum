@@ -2,8 +2,6 @@ package util;
 
 import static opengl.GL.*;
 
-import java.io.ObjectInputStream.GetField;
-
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -13,6 +11,7 @@ import org.lwjgl.util.vector.Vector3f;
  * @author nico3000
  */
 public class ShaderProgram {
+	private final boolean DEBUG = false;
     private int id, vs, fs;
     private String vertexShader, fragmentShader;
     public ShaderProgram(String vertexShader, String fragmentShader) {
@@ -44,9 +43,9 @@ public class ShaderProgram {
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         } else {
-            System.err.println("Uniform: "+ varName +", ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
+        	if(DEBUG)
+        		System.err.println("Uniform4f: "+ varName +", ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
         }
-            
     }
     
     /**
@@ -59,6 +58,9 @@ public class ShaderProgram {
         int loc = glGetUniformLocation(this.id, varName);
         if(loc != -1) {
             glUniform3f(loc, vector.x, vector.y, vector.z);
+        }else {
+        	if(DEBUG)
+        		System.err.println("Uniform3f: "+ varName +", ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
         }
     }
     
@@ -72,6 +74,9 @@ public class ShaderProgram {
         int loc = glGetUniformLocation(this.id, varName);
         if(loc != -1) {
             glUniform1f(loc, f);
+        }else {
+        	if(DEBUG)
+        		System.err.println("Uniform1f: "+ varName +", ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
         }
     }
     
@@ -85,6 +90,9 @@ public class ShaderProgram {
         int loc = glGetUniformLocation(this.id, varName);
         if(loc != -1) {
             glUniform1i(loc, i);
+        }else {
+        	if(DEBUG)
+        		System.err.println("Uniform1i: "+ varName +", ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
         }
     }
     
@@ -99,6 +107,9 @@ public class ShaderProgram {
         if(loc != -1) {
             texture.bind();
             glUniform1i(loc, texture.getUnit());
+        }else {
+        	if(DEBUG)
+        		System.err.println("UniformTex: "+ varName +", ShaderProgram: "+this.id+",\n VertexShader: " + vertexShader + ", FragmentShader: " + fragmentShader);
         }
     }
     

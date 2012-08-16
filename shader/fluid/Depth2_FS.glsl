@@ -13,7 +13,6 @@ out vec4 color;
 
 void main(void) {
 
-
 	if (lifetime <= 0) {
 		discard;
 	}
@@ -25,12 +24,10 @@ void main(void) {
 	float r2 = dot(n.xy, n.xy);
 	if (r2 > 1.0) discard; 			// kill pixels outside circle
 
-
 	n.z = -dot(n.xy, n.xy);
 	vec4 pos = (view * positionWC);
 	float scale = pointSize * 0.5 / 800;
 	vec4 pixelPos = vec4(pos.xyz + scale*n , 1.0);
 
-//	depth = vec4(pixelPos.xyz, length(pixelPos.xyz) / viewDistance);
 	color = vec4(pos.xyz, length(pos.xyz) / viewDistance);
 }

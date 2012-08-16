@@ -15,12 +15,7 @@ void main(void) {
 	lifetime = positionMC.w;
 
 	gl_Position = viewProj * positionWC;
-//	pointSize =(50/(1 + length(positionMC - camPos))*(1/size));
 
-//	pointSize =(500/(1 + length(positionMC - camPos))*(1/size));
-//	pointSize = 100 / (1 + pow(length(positionMC.xyz - camPos), 1.2))*1/size;
 	pointSize = 100 / ( pow(length(positionMC.xyz - camPos), 1.0))*1/size;
-	
-    
 	gl_PointSize = pointSize;
 }
