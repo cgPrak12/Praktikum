@@ -48,7 +48,7 @@ public class ClipMap
 	private Geometry center; // Quadratisches Grid
 	private Geometry outer; // F�llgeometrie um L�cher am Rand zu "stopfen"
 
-	private final float generalScale = 0.001f; // Skaliert die gesamte ClipMap um
+	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um
 												// Faktor
 
 	/** Konstruktor Erstellt eine ClipMap aus den gegebenen Parametern
@@ -100,10 +100,10 @@ public class ClipMap
 		outer = GeometryFactory.outerTriangle(size + 1);
 
 		// Anpassung der H�he und Texturkoordinaten
-		updateSize();
+		
 		updateHeightScale();
 		adjustCamera();
-		
+		updateGeneralScale();
 	}
 
 	private void adjustCamera()
@@ -439,16 +439,11 @@ public class ClipMap
 		}
 	}
 
-	/** Setzt die Welttexturkoordinaten */
-	private void updateSize()
-	{
-		program.setFloat("worldSize", (float) (pow(stage - 1) * (size)) * generalScale);
-	}
 
 	/** Skaliert die H�he passend der gew�hlten Gridgr��e */
 	private void updateHeightScale()
 	{
-		program.setFloat("heightScale", (float) (100 * stage* (size + 2)*generalScale/4));
+		program.setFloat("heightScale", (float) (stage* (size + 2)*generalScale/40));
 	}
 
 	/** Unglaublich performante Wundermethode
@@ -465,10 +460,24 @@ public class ClipMap
 	{
 		return generalScale;
 	}
+        
+	public float getSize()
+	{
+		return size;
+	}
+        
+	public float getStage()
+	{
+		return stage;
+	}
 
 	public void adjustTmp(float tempX, float tempZ)
 	{
 		this.tempX += tempX;
 		this.tempZ += tempZ;
 	}
+        
+        public void updateGeneralScale(){
+            program.setFloat("generalScale", generalScale);
+        }
 }

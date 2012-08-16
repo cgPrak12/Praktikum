@@ -346,10 +346,11 @@ public class MainTest
                 translate.m11 = 1;
                 translate.m22 = 1;
                 translate.m33 = 1;
-                translate.m30 = z*clip.getScale();
-                translate.m31 = terrainGrid[x][z][0];
-                translate.m32 = x*clip.getScale();
+                translate.m30 = z-256;
+                translate.m31 = terrainGrid[x][z][0]*((clip.getStage()* (clip.getSize()) + 2)*clip.getScale()/40);
+                translate.m32 = x-256;
                 modelMap[x][z].setPosition(translate);
+                System.out.println(translate.m31);
                 
                 if(terrainGrid[x][z][4]==3) {
                     //Generate random numbers with wights
@@ -360,10 +361,10 @@ public class MainTest
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.07f, 0.07f, 0.07f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.7f, 0.7f, 0.7f)));
                         modelMap[x][z].setModelList(modelPalmTree);
                     } else if (result==2) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.07f, 0.07f, 0.07f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.7f, 0.7f, 0.7f)));
                         modelMap[x][z].setModelList(modelTallCactus);
                     }
                 } else if(terrainGrid[x][z][4]==5 || terrainGrid[x][z][4]==4) {
@@ -375,16 +376,16 @@ public class MainTest
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.04f, 0.04f, 0.04f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.4f, 0.4f, 0.4f)));
                         modelMap[x][z].setModelList(modelBirchTree);
                     } else if (result==2) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
                         modelMap[x][z].setModelList(modelFlower1);
                     } else if (result==3) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
                         modelMap[x][z].setModelList(modelFlower2);
                     } else if (result==4) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
                         modelMap[x][z].setModelList(modelFlower3);
                     }
                 } else if(terrainGrid[x][z][4]==6) {
@@ -396,7 +397,7 @@ public class MainTest
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.3f, 0.3f, 0.3f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(3f, 3f, 3f)));
                         modelMap[x][z].setModelList(modelElmTree);
                     }
                 } else if(terrainGrid[x][z][4]==7) {
@@ -408,7 +409,7 @@ public class MainTest
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.05f, 0.05f, 0.05f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
                         modelMap[x][z].setModelList(modelPineTree);
                     }
                 } else if(terrainGrid[x][z][4]==8) {
@@ -420,7 +421,7 @@ public class MainTest
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f)));
+                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.15f, 0.15f, 0.15f)));
                     modelMap[x][z].setModelList(modelDeadShrub);
                     }
                 } else if(terrainGrid[x][z][4]==9) {
@@ -432,7 +433,7 @@ public class MainTest
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.015f, 0.015f, 0.015f)));
+                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.15f, 0.15f, 0.15f)));
                     modelMap[x][z].setModelList(modelRock1);
                     }
                 } else {
