@@ -2,7 +2,6 @@ package main;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import opengl.GL;
 import static opengl.GL.*;
 import opengl.OpenCL;
 import opengl.OpenCL.Device_Type;
@@ -14,7 +13,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 import util.*;
 
 /**
@@ -36,14 +34,12 @@ public class TerrainMain {
     
     // animation params
     private static float ingameTimePerSecond = 1.0f;
+    private static float sunRotation = 1.0f;
+    private static Matrix4f sunRotationMat;
+    private static Vector3f sunPosition = new Vector3f(5.0f, 5.0f, 0.0f);
 
     // particles
     private static Particle particles;
-    
-    // simulation 
-//    private static ShaderProgram simShader;
-
-    // fluid rendering + simulation
     private static Geometry screenQuad;
     
     
@@ -86,10 +82,9 @@ public class TerrainMain {
         
         // create Fluid Rendererer
         FluidRenderer fluidRenderer = new FluidRenderer(cam);
-        Vector3f lightPos = new Vector3f(5.0f, 5.0f, 0.0f);
         
         // simulation test terrain
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/10.jpg",0.3f);
 
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
@@ -98,7 +93,7 @@ public class TerrainMain {
         particles = new Particle(2048 *16, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
         glEnable(GL11.GL_DEPTH_TEST);
-        //
+        
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
             now = System.currentTimeMillis();
@@ -120,19 +115,16 @@ public class TerrainMain {
            
             // simulate particles
             particles.getShaderProgram().use();
-            
             particles.draw(cam, millis, move);
             
             // render fluid
-            
             if(effects)
-            	waterTex = fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain);
+            	waterTex = fluidRenderer.render(sunPosition, particles.getVertexArray(), particles.getNumParticles(), terrain);
             else 
-            	waterTex = fluidRenderer.renderParticles(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain);
+            	waterTex = fluidRenderer.renderParticles(sunPosition, particles.getVertexArray(), particles.getNumParticles(), terrain);
     		
             drawTextureSP.use();        
     		drawTextureSP.setUniform("image", waterTex);
-    		
     		screenQuad.draw();  
             
             // present screen
@@ -190,7 +182,8 @@ public class TerrainMain {
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
                     case Keyboard.KEY_E: effects = !effects; break;
-                    case Keyboard.KEY_R: if(move==1) move = 0; else move =1; break;
+                    case Keyboard.KEY_R: if(move == 1) move = 0; else move = 1; break;
+                    case Keyboard.KEY_T: sunRotation = sunRotation==1.0f?0.0f:1.0f; break;
                 }
             }
         }
@@ -206,8 +199,6 @@ public class TerrainMain {
                 cam.rotate(-camSpeed*Mouse.getEventDX(), -camSpeed*Mouse.getEventDY());
             }
         }
-        
-        //if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) bContinue = false;
     }
     
     /**
@@ -215,6 +206,7 @@ public class TerrainMain {
      * @param millis Millisekunden, die seit dem letzten Aufruf vergangen sind.
      */
     private static void animate(long millis) {
-
+    	Util.rotationY(sunRotation * Util.PI_MUL2/360*millis, sunRotationMat);
+    	Util.transformCoord(sunRotationMat, sunPosition, sunPosition);
     }
 }

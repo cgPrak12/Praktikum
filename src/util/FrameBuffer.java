@@ -8,7 +8,6 @@ import java.util.List;
 import static opengl.GL.*;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 
 public class FrameBuffer {
 

@@ -20,7 +20,7 @@ void main(void) {
     sumNewColor += 0.0450612790882587 * (texture(tex, texCoord - ( 5.0 + 0.333333)*stepSize) + texture(tex, texCoord + ( 5.0 + 0.333333)*stepSize));
     sumNewColor += 0.1334507111459971 * (texture(tex, texCoord - ( 3.0 + 0.393939)*stepSize) + texture(tex, texCoord + ( 3.0 + 0.393939)*stepSize));
     sumNewColor += 0.2414822392165661 * (texture(tex, texCoord - ( 1.0 + 0.454545)*stepSize) + texture(tex, texCoord + ( 1.0 + 0.454545)*stepSize));
-    sumNewColor += 0.1399499340914190 * texture(tex, texCoord);
+    sumNewColor += 0.1399499340914190 *  texture(tex, texCoord);
 	
 	color = sumNewColor;
 }
