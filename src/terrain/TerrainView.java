@@ -61,6 +61,7 @@ public class TerrainView
 					myBl[i][j] = terra.getBlock(middle[0] + i - 4,middle[1] + j - 4);
 					if(myBl[i][j] == null){
 						System.err.println("Hier existiert kein Block");
+						myBl[i][j] = dummy;
 					}
 				}
 				else
@@ -120,6 +121,7 @@ public class TerrainView
 							myBl[i][j] = terra.getBlock(myBl[i][j].getID()[0] + diffX, myBl[i][j].getID()[1] + diffY);
 							if(myBl[i][j] == null){
 								System.err.println("Hier existiert kein Block");
+								myBl[i][j] = dummy;
 							}
 						}
 						else
