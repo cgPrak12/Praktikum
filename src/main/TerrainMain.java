@@ -92,9 +92,9 @@ public class TerrainMain {
         Texture heightTex = terrain.getHeightTex();
         
         // particle creation
-        particles = new Particle(4096*4, Device_Type.GPU, Display.getDrawable());
+        particles = new Particle(2048 *16, Device_Type.GPU, Display.getDrawable());
         particles.createData(heightTex.getId(), normalTex.getId());
-        glDisable(GL11.GL_DEPTH_TEST);
+        glEnable(GL11.GL_DEPTH_TEST);
         //
         while(bContinue && !Display.isCloseRequested()) {
             // time handling
@@ -116,13 +116,13 @@ public class TerrainMain {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             // prepare simulation: draw terrain to world
-//            simShader.use();
-//            simShader.setUniform("proj", cam.getProjection());
-//            simShader.setUniform("view", cam.getView());
-//            simShader.setUniform("normalTex", normalTex);
-//            simShader.setUniform("heightTex", heightTex);
+//              simShader.use();
+//              simShader.setUniform("proj", cam.getProjection());
+//             simShader.setUniform("view", cam.getView());
+//              simShader.setUniform("normalTex", normalTex);
+//             simShader.setUniform("heightTex", heightTex);
 //			  simShader.setUniform("eye", cam.getCamPos());
-
+//
 //            terrain.draw();
            
             // simulate particles
@@ -131,7 +131,7 @@ public class TerrainMain {
             particles.draw(cam, millis);
             
             // render fluid
-    		drawTextureSP.use();        
+        //    drawTextureSP.use();        
     		drawTextureSP.setUniform("image", fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain));
     		screenQuad.draw();  
             
@@ -139,7 +139,9 @@ public class TerrainMain {
             Display.update();
             Display.sync(60);
         }
-//        simShader.delete();
+        
+        particles.destroy();
+      //  simShader.delete();
         OpenCL.destroy();
     }
     

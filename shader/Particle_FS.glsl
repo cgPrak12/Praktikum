@@ -5,11 +5,11 @@ out vec4 finalColor;
 
 void main(void)
 {
-    finalColor = vec4(0,0,1,1);
-
-	if( lifetime <= 0.8f) 
-	{
+	if (lifetime <= 0) {
 		discard;
-    }
+	} else {
+    	finalColor = vec4(0,0,1,1);
+	}
+
 	
 }

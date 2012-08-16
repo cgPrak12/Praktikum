@@ -1,11 +1,16 @@
 #version 150
 
 in vec2 gl_PointCoord;
+in float lifetime;
 
 out vec4 color;
 
 void main(void) {
 
+	if (lifetime <= 0) {
+		discard;
+	}
+	
 	vec2 texCoord = gl_PointCoord;
 
 	vec3 n;

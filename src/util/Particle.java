@@ -76,6 +76,7 @@ public class Particle {
     private CLKernel kernel0;
     private CLKernel kernel1;
     private CLKernel kernel2;
+    private CLKernel kernel3;
 //    private Geometry geo = new Geometry();
 	
 	private int MAX_PARTICLES;
@@ -85,6 +86,7 @@ public class Particle {
     //opencl buffer
     private CLMem old_pos, new_pos, old_velos, new_velos;
     private CLMem start_pos;
+    private CLMem valuebuffer;
     
     
     //////////////////////////////////////////////////////////////////
@@ -92,7 +94,7 @@ public class Particle {
     //////////////////////////////////////////////////////////////////
     
     /** number cells per dimension spatial dimension */
-    private int gridLen = 40;
+    private int gridLen = 100;
     /** max number of particles per cell */
     private int gridMaxParticles = 20;
     /** holds the number of particles in a specific grid cell */
@@ -120,6 +122,7 @@ public class Particle {
     private int caLoc;
     
     private final Matrix4f viewProj = new Matrix4f();
+    private float particleRadius = 0.005f;
     
     //kernel settings
     private boolean swap = true;
@@ -231,23 +234,53 @@ public class Particle {
     	particles = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	particles.position(0);
     	//0.44843593, 0.019001158, 0.2570792
-    	Random r = new Random();
-    	for(int i=0; i < MAX_PARTICLES; i++){
-    		particles.put(0.44f + 0.1f*rand(r));//(float)(Math.random()));
-    		particles.put(rand(r) * 0.2f + 0.1f);//0.1f + (float)i*0.001f);
-    		particles.put(0.25f + 0.1f*rand(r));//(float)(Math.random())*0.5f);
+    
+    	/*for(int i=0; i < MAX_PARTICLES; i++){
+    		particles.put(i*particleRadius);//(float)(Math.random()));
+    		particles.put(0.5f-(float)(Math.random())*0.0001f);//0.1f + (float)i*0.001f);
+    		particles.put((float)(Math.random())*0.5f);//(float)(Math.random())*0.5f);
     		particles.put(1f);
-    	}
+    	}*/
+    	
+    	/*
+    	for(int i = 0; i < MAX_PARTICLES; i++){
+
+    		particles.put(0.5f - (float)Math.random() * 0.4f);
+    		particles.put(0.9f *(float)Math.random());
+    		particles.put(0.257f -(float)Math.random()*0.4f);
+    		particles.put(1.0f);
+	    	
+    	}*/
+    	for(int y = 0; y < MAX_PARTICLES/8; y++) {
+    		for(int x = 0; x < 8; x++) {
+    			//for(int z = 0; z < 8; z++) {
+    				particles.put(0.45f +this.particleRadius+x*2*this.particleRadius);
+    	    		particles.put((this.particleRadius+y*3*this.particleRadius) +0.1f);
+    	    		particles.put(0.16f);
+    	    		particles.put(-y*0.001f);
+    			//}
+    		}
+    	}	
+    	
+    	/**
+    	for (int i = 0; i < 156; i++)
+    	{
+    		particles.put((float)(Math.random())*0.5f);//(float)(Math.random()));
+    		particles.put(0.45f);//0.1f + (float)i*0.001f);
+    		particles.put((float)(Math.random())*0.5f);//(float)(Math.random())*0.5f);
+    		particles.put(1f);   		
+    		
+    	}*/
     	
     	particles.position(0);
     	
     	veloBuffer = BufferUtils.createFloatBuffer(MAX_PARTICLES*4);
     	veloBuffer.position(0);
     	for(int i=0; i<MAX_PARTICLES; i++){
-                veloBuffer.put(0);
+                veloBuffer.put(0.0001f);
                 veloBuffer.put(0f);
                 veloBuffer.put(0.0004f);
-                veloBuffer.put(0);
+                veloBuffer.put(i%16);
     	}
     	veloBuffer.position(0);
         this.createBuffer();
@@ -272,8 +305,7 @@ public class Particle {
         
         glBindVertexArray(vaid);
         
-//        GL11.glPointSize(5);
-//        GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
+
         
         
 
@@ -304,29 +336,30 @@ public class Particle {
         clEnqueueNDRangeKernel(this.queue, kernel2, 1, null, gwz, lwz, null, null);
         // calculate particle movement / interaction
         clEnqueueNDRangeKernel(this.queue, kernel0, 1, null, gwz, lwz, null, null);
-        
+        clEnqueueNDRangeKernel(this.queue, kernel3, 1, null, gwz, lwz, null, null);
         clEnqueueReleaseGLObjects(this.queue, this.old_pos, null, null);
         clEnqueueReleaseGLObjects(this.queue, this.heightmap, null, null);
         clEnqueueReleaseGLObjects(this.queue, this.normalmap, null, null);
         
         
-//        CL10.clEnqueueReadBuffer(queue, this.gridCounters, 1, 0, gridCounterBuf,
-//                null,null);
+        CL10.clEnqueueReadBuffer(queue, this.gridCounters, 1, 0, gridCounterBuf,
+                null,null);
         clFinish(this.queue);
-
+//        GL11.glPointSize(5);
+//        GL11.glDrawArrays(GL_POINTS, 0, MAX_PARTICLES); 
         int b;
         int sum = 0;
-//
-//        for (int i = 0; i < gridCounterBuf.capacity();i++)
-//        {
-//            b = gridCounterBuf.get(i);
-//            if (b > 0){
-//                //System.out.print(b+" ");
-//                
-//            }
-//            sum += b;
-//        }
-//        System.out.println("Summe = " + sum);
+
+        for (int i = 0; i < gridCounterBuf.capacity();i++)
+        {
+            b = gridCounterBuf.get(i);
+            if (b > 0){
+                //System.out.print(b+" ");
+                
+            }
+            sum += b;
+        }
+        System.out.println("Summe = " + sum);
         
         /**
         GL.glActiveTexture(GL.GL_TEXTURE0 + 0);
@@ -371,11 +404,12 @@ public class Particle {
                 spatialGridSize*gridMaxParticles*integerSize);
 
         this.gridCounterBuf = BufferUtils.createIntBuffer((int)spatialGridSize);
-
+        
+        this.valuebuffer = clCreateBuffer(this.context, CL_MEM_READ_WRITE, MAX_PARTICLES * 8);
         // create grid info
         FloatBuffer gib = BufferUtils.createFloatBuffer(8);
         
-        float particleRadius = 0.006f;
+        
         float spaceX = 0.0f;
         float spaceY = 0.0f;
         float spaceZ = 0.0f;
@@ -383,7 +417,7 @@ public class Particle {
         float gridLength = this.gridLen;//(int)(spaceLength/(2*particleRadius))+1;
         float gridMaxp = this.gridMaxParticles;
         
-        gib.put(particleRadius);
+        gib.put(this.particleRadius);
         gib.put(spaceX);
         gib.put(spaceY);
         gib.put(spaceZ);
@@ -422,7 +456,8 @@ public class Particle {
         // kernel to initialize the grid with zeros
         this.kernel2 = clCreateKernel(this.program, "gridadd_sim");
 
-
+        
+        this.kernel3 = clCreateKernel(this.program, "massdensity_sim");
         
     	IntBuffer errorCheck = BufferUtils.createIntBuffer(1);
     	
@@ -455,6 +490,7 @@ public class Particle {
         this.kernel0.setArg(11, this.new_velos);
         this.kernel0.setArg(12,this.gridInfo);
         this.kernel0.setArg(13, this.start_pos);
+        this.kernel0.setArg(14,this.valuebuffer);
         
         this.kernel2.setArg(0,this.old_pos);
         this.kernel2.setArg(1,this.gridCounters);
@@ -462,6 +498,16 @@ public class Particle {
         this.kernel2.setArg(3,this.gridLen);
         this.kernel2.setArg(4,this.gridMaxParticles);
         this.kernel2.setArg(5,this.gridInfo);
+        
+        this.kernel3.setArg(0,this.old_pos);
+        this.kernel3.setArg(1,this.gridCounters);
+        this.kernel3.setArg(2,this.gridCells);
+        this.kernel3.setArg(3,this.gridLen);
+        this.kernel3.setArg(4,this.gridMaxParticles);
+        this.kernel3.setArg(5,this.valuebuffer);
+        this.kernel3.setArg(6,this.gridInfo);
+        
+
     }
     
     /**
@@ -474,6 +520,7 @@ public class Particle {
         clReleaseMemObject(this.old_velos);
         clReleaseKernel(this.kernel0);
         clReleaseKernel(this.kernel1);
+        clReleaseKernel(this.kernel3);
         clReleaseCommandQueue(this.queue);
         clReleaseProgram(this.program);
         clReleaseContext(this.context);

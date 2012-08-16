@@ -7,11 +7,16 @@ uniform float viewDistance;
 in vec4 positionWC;
 in vec2 gl_PointCoord;
 in float pointSize;
+in float lifetime;
 
 out vec4 depth;
 
 void main(void) {
 
+	if (lifetime <= 0) {
+		discard;
+	}
+	
 	vec2 texCoord = vec2(gl_PointCoord.x, 1-gl_PointCoord.y);
 
 	vec3 n;

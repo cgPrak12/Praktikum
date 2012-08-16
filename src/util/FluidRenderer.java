@@ -14,7 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class FluidRenderer {
 
-	private float pointSize = 10.0f;
+	private float pointSize = 20.0f;
 	private int particleNumber;
 	private int vaid;
 	
@@ -443,8 +443,8 @@ public class FluidRenderer {
         iView.invert();
         lightingSP.setUniform("iView", iView);
         
-//        lightingSP.setUniform("view", cam.getView());
-//   		lightingSP.setUniform("normalL", normalVBlurTexLQ);
+//       lightingSP.setUniform("view", cam.getView());
+//   	lightingSP.setUniform("normalL", normalVBlurTexLQ);
 //		lightingSP.setUniform("worldDepthPosL", depthVBlurTexLQ);
 //		lightingSP.setUniform("thicknessL", thicknessVBlurTexLQ);
 //		lightingSP.setUniform("normalH", normalVBlurTex);
