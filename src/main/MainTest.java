@@ -4,22 +4,18 @@ import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static opengl.GL.*;
+import opengl.OpenCL;
+import opengl.OpenCL.Device_Type;
+import opengl.GL;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
-import util.Camera;
-import util.ClipMap;
-import util.Geometry;
-import util.ShaderProgram;
-import util.Texture;
+import util.*;
 import util.Util;
 
 /** @author NMARNIOK */
@@ -51,6 +47,9 @@ public class MainTest
 	private static Texture tex;
 
 	private static Texture materialTex;
+        
+        //SIMULATION
+        private static Particle particles = null;
 
 	// controls
 	private static final Camera cam = new Camera();
@@ -70,6 +69,12 @@ public class MainTest
 			glPrimitiveRestartIndex(-1);
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 			
+                        //SIMMERGE
+                        OpenCL.init();
+                        glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
+                        //glEnable(GL20.GL_POINT_SPRITE);
+                        glEnable(GL32.GL_PROGRAM_POINT_SIZE);
+            
 			program = new ShaderProgram("shader/Terrain_VS.glsl", "shader/Terrain_FS.glsl");
 			program.use();
 
@@ -127,8 +132,14 @@ public class MainTest
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 			program.setUniform("materials", materialTex);
 			
+                        //SIMMERGE
+                        particles = new Particle(1024*4, Device_Type.GPU, Display.getDrawable());
+                        particles.createData(tex.getId());
 			
 			render();
+                        
+                        //SIMMERGE
+                        OpenCL.destroy();
 		} catch (LWJGLException ex)
 		{
 			Logger.getLogger(MainTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -148,6 +159,7 @@ public class MainTest
 			last = now;
 			handleInput(millis);
 			param += 5e-3f * (float) millis * 0.25f;
+                        program.use();
 			program.setUniform("viewProj", Util.mul(null, cam.getProjection(), cam.getView()));
 			program.setUniform("model", terrainModelMatrix);
 			program.setUniform("modelIT", terrainModelITMatrix);
@@ -156,6 +168,11 @@ public class MainTest
 			clip.generateMaps();
 			// terrainGeometry.draw();
 
+                        //SIMMERGE
+                        particles.getShaderProgram().use();
+                        particles.draw(cam, millis);
+                        
+                        
 			Display.update();
 			Display.sync(60);
 		}

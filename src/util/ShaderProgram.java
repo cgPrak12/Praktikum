@@ -34,6 +34,7 @@ public class ShaderProgram {
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         }
+            
     }
     
     /**
@@ -49,6 +50,11 @@ public class ShaderProgram {
             glUniform1i(loc, texture.getUnit());
         }
     }
+    
+    public int getID(){
+    	return this.id;
+    }
+    
     
     public void setFloat(String varName, float value){
     	int loc = glGetUniformLocation(this.id, varName);
