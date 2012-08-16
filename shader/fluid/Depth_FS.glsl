@@ -10,6 +10,8 @@ in float pointSize;
 in float lifetime;
 
 out vec4 depth;
+out vec4 depth2;
+out vec4 depth3;
 
 void main(void) {
 
@@ -22,13 +24,26 @@ void main(void) {
 	vec3 n;
 	n.xy = texCoord * 2.0 - 1.0;
 	float r2 = dot(n.xy, n.xy);
-	if (r2 > 1.0) discard; 			// kill pixels outside circle
+	if (r2 > 1.0) discard;//{ 			// kill pixels outside circle
+//		depth = vec4(0,0,0,1);
+//		depth2 = vec4(0,0,0,1);
+//		depth3 = vec4(0,0,0,1);
+//		return;
+//	}
+	float black = 1;
+//	if(r2 > 0.5) black = 0;
 
-
+//	n.z = 0.15 * sqrt(1.0 - r2);
 	n.z = -dot(n.xy, n.xy);
 	vec4 pos = (view * positionWC);
-	float scale = 1;//pointSize * 0.5 / 10.0;
-	vec4 pixelPos = vec4(pos.xyz + scale*n , 1.0);
 
-	depth = vec4(pixelPos.xyz, length(pixelPos.xyz) / viewDistance);
+	vec3 pixelPos = pos.xyz + n;
+	depth = vec4(pixelPos, length(pixelPos) / viewDistance);
+
+	float scale = pointSize * 0.5 / 100.0;
+	vec3 pixelPos2 = pos.xyz + scale*n;
+	depth2 = vec4(pixelPos2, pixelPos.z);
+	
+//	depth3 = vec4(pos.xyz, length(pos.xyz) / viewDistance);
+	depth3 = vec4(pos.xyz, length(pos.xyz) / viewDistance);
 }

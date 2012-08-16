@@ -16,3 +16,4 @@ manifest.mf
 Thumbs.db
 .classpath
 .project
+.settings/*

@@ -7,6 +7,8 @@ out vec4 fragColor;
 
 uniform sampler2D normalTex;
 uniform sampler2D heightTex;
+uniform mat4 view;
+uniform float viewDistance;
 
 vec3 getNormal(vec2 tc)  {
     float dx = 1.0/512.0;
@@ -40,15 +42,11 @@ void main(void)
         discard;
 
     float h = coords.y+0.4;
+    
+    
+	vec4 pos = (view * vec4(positionFS,1.0));
+	float depth = length(pos.xyz) / viewDistance;	
 
-    fragColor = vec4(0.5+0.5*getNormal(vec2(coords.x,coords.z)),1.0)*0.9;
-	//frag.y*0;
-
-    //vec3 color = texture(heightTex, vec2(coords.x,coords.z)).xyz + vec3(0.9);
-    //fragColor = vec4(color,1.0)-frag*vec4(0.3,0.2,0.2,0);
-
-// DO NOT USE!
-//    vec3 color = texture(normalTex, vec2(coords.x,coords.z)).xyz;
-//    fragColor = vec4(0.5+0.5*color,1.0);
+    fragColor = vec4(0.5+0.5*getNormal(vec2(coords.x,coords.z)), depth);
 
 }

@@ -88,6 +88,7 @@ public class TerrainMain {
         
         // simulation test terrain
         Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
+
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
@@ -114,16 +115,6 @@ public class TerrainMain {
             
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
-            // prepare simulation: draw terrain to world
-//              simShader.use();
-//              simShader.setUniform("proj", cam.getProjection());
-//             simShader.setUniform("view", cam.getView());
-//              simShader.setUniform("normalTex", normalTex);
-//             simShader.setUniform("heightTex", heightTex);
-//			  simShader.setUniform("eye", cam.getCamPos());
-//
-//            terrain.draw();
            
             // simulate particles
             particles.getShaderProgram().use();
@@ -131,8 +122,10 @@ public class TerrainMain {
             particles.draw(cam, millis);
             
             // render fluid
-        //    drawTextureSP.use();        
-    		drawTextureSP.setUniform("image", fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain));
+            Texture t = fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain);
+    		drawTextureSP.use();        
+    		drawTextureSP.setUniform("image", t);
+    		
     		screenQuad.draw();  
             
             // present screen
@@ -141,7 +134,7 @@ public class TerrainMain {
         }
         
         particles.destroy();
-      //  simShader.delete();
+        drawTextureSP.delete();
         OpenCL.destroy();
     }
     
