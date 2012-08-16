@@ -1,0 +1,15 @@
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+/nbproject/private/
+nbproject/*
+build.xml
+manifest.mf
+/build/
+/dist/
+.project
+.manifest
+.classpath
