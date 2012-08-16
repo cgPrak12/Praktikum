@@ -2,17 +2,17 @@
 
 // point lights
 #define MAX_POINT_LIGHTS 8
-uniform vec3 plPosition[MAX_POINT_LIGHTS];      // positionen aller point lights
-uniform vec3 plMaxIntensity[MAX_POINT_LIGHTS];  // maximale intensitaet aller point lights
+uniform vec3 plPosition[MAX_POINT_LIGHTS]; // positionen aller point lights
+uniform vec3 plMaxIntensity[MAX_POINT_LIGHTS]; // maximale intensitaet aller point lights
 
 // material eigenschaften
-uniform float k_a, k_spec, k_dif, es;   // parameter
-uniform vec3 c_a;                       // ambiente farbe
-uniform sampler2D diffuseTex;           // diffuse farbe
-uniform sampler2D specularTex;          // spekulare farbe
+uniform float k_a, k_spec, k_dif, es; // parameter
+uniform vec3 c_a; // ambiente farbe
+uniform sampler2D diffuseTex; // diffuse farbe
+uniform sampler2D specularTex; // spekulare farbe
 
 // szenenspezifische eigenschaften
-uniform vec3 eyePosition;   // position der kamera
+uniform vec3 eyePosition; // position der kamera
 
 in vec3 positionWC;
 in vec3 normalWC;
@@ -51,17 +51,17 @@ vec3 calcLighting(vec3 pos, vec3 normal, vec3 c_d, vec3 c_s)
         vec3 light2pos = normalize(pos - plPosition[i]);
         vec3 reflected = reflect(light2pos, normal);
         
-        color += c_d * k_dif * intensity * max(0, dot(-light2pos, normal));             // diffuse
-        color += c_s * k_spec * intensity * max(0, pow(dot(reflected, pos2eye), es));   // specular
+        color += c_d * k_dif * intensity * max(0, dot(-light2pos, normal)); // diffuse
+        color += c_s * k_spec * intensity * max(0, pow(dot(reflected, pos2eye), es)); // specular
     }
     return color;
 }
 
 void main(void)
 {
-	vec3 c_d = texture(diffuseTex, fragmentTexCoords).rgb;
+vec3 c_d = texture(diffuseTex, fragmentTexCoords).rgb;
     vec3 c_s = texture(specularTex, fragmentTexCoords).rgb;
-	vec3 normal = normalize(normalWC);
-	
-	finalColor = vec4(calcLighting(positionWC, normal, c_d, c_s), 1.0);
+vec3 normal = normalize(normalWC);
+
+finalColor = vec4(calcLighting(positionWC, normal, c_d, c_s), 1.0);
 }

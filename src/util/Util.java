@@ -540,7 +540,7 @@ public class Util {
 	/**
 	 * @author ARECKNAG, FMAESCHIG
 	 * @param terra The terrain which is to be modified
-	 * @param noise Some noisemap (pref 32²)
+	 * @param noise Some noisemap (pref 32ï¿½)
 	 * @param freq The frequency by which the noisemap is taken
 	 * @param amp The amplitude with which the noise is applied
 	 */
@@ -557,6 +557,7 @@ public class Util {
 		int index=0;
         long lastTime = System.nanoTime();
         long startTime = System.nanoTime();        
+
         
 		for(int i = 0; i < (terraX-1); i++){
 

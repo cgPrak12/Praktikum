@@ -172,6 +172,9 @@ public class Terrain {
 		this(2048, 2048);
 	}
 
+        public TerrainGrid getTerrainGrid() {
+            return this.terra;
+        }
 
 	/**
 	 * 

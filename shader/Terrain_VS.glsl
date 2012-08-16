@@ -4,6 +4,7 @@ uniform mat4 viewProj;
 uniform mat4 model;
 uniform mat4 modelIT;
 uniform float param;
+
 uniform float worldSize;
 uniform mat4 translation;
 uniform mat4 scale;

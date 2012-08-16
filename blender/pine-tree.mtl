@@ -1,0 +1,25 @@
+# Blender MTL File: 'pine-tree.blend'
+# Material Count: 2
+newmtl bark_6824.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\6824.jpg
+
+
+newmtl branch.001_TTxxx38small.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\TTxxx38small.png
+map_d R:\\NT-Home\\blenderstuff\\textures\\TTxxx38small.png
+
+

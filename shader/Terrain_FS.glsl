@@ -30,6 +30,7 @@ void main(void)
 	//finalColor = vec4(binormal,1); return;
 	
 //	finalColor = vec4(1,1,1,1);return;
+
 	/*
 	if(height<0-diff){
 	fragmentColor = seaColor;

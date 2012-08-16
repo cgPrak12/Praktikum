@@ -29,7 +29,6 @@ public class Geometry {
     private int instanceAttributeSize;
     private final List<VertexAttribute> attributes = new LinkedList<VertexAttribute>();
 
-
     /**
      * Setzt den IntBuffer, der die Indexdaten dieser Geometrie beinhaltet und
      * die zugehoerige Topologie.
@@ -128,6 +127,8 @@ public class Geometry {
             this.instanceData = null;
         }
         glBindVertexArray(0);
+        
+        
     }
     
     /**
