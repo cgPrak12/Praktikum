@@ -43,18 +43,14 @@ void main(void) {
 
 	vec4 planeColor = texture(plane,texCoords);
 	vec3 background = (1-sign(planeColor.w)) * texture(skyBoxTex, texCoords).xyz + planeColor.xyz;
-//	color = texture(skyBoxTex, texCoords).xyz;
+
 	if((texture(plane,texCoords).w < texture(finalTex,texCoords).w && texture(plane,texCoords).w!=0) || (texture(finalTex,texCoords).w==0)) { 		
 		color = background;
 	}else{if(texture(finalTex,texCoords).w > 0) {
 	
-//	color = 100*vec3(texture(plane,texCoords).w);
-//	color = vec3(texture(finalTex,texCoords).w*10);
+
 
 	float depth = texture2D(depthTex, texCoords).w * 10;// + texture2D(depthTexLQ, texCoords).w * 0.5;
-//	if(depth.w == 0) depth.w = viewDistance;
-//	if(depth2.w == 0) depth2.w = viewDistance;
-//	if(depth3.w == 0) depth3.w = viewDistance;
 	
 //	vec4 depthInt = texture2D(depthTex, texCoords);
 	vec4 normalInt = texture2D(normalTex, texCoords);
@@ -66,9 +62,6 @@ void main(void) {
 
 	vec4 normalInt2 = depth*2 * texture(normal2Tex, texCoords) + (1-depth*2) * texture(normalTex, texCoords);
 
-//	color = vec3(texture(normalTex,texCoords));
-//	color = vec3(texture(depthTex,texCoords).w*10);
-//	color = normalInt.xyz;
 	float black = 1;
 //	if(texture(normalTex, texCoords).z == 0) black = 0;
 //	black = sign(texture(thicknessTexNB, texCoords).z);
@@ -84,8 +77,6 @@ void main(void) {
 	
 	vec4 darkBlue  = vec4(0.2, 0.3, 0.8, 0.0);
 	vec4 lightBlue = vec4(0.1, 0.7, 1.0, 0.0);
-//	vec4 darkBlue  = vec4(0.3, 0.5, 0.8, 0.0);
-//	vec4 lightBlue = vec4(0.4, 0.8, 0.9, 0.0);
 	
 	vec4 color1 = (1.0-thickness1)*lightBlue + thickness1*darkBlue;
 	vec3 c_d = vec3(color1.x, color1.y, color1.z);

@@ -17,9 +17,6 @@ void main(void) {
 		color = vec3(terrainColor);
 	}
 	if(depth > 0) {
-		color = vec3(0,0,1);
+		color = vec3(0,0,depth*50);
 	}
-//	color = texture(depthTex, texCoords).xyz;
-
-//	color = texture(terrain, texCoords).xyz + vec3(0,0,texture(depthTex, texCoords).w*100); 
 }
