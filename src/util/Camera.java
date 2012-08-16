@@ -67,9 +67,9 @@ public void setClipMap(ClipMap clip) {
 	this.clip = clip;
 }
 public void beam() {
-	float tmpX = 100*viewDir.x;
-	float tmpY = 100*viewDir.y;
-	float tmpZ = 100*viewDir.z;
+	float tmpX = 30000*viewDir.x;
+	float tmpY = 30000*viewDir.y;
+	float tmpZ = 30000*viewDir.z;
 	camPos.x += tmpX;
 	camPos.y += tmpY;
 	camPos.z += tmpZ;
@@ -89,10 +89,10 @@ public void updateProjection()
 {
 if (perspective)
 {
-Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+5f, projection);
+Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+6f, projection);
 } else
 {
-Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+5f, projection);
+Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+6f, projection);
 }
 }
 

@@ -32,10 +32,8 @@ public class ClipMap
 	private int[][] movement; // Array das Bewegungstranslation speichert
 	private boolean[][] alignment; // Array das Lage der Clipmap angibt
 	private float tempX; // Variable für Bewegungsschwellenwert
-	private float tempY; // Variable für Bewegungsschwellenwert
 	private float tempZ; // Variable für Bewegungsschwellenwert
 
-	private int scaleSteps;
 	private int scaleFaktor;
 	private Vector2f initialCamPos;
 
@@ -79,7 +77,6 @@ public class ClipMap
 		movement = new int[stage][2];
 		alignment = new boolean[stage][4];
 		scaleFaktor = 1;
-		scaleSteps = 0;
 		for (int i = 0; i < alignment.length; i++)
 		{
 			alignment[i][0] = false;
@@ -258,47 +255,34 @@ public class ClipMap
 
 		// Zähle Floats hoch, bis Schwellenwert erreicht ist
 		tempX += cam.getAlt().x / generalScale / scaleFaktor;
-//		tempY += cam.getAlt().y;
 		tempZ += cam.getAlt().z / generalScale / scaleFaktor;
 
-//		if (tempY > 10)
-//		{
-//			updateHeight(true);
-//			tempY %= 10;
-//		}
-//		if (tempY < -10)
-//		{
-//			updateHeight(false);
-//			tempY %= 10;
-//		}
-
 		// Positiv Z --- Nach Vorn
+
 		if (tempZ > 2)
 		{
-//			TerrainView.updateTerrainView();
+			while(tempZ > 2) {
 			moveClip(0, 1);
-			tempZ %= 2;
+			tempZ -= 2;}
 		}
 		// Positiv X --- Nach Links
 		if (tempX > 2)
 		{
-//			TerrainView.updateTerrainView();
+			while(tempX > 2) {
 			moveClip(0, 0);
-			tempX %= 2;
+			tempX -= 2;}
 		}
 		// Negativ Z --- Nach Hinten
 		if (tempZ < -2)
-		{
-//			TerrainView.updateTerrainView();
+		{while(tempZ < -2) {
 			moveClip(0, 3);
-			tempZ %= 2;
+			tempZ += 2;}
 		}
 		// Negativ X --- Nach Rechts
 		if (tempX < -2)
-		{
-//			TerrainView.updateTerrainView();
+		{while(tempX < -2) {
 			moveClip(0, 2);
-			tempX %= 2;
+			tempX += 2;}
 		}
 
 		for (int i = 0; i < stage; i++)
@@ -320,32 +304,6 @@ public class ClipMap
 				setLGrid(i);
 			}
 		}
-	}
-
-	private void updateHeight(boolean mode)
-	{
-		if (mode)
-		{
-			if (scaleSteps < 3)
-			{
-				this.stage--;
-				scaleFaktor *= 2;
-				scaleSteps++;
-				moveClipBy(movement[0][0] / -4, movement[0][1] / -4);
-				System.out.println("Größe Movement" + movement[0][0] + " bei Auflösungslevel " + scaleSteps);
-			}
-		} else
-		{
-			if (scaleSteps > 0)
-			{
-				this.stage++;
-				scaleFaktor /= 2;
-				scaleSteps--;
-				moveClipBy(movement[0][0] / 2, movement[0][1] / 2);
-				System.out.println("Größe Movement" + movement[0][0] + " bei Auflösungslevel " + scaleSteps);
-			}
-		}
-
 	}
 
 	/** Verschiebt die ClipMap abhängig vom Kamerastandpunkt
@@ -490,7 +448,7 @@ public class ClipMap
 	/** Skaliert die Höhe passend der gewählten Gridgröße */
 	private void updateHeightScale()
 	{
-		program.setFloat("heightScale", (float) (stage* (size + 2)*generalScale/4));
+		program.setFloat("heightScale", (float) (100 * stage* (size + 2)*generalScale/4));
 	}
 
 	/** Unglaublich performante Wundermethode

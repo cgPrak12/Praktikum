@@ -78,7 +78,7 @@ public class MainTest
 			terra = new util.Terrain(0f, 2048, 2048, 4);
 			terra.genTerrain(8);
 
-			clip = new ClipMap(254, 8, program, cam);
+			clip = new ClipMap(254, 14, program, cam);
 			cam.setClipMap(clip);
 
 			float heightMap[][][] = new float[terra.getTerra().length][terra.getTerra()[0].length][4];
@@ -167,7 +167,7 @@ public class MainTest
 	 * @param millis Millisekunden seit dem letzten Aufruf */
 	public static void handleInput(long millis)
 	{
-		float moveSpeed = 2e-3f * (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f) * (float) millis;
+		float moveSpeed = 2e+1f * (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f) * (float) millis;
 		float camSpeed = 5e-3f;
 
 		while (Keyboard.next())
