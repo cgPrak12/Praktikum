@@ -404,8 +404,7 @@ public class FluidRenderer {
 		
         startPath(lightingSP, lightingFB);
         
-        lightingSP.setUniform("view", cam.getView());
-        
+        lightingSP.setUniform("view", cam.getView());       
 	    lightingSP.setUniform("depthTex", depthVBlurTex);
 	    lightingSP.setUniform("depthTexLQ", depthVBlurTexLQ);
 	    lightingSP.setUniform("depth2Tex", depth2Tex);
