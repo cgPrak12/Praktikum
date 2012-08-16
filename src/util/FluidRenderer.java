@@ -156,7 +156,11 @@ public class FluidRenderer {
     				 new Texture[]    {depthHBlurTex,   depthVBlurTex,   normalHBlurTex,   normalVBlurTex,   thicknessHBlurTex,   thicknessVBlurTex, normal2HBlurTex, normal2VBlurTex});
     	init(blurSP, new FrameBuffer[]{depthHBlurFBLQ,  depthVBlurFBLQ,  normalHBlurFBLQ,  normalVBlurFBLQ,  thicknessHBlurFBLQ,  thicknessVBlurFBLQ}, 
     				 new Texture[]    {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ}, true);
-
+    	
+//    	skyTex.bind();
+//    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    	
     	createCubeMap();
     	
 	} 
