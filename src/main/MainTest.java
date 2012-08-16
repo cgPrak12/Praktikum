@@ -76,7 +76,7 @@ public class MainTest
             shaderProgramTerrain = new ShaderProgram("shader/Terrain_VS.glsl", "shader/Terrain_FS.glsl");
             shaderProgramModels = new ShaderProgram("./shader/Models_VS.glsl", "./shader/Models_FS.glsl");
         
-            terra = new util.Terrain(0f, 512, 512, 4);
+            terra = new util.Terrain(0f, 1024, 1024, 4);
             terra.genTerrain(8);
 
             shaderProgramTerrain.use();
@@ -346,9 +346,9 @@ public class MainTest
                 translate.m11 = 1;
                 translate.m22 = 1;
                 translate.m33 = 1;
-                translate.m30 = z-256;
+                translate.m30 = z-512;
                 translate.m31 = terrainGrid[x][z][0]*((clip.getStage()* (clip.getSize()) + 2)*clip.getScale()/40);
-                translate.m32 = x-256;
+                translate.m32 = x-512;
                 modelMap[x][z].setPosition(translate);
                 System.out.println(translate.m31);
                 
@@ -369,8 +369,8 @@ public class MainTest
                     }
                 } else if(terrainGrid[x][z][4]==5 || terrainGrid[x][z][4]==4) {
                     //Generate random numbers with wights
-                    int[] values = {0,1,2,3,4};
-                    int[] weights = {30,5,20,15,30};
+                    int[] values = {0,1,2,3,4,5};
+                    int[] weights = {30,5,20,15,25,5};
                     int result=randomNumber(values, weights);
                     if(result==0) {
                         modelMap[x][z].setScale(null);
@@ -387,11 +387,14 @@ public class MainTest
                     } else if (result==4) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
                         modelMap[x][z].setModelList(modelFlower3);
+                    } else if (result==5) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(1f, 1f, 1f)));
+                        modelMap[x][z].setModelList(modelShroom2);
                     }
                 } else if(terrainGrid[x][z][4]==6) {
                     //Generate random numbers with wights
-                    int[] values = {0,1};
-                    int[] weights = {85,15};
+                    int[] values = {0,1,2,3};
+                    int[] weights = {50,5,20,25};
                     int result=randomNumber(values, weights);
                     if(result==0) {
                         modelMap[x][z].setScale(null);
@@ -399,11 +402,17 @@ public class MainTest
                     } else if(result==1) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(3f, 3f, 3f)));
                         modelMap[x][z].setModelList(modelElmTree);
+                    } else if (result==2) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
+                        modelMap[x][z].setModelList(modelFlower4);
+                    } else if (result==3) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
+                        modelMap[x][z].setModelList(modelFlower5);
                     }
                 } else if(terrainGrid[x][z][4]==7) {
                     //Generate random numbers with wights
-                    int[] values = {0,1};
-                    int[] weights = {95,5};
+                    int[] values = {0,1,2};
+                    int[] weights = {70,5, 25};
                     int result=randomNumber(values, weights);
                     if(result==0) {
                         modelMap[x][z].setScale(null);
@@ -411,8 +420,32 @@ public class MainTest
                     } else if(result==1) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
                         modelMap[x][z].setModelList(modelPineTree);
+                    } else if(result==2) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(1f, 1f, 1f)));
+                        modelMap[x][z].setModelList(modelShroom);
                     }
                 } else if(terrainGrid[x][z][4]==8) {
+                    //Generate random numbers with wights
+                    int[] values = {0,1,2,3,4};
+                    int[] weights = {20,20,30,10,20};
+                    int result=randomNumber(values, weights);
+                    if(result==0) {
+                        modelMap[x][z].setScale(null);
+                        modelMap[x][z].setModelList(null);
+                    } else if(result==1) {
+                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(2f, 2f, 2f)));
+                    modelMap[x][z].setModelList(modelRock1);
+                    } else if(result==2) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(1.5f, 1.5f, 1.5f)));
+                        modelMap[x][z].setModelList(modelRock2);                    
+                    } else if(result==3) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(3.5f, 3.5f, 3.5f)));
+                        modelMap[x][z].setModelList(modelRock3);                    
+                    } else if(result==4) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.15f, 0.15f, 0.15f)));
+                        modelMap[x][z].setModelList(modelShrub2);                    
+                    }
+                } else if(terrainGrid[x][z][4]==9) {
                     //Generate random numbers with wights
                     int[] values = {0,1};
                     int[] weights = {98,2};
@@ -421,21 +454,9 @@ public class MainTest
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.15f, 0.15f, 0.15f)));
-                    modelMap[x][z].setModelList(modelDeadShrub);
-                    }
-                } else if(terrainGrid[x][z][4]==9) {
-                    //Generate random numbers with wights
-                    int[] values = {0,1};
-                    int[] weights = {90,10};
-                    int result=randomNumber(values, weights);
-                    if(result==0) {
-                        modelMap[x][z].setScale(null);
-                        modelMap[x][z].setModelList(null);
-                    } else if(result==1) {
-                    modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.15f, 0.15f, 0.15f)));
-                    modelMap[x][z].setModelList(modelRock1);
-                    }
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.15f, 0.15f, 0.15f)));
+                        modelMap[x][z].setModelList(modelDeadShrub);
+                    }                    
                 } else {
                     modelMap[x][z].setScale(null);
                     modelMap[x][z].setPosition(null);
