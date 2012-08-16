@@ -217,7 +217,8 @@ kernel void particle_sim
     global float4* vel_inbuf,
     global float* info,
     global float4* start_pos,
-    global float2* valuebuf) 
+    global float2* valuebuf,
+    int move) 
 {
 
     // dynamic grid
@@ -271,140 +272,142 @@ kernel void particle_sim
    	float4 dVelo = (float4)(0);
 	//mypos.s3 = 1.0;
    
-
-    if(mypos.s3>0.1){
-	    for(int i=-1; i<=1; i++){
-	        for(int j=-1; j<=1; j++){
-	            for(int k=-1; k<=1; k++){
-
-	                int cellid = dg_cell_id(&g, mypos, (int4)(i,j,k,0));
-	                int num = g.counter[cellid];
-	                num = num > g.gmax ? g.gmax : num;
-	                
-	                if (cellid == -1) continue;
-
-	                for (int m = 0; m < num; m++) {
-
-	                    ///////////////////////////////////////////////////////////
-	                    int other_gid = g.cells[cellid*(int)g.gmax+m];
-	                    if (other_gid == mygid) continue;
-	                    float4 other_pos = pos_inbuf[other_gid];
-	                    float4 other_vel = vel_inbuf[other_gid];                    
-	                    float4 n = (other_pos - mypos);
-	                    float distance = length(n.s012);
-				
-	                    if(distance <= h)
-	                    {
-	                    	
-                        	float other_massdens = valuebuf[other_gid].s0;
-                    		float other_pressure = valuebuf[other_gid].s1;
-							
-							
-							f_pressure += (my_pressure + other_pressure) / (2*other_massdens)  
-                        	  		   * MASS
-                        	  		   * nW_pres((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),h);
-
-
-                  			f_viscos += MU_CONSTANT * ((other_vel.s0123-myvel.s0123) / other_massdens)
-                        	 	     * MASS
-                        	 	     * lW_visc(mypos.s0123-other_pos.s0123,h);
-                        	 	  
-                        	gcolor_field = (MASS / other_massdens) * nW((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),h);
-                        
-                       		lcolor_field = (MASS / other_massdens) * lW((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),h);
-	                      	
-	                      	//mypos.s3 = 2.0;
-	                    } 
-	                    
-                            
-	                    ///////////////////////////////////////////////////////////
-
-	                }
-	            }
-	        }
-	    }
-	}
-    
-    
-    float threshold = 0.75 * radius;
-    float gradient_length = length(gcolor_field);
-    
-    if(gradient_length >= threshold) 
-    {
-    	f_surface = -SURFACE_TENS * lcolor_field * gcolor_field / gradient_length;
-   	} else
-   	  {	
-   	  	f_surface = (float4)(0);
-   	  }
-   	
-    dt = 0.016;
-
-    //// gravity 
-    float4 gravity = (float4)(0,GRAVITY,0,0);
-    float4 f_gravity = my_massdens * gravity;
-    
-    float4 f_sum = -f_pressure * PRESSUREDAMP; //+ f_viscos * VESCOSITYDAMP + f_surface * F_SURFACEDAMP;
-	float4 f_acc = (f_sum / my_massdens) * dt + f_gravity;
-	dVelo = f_acc *dt;
-
-    myvel.s012 += dVelo.s012 * dt;
-    myvel.s012 *= FRICTION;
- 
-	if(mypos.s1 <= height.s0 + radius)
-   {
+	if(move==1){
 	
+	    if(mypos.s3>0.1){
+		    for(int i=-1; i<=1; i++){
+		        for(int j=-1; j<=1; j++){
+		            for(int k=-1; k<=1; k++){
+	
+		                int cellid = dg_cell_id(&g, mypos, (int4)(i,j,k,0));
+		                int num = g.counter[cellid];
+		                num = num > g.gmax ? g.gmax : num;
+		                
+		                if (cellid == -1) continue;
+	
+		                for (int m = 0; m < num; m++) {
+	
+		                    ///////////////////////////////////////////////////////////
+		                    int other_gid = g.cells[cellid*(int)g.gmax+m];
+		                    if (other_gid == mygid) continue;
+		                    float4 other_pos = pos_inbuf[other_gid];
+		                    float4 other_vel = vel_inbuf[other_gid];                    
+		                    float4 n = (other_pos - mypos);
+		                    float distance = length(n.s012);
+					
+		                    if(distance <= h)
+		                    {
+		                    	
+	                        	float other_massdens = valuebuf[other_gid].s0;
+	                    		float other_pressure = valuebuf[other_gid].s1;
+								
+								
+								f_pressure += (my_pressure + other_pressure) / (2*other_massdens)  
+	                        	  		   * MASS
+	                        	  		   * nW_pres((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),h);
+	
+	
+	                  			f_viscos += MU_CONSTANT * ((other_vel.s0123-myvel.s0123) / other_massdens)
+	                        	 	     * MASS
+	                        	 	     * lW_visc(mypos.s0123-other_pos.s0123,h);
+	                        	 	  
+	                        	gcolor_field = (MASS / other_massdens) * nW((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),h);
+	                        
+	                       		lcolor_field = (MASS / other_massdens) * lW((float4)(mypos.s012,0)-(float4)(other_pos.s012,0),h);
+		                      	
+		                      	//mypos.s3 = 2.0;
+		                    } 
+		                    
+	                            
+		                    ///////////////////////////////////////////////////////////
+	
+		                }
+		            }
+		        }
+		    }
+		}
+	    
+	    
+	    float threshold = 0.75 * radius;
+	    float gradient_length = length(gcolor_field);
+	    
+	    if(gradient_length >= threshold) 
+	    {
+	    	f_surface = -SURFACE_TENS * lcolor_field * gcolor_field / gradient_length;
+	   	} else
+	   	  {	
+	   	  	f_surface = (float4)(0);
+	   	  }
+	   	
+	    dt = 0.016;
+	
+	    //// gravity 
+	    float4 gravity = (float4)(0,GRAVITY,0,0);
+	    float4 f_gravity = my_massdens * gravity;
+	    
+	    float4 f_sum = -f_pressure * PRESSUREDAMP; //+ f_viscos * VESCOSITYDAMP + f_surface * F_SURFACEDAMP;
+		float4 f_acc = (f_sum / my_massdens) * dt + f_gravity;
+		dVelo = f_acc *dt;
+	
+	    myvel.s012 += dVelo.s012 * dt;
+	    myvel.s012 *= FRICTION;
 	 
-		myvel.s012 = reflect(normal,myvel).s012*REFLECTDAMP;
+		if(mypos.s1 <= height.s0 + radius)
+	   {
+		
+		 
+			myvel.s012 = reflect(normal,myvel).s012*REFLECTDAMP;
+		
+		} 
+	   
+		mypos.s012 += myvel.s012 *dt;
+		
 	
-	} 
-   
-	mypos.s012 += myvel.s012 *dt;
+		float4 s = g.s;
+		float slen = g.slen;
 	
-
-	float4 s = g.s;
-	float slen = g.slen;
-
-	if (mypos.s0-radius < s.s0) {
-		mypos.s0 = s.s0+radius;
-		myvel.s0 = -myvel.s0*0.5; 
-	} else if (mypos.s0+radius > s.s0+slen)  {
-		mypos.s0 = s.s0+slen-radius;
-		myvel.s0 = -myvel.s0*0.5;
-	}
-	
-	if (mypos.s1-radius < s.s1) {
-		mypos.s1 = s.s1+radius;
-		myvel.s1 = -myvel.s1*0.5;
-	} else if (mypos.s1+radius > s.s1+slen) {
-		mypos.s1 = s.s1+slen-radius;
-		myvel.s1 = -myvel.s1*0.5;
-	}
-	
-	if (mypos.s2-radius < s.s2) {
-		mypos.s2 = s.s2+radius;
-		myvel.s2 = -myvel.s2*0.5;
-	} else if (mypos.s2+radius > s.s2+slen) {
-		mypos.s2 = s.s2+slen-radius;
-		myvel.s2 = -myvel.s2*0.5;
-	}
-
-	mypos.s3+=0.00022;
-	
-	bool up = (bool)(round(myvel.s3/16));
-	
-	if(mypos.s3>=1||(mypos.s3>=0 && mypos.s3<0.1)){
-		if(up){
-			mypos = (float4)(0.45f +radius+((int)(myvel.s3)%8)*2*radius,
-							 0.1, 0.12f, 0.1);
-		} else {
-			mypos = (float4)(0.45f +2*radius+((int)(myvel.s3)%8)*2*radius,
-							 0.1+radius*2, 0.12f+radius*2, 0.1);
+		if (mypos.s0-radius < s.s0) {
+			mypos.s0 = s.s0+radius;
+			myvel.s0 = -myvel.s0*0.5; 
+		} else if (mypos.s0+radius > s.s0+slen)  {
+			mypos.s0 = s.s0+slen-radius;
+			myvel.s0 = -myvel.s0*0.5;
 		}
 		
-		myvel.s012 = (float3)(0.0f, 0.0f, 0.04f);
+		if (mypos.s1-radius < s.s1) {
+			mypos.s1 = s.s1+radius;
+			myvel.s1 = -myvel.s1*0.5;
+		} else if (mypos.s1+radius > s.s1+slen) {
+			mypos.s1 = s.s1+slen-radius;
+			myvel.s1 = -myvel.s1*0.5;
+		}
+		
+		if (mypos.s2-radius < s.s2) {
+			mypos.s2 = s.s2+radius;
+			myvel.s2 = -myvel.s2*0.5;
+		} else if (mypos.s2+radius > s.s2+slen) {
+			mypos.s2 = s.s2+slen-radius;
+			myvel.s2 = -myvel.s2*0.5;
+		}
+	
+		
+		mypos.s3+=0.00022;
+		
+		bool up = (bool)(round(myvel.s3/16));
+		
+		if(mypos.s3>=3||(mypos.s3>=0 && mypos.s3<0.1)){
+			if(up){
+				mypos = (float4)(0.45f +radius+((int)(myvel.s3)%8)*2*radius,
+								 0.1, 0.12f, 0.1);
+			} else {
+				mypos = (float4)(0.45f +2*radius+((int)(myvel.s3)%8)*2*radius,
+								 0.1+radius*2, 0.12f+radius*2, 0.1);
+			}
+			
+			myvel.s012 = (float3)(0.0f, 0.0f, 0.04f);
+		}
+	
 	}
-	
-	
 
     position[mygid] = mypos;
     velos[mygid] = myvel;

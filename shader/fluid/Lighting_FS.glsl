@@ -16,6 +16,7 @@ uniform sampler2D thicknessTexLQ;
 uniform samplerCube cubeMap;
 uniform sampler2D plane;
 uniform sampler2D skyTex;
+uniform sampler2D skyBoxTex;
 uniform vec3 lightPosW;
 uniform mat4 iView;
 uniform vec3 eye;
@@ -40,10 +41,12 @@ void main(void) {
 // ***************************	
 // Interpolation
 
-	if((texture(plane,texCoords).w < texture(finalTex,texCoords).w && texture(plane,texCoords).w!=0) || texture(finalTex,texCoords).w==0) { 		
-		color = vec3(texture(plane,texCoords));
-	}else
-{
+	vec4 planeColor = texture(plane,texCoords);
+	vec3 background = (1-sign(planeColor.w)) * texture(skyBoxTex, texCoords).xyz + planeColor.xyz;
+//	color = texture(skyBoxTex, texCoords).xyz;
+	if((texture(plane,texCoords).w < texture(finalTex,texCoords).w && texture(plane,texCoords).w!=0) || (texture(finalTex,texCoords).w==0)) { 		
+		color = background;
+	}else{if(texture(finalTex,texCoords).w > 0) {
 	
 //	color = 100*vec3(texture(plane,texCoords).w);
 //	color = vec3(texture(finalTex,texCoords).w*10);
@@ -108,7 +111,7 @@ void main(void) {
 	vec3 normal2 = normalInt2.xyz;//texture(normal2Tex, texCoords).xyz;
 	vec3 reflectPos = normalize(reflect(position, normal));
 	vec3 reflectedW = normalize((iView * vec4(reflectPos, 0.0)).xyz);
-//	vec3 cubeColor = texture(cubeMap, reflectedW).xyz;
+	vec3 cubeColor = texture(cubeMap, reflectedW).xyz;
 	
 
 // ***************************			  
@@ -193,8 +196,8 @@ void main(void) {
 
 //	color = black*0.5*phongSpec + (1-thickness) * planeColor + thickness * phong + black*0.5 /*pow(thickness,0.02)*/ * mix(phongDiff,cubeColor,cubeColor);//pow(thickness,0.2));// * cubeColor;
 //	color = (1-thickness) * planeColor + black*thickness * phong + black*pow(thickness, 0.4) * sphereColor;//1.0*mix(phongDiff,cubeColor,cubeColor);//pow(thickness,0.2));// * cubeColor;
-	color = (1-thickness) * planeColor + thickness * phong + pow(thickness,0.3) *0.5*sphereColor;
+	color = (1-thickness) * background + thickness * phong + pow(thickness,0.3) *0.6*sphereColor;
 //	color = phongSpec;
 //	color = vec3(depth);
-	}
+	}}
 }

@@ -26,7 +26,9 @@ public class TerrainMain {
     private static boolean bContinue = true;
     private static boolean culling = true;
     private static boolean wireframe = true;
-    private static ShaderProgram drawTextureSP, simShader;
+    private static boolean effects = true; 
+    private static int move = 1; 
+    private static ShaderProgram drawTextureSP;
     
     // control
     private static final Vector3f moveDir = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -75,16 +77,16 @@ public class TerrainMain {
         long frameTimeDelta = 0;
         int frames = 0;
         
-        // create screen quad
+        // create screen quad and WaterTexture
         screenQuad = GeometryFactory.createScreenQuad();
+        Texture waterTex;
         
         // create new shader programs
-        simShader = new ShaderProgram("shader/simulation_vs.glsl", "shader/simulation_fs.glsl");
         drawTextureSP = new ShaderProgram("shader/ScreenQuad_VS.glsl", "shader/CopyTexture_FS.glsl");
         
         // create Fluid Rendererer
         FluidRenderer fluidRenderer = new FluidRenderer(cam);
-        Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
+        Vector3f lightPos = new Vector3f(5.0f, 5.0f, 0.0f);
         
         // simulation test terrain
         Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
@@ -119,12 +121,17 @@ public class TerrainMain {
             // simulate particles
             particles.getShaderProgram().use();
             
-            particles.draw(cam, millis);
+            particles.draw(cam, millis, move);
             
             // render fluid
-            Texture t = fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain);
-    		drawTextureSP.use();        
-    		drawTextureSP.setUniform("image", t);
+            
+            if(effects)
+            	waterTex = fluidRenderer.render(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain);
+            else 
+            	waterTex = fluidRenderer.renderParticles(lightPos, particles.getVertexArray(), particles.getNumParticles(), terrain);
+    		
+            drawTextureSP.use();        
+    		drawTextureSP.setUniform("image", waterTex);
     		
     		screenQuad.draw();  
             
@@ -182,6 +189,8 @@ public class TerrainMain {
                         break;
                     case Keyboard.KEY_F2: glPolygonMode(GL_FRONT_AND_BACK, (wireframe ^= true) ? GL_FILL : GL_LINE); break;
                     case Keyboard.KEY_F3: if(culling ^= true) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE); break;
+                    case Keyboard.KEY_E: effects = !effects; break;
+                    case Keyboard.KEY_R: if(move==1) move = 0; else move =1; break;
                 }
             }
         }

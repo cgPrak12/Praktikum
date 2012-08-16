@@ -29,9 +29,9 @@ public class FluidRenderer {
 	
     private ShaderProgram drawTextureSP = new ShaderProgram("./shader/ScreenQuad_VS.glsl", "./shader/CopyTexture_FS.glsl");
     private Geometry screenQuad = GeometryFactory.createScreenQuad();    
-    private Geometry cube 		= GeometryFactory.createCube();
+    private Geometry cube 		= GeometryFactory.createBigCube();
     private Geometry plane 		= GeometryFactory.createPlane();
-    private Texture  planeTex 	= Texture.generateTexture("Marble.jpg", textureUnit++);
+    private Texture  planeTex 	= Texture.generateTexture("./maps/Grass.JPG", textureUnit++);
     private Texture  skyTex 	= Texture.generateTexture("skydome.jpg", textureUnit++);
     private Texture  cubemap    = new Texture(GL_TEXTURE_CUBE_MAP, textureUnit++);
     
@@ -111,7 +111,7 @@ public class FluidRenderer {
     private Texture thicknessHBlurTexLQ	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     private Texture thicknessVBlurTexLQ	   = new Texture(GL_TEXTURE_2D, textureUnit++);
     
-    // Lighting TODO
+    // Lighting 
     private ShaderProgram lightingSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/Lighting_FS.glsl");
 	private FrameBuffer lightingFB   = new FrameBuffer();
     private Texture lightingTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
@@ -124,6 +124,15 @@ public class FluidRenderer {
     private ShaderProgram testPlaneSP = new ShaderProgram("./shader/simulation_vs.glsl", "./shader/simulation_fs.glsl");
     private FrameBuffer testPlaneFB   = new FrameBuffer();
     private Texture testPlaneTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
+
+    // particles without effects
+    private ShaderProgram effectlessSP = new ShaderProgram("./shader/fluid/Effectless_VS.glsl", "./shader/fluid/Effectless_FS.glsl");
+    private FrameBuffer effectlessFB   = new FrameBuffer();
+    private Texture effectlessTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
+
+    private ShaderProgram skySP = new ShaderProgram("./shader/fluid/TestPlane_VS.glsl", "./shader/fluid/Sky_FS.glsl");
+    private FrameBuffer skyFB = new FrameBuffer();
+    private Texture skyBoxTex = new Texture(GL_TEXTURE_2D, textureUnit++);
     
     public FluidRenderer(Camera camTmp) {
     	cam = camTmp;
@@ -150,6 +159,10 @@ public class FluidRenderer {
     	init(lightingSP, lightingFB, lightingTex, "color", false, false, GL_RGBA8);
     	init(finalImageSP, finalImageFB, finalImageTex, "color", true, false, GL_RGBA16F);
     	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", true, false, GL_RGBA16F);
+
+    	// init effectless particles
+    	init(effectlessSP, effectlessFB, effectlessTex, "color", false, false);
+    	init(skySP, skyFB, skyBoxTex, "color", true, false);
     	
     	// init blur
     	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB, normal2HBlurFB, normal2VBlurFB}, 
@@ -157,7 +170,7 @@ public class FluidRenderer {
     	init(blurSP, new FrameBuffer[]{depthHBlurFBLQ,  depthVBlurFBLQ,  normalHBlurFBLQ,  normalVBlurFBLQ,  thicknessHBlurFBLQ,  thicknessVBlurFBLQ}, 
     				 new Texture[]    {depthHBlurTexLQ, depthVBlurTexLQ, normalHBlurTexLQ, normalVBlurTexLQ, thicknessHBlurTexLQ, thicknessVBlurTexLQ}, true);
     	
-//    	skyTex.bind();
+//    	testPlaneTex.bind();
 //    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 //    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     	
@@ -201,9 +214,11 @@ public class FluidRenderer {
 		blur(thicknessTexLQ, thicknessHBlurFBLQ, thicknessVBlurFBLQ, 1.0f);
 		
 		// lighting
+		sky();
 		testPlane();
 		lighting();
 		finalImage();
+		
 		glViewport(0, 0, WIDTH, HEIGHT);
 		
 //		drawTextureSP.use();
@@ -235,9 +250,31 @@ public class FluidRenderer {
 //		drawTextureSP.setUniform("image", testPlaneTex);
 		
 //		screenQuad.draw();
+//		drawWater();
 		
 		return lightingTex;
 	}
+	
+	// TODO
+	public Texture renderParticles(Vector3f light, int particleVertexArrayId, int number, Geometry terrain) {
+
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear color must be black and alpha 0!
+		viewProj = Util.mul(null, cam.getProjection(), cam.getView());
+		lightPos = light;
+		vaid = particleVertexArrayId;
+		particleNumber = number;
+		this.terrain = terrain;
+
+		depth();
+		testPlane();
+		sky();
+		effectless();
+
+		glViewport(0, 0, WIDTH, HEIGHT);
+
+		return effectlessTex;
+	}
+
 	
 	private void init(ShaderProgram sp, FrameBuffer fb, Texture tex) {
 		init(sp, fb, tex, "color");
@@ -422,6 +459,7 @@ public class FluidRenderer {
         lightingSP.setUniform("cubeMap", cubemap);
 	    lightingSP.setUniform("plane", testPlaneTex);
 	    lightingSP.setUniform("skyTex", skyTex);
+	    lightingSP.setUniform("skyBoxTex", skyBoxTex);
         lightingSP.setUniform("lightPosW", lightPos);
         lightingSP.setUniform("eye", cam.getCamPos());
 	    lightingSP.setUniform("finalTex", finalImageTex);
@@ -429,7 +467,6 @@ public class FluidRenderer {
         iView.load(cam.getView());
         iView.invert();
         lightingSP.setUniform("iView", iView);
-        System.out.println(cam.getCamPos());
         
 //       lightingSP.setUniform("view", cam.getView());
 //   	lightingSP.setUniform("normalL", normalVBlurTexLQ);
@@ -475,7 +512,10 @@ public class FluidRenderer {
         testPlaneSP.setUniform("view", cam.getView());
         testPlaneSP.setUniform("normalTex", normalTex);
         testPlaneSP.setUniform("heightTex", heightTex);
+        testPlaneSP.setUniform("grassTex", planeTex);
 		testPlaneSP.setUniform("viewDistance", cam.getViewDistance());
+        lightingSP.setUniform("lightPos", lightPos);
+        lightingSP.setUniform("camPos", cam.getCamPos());
         
         glDisable(GL_BLEND);
 	    terrain.draw();
@@ -484,6 +524,33 @@ public class FluidRenderer {
 	    endPath();
 	}
 	
+	private void effectless() {
+		startPath(effectlessSP, effectlessFB);
+		
+		effectlessSP.setUniform("terrain", testPlaneTex);
+		effectlessSP.setUniform("depthTex", depthTex);
+		effectlessSP.setUniform("skyTex", skyBoxTex);
+		
+		screenQuad.draw();
+		
+		endPath();
+	}
+	
+	private void sky() {
+		
+		startPath(skySP, skyFB);
+
+		skySP.setUniform("cubemap", cubemap);
+        skySP.setUniform("viewProj", viewProj);
+        skySP.setUniform("view", cam.getView());
+        
+        glFrontFace(GL_CW);
+		cube.draw();
+		glFrontFace(GL_CCW);
+
+		endPath();
+	}
+
 	private void createCubeMap() {
 		
 		String[] cubeMapFileName = {"cubemap/sky_right.jpg", "cubemap/sky_left.jpg", "cubemap/sky_top.jpg",
@@ -512,6 +579,7 @@ public class FluidRenderer {
 		}
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
+	
 	
 	private void blur(Texture tex, FrameBuffer hFB, FrameBuffer vFB, float offset) {
 		blur(new Texture[] { tex }, new FrameBuffer[] { hFB }, new FrameBuffer[] { vFB }, new float[] { offset });

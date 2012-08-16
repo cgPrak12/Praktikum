@@ -8,12 +8,12 @@ import org.lwjgl.util.vector.Vector3f;
  * @author nico3000
  */
 public final class Camera {
-    private float phi = 0, theta = 0;
-    private final Vector3f viewDir = new Vector3f(0,-0.1f,1);
+    private float phi = Util.PI_DIV4, theta = 0;
+    private final Vector3f viewDir = new Vector3f(1,0,1);
     private final Vector3f upDir = new Vector3f(0,1,0);
-    private final Vector3f sideDir = new Vector3f(1,0,0);
+    private final Vector3f sideDir = new Vector3f(1,0,-1);
     private final float viewDistance = 1e+2f;
-    private final Vector3f camPos = new Vector3f(0,0,-1);
+    private final Vector3f camPos = new Vector3f(0.1f,0.15f,0.1f);
     private final Matrix4f view = new Matrix4f();
     private final Matrix4f projection = new Matrix4f();
     private boolean perspective = true;

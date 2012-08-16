@@ -292,7 +292,7 @@ public class Particle {
      * Rendert das Partikelsystem
      * @param cam
      */
-    public void draw(Camera cam, long millis) {
+    public void draw(Camera cam, long millis, int move) {
         
     	shaderProgram.use();
         //GL.glUseProgram(shaderProgram);
@@ -327,6 +327,7 @@ public class Particle {
         
         this.kernel0.setArg(8, 0.5f);//1e-3f*millis);
         this.kernel0.setArg(9, (float)Math.random());
+        this.kernel0.setArg(15,move);
         
         // clear the grid
         clEnqueueNDRangeKernel(this.queue, kernel1, 1, null, 
@@ -491,6 +492,7 @@ public class Particle {
         this.kernel0.setArg(12,this.gridInfo);
         this.kernel0.setArg(13, this.start_pos);
         this.kernel0.setArg(14,this.valuebuffer);
+        this.kernel0.setArg(15,1);
         
         this.kernel2.setArg(0,this.old_pos);
         this.kernel2.setArg(1,this.gridCounters);

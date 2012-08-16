@@ -4,13 +4,15 @@ uniform mat4 viewProj;
 uniform vec3 camPos;
 uniform float size;
 
-in vec3 positionMC;
+in vec4 positionMC;
 
 out vec4 positionWC;
 out float pointSize;
+out float lifetime;
 
 void main(void) {
-	positionWC = vec4(positionMC,1);
+	positionWC = vec4(positionMC.xyz,1);
+	lifetime = positionMC.w;
 
 	gl_Position = viewProj * positionWC;
 //	pointSize =(50/(1 + length(positionMC - camPos))*(1/size));

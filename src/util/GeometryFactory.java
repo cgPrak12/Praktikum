@@ -76,6 +76,72 @@ public class GeometryFactory {
        return geo;
     }
     
+    public static Geometry createBigCube() {
+    	float[] cubeVertices  = {
+       		 2.5f,  2.5f,  2.5f,	1.0f, 1.0f, 1.0f, 1.0f, // front top right
+       		-2.5f,  2.5f,  2.5f, 	0.0f, 1.0f, 1.0f, 1.0f, // front top left
+       		 2.5f, -2.5f,  2.5f,	1.0f, 0.0f, 1.0f, 1.0f, // front bottom right
+       		-2.5f, -2.5f,  2.5f, 	0.0f, 0.0f, 1.0f, 1.0f, // front bottom left
+       		
+       		 2.5f,  2.5f, -2.5f,	1.0f, 1.0f, 0.0f, 1.0f, // back top right
+       		-2.5f,  2.5f, -2.5f,	0.0f, 1.0f, 0.0f, 1.0f, // back top left
+       		 2.5f, -2.5f, -2.5f,	1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
+       		-2.5f, -2.5f, -2.5f,	0.0f, 0.0f, 0.0f, 1.0f  // back bottom left		
+       };
+       
+       int[] cubeIndices = {
+    		5, 4, 7, 6, 2, 4, 0, 
+    		5, 1, 7, 3, 2, 1, 0
+       };
+       
+       FloatBuffer cubeVertBuf = BufferUtils.createFloatBuffer(cubeVertices.length);
+       cubeVertBuf.put(cubeVertices);
+       cubeVertBuf.flip();
+       IntBuffer cubeIndBuf = BufferUtils.createIntBuffer(cubeIndices.length);
+       cubeIndBuf.put(cubeIndices);
+       cubeIndBuf.flip();
+       
+       Geometry geo = new Geometry();
+       geo.setIndices(cubeIndBuf, GL_TRIANGLE_STRIP);
+       geo.setVertices(cubeVertBuf);
+       geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+       geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
+       return geo;
+    }
+    
+    public static Geometry createMediumCube() {
+    	float[] cubeVertices  = {
+       		 1.0f,  1.0f,  1.0f,	1.0f, 1.0f, 1.0f, 1.0f, // front top right
+       		 0.0f,  1.0f,  1.0f, 	0.0f, 1.0f, 1.0f, 1.0f, // front top left
+       		 1.0f,  0.0f,  1.0f,	1.0f, 0.0f, 1.0f, 1.0f, // front bottom right
+       		 0.0f,  0.0f,  1.0f, 	0.0f, 0.0f, 1.0f, 1.0f, // front bottom left
+       		
+       		 1.0f,  1.0f,  0.0f,	1.0f, 1.0f, 0.0f, 1.0f, // back top right
+       		 0.0f,  1.0f,  0.0f,	0.0f, 1.0f, 0.0f, 1.0f, // back top left
+       		 1.0f,  0.0f,  0.0f,	1.0f, 0.0f, 0.0f, 1.0f, // back bottom right
+       		 0.0f,  0.0f,  0.0f,	0.0f, 0.0f, 0.0f, 1.0f  // back bottom left		
+       };
+       
+       int[] cubeIndices = {
+    		5, 4, 7, 6, 2, 4, 0, 
+    		5, 1, 7, 3, 2, 1, 0
+       };
+       
+       FloatBuffer cubeVertBuf = BufferUtils.createFloatBuffer(cubeVertices.length);
+       cubeVertBuf.put(cubeVertices);
+       cubeVertBuf.flip();
+       IntBuffer cubeIndBuf = BufferUtils.createIntBuffer(cubeIndices.length);
+       cubeIndBuf.put(cubeIndices);
+       cubeIndBuf.flip();
+       
+       Geometry geo = new Geometry();
+       geo.setIndices(cubeIndBuf, GL_TRIANGLE_STRIP);
+       geo.setVertices(cubeVertBuf);
+       geo.addVertexAttribute(ShaderProgram.ATTR_POS, 3, 0);
+       geo.addVertexAttribute(ShaderProgram.ATTR_COLOR, 4, 12);
+       return geo;
+    }
+    
     public static Geometry createTestParticles(int num) {
     	FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(num*3);
     	float amp = 0.9f;
