@@ -302,7 +302,6 @@ public class TerrainMain {
             
             //sky dome 
             fboSP.setUniform("model", skyMoveMatrix);
-//			fboSP.setUniform("model", skyDomeMatrix);
             fboSP.setUniform("normalTexture",blackTexture );
             fboSP.setUniform("specularTexture", blackTexture);
             
@@ -510,7 +509,7 @@ public class TerrainMain {
      * @param millis Millisekunden seit dem letzten Aufruf
      */
     public static void handleInput(long millis) {
-        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 10.0f : 1.0f)*(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 0.1f : 1.0f)*(float)millis;
+        float moveSpeed = 2e-3f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 50.0f : 1.0f)*(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 0.1f : 1.0f)*(float)millis;
         float camSpeed = 5e-3f;
         
         while(Keyboard.next()) {
@@ -645,6 +644,7 @@ public class TerrainMain {
      */
     private static void animate(long millis) {
     	if(rotatelight) {
+    		
     		// move skydome width eyePos
             Util.translationX(cam.getCamPos().x, skyMoveMatrix);
             Util.mul(skyMoveMatrix, skyMoveMatrix, Util.translationZ(cam.getCamPos().z, null));
@@ -654,19 +654,14 @@ public class TerrainMain {
 //            Util.mul(sunMatrix,skyMoveMatrix, sunMatrix);
 //            Util.transformCoord(sunMatrix, sunDirection, sunDirection);
             
-    		//sonne drehen
-       	 	ingameTime += ingameTimePerSecond * 1e-3f * (float)millis;
+    		//rotate sun texture
+            ingameTime += ingameTimePerSecond * 1e-3f * (float)millis;
        	 	Util.rotationY((0.05f)*Util.PI_MUL2 * ingameTime, sunRotation);
-            Util.mul(sunMatrix, sunTilt, sunRotation, sunTranslation,skyMoveMatrix, Util.scale(5.0f, null));
+            Util.mul(sunMatrix, sunTilt, sunRotation, sunTranslation, skyMoveMatrix, Util.scale(5.0f, null));
             
-            //licht drehen
-            Util.transformCoord(Util.mul(null,sunTilt, sunRotation,  sunTranslation, skyMoveMatrix), new Vector3f(cam.getCamPos().x, 0.0f, cam.getCamPos().z), sunDirection);
-            
-            //drehen der Wolken
-            
-            
-            
-            
+            //rotate light
+            Util.transformCoord(Util.mul(null, sunTilt, sunRotation, sunTranslation, skyMoveMatrix), new Vector3f(cam.getCamPos().x, 0.0f, cam.getCamPos().z), sunDirection);
+                  
         }
     	
     	 

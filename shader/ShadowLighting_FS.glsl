@@ -79,7 +79,7 @@ void main(void)
 	vec3 ambi = diff;
 	
 	//Sonnenuntergang bzw. Aufgang
-	float cosa  =  length(dot(normalize(sunDir), vec3(0, 1, 0)));
+	float cosa  =  length(normalize(sunDir).y); //length(dot(normalize(sunDir), vec3(0, 1, 0)));
 	
 	//no light for bottom
 	// if (sunDir.y < 0)
@@ -124,7 +124,7 @@ void main(void)
    	enlightenedColor =  skyDraw *color;
 	enlightenedColor +=  (1-skyDraw)* vec4((diff), 0.0)* step(0,sunDir.y)  + (1-skyDraw)* (1-step(0,sunDir.y)) *mix(vec4(ambi*k_a,1), vec4((diff), 0.0),  (1-cosa));
 	enlightenedColor += sunBurn*(1-cosa) * sunSetColor;
-	enlightenedColor = enlightenedColor * step(0,sunDir.y) + (1-step(0,sunDir.y)) *mix(vec4(ambi*k_a,1), enlightenedColor,  (1-cosa));//* vec4(ambi*k_a*(1-cosa), 1.0);
+	enlightenedColor = enlightenedColor * step(0,sunDir.y) + (1-step(0,sunDir.y)) *mix(vec4(ambi*k_a,1), enlightenedColor,  (1-cosa));
 
 
 }

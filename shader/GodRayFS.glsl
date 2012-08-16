@@ -20,27 +20,29 @@ void main()
 	float illuminationDecay = 0.5;
 	vec2 texCoords = texCoord;
 	vec4 lightpos    = viewProj *vec4(lightPosition,1);
-	vec2 lightTexPos =((lightpos/lightpos.w).xy*0.5)+vec2(0.5);
+	vec2 lightTexPos =((lightpos/lightpos.w).xy*0.5) + vec2(0.5);
 
-	float cosa  =  pow(length(dot(lightpos.xyz,vec3(0,0,1)))/ (length(lightpos.xyz)), 3);
-	if( (lightpos.z < 0) || (lightPosition.y < 0))
-	{
-		finalColor = texture(diffuseTexture,texCoords); 
-		return;
-	}
+	float cosa  =  pow(length(dot(lightpos.xyz, vec3(0, 0, 1))) / (length(lightpos.xyz)), 3);
+
  	vec2 deltaTexCoord = (texCoords - lightTexPos);  
   	deltaTexCoord *= (1.0f / num_samples) * density;  
    	vec3 color = texture(diffuseTexture,texCoords).rgb;  
 	
+	vec3 current, sample;
+	
    	for (int i = 0; i < num_samples; i++)  
   	{  
-  		vec3 current = texture(diffuseTexture, texCoords).rgb;
+  		current = texture(diffuseTexture, texCoords).rgb;
 	    texCoords -= deltaTexCoord;
-	    vec3 sample = current * (vec3(1)- texture(skyTexture, texCoords).rgb);
+	    sample = current * (vec3(1)- texture(skyTexture, texCoords).rgb);
     	sample *= illuminationDecay * weight;  
 	    color += sample;  
     	illuminationDecay *= Decay;  
     	
-  }  
-  finalColor = vec4( mix(texture(diffuseTexture,texCoord).xyz, color * Exposure , cosa) , 1);  
+	}
+	vec3 mixColor = texture(diffuseTexture,texCoord).xyz;
+	finalColor = vec4( mix(mixColor, color * Exposure , cosa) , 1);
+	
+	finalColor = finalColor * step(0, lightPosition.y) + (1-step(0, lightPosition.y)) * vec4( mix(mixColor, color * 0.2 , cosa) , 1);
+
 }  
