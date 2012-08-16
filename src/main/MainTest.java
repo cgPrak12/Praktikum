@@ -76,7 +76,7 @@ public class MainTest
             shaderProgramTerrain = new ShaderProgram("shader/Terrain_VS.glsl", "shader/Terrain_FS.glsl");
             shaderProgramModels = new ShaderProgram("./shader/Models_VS.glsl", "./shader/Models_FS.glsl");
         
-            terra = new util.Terrain(0f, 1024, 1024, 4);
+            terra = new util.Terrain(0f, 2048, 2048, 4);
             terra.genTerrain(8);
 
             shaderProgramTerrain.use();
@@ -109,8 +109,8 @@ public class MainTest
             fbuffer.flip();
             tex.bind();
             glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_RGBA32F, heightMap.length, heightMap[0].length, 0, GL11.GL_RGBA, GL_FLOAT, fbuffer);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_MIRRORED_REPEAT);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL14.GL_MIRRORED_REPEAT);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
             
@@ -120,8 +120,8 @@ public class MainTest
             fbuffer.flip();
             materialTex.bind();
             glTexImage2D(GL_TEXTURE_2D, 0, GL30.GL_R32F, heightMap.length, heightMap[0].length, 0, GL11.GL_RED, GL_FLOAT, fbuffer);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_MIRRORED_REPEAT);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL14.GL_MIRRORED_REPEAT);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
             
@@ -154,8 +154,8 @@ public class MainTest
 
             shaderProgramModels.use();
             
-            for(int x=0; x<modelMap.length; x++) {
-                for(int z=0; z<modelMap.length; z++) {
+            for(int x=0; x<modelMap.length; x+=15) {
+                for(int z=0; z<modelMap.length; z+=15) {
                     if(modelMap[x][z]!=null && modelMap[x][z].getModelList()!=null) {
                         ListIterator modelListIterator = modelMap[x][z].getModelList().listIterator();
                         
@@ -179,13 +179,13 @@ public class MainTest
                             if(modelPart.material.textureSpecularRefColorMap!=null)
                                 shaderProgramModels.setUniform("specularTex", modelPart.material.textureSpecularRefColorMap);
                             
-/*                            if(modelMap[x][z].getPosition().m30-cam.getCamPos().x<2 &&
-                               modelMap[x][z].getPosition().m30-cam.getCamPos().x>-2 &&
-                               modelMap[x][z].getPosition().m32-cam.getCamPos().z<2 &&
-                               modelMap[x][z].getPosition().m32-cam.getCamPos().z>-2)
-                            {*/
+                            if(modelMap[x][z].getPosition().m30-cam.getCamPos().x<300 &&
+                               modelMap[x][z].getPosition().m30-cam.getCamPos().x>-300 &&
+                               modelMap[x][z].getPosition().m32-cam.getCamPos().z<300 &&
+                               modelMap[x][z].getPosition().m32-cam.getCamPos().z>-300)
+                            {
                                modelPart.geometry.draw();
-//                            }
+                            }
                         }
                     }
                 }
@@ -199,7 +199,7 @@ public class MainTest
 	 * @param millis Millisekunden seit dem letzten Aufruf */
 	public static void handleInput(long millis)
 	{
-		float moveSpeed = 2e-1f * (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f) * (float) millis;
+		float moveSpeed = 2e-2f * (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 3.0f : 1.0f) * (float) millis;
 		float camSpeed = 5e-3f;
 
 /*                float moveSpeed = 2e-1f*(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f)*(float)millis;
@@ -302,6 +302,7 @@ public class MainTest
         List modelTallCactus = GeometryFactory.importFromBlender("blender\\tall-cactus.obj", "blender\\tall-cactus.mtl", "blender\\textures\\");
         List modelPalmTree = GeometryFactory.importFromBlender("blender\\low-poly-palm-tree.obj", "blender\\low-poly-palm-tree.mtl", "blender\\textures\\");
         List modelBirchTree = GeometryFactory.importFromBlender("blender\\pseudo-birch2.obj", "blender\\pseudo-birch2.mtl", "blender\\textures\\");
+        List modelBeechTree = GeometryFactory.importFromBlender("blender\\beech-tree.obj", "blender\\beech-tree.mtl", "blender\\textures\\");
         List modelElmTree = GeometryFactory.importFromBlender("blender\\low-poly-leaf-tree.obj", "blender\\low-poly-leaf-tree.mtl", "blender\\textures\\");
         List modelPineTree = GeometryFactory.importFromBlender("blender\\pine-tree.obj", "blender\\pine-tree.mtl", "blender\\textures\\");
         List modelDeadShrub = GeometryFactory.importFromBlender("blender\\dead-shrub.obj", "blender\\dead-shrub.mtl", "blender\\textures\\");
@@ -317,6 +318,7 @@ public class MainTest
         List modelRock4 = GeometryFactory.importFromBlender("blender\\rock4.obj", "blender\\rock4.mtl", "blender\\textures\\");
         List modelShroom = GeometryFactory.importFromBlender("blender\\shroom.obj", "blender\\shroom.mtl", "blender\\textures\\");
         List modelShroom2 = GeometryFactory.importFromBlender("blender\\shroom2.obj", "blender\\shroom2.mtl", "blender\\textures\\");
+        List modelShroom3 = GeometryFactory.importFromBlender("blender\\shroom3.obj", "blender\\shroom3.mtl", "blender\\textures\\");
         List modelShrub2 = GeometryFactory.importFromBlender("blender\\shrub2.obj", "blender\\shrub2.mtl", "blender\\textures\\");        
         System.out.println("Importing took "+(System.currentTimeMillis()-timeInMillis)+" milliseconds.");
 
@@ -337,8 +339,8 @@ public class MainTest
         float terrainGrid[][][] = terra.getTerrainGrid().getBlock();
         ModelMapEntry[][] modelMap = new ModelMapEntry[terrainGrid.length][terrainGrid.length];
  
-        for(int x=0; x<terrainGrid.length; x+=10) {
-            for(int z=0; z<terrainGrid.length; z+=10) {
+        for(int x=0; x<terrainGrid.length; x+=15) {
+            for(int z=0; z<terrainGrid.length; z+=15) {
                 modelMap[x][z] = new ModelMapEntry();
                 
                 Matrix4f translate = new Matrix4f();
@@ -346,9 +348,9 @@ public class MainTest
                 translate.m11 = 1;
                 translate.m22 = 1;
                 translate.m33 = 1;
-                translate.m30 = z-512;
+                translate.m30 = z-1024;
                 translate.m31 = terrainGrid[x][z][0]*((clip.getStage()* (clip.getSize()) + 2)*clip.getScale()/40);
-                translate.m32 = x-512;
+                translate.m32 = x-1024;
                 modelMap[x][z].setPosition(translate);
                 System.out.println(translate.m31);
                 
@@ -361,7 +363,7 @@ public class MainTest
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.7f, 0.7f, 0.7f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.9f, 0.9f, 0.9f)));
                         modelMap[x][z].setModelList(modelPalmTree);
                     } else if (result==2) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.7f, 0.7f, 0.7f)));
@@ -369,27 +371,33 @@ public class MainTest
                     }
                 } else if(terrainGrid[x][z][4]==5 || terrainGrid[x][z][4]==4) {
                     //Generate random numbers with wights
-                    int[] values = {0,1,2,3,4,5};
-                    int[] weights = {30,5,20,15,25,5};
+                    int[] values = {0,1,2,3,4,5,6,7};
+                    int[] weights = {60,5,5,5,2,3,5};
                     int result=randomNumber(values, weights);
                     if(result==0) {
                         modelMap[x][z].setScale(null);
                         modelMap[x][z].setModelList(null);
                     } else if(result==1) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.4f, 0.4f, 0.4f)));
+                        modelMap[x][z].setModelList(modelBeechTree);
+                    } else if(result==2) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.4f, 0.4f, 0.4f)));
                         modelMap[x][z].setModelList(modelBirchTree);
-                    } else if (result==2) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
-                        modelMap[x][z].setModelList(modelFlower1);
                     } else if (result==3) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
-                        modelMap[x][z].setModelList(modelFlower2);
+                        modelMap[x][z].setModelList(modelFlower1);
                     } else if (result==4) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
-                        modelMap[x][z].setModelList(modelFlower3);
+                        modelMap[x][z].setModelList(modelFlower2);
                     } else if (result==5) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.5f, 0.5f, 0.5f)));
+                        modelMap[x][z].setModelList(modelFlower3);
+                    } else if (result==6) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(1f, 1f, 1f)));
                         modelMap[x][z].setModelList(modelShroom2);
+                    } else if (result==7) {
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(1f, 1f, 1f)));
+                        modelMap[x][z].setModelList(modelShroom3);
                     }
                 } else if(terrainGrid[x][z][4]==6) {
                     //Generate random numbers with wights
@@ -427,7 +435,7 @@ public class MainTest
                 } else if(terrainGrid[x][z][4]==8) {
                     //Generate random numbers with wights
                     int[] values = {0,1,2,3,4};
-                    int[] weights = {20,20,30,10,20};
+                    int[] weights = {70,5,10,10,5};
                     int result=randomNumber(values, weights);
                     if(result==0) {
                         modelMap[x][z].setScale(null);
@@ -436,10 +444,10 @@ public class MainTest
                     modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(2f, 2f, 2f)));
                     modelMap[x][z].setModelList(modelRock1);
                     } else if(result==2) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(1.5f, 1.5f, 1.5f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(6f, 6f, 6f)));
                         modelMap[x][z].setModelList(modelRock2);                    
                     } else if(result==3) {
-                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(3.5f, 3.5f, 3.5f)));
+                        modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(10f, 10f, 10f)));
                         modelMap[x][z].setModelList(modelRock3);                    
                     } else if(result==4) {
                         modelMap[x][z].setScale(new Matrix4f().scale(new Vector3f(0.15f, 0.15f, 0.15f)));

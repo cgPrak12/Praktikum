@@ -1,0 +1,38 @@
+# Blender MTL File: 'beech-tree.blend'
+# Material Count: 3
+newmtl bark_fst_2027gfvygnkseamless.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\fst_2027gfvygnkseamless.jpg
+map_d R:\\NT-Home\\blenderstuff\\textures\\fst_2027gfvygnkseamless.jpg
+
+
+newmtl branch.001_birch_branch3_dual_10242sat.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\birch_branch3_dual_10242sat.png
+map_d R:\\NT-Home\\blenderstuff\\textures\\birch_branch3_dual_10242sat.png
+
+
+newmtl branch_birch_branch3_dual_10241sat.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Kd R:\NT-Home\blenderstuff\textures\birch_branch3_dual_10241sat.png
+map_d R:\\NT-Home\\blenderstuff\\textures\\birch_branch3_dual_10241sat.png
+
+

@@ -233,7 +233,7 @@ public class Terrain {
 					
 		//				this.testForm();
 				setMaterialsFromHeight(0, this.maxX, 0, this.maxZ);
-//				this.putRiver(10, 800, 800, 1300, 1300, 0.5f);
+				this.putRiver(10, 800, 800, 1300, 1300, 0.5f);
 //				float[][] bezierPts = {{600,600},{900,900},{700,700},{1000,1000}};
 //				this.putRiver(10, 600, 600, 1000, 1000, 0.5f, bezierPts);
 
