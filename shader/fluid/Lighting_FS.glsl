@@ -39,9 +39,9 @@ void main(void) {
 // ***************************	
 // Interpolation
 
-	if((texture(plane,texCoords).w <= texture(depth3Tex,texCoords).w && texture(plane,texCoords).w!=0) || texture(depth3Tex,texCoords).w==0) { 
-		color = texture(plane,texCoords).xyz;
-	}else{
+//	if((texture(plane,texCoords).w <= texture(depth3Tex,texCoords).w && texture(plane,texCoords).w!=0) || texture(depth3Tex,texCoords).w==0) { 
+//		color = texture(plane,texCoords).xyz;
+//	}else{
 	
 	float depth = texture2D(depthTex, texCoords).w * 10;// + texture2D(depthTexLQ, texCoords).w * 0.5;
 //	if(depth.w == 0) depth.w = viewDistance;
@@ -101,7 +101,7 @@ void main(void) {
 
 	vec3 position2 = texture(depth2Tex, texCoords).xyz;
 	vec3 normal2 = normalInt2.xyz;//texture(normal2Tex, texCoords).xyz;
-	vec3 reflectPos = normalize(reflect(position2, normal2));
+	vec3 reflectPos = normalize(reflect(position, normal));
 	vec3 reflectedW = normalize((iView * vec4(reflectPos, 0.0)).xyz);
 	vec3 cubeColor = texture(cubeMap, reflectedW).xyz;
 	
@@ -130,7 +130,7 @@ void main(void) {
 	sphereCoords.y = acos(reflectedW.y / length(reflectedW)) / pi;
 	
 	vec3 sphereColor = texture(skyTex, sphereCoords).xyz;
-//	color = sphereColor;
+	color = sphereColor;
 
 
 
@@ -167,8 +167,8 @@ void main(void) {
 //	thickness * 0.5 * black * vec3(pow(cubeColor.x,2), pow(cubeColor.y,2), pow(cubeColor.z,2)); 
 
 //	color = black*0.5*phongSpec + (1-thickness) * planeColor + thickness * phong + black*0.5 /*pow(thickness,0.02)*/ * mix(phongDiff,cubeColor,cubeColor);//pow(thickness,0.2));// * cubeColor;
-	color = (1-thickness) * planeColor + black*thickness * phong + black*pow(thickness, 0.4) * cubeColor;//1.0*mix(phongDiff,cubeColor,cubeColor);//pow(thickness,0.2));// * cubeColor;
+//	color = (1-thickness) * planeColor + black*thickness * phong + black*pow(thickness, 0.4) * cubeColor;//1.0*mix(phongDiff,cubeColor,cubeColor);//pow(thickness,0.2));// * cubeColor;
 //	color = phongSpec;
 //	color = vec3(depth*10);
-	}
+//	}
 }
