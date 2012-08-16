@@ -1,5 +1,5 @@
 #version 150 core
-uniform sampler2D color;
+
 // Colors
 const vec3 seaColor = vec3(0.0, 0.0, 1.0);	
 const vec3 sandColor = vec3(0.9, 0.9, 0.75);	
@@ -16,38 +16,94 @@ const float diff = 0.4;
 in float height;
 in vec3 normalWC;
 in float materialV;
+in vec3 tangent;
+in vec3 binormal;
+
 in vec2 tex;
 
+uniform sampler2D elevation;
 out vec4 finalColor;
-
-
 
 void main(void)
 {	
 	vec3 fragmentColor = vec3(1,1,1);
-
-	if(texture(color, tex).r<2.5){
+	finalColor = vec4(binormal,1); return;
+	
+//	finalColor = vec4(1,1,1,1);return;
+	/*
+	if(height<0-diff){
+	fragmentColor = seaColor;
+		}else{
+			if(height<1-diff){
+			fragmentColor = mix(seaColor,sandColor,(height+diff)/2);
+			}else{
+				if(height<1.5-diff){
+				fragmentColor = sandColor;
+				}else{
+					if(height<2-diff){
+					fragmentColor = mix(sandColor, earthColor, ((height+diff)-1.5)*2);
+					}else{
+						if(height<2.5-diff){
+						fragmentColor = earthColor;
+						}else{
+							if(height<3-diff){
+							fragmentColor = mix(earthColor, grassColor, ((height+diff)-2.5)*2);
+							}else{
+								if(height<3.5-diff){
+								fragmentColor = grassColor;
+								}else{
+									if(height<4-diff){
+									fragmentColor = mix(grassColor, stoneColor, ((height+diff)-3.5)*2);
+									}else{
+										if(height<4.5-diff){
+										fragmentColor = stoneColor;
+										}else{
+											if(height<5-diff){
+											fragmentColor = mix(stoneColor, rockColor, ((height+diff)-4.5)*2);
+											}else{
+												if(height<5.5-diff){
+												fragmentColor = rockColor;
+												}else{
+													if(height<6-diff){
+													fragmentColor = mix(rockColor, snowColor, ((height+diff)-5.5)*2);
+													}else{
+														fragmentColor = snowColor;
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				
+	}*/
+	if(materialV<2.5){
 		fragmentColor = seaColor;
 	}else{
-		if(texture(color, tex).r<3.5){
+		if(materialV<3.5){
 			fragmentColor = sandColor;
 		}else{
-			if(texture(color, tex).r<4.5){
+			if(materialV<4.5){
 				fragmentColor = earthColor;
 			}else{
-				if(texture(color, tex).r<5.5){
+				if(materialV<5.5){
 					fragmentColor = grassColor;
 				}else{
-					if(texture(color, tex).r<6.5){
+					if(materialV<6.5){
 						fragmentColor = darkGrassColor;
 					}else{
-						if(texture(color, tex).r<7.5){
+						if(materialV<7.5){
 							fragmentColor = stoneColor;
 						}else{
-							if(texture(color, tex).r<8.5){
+							if(materialV<8.5){
 								fragmentColor = rockColor;
 							}else{
-								if(texture(color, tex).r<9.5){
+								if(materialV<9.5){
 									fragmentColor = snowColor;
 								}
 							}
@@ -60,4 +116,5 @@ void main(void)
 
 	fragmentColor *= max(0, dot(normalize(inverseLightDir), normalize(normalWC)));
 	finalColor = vec4(fragmentColor, 1.0);
+	//finalColor = vec4(normalWC, 1.0);
 }

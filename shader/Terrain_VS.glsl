@@ -4,24 +4,37 @@ uniform mat4 viewProj;
 uniform mat4 model;
 uniform mat4 modelIT;
 uniform float param;
-
+uniform float worldSize;
+uniform mat4 translation;
+uniform mat4 scale;
+uniform float heightScale;
+uniform sampler2D elevation;
+uniform sampler2D materials;
 in vec3 positionMC;
-in vec3 normalMC;
-in float material;
+
+
 
 out float height;
 out vec3 normalWC;
+out vec2 tex;
 out float materialV;
+out vec3 tangent;
+out vec3 binormal;
+
 
 void main(void)
 {
+	vec4 pos = scale * translation * vec4(positionMC.x, 0, positionMC.y, 1);
+	tex = pos.xz / worldSize + 0.5f;
+	height = heightScale * texture(elevation, tex).r;
+	normalWC = texture(elevation, tex).gba;
+	materialV = texture(materials, tex).r;
+	
+	vec3 c1 = cross(normalWC, vec3(0.0, 0.0, 1.0)); 
+	tangent = normalize(c1);
+	
+	binormal = cross(tangent, normalWC); 
+	binormal = normalize(binormal);
 
-	materialV = material;
-	height = positionMC.y;
-	vec3 pos = positionMC;
-	//if (height<0.55) pos.y *= 0.5 + 0.5 * (sin(param + positionMC.x) * cos(0.9 * param + 0.8 * positionMC.z));
-	normalWC = (modelIT * vec4(normalMC, 0.0)).xyz;
-	normalWC = mat3(modelIT) * normalMC;	
-	//if (height<0.55) normalWC.y *= 2 + 0.5 * (sin(param + normalWC.x) * cos(0.9 * param + 0.8 * normalWC.z));
-	gl_Position = viewProj * model * vec4(pos, 1.0);
+	gl_Position = viewProj * model * vec4(pos.x, height, pos.z, 1.0);
 }
