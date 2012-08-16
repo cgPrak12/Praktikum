@@ -17,12 +17,12 @@ public class GL {
     /**
      * Breite des OpenGL Fensters
      */
-    public static final int WIDTH = 800;
+    public static final int WIDTH = 1280;
     
     /**
      * Hoehe des OpenGL Fensters
      */
-    public static final int HEIGHT = 800;
+    public static final int HEIGHT = 1280;
     
     /**
      * Primitive Restart Index

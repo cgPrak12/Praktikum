@@ -1,10 +1,8 @@
 package util;
 
-
 import java.util.Random;
 import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Vector3f;
-
 
 /**
  * 
@@ -22,13 +20,11 @@ public class Terrain {
 	private float[][] mountainMap3 = new float [32][32];
 	private float[][] riverMap = new float [32][32];
 	private float[][] desertMap1 = new float [32][32], desertMap2 = new float [32][32];
-	private float[][] seaMap = new float [32][32];
 	private float[][] gauss17 = new float[17][17];
 	private float gauss17Sum = 0;
 	private float[][] slopeMap = new float [32][32];
 	private Random random;
 	private int maxX, maxZ;
-	private final int MAXHEIGHT;
 	private int vertexInfoCount = 5;
 	private float SCALE;
 
@@ -43,7 +39,6 @@ public class Terrain {
 	public Terrain(float initialHeight, int maxX, int maxZ, int seed){
 
 		this.terra = new TerrainGrid(maxX, maxZ, vertexInfoCount);
-		this.MAXHEIGHT = 20;
 		this.random = new Random(seed);
 		this.maxX = maxX;
 		this.maxZ= maxZ; 
@@ -56,11 +51,6 @@ public class Terrain {
 				this.terra.set(x,z,0,initialHeight);
 			}
 		} 		
-		//TODO method to fill terra with inital height(block by block) 
-		//this.terra.setInitialHeight;
-
-		// Getting diamondMap
-//		this.diamondMap = Util.diamondSquare(11, 3f); // resolution for 11 is 513, or 2^9+1
 		
 		// Gen Noisemap       
 		for(int x=0; x < noiseMap.length; ++x) {
@@ -126,14 +116,8 @@ public class Terrain {
 			for(int z=0; z < 32; ++z) {
 				this.desertMap2[x][z] = (float) (((Math.sin(((x/16f)-1)*Math.PI ) 
 						* Math.cos(((z*z/480.5f)-1) * Math.sqrt(Math.PI/2d))+2f)/2f* mountainMap3[x][z])/1.1180068f);
-
 			}	
 		}
-		//		for(int x=0; x < 32; ++x) {
-		//			for(int z=0; z < 32; ++z) {
-		//				this.noiseMap[x][z] = (float) ((this.random.nextFloat()*2-1)-Math.sin(z/32*6.282f)*3+Math.cos(x/32*6.282f)*0.25);
-		//			}
-		//		}
 
 		System.out.println("Done");
 
@@ -172,9 +156,6 @@ public class Terrain {
 		this(2048, 2048);
 	}
 
-        public TerrainGrid getTerrainGrid() {
-            return this.terra;
-        }
 
 	/**
 	 * 
@@ -201,50 +182,37 @@ public class Terrain {
 		return heightMap;
 	}
 
-
-
-
-
-
-
-
-
-	
-
 	/**
 	 * method for testing terrain generation.
 	 * @param form
 	 */
 	public void genTerrain(int form){
 
-		this.terraform(8, 6, 0.3f);
-//		int startX = 0;
-//		int startZ = 0;
-//		for(int i = 0; i<diamondMap.length-1; i++){
-//			for(int j = 0; j<diamondMap.length-1; j++){
-//				this.terra.add(i+startX, j+startZ, 0,this.diamondMap[i][j]);
-//			}
-//		}
-//			this.setMaterialsFromHeight(0, 2048, 0, 2048);
-//				this.terraform(8, 1);
-		//		putMountain(mountainMap1, 1, 256, 256, 100);
 
-		//		putTest(riverMap,1,512,512,300);
-					
-		//				this.testForm();
-				setMaterialsFromHeight(0, this.maxX, 0, this.maxZ);
-//				this.putRiver(10, 800, 800, 1300, 1300, 0.5f);
-//				float[][] bezierPts = {{600,600},{900,900},{700,700},{1000,1000}};
-//				this.putRiver(10, 600, 600, 1000, 1000, 0.5f, bezierPts);
 
-//				this.testForm();
-		//		this.flatten(1024, 1024, 1024, 1, 2);
-//				this.putLake(46.0f, 0f, (int)(1.0f*640), (int)(1.0f*640));
-		//		this.putLake(20.0f, 0f, (int)(0.5f*640), (int)(0.7f*640));
+//		putMountain(3, 2048, 2048, 500);
+//		this.putDSMountain(2048, 2048, 500, 0.3f);
+//		putTest(riverMap,1,512,512,300);
 
-//				this.flattenAll(60);				
-				this.smooth();
-				this.checkNormals();
+//		this.testForm();
+
+//		this.putDesert(3, 3000, 3000, 800);
+//		float[][] bezierPts = {{600,600},{900,900},{700,700},{1000,1000}};
+//		this.putRiver(10, 600, 600, 1000, 1000, 0.5f, bezierPts);
+
+//		this.testForm();
+//		this.flatten(1024, 1024, 1024, 1, 2);
+//		this.flattenAll(60);
+		
+		// To do actual stable map
+		this.terraform(10, 6, 0.3f);
+		this.setMaterialsFromHeight(0, maxX, 0, maxZ);
+		this.putLake(30.0f, 3.5f, (int)(2048), (int)(2048), true);
+		this.putLake(50.0f, -0.8f, (int)(2148), (int)(3200), true);
+		this.putRiver(10, 2100, 2048, 2148, 3100, 0.5f);
+
+		this.smooth();
+		this.checkNormals();
 	}
 
 	/**
@@ -259,48 +227,44 @@ public class Terrain {
 		System.out.println("Setting materials");
 
 		float compare;
+		float offSet = 3;
 		// Gen Materials from height
 		for(int x=minX; x<maxX; x++){
 			for(int z=minZ; z<maxZ; z++){
-				compare = this.terra.get(x,z,0);
-				if(compare<0 *SCALE){
-					this.terra.set(x, z, 4, 1);							//1 = sea
-				}
-				else{													//2 = river(only biome)
-					compare += (random.nextFloat()/10f);
-					if(compare<1.5f *SCALE){
-						this.terra.set(x, z, 4, 3);						//3 = beach
-					}
-					else{
-						if(compare<2.5f *SCALE){
-							this.terra.set(x, z, 4, 4);					//4 = earth
-						}
-						else{	
-							if(compare<3.5f *SCALE){
-								this.terra.set(x, z, 4, 5);				//5 = light grass
-							}
-							else{										
-								if(compare<4f *SCALE){				
-									this.terra.set(x, z, 4, 6);			//6 = dark grass
-								}else{										
-									if(compare<4.5f *SCALE){
-										this.terra.set(x, z, 4, 7);		//7 = stone
-									}
-									else{	
-										if(compare<6.5f *SCALE){
-											this.terra.set(x, z, 4, 8);		//8 = rock
-										}
-										else{	
-											if(compare<7.5f *SCALE){
-												this.terra.set(x, z, 4, 9);	//9 = light snow
-											}
-											else{	
+				if (this.terra.get(x, z, 4)<20) {
+					compare = this.terra.get(x, z, 0);
+					if (compare < 0.1 * SCALE) {
+						this.terra.set(x, z, 4, 1); //1 = sea
+					} else {
+						compare += (random.nextFloat() / 10f);
+						if (compare < (1.5f) * SCALE) {
+							this.terra.set(x, z, 4, 3); //3 = beach
+						} else {
+							if (compare < (2.5f) * SCALE) {
+								this.terra.set(x, z, 4, 4); //4 = earth
+							} else {
+								if (compare < (offSet + 3.5f) * SCALE) {
+									this.terra.set(x, z, 4, 5); //5 = light grass
+								} else {
+									if (compare < (offSet + 7.5f) * SCALE) {
+										this.terra.set(x, z, 4, 6); //6 = dark grass
+									} else {
+										if (compare < (offSet + 9f) * SCALE) {
+											this.terra.set(x, z, 4, 7); //7 = stone
+										} else {
+											if (compare < (offSet + 11.5f) * SCALE) {
+												this.terra.set(x, z, 4, 8); //8 = rock
+											} else {
+												if (compare < (offSet + 13.5f) * SCALE) {
+													this.terra.set(x, z, 4, 9); //9 = light snow
+												} else {
 
-												this.terra.set(x, z, 4, 10);	//10 = heavy snow
+													this.terra.set(x, z, 4, 10); //10 = heavy snow
 
-											}
-										}
-									}
+												}	// Only settable by methods:
+											}		// - river(21), shore(22), desert(23)
+										}			// all those will not be overwritten by their
+									}				// height-corresponding material
 								}
 							}
 						}
@@ -312,112 +276,6 @@ public class Terrain {
 
 	}
 
-
-
-//	/**
-//	 * check vertices in the whole map for their normals and writes them in position 1 - 3.
-//	 */ 
-//	private void checkNormals(){
-//
-//		System.out.println("Checking normals");
-//
-//		// List of triangles for a grid of vertices, one bigger on each side to account context
-//		int[] triangles = new int[3*2*(this.maxX+1)*(this.maxZ+1)];
-//		int count = maxZ;
-//		for(int z=1; z<maxZ; z++){
-//			for(int x=1; x<maxX; x++){
-//				triangles[count++] = (z * this.maxX + x);
-//				triangles[count++] = ((z + 1) * this.maxX + x + 1);
-//				triangles[count++] = (z * this.maxX + x + 1);
-//
-//				triangles[count++] = (z * this.maxX + x);
-//				triangles[count++] = ((z + 1) * this.maxX + x);
-//				triangles[count++] = ((z + 1) * this.maxX + x + 1);
-//			}
-//		}
-//
-//
-//
-//		//TODO get rid of floatbuffer and write norms directly into terra
-//		//Gen normalMap
-//		int vertexSize = 6;   	    	
-//		FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexSize*this.maxX*this.maxZ);
-//
-//		// Gen Vbuffer
-//		for(int z=0; z < this.maxZ; ++z) {
-//			for(int x=0; x < this.maxX; ++x) {
-//				vertices.put(1e-2f * (float)x);
-//				vertices.put(terra.get(x, z, 0));
-//				vertices.put(1e-2f * (float)z);
-//				vertices.put(0);	// norm.x
-//				vertices.put(0);	// norm.y
-//				vertices.put(0);	// norm.z
-//			}                	    
-//		}
-//
-//		// Gen IndexBuffer
-//		IntBuffer indices = BufferUtils.createIntBuffer(3 * 2 * (this.maxX - 1) * (this.maxZ - 1));
-//		for(int z=0; z < this.maxZ - 1; ++z) {
-//			for(int x=0; x < this.maxX - 1; ++x) {
-//				indices.put(z * this.maxX + x);
-//				indices.put((z + 1) * this.maxX + x + 1);
-//				indices.put(z * this.maxX + x + 1);
-//
-//				indices.put(z * this.maxX + x);
-//				indices.put((z + 1) * this.maxX + x);
-//				indices.put((z + 1) * this.maxX + x + 1);
-//			}
-//		}
-//
-//		// Gen norms
-//		indices.position(0);
-//		for(int i=0; i < indices.capacity();) {
-//			int index0 = indices.get(i++);
-//			int index1 = indices.get(i++);
-//			int index2 = indices.get(i++);
-//
-//			vertices.position(vertexSize * index0);
-//			Vector3f p0 = new Vector3f();
-//			p0.load(vertices);
-//			vertices.position(vertexSize * index1);
-//			Vector3f p1 = new Vector3f();
-//			p1.load(vertices);
-//			vertices.position(vertexSize * index2);
-//			Vector3f p2 = new Vector3f();
-//			p2.load(vertices);
-//
-//			Vector3f a = Vector3f.sub(p1, p0, null);
-//			Vector3f b = Vector3f.sub(p2, p0, null);
-//			Vector3f normal = Vector3f.cross(a, b, null);
-//			normal.normalise();
-//
-//			vertices.position(vertexSize * index0 + 3);
-//			normal.store(vertices);
-//		}
-//		vertices.position(0);
-//		indices.position(0);
-//
-//		for(int x=1; x<=this.maxX; x++){
-//			for(int z=0; z<this.maxZ; z++){
-//
-//				vertices.position(4+(vertexSize*x*z));
-//
-//				//		        		tmp.load(vertices);
-//				//		        		this.normalMap[x-1][z] = tmp;
-//				//		        		this.terra[x-1][z][1] = tmp.x;
-//				//		        		this.terra[x-1][z][2] = tmp.y;
-//				//		        		this.terra[x-1][z][3] = tmp.z;
-//
-//				this.terra.set(x-1,z,1, vertices.get());
-//				this.terra.set(x-1,z,2, vertices.get());
-//				this.terra.set(x-1,z,3, vertices.get());	        		
-//			}        	
-//		}
-//		System.out.println("Done");
-//
-//	}
-
-
 	/**
 	 * For all used bioForms, it has to hold that edges must be 0.
 	 * 
@@ -427,7 +285,7 @@ public class Terrain {
 	 * @param z the position
 	 * @param range the size of area it covers
 	 */
-	private void putMountain(float amp, int x, int z, int range){
+	public void putMountain(float amp, int x, int z, int range){
 
 		System.out.println("Putting mountain"+x+" / "+z);
 
@@ -465,12 +323,58 @@ public class Terrain {
 			}
 
 		}
+		makeNoise(range, x, z, 3f, 0.05f, 10);
 		setMaterialsFromHeight(x-range, x+range, z-range, z+range);
-		//		makeNoise(range, x, z, 2, 0.05f, 5);
 		System.out.println("Done");
 
 	}
 
+	
+	public void putDSMountain(int x, int z, int range, float noise){
+		int size = 0;
+		while(Math.pow(2, size)<range){
+			size++;
+		}
+		noise *= ((float)size * 0.1f);
+		float[][] dSMountain = Util.diamondSquare(size-1, noise, 0);
+		range = dSMountain.length/2;
+		
+		float[][] smoothStruct = mountainMap3;
+		int mountainX = smoothStruct.length;
+		int mountainZ = smoothStruct[0].length;
+		int pX, pZ;
+		float a, b;
+		float dX, dZ;
+		for(int i=0; i<2*range-1; i++){
+			
+			a = (float) mountainX / (float) (2f*range) * (float) i;
+			pX = (int) a;
+			dX = a - pX;
+			
+			for(int j=0; j<2*range-1; j++){
+				
+				b = (float) mountainZ / (float) (2f*range) * (float) j;
+				pZ = (int) b;
+				dZ = b - pZ;
+//				
+				this.terra.add(x-range+i, z-range+j, 0, (dSMountain[i][j] > 0 ? dSMountain[i][j] : 0) 
+						* (Util.iPol
+								(Util.iPol(
+										smoothStruct[pX % mountainX][pZ % mountainZ], 
+										smoothStruct[pX % mountainX][(pZ+1)%mountainZ],
+										dZ),
+								Util.iPol(
+										smoothStruct[(pX+1)%mountainX][pZ % mountainZ], 
+										smoothStruct[(pX+1)%mountainX][(pZ+1)%mountainZ],
+										dZ),
+								dX)));
+
+			}
+				
+		}
+		setMaterialsFromHeight(x-range, x+range, z-range, z+range);
+	}
+	
 
 	/**
 	 * Puts a desert within a certain range.
@@ -480,7 +384,7 @@ public class Terrain {
 	 * @param z
 	 * @param range
 	 */
-	private void putDesert(float amp, int x, int z, int range){
+	public void putDesert(float amp, int x, int z, int range){
 		
 		System.out.println("Putting desert at"+x+" / "+z);
 
@@ -491,7 +395,6 @@ public class Terrain {
 		float dX, dZ;
 
 		this.flatten(x, z, range, 0.25f, 1, 3);
-		//		this.setMaterialsFromHeight(x-range, x+range, z-range, z+range);
 		amp *= 0.8f;
 		for(int i=0; i < 2*range-1; i++){
 
@@ -521,7 +424,6 @@ public class Terrain {
 			}
 
 		}
-		//		makeNoise(range, x, z, 2, 0.05f, 5);
 		System.out.println("Done");
 	}
 
@@ -536,7 +438,7 @@ public class Terrain {
 	 * @param z
 	 */
 	private void putLake(float scale, float depth, int x, int z, boolean putShore){
-		
+
 		System.out.println("Putting lake at "+x+" / "+z);
 		// relict
 		float rotation = 0;
@@ -582,32 +484,32 @@ public class Terrain {
 					dZ = (float) riverZ * vec.y;
 					pZ = (int) Math.floor(dZ);
 					dZ -= pZ;
-					//					interpolate height values
+					// interpolate height values
 					riverVal = (Util.iPol(
 							Util.iPol(this.gauss17[pX][pZ],
-									  this.gauss17[pX][(pZ + 1) % riverZ],
-									  dZ),
-							Util.iPol(this.gauss17[(pX + 1) % riverX][pZ],
-									  this.gauss17[(pX + 1) % riverX][(pZ + 1) % riverZ],
-									  dZ),
-							dX));
-					
+									this.gauss17[pX][(pZ + 1) % riverZ],
+									dZ),
+									Util.iPol(this.gauss17[(pX + 1) % riverX][pZ],
+											this.gauss17[(pX + 1) % riverX][(pZ + 1) % riverZ],
+											dZ),
+											dX));
+
 					this.terra.set(i, j, 0, Util.iPol(this.terra.get(i, j, 0), depth, riverVal));
-					
-					//set materials for lake
-					if (riverVal > 0.20f * (float) scale / 20f) {
+
+					// set materials for lake
+					if (riverVal > 0.125f * (float) scale / 20f) {
 						if (this.terra.get(i, j, 0) < (depth + 0.8f)) {
-							this.terra.set(i, j, 4, 2);
+							this.terra.set(i, j, 4, 1);
 						}	
 					}
-						if (putShore) {
-							//set materials for earth around lake
-							if (((riverVal + ((random.nextFloat())) / scale) > 0.1f)
-									&& this.terra.get(i, j, 4) != 2) {
+					if (putShore) {
+						// set materials for shore around lake
+						if (((riverVal + ((random.nextFloat())) / scale) > 0.1f) && this.terra.get(i, j, 4) != 1) {
+							if((this.terra.get(i, j, 0) < (depth + 1.2f))){
 								this.terra.set(i, j, 4, 4);
-
 							}
 						}
+					}
 				}
 			}
 		}		
@@ -617,20 +519,21 @@ public class Terrain {
 
 
 
-	private void putRiver(float scale, int x, int z, int dstX, int dstZ, float depth){
+	public void putRiver(float scale, int x, int z, int dstX, int dstZ, float depth){
 
 		int randRad = (int) (100*Math.sqrt(Math.sqrt(scale))); // defines the weight of randomness. TotalRand = [-1, 1] * radRad
 		float dist = (float) Math.sqrt((x-dstX)*(x-dstX)+(z-dstZ)*(z-dstZ));
 
 		float deltaX = Math.abs(x - dstX);
 		float deltaZ = Math.abs(z - dstZ);
-		float[][] bezierPts = new float [(int) Math.ceil(Math.sqrt(dist)*3f)][2];
+		float[][] bezierPts = new float [(int) Math.ceil(Math.sqrt(dist)/3f)][2];
 
 		// Fill the array with suitable bezier Points
 		bezierPts[0][0] = x;
 		bezierPts[0][1] = z;
 		bezierPts[bezierPts.length-1][0] = dstX;
 		bezierPts[bezierPts.length-1][1] = dstZ;
+		random.setSeed(0);
 		for(int i=2; i<=bezierPts.length-1; i++){
 			bezierPts[i-1][0] = ((2*random.nextFloat()-1) * randRad) + x + ((float)i/bezierPts.length * deltaX);
 
@@ -719,16 +622,18 @@ public class Terrain {
 				}
 			}
 			fluct /= (289f*scale*scale);
-			System.out.println(fluct);
+//			System.out.println(fluct);
 			lvl /= gauss17Sum;
 
-			System.out.println(fluct);
+//			System.out.println(fluct);
 
 			callValues[callIdx][0] = fluct * scale;
 			callValues[callIdx][1] = lvl-depth;
 			callValues[callIdx][2] = idxX;
 			callValues[callIdx][3] = idxZ;
-			callValues[callIdx][4] = putShore ? 1.5f : 0.5f;
+//			callValues[callIdx][4] = putShore ? 1.5f : 0.5f;
+			callValues[callIdx][4] = 1.5f;
+			System.out.println("size: "+callValues[callIdx][0]+"  depth: "+callValues[callIdx][1]+"  putShore: "+(callValues[callIdx][4]>1));
 			callIdx++;
 		}
 		
@@ -738,12 +643,6 @@ public class Terrain {
 		}
 		
 		System.out.println("Done");
-	}
-
-
-	//TODO putSea
-	private void putSea(float[][]bioForm, int x, int z, int range){
-
 	}
 
 	/**
@@ -805,7 +704,7 @@ public class Terrain {
 	 * Flats terra dependent on material.
 	 * @param range
 	 */
-	private void flattenAll(int range){
+	public void flattenAll(int range){
 		
 		System.out.println("Flattening whole map");
 		float flatVal;
@@ -827,8 +726,7 @@ public class Terrain {
 				case 4: lvl = 2.5f; contextWeight = 0.7f;break;
 				case 5: lvl = 3.5f; contextWeight = 0.6f;break;
 				case 6: lvl = 4f; contextWeight = 0.5f;break;
-				//				case 9:lvl = 7.5f;scale = 0.8f;break;
-				//				case 10:lvl = 9f;scale = 0.8f;break;
+
 				}
 				if(lvl > -10){
 					flatVal = getDistToEdge(i, j, range)/(float)range;
@@ -883,7 +781,7 @@ public class Terrain {
 	/**
 	 * smoothing of terra
 	 */
-	private void smooth(){
+	public void smooth(){
 		
 		System.out.println("Smoothing");
 		
@@ -907,7 +805,7 @@ public class Terrain {
 	 * @param amp
 	 * @param rep
 	 */
-	private void makeNoise(int range, int x, int z, float freq, float amp, int rep){
+	public void makeNoise(int range, int x, int z, float freq, float amp, int rep){
 
 
 		int noiseX = this.noiseMap.length;
@@ -980,11 +878,11 @@ public class Terrain {
 			while(Math.pow(2, pow)< terra.getBlock().length){
 				pow++;
 			}
-			float[][] dsMap = Util.diamondSquare(pow, surfaceWrink * (float) terra.getBlock().length / 4096f);
+			float[][] dsMap = Util.diamondSquare(pow, surfaceWrink * (float) terra.getBlock().length / 4096f, 0);
 			
 			for(int i = 0; i<dsMap.length-1; i++){
 				for(int j = 0; j<dsMap.length-1; j++){
-					terra.set(i, j, 0, dsMap[i][j]);
+					terra.add(i, j, 0, dsMap[i][j]);
 				}					
 			}
 			needsRoughing = false;
@@ -1017,7 +915,7 @@ public class Terrain {
 	 * method to place biomes (testing).
 	 * 
 	 */
-	private void testForm(){
+	public void testForm(){
 //		this.putTest(this.diamondMap, 1, 512, 512, 300);
 		//		putMountain(map, 2f, 512, 512, 256);
 		//	putDesert(1, 512, 512, 300);
@@ -1026,7 +924,7 @@ public class Terrain {
 	}
 
 
-	private void putTest(float[][]testMap,float amp, int x, int z, int range){
+	public void putTest(float[][]testMap,float amp, int x, int z, int range){
 
 		int testX = testMap.length;
 		int testZ = testMap[0].length;
@@ -1063,7 +961,6 @@ public class Terrain {
 
 		}
 		setMaterialsFromHeight(x-range, x+range, z-range, z+range);
-		//		makeNoise(range, x, z, 2, 0.05f, 5);
 	}
 	/**
 	 * calculates normals, edges and corners excluded!
@@ -1096,7 +993,6 @@ public class Terrain {
 			for(int z = minZ; z<maxZ; z++){	
 				
 				tmp1.set(1e-2f * x, terra.get(x, z, 0), 1e-2f * z);
-//				if (x != 0 && z != 0 && x !=  terra.getSize() && z != terra.getSize()){
 				
 					tmp2.set(1e-2f * (x-1), terra.get(x-1, z, 0), 1e-2f * (z));	
 					tmp3.set(1e-2f * (x-1), terra.get(x-1, z-1, 0), 1e-2f * (z-1));	
@@ -1128,9 +1024,6 @@ public class Terrain {
 					terra.set(x, z, 2, tmp1.y);
 					terra.set(x, z, 3, tmp1.z);
 					
-//				}else{
-//					// do edges and corners... or not!
-//				}
 			}
 		}
 		System.out.println("Done");

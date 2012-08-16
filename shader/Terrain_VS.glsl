@@ -3,15 +3,13 @@
 uniform mat4 viewProj;
 uniform mat4 model;
 uniform mat4 modelIT;
-uniform float param;
-uniform float generalScale;
-
 uniform float worldSize;
 uniform mat4 translation;
 uniform mat4 scale;
 uniform float heightScale;
 uniform sampler2D elevation;
 uniform sampler2D materials;
+uniform float generalScale;
 in vec3 positionMC;
 
 
@@ -27,6 +25,7 @@ out vec3 binormal;
 void main(void)
 {
 	vec4 pos = scale * translation * vec4(positionMC.x, 0, positionMC.y, 1);
+	
 	tex = pos.xz / textureSize(elevation,0)/generalScale + 0.5f;
 	height = heightScale * texture(elevation, tex).r;
 	normalWC = texture(elevation, tex).gba;

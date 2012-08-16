@@ -3,7 +3,6 @@ package util;
 import static opengl.GL.*;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
 
 /**
  *
@@ -34,9 +33,7 @@ public class ShaderProgram {
             Util.MAT_BUFFER.position(0);
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
-        } else {
-            System.err.println("location of " + varName + " is -1");
-        }            
+        }
     }
     
     /**
@@ -50,39 +47,7 @@ public class ShaderProgram {
         if(loc != -1) {
             texture.bind();
             glUniform1i(loc, texture.getUnit());
-        } else {
-            System.err.println("location of " + varName + " is -1");
-        }            
-    }
-
-    /**
-     * Hilfsmethode, um einen Float Wert in eine Uniform zu schreiben. Das
-     * zugehoerige Programmobjekt muss aktiv sein.
-     * @param value Wert
-     * @param varName Zielvariable im Shader
-     */
-    public void setUniform(String varName, float value) {
-        int loc = glGetUniformLocation(this.id, varName);
-        if(loc != -1) {
-            glUniform1f(loc, value);
-        } else {
-            System.err.println("location of " + varName + " is -1");
-        }            
-    }
-    
-    /**
-     * Hilfsmethode, um einen Float Vektor in eine Uniform zu schreiben. Das
-     * zugehoerige Programmobjekt muss aktiv sein.
-     * @param vector Vektor
-     * @param varName Zielvariable im Shader
-     */
-    public void setUniform(String varName, Vector3f vector) {
-        int loc = glGetUniformLocation(this.id, varName);
-        if(loc != -1) {
-            glUniform3f(loc, vector.x, vector.y, vector.z);
-        } else {
-            System.err.println("location of " + varName + " is -1");
-        }            
+        }
     }
     
     public void setFloat(String varName, float value){
@@ -121,11 +86,6 @@ public class ShaderProgram {
      * Attribut Index von instance
      */
     public static final int ATTR_INSTANCE = 5;
-
-    /**
-     * Attribut Index von vertexMaterial
-     */
-    public static final int ATTR_MATERIAL = 6;
     
     /**
      * Erzeugt ein ShaderProgram aus einem Vertex- und Fragmentshader.
@@ -163,7 +123,6 @@ public class ShaderProgram {
         glBindAttribLocation(this.id, ATTR_COLOR2, "vertexColor2");
         glBindAttribLocation(this.id, ATTR_TEX, "vertexTexCoords");
         glBindAttribLocation(this.id, ATTR_INSTANCE, "instancedData");
-        glBindAttribLocation(this.id, ATTR_MATERIAL, "material");
         
         glLinkProgram(this.id);        
         
@@ -177,9 +136,5 @@ public class ShaderProgram {
         GL20.glDeleteShader(this.fs);
         GL20.glDeleteShader(this.vs);
         GL20.glDeleteProgram(this.id);
-    }
-    
-    public int getId() {
-    	return this.id;
     }
 }

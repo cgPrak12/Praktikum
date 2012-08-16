@@ -11,14 +11,13 @@ private final Vector3f viewDir = new Vector3f(0, 0, 1);
 private final Vector3f upDir = new Vector3f(0, 1, 0);
 private final Vector3f sideDir = new Vector3f(1, 0, 0);
 
-private final Vector3f camPos = new Vector3f(0,0,-1);
+private final Vector3f camPos = new Vector3f(100, 500, 80);
 private final Matrix4f view = new Matrix4f();
 private final Matrix4f projection = new Matrix4f();
 private boolean perspective = true;
 private float altX;
 private float altY;
 private float altZ;
-private ClipMap clip;
 
 /** Default Constructor. */
 public Camera()
@@ -63,19 +62,6 @@ public Vector3f getAlt()
 {
 return new Vector3f(altX, altY, altZ);
 }
-public void setClipMap(ClipMap clip) {
-	this.clip = clip;
-}
-public void beam() {
-	float tmpX = 30000*viewDir.x;
-	float tmpY = 30000*viewDir.y;
-	float tmpZ = 30000*viewDir.z;
-	camPos.x += tmpX;
-	camPos.y += tmpY;
-	camPos.z += tmpZ;
-	clip.moveClipBy((int)(tmpX / 2 / clip.getScale()), (int) (tmpZ /2 / clip.getScale()));
-	clip.adjustTmp(tmpX % 2, tmpZ % 2);
-}
 
 /** Aktualisiert die Viewmatrix. */
 public void updateView()
@@ -89,10 +75,10 @@ public void updateProjection()
 {
 if (perspective)
 {
-Util.frustum(-1e-2f, 1e-2f, -1e-2f, 1e-2f, 1e-2f, 1e+6f, projection);
+Util.frustum(-1e-1f, 1e-1f, -1e-1f, 1e-1f, 1e-1f, 1e+5f, projection);
 } else
 {
-Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+6f, projection);
+Util.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1e-2f, 1e+8f, projection);
 }
 }
 

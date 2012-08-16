@@ -540,7 +540,7 @@ public class Util {
 	/**
 	 * @author ARECKNAG, FMAESCHIG
 	 * @param terra The terrain which is to be modified
-	 * @param noise Some noisemap (pref 32ï¿½)
+	 * @param noise Some noisemap (pref 32²)
 	 * @param freq The frequency by which the noisemap is taken
 	 * @param amp The amplitude with which the noise is applied
 	 */
@@ -557,7 +557,6 @@ public class Util {
 		int index=0;
         long lastTime = System.nanoTime();
         long startTime = System.nanoTime();        
-
         
 		for(int i = 0; i < (terraX-1); i++){
 
@@ -1067,9 +1066,9 @@ public class Util {
 //	}
 //	
 	
-	public static float[][] diamondSquare(int size, float rough){
+	public static float[][] diamondSquare(int size, float rough, int seed){
 		
-		Random random = new Random(0);
+		Random random = new Random(seed);
 		int depth = size-1;
 		float [][] dSMap = new float[(int) Math.round(Math.pow(2, size)+1)][(int) Math.round(Math.pow(2, size)+1)];
 		dSMap[0][0] = rough * (2*random.nextFloat()-1);
@@ -1115,7 +1114,12 @@ public class Util {
 			rough/=2;
 			depth--;
 		}
-		
+		for(int i=0; i<dSMap.length; i++){
+			for(int j=0; j<dSMap.length; j++){
+				dSMap[i][j] = (float) (dSMap[i][j] <= 0 ? -Math.sqrt(Math.abs(dSMap[i][j])) : dSMap[i][j]);  
+			}
+				
+		}
 		return dSMap;
 	}
 	

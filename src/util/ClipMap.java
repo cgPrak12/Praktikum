@@ -17,23 +17,25 @@ public class ClipMap
 {
 
 	// ClipMap Size
-	private int stage; // Anzahl der Auflï¿½sungsebenen
-	private int gridsize; // Kantenlï¿½nge der 12 Quadrate
-	private int middlesize; // Kantenlï¿½nge der Fï¿½llstï¿½cke
-	private int lsize; // Lï¿½nge der Ls
-	private int size; // Kantenlï¿½nge des ClipMapRings
+	private int stage; // Anzahl der Auflösungsebenen
+	private int gridsize; // Kantenlänge der 12 Quadrate
+	private int middlesize; // Kantenlänge der Füllstücke
+	private int lsize; // Länge der Ls
+	private int size; // Kantenlänge des ClipMapRings
 
 	// Shader Updates
 	private ShaderProgram program; // Aktives Shaderprogramm
-	private Matrix4f translation; // Translationsmatrix fï¿½r Shaderprogramm
+	private Matrix4f translation; // Translationsmatrix für Shaderprogramm
 
 	// Animation Params
 	private Camera cam; // Kamera des Programms
 	private int[][] movement; // Array das Bewegungstranslation speichert
 	private boolean[][] alignment; // Array das Lage der Clipmap angibt
-	private float tempX; // Variable fï¿½r Bewegungsschwellenwert
-	private float tempZ; // Variable fï¿½r Bewegungsschwellenwert
+	private float tempX; // Variable für Bewegungsschwellenwert
+//	private float tempY; // Variable für Bewegungsschwellenwert
+	private float tempZ; // Variable für Bewegungsschwellenwert
 
+//	private int scaleSteps;
 	private int scaleFaktor;
 	private Vector2f initialCamPos;
 
@@ -46,16 +48,16 @@ public class ClipMap
 	private Geometry bottomLeft; // L
 	private Geometry bottomRight; // L
 	private Geometry center; // Quadratisches Grid
-	private Geometry outer; // Fï¿½llgeometrie um Lï¿½cher am Rand zu "stopfen"
+	private Geometry outer; // Füllgeometrie um Löcher am Rand zu "stopfen"
 
-	private final float generalScale = 1f; // Skaliert die gesamte ClipMap um
+	private final float generalScale =2f; // Skaliert die gesamte ClipMap um
 												// Faktor
 
 	/** Konstruktor Erstellt eine ClipMap aus den gegebenen Parametern
 	 * 
-	 * @param size Grï¿½ï¿½e der ClipMap (Anzahl der Kï¿½stchen)
-	 * @param stage Anzahl der Auflï¿½sungslevel
-	 * @param program Dazugehï¿½riges Shaderprogram
+	 * @param size Größe der ClipMap (Anzahl der Kästchen)
+	 * @param stage Anzahl der Auflösungslevel
+	 * @param program Dazugehöriges Shaderprogram
 	 * @param cam Kamera des Programms */
 	public ClipMap(int size, int stage, ShaderProgram program, Camera cam)
 	{
@@ -63,7 +65,7 @@ public class ClipMap
 		if ((size + 2) % 2 != 0)
 			throw new IllegalArgumentException("(size+2) muss Zweierpotenz sein!");
 
-		// Grï¿½ï¿½en der ClipMap
+		// Größen der ClipMap
 		this.size = size;
 		this.stage = stage;
 		this.gridsize = size / 4;
@@ -77,6 +79,7 @@ public class ClipMap
 		movement = new int[stage][2];
 		alignment = new boolean[stage][4];
 		scaleFaktor = 1;
+//		scaleSteps = 0;
 		for (int i = 0; i < alignment.length; i++)
 		{
 			alignment[i][0] = false;
@@ -99,11 +102,11 @@ public class ClipMap
 				+ middlesize / 2);
 		outer = GeometryFactory.outerTriangle(size + 1);
 
-		// Anpassung der Hï¿½he und Texturkoordinaten
-		
+		// Anpassung der Höhe und Texturkoordinaten
+		updateSize();
 		updateHeightScale();
 		adjustCamera();
-		updateGeneralScale();
+		updateGeneralSize();
 	}
 
 	private void adjustCamera()
@@ -128,7 +131,7 @@ public class ClipMap
 		this.program.setUniform("translation", translation);
 	}
 
-	/** Legt den Scalefaktor des aktuellen Auflï¿½sungslevels fest
+	/** Legt den Scalefaktor des aktuellen Auflösungslevels fest
 	 * 
 	 * @param scale Skalierungsfaktor 2er Potenz */
 
@@ -253,37 +256,51 @@ public class ClipMap
 	public void generateMaps()
 	{
 
-		// Zï¿½hle Floats hoch, bis Schwellenwert erreicht ist
+		// Zähle Floats hoch, bis Schwellenwert erreicht ist
 		tempX += cam.getAlt().x / generalScale / scaleFaktor;
+//		tempY += cam.getAlt().y;
 		tempZ += cam.getAlt().z / generalScale / scaleFaktor;
 
-		// Positiv Z --- Nach Vorn
+//		if (tempY > 10)
+//		{
+//			updateHeight(true);
+//			tempY %= 10;
+//		}
+//		if (tempY < -10)
+//		{
+//			updateHeight(false);
+//			tempY %= 10;
+//		}
 
+		// Positiv Z --- Nach Vorn
 		if (tempZ > 2)
 		{
-			while(tempZ > 2) {
+//			TerrainView.updateTerrainView();
+			while(tempZ > 2){
 			moveClip(0, 1);
 			tempZ -= 2;}
 		}
 		// Positiv X --- Nach Links
 		if (tempX > 2)
-		{
-			while(tempX > 2) {
+		{while(tempX > 2){
+//			TerrainView.updateTerrainView();
 			moveClip(0, 0);
 			tempX -= 2;}
 		}
 		// Negativ Z --- Nach Hinten
 		if (tempZ < -2)
-		{while(tempZ < -2) {
+		{while(tempZ < -2){
+//			TerrainView.updateTerrainView();
 			moveClip(0, 3);
 			tempZ += 2;}
 		}
 		// Negativ X --- Nach Rechts
 		if (tempX < -2)
-		{while(tempX < -2) {
+		{while(tempX < -2){
+//			TerrainView.updateTerrainView();
 			moveClip(0, 2);
-			tempX += 2;}
-		}
+			tempX += 2;
+		}}
 
 		for (int i = 0; i < stage; i++)
 		{
@@ -306,7 +323,33 @@ public class ClipMap
 		}
 	}
 
-	/** Verschiebt die ClipMap abhï¿½ngig vom Kamerastandpunkt
+//	private void updateHeight(boolean mode)
+//	{
+//		if (mode)
+//		{
+//			if (scaleSteps < 3)
+//			{
+//				this.stage--;
+//				scaleFaktor *= 2;
+//				scaleSteps++;
+//				moveClipBy(movement[0][0] / -4, movement[0][1] / -4);
+//				System.out.println("Größe Movement" + movement[0][0] + " bei Auflösungslevel " + scaleSteps);
+//			}
+//		} else
+//		{
+//			if (scaleSteps > 0)
+//			{
+//				this.stage++;
+//				scaleFaktor /= 2;
+//				scaleSteps--;
+//				moveClipBy(movement[0][0] / 2, movement[0][1] / 2);
+//				System.out.println("Größe Movement" + movement[0][0] + " bei Auflösungslevel " + scaleSteps);
+//			}
+//		}
+//
+//	}
+
+	/** Verschiebt die ClipMap abhängig vom Kamerastandpunkt
 	 * 
 	 * @param i Ebene der aktuellen ClipMap
 	 * @param dir Richtung in die geschoben werden soll */
@@ -315,7 +358,7 @@ public class ClipMap
 		if (dir == 0 || dir == 1) // Unterscheidung der Bewegungsrichtung: pos X
 									// & pos Y
 		{
-			if (i == stage - 1) // Abbruchbedingung wenn der ï¿½uï¿½erste
+			if (i == stage - 1) // Abbruchbedingung wenn der äußerste
 								// ClipMapRing erreicht ist
 			{
 				movement[i][dir] += 2;
@@ -328,7 +371,7 @@ public class ClipMap
 					alignment[i][dir + 2] ^= true;
 				} else
 				// Ansonsten schiebe rekursiv alle ClipMapRinge in die
-				// Bewegungsrichtung bis Platz ist oder ï¿½uï¿½erster Ring erreicht
+				// Bewegungsrichtung bis Platz ist oder äußerster Ring erreicht
 				{
 					alignment[i][dir] ^= true;
 					alignment[i][dir + 2] ^= true;
@@ -338,7 +381,7 @@ public class ClipMap
 			}
 		} else
 		{
-			if (dir == 2 || dir == 3) // Analog fï¿½r neg X & neg Y
+			if (dir == 2 || dir == 3) // Analog für neg X & neg Y
 			{
 				if (i == stage - 1)
 				{
@@ -362,14 +405,14 @@ public class ClipMap
 		}
 	}
 
-	/** Erzeugt die fï¿½r eine ClipMap benï¿½tigten L-Geometrien und zeichnet diese
-	 * lageabhï¿½ngig
+	/** Erzeugt die für eine ClipMap benötigten L-Geometrien und zeichnet diese
+	 * lageabhängig
 	 * 
 	 * @param i ClipMap Ebene */
 	private void setLGrid(int i)
 	{
 
-		int side = 0; // Lage der L Geometrien, abhï¿½ngig von der Lage bestimmen
+		int side = 0; // Lage der L Geometrien, abhängig von der Lage bestimmen
 		if (alignment[i - 1][0] && alignment[i - 1][1])
 		{
 			side = 2;
@@ -439,11 +482,18 @@ public class ClipMap
 		}
 	}
 
+	/** Setzt die Welttexturkoordinaten */
+	private void updateSize()
+	{
 
-	/** Skaliert die Hï¿½he passend der gewï¿½hlten Gridgrï¿½ï¿½e */
+		program.setFloat("worldSize", (float) (pow(stage - 1) * (size)) * generalScale);
+//		program.setFloat("worldSize", (float) (655360));
+	}
+
+	/** Skaliert die Höhe passend der gewählten Gridgröße */
 	private void updateHeightScale()
 	{
-		program.setFloat("heightScale", (float) (stage* (size + 2)*generalScale/40));
+		program.setFloat("heightScale", (float) (stage* (size + 2)*generalScale/4 /20f));
 	}
 
 	/** Unglaublich performante Wundermethode
@@ -455,29 +505,8 @@ public class ClipMap
 		int result = 1;
 		return result << expo;
 	}
-
-	public float getScale()
-	{
-		return generalScale;
+	
+	private void updateGeneralSize(){
+		program.setFloat("generalScale", generalScale);
 	}
-        
-	public float getSize()
-	{
-		return size;
-	}
-        
-	public float getStage()
-	{
-		return stage;
-	}
-
-	public void adjustTmp(float tempX, float tempZ)
-	{
-		this.tempX += tempX;
-		this.tempZ += tempZ;
-	}
-        
-        public void updateGeneralScale(){
-            program.setFloat("generalScale", generalScale);
-        }
 }
