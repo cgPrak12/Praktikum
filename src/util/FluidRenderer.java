@@ -145,7 +145,7 @@ public class FluidRenderer {
     	// init lighting
     	init(lightingSP, lightingFB, lightingTex, "color", false, false, GL_RGBA8);
     	init(finalImageSP, finalImageFB, finalImageTex, "color", false, false, GL_RGBA8);
-    	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", false, false, GL_RGBA8);
+    	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", true, false, GL_RGBA8);
     	
     	// init blur
     	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB, normal2HBlurFB, normal2VBlurFB}, 
@@ -483,7 +483,9 @@ public class FluidRenderer {
         testPlaneSP.setUniform("normalTex", normalTex);
         testPlaneSP.setUniform("heightTex", heightTex);
         
+        glDisable(GL_BLEND);
 	    terrain.draw();
+	    glEnable(GL_BLEND);
 	    
 	    endPath();
 	}

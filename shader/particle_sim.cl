@@ -189,12 +189,12 @@ void dg_add_particle(dgrid_t *g, float4 pos)
 #define MU_CONSTANT 3.5*1.003*10e-3
 #define GRAVITY -0.000232
 #define REST_DENS 998
-#define SURFACE_TENS 1500
+#define SURFACE_TENS 10
 #define F_SURFACEDAMP 1
-#define PRESSUREDAMP 20
-#define VESCOSITYDAMP 500 //0.01
+#define PRESSUREDAMP 30
+#define VESCOSITYDAMP 10 //0.01
 #define FRICTION 1
-#define REFLECTDAMP 0.85
+#define REFLECTDAMP 0.75
 
 
 
@@ -352,13 +352,10 @@ kernel void particle_sim
  
 	if(mypos.s1 <= height.s0 + radius)
    {
-		
-		float d = length(height - mypos);
-		//mypos.s1 = height.s0 + radius;
-		//mypos = (float4)(mypos.s0,height.s0,mypos.s2,1) + normalize(normal)*0.00001; 
+	
+	 
 		myvel.s012 = reflect(normal,myvel).s012*REFLECTDAMP;
-		//float cr = 0.1;
-		//myvel += (myvel-(1+cr *(d/(dt*length(myvel))))*(myvel*normalize(normal))*normalize(normal));
+	
 	} 
    
 	mypos.s012 += myvel.s012 *dt;
@@ -391,7 +388,7 @@ kernel void particle_sim
 		myvel.s2 = -myvel.s2*0.5;
 	}
 
-	mypos.s3+=0.00015;
+	mypos.s3+=0.00022;
 	
 	bool up = (bool)(round(myvel.s3/16));
 	

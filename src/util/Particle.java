@@ -94,7 +94,7 @@ public class Particle {
     //////////////////////////////////////////////////////////////////
     
     /** number cells per dimension spatial dimension */
-    private int gridLen = 100;
+    private int gridLen = 125;
     /** max number of particles per cell */
     private int gridMaxParticles = 20;
     /** holds the number of particles in a specific grid cell */
@@ -122,7 +122,7 @@ public class Particle {
     private int caLoc;
     
     private final Matrix4f viewProj = new Matrix4f();
-    private float particleRadius = 0.005f;
+    private float particleRadius = 0.004f;
     
     //kernel settings
     private boolean swap = true;

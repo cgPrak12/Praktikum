@@ -49,7 +49,7 @@ public class TerrainMain {
         try {
             init();
             OpenCL.init();
-            glDisable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glEnable(GL_DEPTH_TEST);
@@ -87,7 +87,7 @@ public class TerrainMain {
         Vector3f lightPos = new Vector3f(0.0f, 5.0f, 0.0f);
         
         // simulation test terrain
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/04.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
         
