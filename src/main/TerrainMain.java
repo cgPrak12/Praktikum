@@ -246,7 +246,7 @@ public class TerrainMain {
                 }
             }
             
-            try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+/*            try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 try(ObjectOutputStream oos = new ObjectOutputStream(baos)) {
                     oos.writeObject(modelMap);
                     try(FileOutputStream fos = new FileOutputStream("modelMap.ser")) {
@@ -256,6 +256,20 @@ public class TerrainMain {
             } catch (IOException e) {
                 System.out.println(e);                
             }
+            
+            modelMap = null;
+            
+            try(FileInputStream fis = new FileInputStream("modelMap.ser")) {
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                try {
+                    modelMap = (ModelMapEntry[][])ois.readObject();
+                } catch (ClassNotFoundException e) {
+                    System.out.println(e);
+                }
+                
+            } catch(IOException e) {
+                System.out.println(e);
+            }*/
 
         }
     }
@@ -340,6 +354,7 @@ public class TerrainMain {
                                modelMap[x][z].getPosition().m32-cam.getCamPos().z<2 &&
                                modelMap[x][z].getPosition().m32-cam.getCamPos().z>-2)
                             {
+//                               modelPart.geometry.createBuffers();
                                modelPart.geometry.draw();
                             }
                         }
