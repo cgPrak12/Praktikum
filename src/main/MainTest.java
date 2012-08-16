@@ -182,7 +182,7 @@ public class MainTest
 	 * @param millis Millisekunden seit dem letzten Aufruf */
 	public static void handleInput(long millis)
 	{
-		float moveSpeed = 2e-3f * (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f) * (float) millis;
+		float moveSpeed = 2e-1f * (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 2.0f : 1.0f) * (float) millis;
 		float camSpeed = 5e-3f;
 
 		while (Keyboard.next())
