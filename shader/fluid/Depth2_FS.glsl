@@ -8,7 +8,7 @@ in vec4 positionWC;
 in vec2 gl_PointCoord;
 in float pointSize;
 
-out vec4 depth;
+out vec4 color;
 
 void main(void) {
 
@@ -26,5 +26,5 @@ void main(void) {
 	vec4 pixelPos = vec4(pos.xyz + scale*n , 1.0);
 
 //	depth = vec4(pixelPos.xyz, length(pixelPos.xyz) / viewDistance);
-	depth = vec4(pos.xyz, length(pos.xyz) / viewDistance);
+	color = vec4(pos.xyz, length(pos.xyz) / viewDistance);
 }

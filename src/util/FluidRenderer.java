@@ -116,7 +116,7 @@ public class FluidRenderer {
 	private FrameBuffer lightingFB   = new FrameBuffer();
     private Texture lightingTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-    private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Lighting_VS.glsl", "./shader/fluid/FinalImage_FS.glsl");
+    private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Depth2_VS.glsl", "./shader/fluid/Depth2_FS.glsl");
     private FrameBuffer finalImageFB   = new FrameBuffer();
     private Texture finalImageTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
@@ -148,8 +148,8 @@ public class FluidRenderer {
 
     	// init lighting
     	init(lightingSP, lightingFB, lightingTex, "color", false, false, GL_RGBA8);
-    	init(finalImageSP, finalImageFB, finalImageTex, "color", false, false, GL_RGBA8);
-    	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", true, false, GL_RGBA8);
+    	init(finalImageSP, finalImageFB, finalImageTex, "color", true, false, GL_RGBA16F);
+    	init(testPlaneSP, testPlaneFB, testPlaneTex, "color", true, false, GL_RGBA16F);
     	
     	// init blur
     	init(blurSP, new FrameBuffer[]{depthHBlurFB,    depthVBlurFB,    normalHBlurFB,    normalVBlurFB,    thicknessHBlurFB,    thicknessVBlurFB, normal2HBlurFB, normal2VBlurFB}, 
@@ -203,7 +203,7 @@ public class FluidRenderer {
 		// lighting
 		testPlane();
 		lighting();
-//		finalImage();
+		finalImage();
 		glViewport(0, 0, WIDTH, HEIGHT);
 		
 //		drawTextureSP.use();
@@ -424,10 +424,12 @@ public class FluidRenderer {
 	    lightingSP.setUniform("skyTex", skyTex);
         lightingSP.setUniform("lightPosW", lightPos);
         lightingSP.setUniform("eye", cam.getCamPos());
+	    lightingSP.setUniform("finalTex", finalImageTex);
         Matrix4f iView = new Matrix4f();
         iView.load(cam.getView());
         iView.invert();
         lightingSP.setUniform("iView", iView);
+        System.out.println(cam.getCamPos());
         
 //        lightingSP.setUniform("view", cam.getView());
 //   		lightingSP.setUniform("normalL", normalVBlurTexLQ);
@@ -448,10 +450,14 @@ public class FluidRenderer {
 	private void finalImage() {
 		
 		startPath(finalImageSP, finalImageFB);
-        finalImageSP.setUniform("lightingTex", lightingTex);
-        finalImageSP.setUniform("plane", testPlaneTex);
-        finalImageSP.setUniform("thicknessTex", thicknessTex);
-        screenQuad.draw();
+        finalImageSP.setUniform("view", cam.getView());
+        finalImageSP.setUniform("viewProj", viewProj);
+        finalImageSP.setUniform("viewDistance", cam.getViewDistance());
+        finalImageSP.setUniform("camPos", cam.getCamPos());
+        finalImageSP.setUniform("size", pointSize);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+	    drawWater();
         
         endPath();
 	}

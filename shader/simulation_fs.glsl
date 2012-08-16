@@ -45,8 +45,8 @@ void main(void)
     
     
 	vec4 pos = (view * vec4(positionFS,1.0));
-	float depth = length(pos.xyz);
-	if(depth == 0) depth = viewDistance;
+	float depth = length(pos.xyz) / viewDistance;
+	//if(depth == 0) depth = viewDistance;
 	
 
     fragColor = vec4(0.5+0.5*getNormal(vec2(coords.x,coords.z)), depth);
