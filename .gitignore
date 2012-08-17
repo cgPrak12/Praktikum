@@ -10,3 +10,4 @@ build.xml
 manifest.mf
 /build/
 /dist/
+Data/*.bf

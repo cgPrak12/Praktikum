@@ -1,6 +1,5 @@
 package util;
 
-import opengl.GL;
 import static opengl.GL.*;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
@@ -25,12 +24,13 @@ public class ShaderProgram {
      * zugehoerige Programmobjekt muss aktiv sein.
      * @param matrix Quellmatrix
      * @param varName Zielvariable im Shader
-     */
+     */ 
     public void setUniform(String varName, Matrix4f matrix) {
         int loc = glGetUniformLocation(this.id, varName);
         if(loc != -1) {
             Util.MAT_BUFFER.position(0);
             matrix.store(Util.MAT_BUFFER);
+            Util.MAT_BUFFER.position(0);
             glUniformMatrix4(loc, false, Util.MAT_BUFFER);
             Util.MAT_BUFFER.position(0);
         }
@@ -48,6 +48,13 @@ public class ShaderProgram {
             texture.bind();
             glUniform1i(loc, texture.getUnit());
         }
+    }
+    
+    public void setFloat(String varName, float value){
+    	int loc = glGetUniformLocation(this.id, varName);
+    	if(loc != -1){
+    		glUniform1f(loc, value);
+    	}
     }
     
     /**
