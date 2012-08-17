@@ -126,7 +126,6 @@ void main(void)
 	enlightenedColor += sunBurn*(1-cosa) * sunSetColor;
 	enlightenedColor = enlightenedColor * step(0,sunDir.y) + (1-step(0,sunDir.y)) *mix(vec4(ambi*k_a,1), enlightenedColor,  (1-cosa));
 
-
 }
 
 

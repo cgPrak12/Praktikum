@@ -89,7 +89,7 @@ public class TerrainMain {
          
     private static final ScreenManipulation screenMan = new ScreenManipulation();
     
-    private static float orthoScaleValue = 15f;
+    private static float orthoScaleValue = 8f;
     
     private static ShaderProgram fboSP;
     private static ShaderProgram shadowSP;
@@ -420,14 +420,14 @@ public class TerrainMain {
 //            terrain.draw();
            
             // simulate particles
-            particles.getShaderProgram().use();
+//            particles.getShaderProgram().use();
             
-            particles.draw(cam, millis);
+//            particles.draw(cam, millis);
 //            
             // render fluid
-            Texture t = fluidRenderer.render(sunDirection, particles.getVertexArray(), particles.getNumParticles(), terrain, fbo.getTexture(0));
-    		drawTextureSP.use();        
-    		drawTextureSP.setUniform("image", t);
+//            Texture t = fluidRenderer.render(sunDirection, particles.getVertexArray(), particles.getNumParticles(), terrain, fbo.getTexture(0));
+//    		drawTextureSP.use();        
+//    		drawTextureSP.setUniform("image", t);
     		screenQuad.draw();  
             
             ///////////////////////////////////////////////////////////////////////////////////////
