@@ -360,7 +360,7 @@ public class Particle {
             }
             sum += b;
         }
-        System.out.println("Summe = " + sum);
+//        System.out.println("Summe = " + sum);
         
         /**
         GL.glActiveTexture(GL.GL_TEXTURE0 + 0);

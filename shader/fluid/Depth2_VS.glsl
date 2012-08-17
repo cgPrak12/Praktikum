@@ -16,6 +16,6 @@ void main(void) {
 
 	gl_Position = viewProj * positionWC;
 
-	pointSize = 100 / ( pow(length(positionMC.xyz - camPos), 1.0))*1/size;
+	pointSize = 200 / ( pow(length(positionMC.xyz - camPos), 1.0))*1/size;
 	gl_PointSize = pointSize;
 }

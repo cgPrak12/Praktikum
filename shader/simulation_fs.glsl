@@ -18,7 +18,7 @@ const vec3 c_a = vec3(1.0, 1.0, 1.0);  // ambiente Farbe
 // material eigenschaften
 const float k_a    = 0.05;
 const float k_dif  = 0.8;
-const float k_spec = 0.3;
+const float k_spec = 0.3*0.3;
 const float es     = 16.0;
 
 
@@ -67,17 +67,12 @@ void main(void)
 	vec3 reflected = normalize(reflect(light2pos, normal));
 	
 	vec3 phongDiff = c_a * k_a
-				   + c_d * k_dif * max(0.7, dot(-light2pos, normal));
+				   + c_d * k_dif * max(0.7, dot(-light2pos, normal)) * clamp((lightPos.y+2.0)/10.0, 0.35, 1.0);
 	vec3 phongSpec = c_s * k_spec * max(0, pow(dot(reflected, pos2eye), es));
 	vec3 phong = phongDiff + phongSpec;
-
-
-
 
 	vec4 pos = (view * vec4(positionFS,1.0));
 	float depth = length(pos.xyz) / viewDistance;	
 
-//    fragColor = vec4(0.5+0.5*getNormal(vec2(coords.x,coords.z)), depth);
-//    fragColor = vec4(texture(grassTex, vec2(coords.x,coords.z)).xyz, depth);
 	fragColor = vec4(phong, depth);
 }

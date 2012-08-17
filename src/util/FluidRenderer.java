@@ -113,9 +113,9 @@ public class FluidRenderer {
 	private FrameBuffer lightingFB   = new FrameBuffer();
     private Texture lightingTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
-    private ShaderProgram finalImageSP = new ShaderProgram("./shader/fluid/Depth2_VS.glsl", "./shader/fluid/Depth2_FS.glsl");
-    private FrameBuffer finalImageFB   = new FrameBuffer();
-    private Texture finalImageTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
+    private ShaderProgram cutDepthSP = new ShaderProgram("./shader/fluid/Depth2_VS.glsl", "./shader/fluid/Depth2_FS.glsl");
+    private FrameBuffer cutDepthFB   = new FrameBuffer();
+    private Texture cutDepthTex      = new Texture(GL_TEXTURE_2D, textureUnit++);
 
     private ShaderProgram terrainSP = new ShaderProgram("./shader/simulation_vs.glsl", "./shader/simulation_fs.glsl");
     private FrameBuffer terrainFB   = new FrameBuffer();
@@ -149,7 +149,7 @@ public class FluidRenderer {
 
     	// init lighting
     	init(lightingSP, lightingFB, lightingTex, "color", false, false, GL_RGBA8);
-    	init(finalImageSP, finalImageFB, finalImageTex, "color", true, false, GL_RGBA16F);
+    	init(cutDepthSP, cutDepthFB, cutDepthTex, "color", true, false, GL_RGBA16F);
     	init(terrainSP, terrainFB, terrainTex, "color", true, false, GL_RGBA16F);
 
     	// init effectless particles
@@ -193,6 +193,7 @@ public class FluidRenderer {
 		blur(depthTex, depthHBlurFB, depthVBlurFB, 1.0f);
 		blur(depthTexLQ, depthHBlurFBLQ, depthVBlurFBLQ, 1.0f);
 		blur(normalTex, normalHBlurFB, normalVBlurFB, 1.0f);
+//		blur(normalVBlurTex, normalHBlurFB, normalVBlurFB, 1.0f);
 		blur(normal2Tex, normal2HBlurFB, normal2VBlurFB, 1.0f);
 		blur(normalTexLQ, normalHBlurFBLQ, normalVBlurFBLQ, 1.0f);
 		blur(thicknessTex, thicknessHBlurFB, thicknessVBlurFB, 1.0f);
@@ -202,7 +203,7 @@ public class FluidRenderer {
 		sky();
 		terrain();
 		lighting();
-		finalImage();
+		cutDepth();
 		
 		glViewport(0, 0, WIDTH, HEIGHT);
 		
@@ -399,16 +400,15 @@ public class FluidRenderer {
 	    lightingSP.setUniform("normalTex", normalVBlurTex);
 	    lightingSP.setUniform("normalTexLQ", normalVBlurTexLQ);
 	    lightingSP.setUniform("normal2Tex", normal2VBlurTex);
-	    lightingSP.setUniform("thicknessTexNB", thicknessTex);
 	    lightingSP.setUniform("thicknessTex", thicknessVBlurTex);
 	    lightingSP.setUniform("thicknessTexLQ", thicknessVBlurTexLQ);
         lightingSP.setUniform("cubeMap", cubemap);
-	    lightingSP.setUniform("plane", terrainTex);
+	    lightingSP.setUniform("terrain", terrainTex);
 	    lightingSP.setUniform("skyTex", skyTex);
 	    lightingSP.setUniform("skyBoxTex", skyBoxTex);
         lightingSP.setUniform("lightPosW", lightPos);
         lightingSP.setUniform("eye", cam.getCamPos());
-	    lightingSP.setUniform("finalTex", finalImageTex);
+	    lightingSP.setUniform("cutDepthTex", cutDepthTex);
         Matrix4f iView = new Matrix4f();
         iView.load(cam.getView());
         iView.invert();
@@ -420,14 +420,14 @@ public class FluidRenderer {
 	}
 	
 	// TODO final image
-	private void finalImage() {
+	private void cutDepth() {
 		
-		startPath(finalImageSP, finalImageFB);
-        finalImageSP.setUniform("view", cam.getView());
-        finalImageSP.setUniform("viewProj", viewProj);
-        finalImageSP.setUniform("viewDistance", cam.getViewDistance());
-        finalImageSP.setUniform("camPos", cam.getCamPos());
-        finalImageSP.setUniform("size", pointSize);
+		startPath(cutDepthSP, cutDepthFB);
+        cutDepthSP.setUniform("view", cam.getView());
+        cutDepthSP.setUniform("viewProj", viewProj);
+        cutDepthSP.setUniform("viewDistance", cam.getViewDistance());
+        cutDepthSP.setUniform("camPos", cam.getCamPos());
+        cutDepthSP.setUniform("size", pointSize);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
 	    drawWater();
@@ -448,8 +448,8 @@ public class FluidRenderer {
         terrainSP.setUniform("heightTex", heightTex);
         terrainSP.setUniform("grassTex", planeTex);
 		terrainSP.setUniform("viewDistance", cam.getViewDistance());
-        lightingSP.setUniform("lightPos", lightPos);
-        lightingSP.setUniform("camPos", cam.getCamPos());
+        terrainSP.setUniform("lightPos", lightPos);
+        terrainSP.setUniform("camPos", cam.getCamPos());
         
         glDisable(GL_BLEND);
 	    terrain.draw();

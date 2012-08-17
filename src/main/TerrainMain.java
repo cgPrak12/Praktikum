@@ -34,9 +34,10 @@ public class TerrainMain {
     
     // animation params
     private static float ingameTimePerSecond = 1.0f;
-    private static float sunRotation = 1.0f;
-    private static Matrix4f sunRotationMat;
-    private static Vector3f sunPosition = new Vector3f(5.0f, 5.0f, 0.0f);
+    private static float sunRotation = 0.0f;
+    private static Matrix4f sunRotationMat = new Matrix4f();
+    private static Vector3f sunPosition = new Vector3f(0.0f, 10.0f, 0.0f);
+    private static float sunSpeed = 30.0f;
 
     // particles
     private static Particle particles;
@@ -84,7 +85,7 @@ public class TerrainMain {
         FluidRenderer fluidRenderer = new FluidRenderer(cam);
         
         // simulation test terrain
-        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/10.jpg",0.3f);
+        Geometry terrain = GeometryFactory.createTerrainFromMap("maps/06.jpg",0.3f);
 
         Texture normalTex = terrain.getNormalTex();
         Texture heightTex = terrain.getHeightTex();
@@ -184,6 +185,8 @@ public class TerrainMain {
                     case Keyboard.KEY_E: effects = !effects; break;
                     case Keyboard.KEY_R: if(move == 1) move = 0; else move = 1; break;
                     case Keyboard.KEY_T: sunRotation = sunRotation==1.0f?0.0f:1.0f; break;
+                    case Keyboard.KEY_UP: sunSpeed /= 2.0f; sunSpeed = Util.clamp(sunSpeed, 7.5f, 60.0f); break;
+                    case Keyboard.KEY_DOWN: sunSpeed *= 2.0f; sunSpeed = Util.clamp(sunSpeed, 7.5f, 60.0f); break;
                 }
             }
         }
@@ -206,7 +209,7 @@ public class TerrainMain {
      * @param millis Millisekunden, die seit dem letzten Aufruf vergangen sind.
      */
     private static void animate(long millis) {
-    	Util.rotationY(sunRotation * Util.PI_MUL2/360*millis, sunRotationMat);
+    	Util.rotationX(sunRotation * Util.PI_MUL2/(sunSpeed*1000)*millis, sunRotationMat);
     	Util.transformCoord(sunRotationMat, sunPosition, sunPosition);
     }
 }
